@@ -6,6 +6,8 @@ const port = 8080;
 app.get('/sso_callback', (req, res) => {
   console.log(req.query.code);
   console.log(req.query.state);
+  // TODO make the post call here
+  // TODO store access token
   res.redirect('http://localhost:3000');
 });
 
