@@ -1,12 +1,10 @@
 import express from 'express';
-import EveLoginUrlController from './controllers/EveLoginUrlController';
-
-// console.log(bs);
+import eveLoginUrlController from './controllers/eveLoginUrlController';
 
 const app = express();
 const port = 8080;
 
-EveLoginUrlController(app);
+eveLoginUrlController(app);
 
 
 // TODO move this get call out
