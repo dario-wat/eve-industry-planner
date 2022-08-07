@@ -1,6 +1,13 @@
-const express = require('express');
+import express from 'express';
+import EveLoginUrlController from './controllers/EveLoginUrlController';
+
+// console.log(bs);
+
 const app = express();
 const port = 8080;
+
+EveLoginUrlController(app);
+
 
 // TODO move this get call out
 app.get('/sso_callback', (req, res) => {
