@@ -3,7 +3,6 @@ import SingleSignOn from 'eve-sso';
 import { CLIENT_ID, SECRET, CALLBACK_URI, SSO_STATE } from '../lib/eve_sso/eveSsoConfig';
 import eveScopes from '../lib/eve_sso/eveScopes';
 
-// TODO can I use absolute paths?
 const route = Router();
 
 const controller = (app: Router) => {

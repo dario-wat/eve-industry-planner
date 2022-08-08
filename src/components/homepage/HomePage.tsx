@@ -1,8 +1,8 @@
-import HomePageAppBar from 'components/homepage/HomePageAppBar';
-import HomePageNavBar from 'components/homepage/HomePageNavBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import HomePageAppBar from 'components/homepage/HomePageAppBar';
+import HomePageNavBar from 'components/homepage/HomePageNavBar';
 
 // import {BrowserRouter, Route, Routes} from 'react-router-dom';
 

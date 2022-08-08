@@ -1,7 +1,9 @@
+import cors from 'cors';
 import express from 'express';
 import eveLoginUrlController from './controllers/eveLoginUrlController';
 
 const app = express();
+app.use(cors());
 const port = 8080;
 
 eveLoginUrlController(app);
