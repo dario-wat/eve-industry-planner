@@ -1,32 +1,27 @@
 import { Router, Request, Response } from 'express';
-import SingleSignOn from 'eve-sso';
+import ESI, { Provider } from 'eve-esi-client';
 import { CLIENT_ID, SECRET, CALLBACK_URI, SSO_STATE } from '../lib/eve_sso/eveSsoConfig';
 import eveScopes from '../lib/eve_sso/eveScopes';
 
 const route = Router();
 
-const controller = (app: Router) => {
+const controller = (app: Router, provider: Provider) => {
   app.use('/', route);
 
-  const sso = new SingleSignOn(
-    CLIENT_ID,
-    SECRET,
-    CALLBACK_URI,
-    {
-      endpoint: 'https://login.eveonline.com', // optional, defaults to this
-      userAgent: 'my-user-agent' // optional
-    },
-  );
+  const esi = new ESI({
+    provider,
+    clientId: CLIENT_ID,
+    secretKey: SECRET,
+    callbackUri: CALLBACK_URI,
+  })
 
   route.get('/login_url', (req: Request, res: Response) => {
-    res.send(sso.getRedirectUrl(SSO_STATE, eveScopes));
+    res.send(esi.getRedirectUrl(SSO_STATE, eveScopes));
   });
 
   route.get('/sso_callback', async (req: Request, res: Response) => {
     const code = req.query.code as string;
-    const info = await sso.getAccessToken(code);
-    // TODO store access token
-    console.log(info);
+    await esi.register(code);
     res.redirect('http://localhost:3000');
   });
 };
