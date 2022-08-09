@@ -13,7 +13,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -23,8 +23,5 @@
   },
   "include": [
     "src",
-    "server/src/controllers",
-    "server/src/eve_sso",
-    "server/src/server.ts"
   ]
 }
