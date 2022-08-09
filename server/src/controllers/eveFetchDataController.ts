@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
-import EsiProvider from '../eve_sso/EsiProvider';
-import { requiredScopes } from '../eve_sso/eveScopes';
+import EsiProvider from '../lib/eve_sso/EsiProvider';
+import { requiredScopes } from '../lib/eve_sso/eveScopes';
 import { DIKey } from '../lib/DIKey';
 import { Provider } from 'eve-esi-client';
 

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { SSO_STATE } from '../eve_sso/EveSsoConfig';
-import { requiredScopes } from '../eve_sso/eveScopes';
-import EsiProvider from '../eve_sso/EsiProvider';
+import { SSO_STATE } from '../lib/eve_sso/EveSsoConfig';
+import { requiredScopes } from '../lib/eve_sso/eveScopes';
+import EsiProvider from '../lib/eve_sso/EsiProvider';
 
 const route = Router();
 
