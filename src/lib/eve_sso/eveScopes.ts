@@ -1,4 +1,4 @@
-const eveScopes = [
+export const eveScopes = [
   'publicData',
   'esi-calendar.respond_calendar_events.v1',
   'esi-calendar.read_calendar_events.v1',
@@ -71,4 +71,4 @@ const eveScopes = [
   'esi-characterstats.read.v1',
 ]
 
-export default eveScopes;
+export const industryJobsScope = 'esi-industry.read_character_jobs.v1';
