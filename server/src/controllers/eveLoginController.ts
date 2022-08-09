@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import ESI, { Provider } from 'eve-esi-client';
-import { CLIENT_ID, SECRET, CALLBACK_URI, SSO_STATE } from '../lib/eve_sso/EveSsoConfig';
-import { eveScopes } from '../lib/eve_sso/eveScopes';
+import { CLIENT_ID, SECRET, CALLBACK_URI, SSO_STATE } from '../eve_sso/EveSsoConfig';
+import { eveScopes } from '../eve_sso/eveScopes';
 
 const route = Router();
 

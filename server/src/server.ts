@@ -1,8 +1,8 @@
 import cors from 'cors';
 import ESI from 'eve-esi-client';
-import { CLIENT_ID, SECRET, CALLBACK_URI, SSO_STATE } from './lib/eve_sso/EveSsoConfig';
+import { CLIENT_ID, SECRET, CALLBACK_URI, SSO_STATE } from './eve_sso/EveSsoConfig';
 import MemoryProvider from 'eve-esi-client/dist/providers/memory';
-import { eveScopes, industryJobsScope } from './lib/eve_sso/eveScopes';
+import { eveScopes, industryJobsScope } from './eve_sso/eveScopes';
 import express from 'express';
 import eveLoginController from './controllers/eveLoginController';
 
