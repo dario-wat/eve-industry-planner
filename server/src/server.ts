@@ -2,9 +2,10 @@ import cors from 'cors';
 import ESI from 'eve-esi-client';
 import { CLIENT_ID, SECRET, CALLBACK_URI, SSO_STATE } from './eve_sso/EveSsoConfig';
 import MemoryProvider from 'eve-esi-client/dist/providers/memory';
-import { eveScopes, industryJobsScope } from './eve_sso/eveScopes';
+import { industryJobsScope } from './eve_sso/eveScopes';
 import express from 'express';
 import eveLoginController from './controllers/eveLoginController';
+import EsiProvider from './eve_sso/EsiProvider';
 
 // TODO (hardcoded for now)
 const characterId = 1384661776;
@@ -15,14 +16,12 @@ const port = 8080;
 
 const provider = new MemoryProvider();
 
-eveLoginController(app, provider);
+// TODO maybe this should be a DI
+EsiProvider.init(provider);
 
-const esi = new ESI({
-  provider,
-  clientId: CLIENT_ID,
-  secretKey: SECRET,
-  callbackUri: CALLBACK_URI,
-});
+eveLoginController(app);
+
+const esi = EsiProvider.get();
 
 app.get('/bullshit', async (req, res) => {
   const token = await provider.getToken(characterId, industryJobsScope);

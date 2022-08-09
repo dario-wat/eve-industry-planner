@@ -1,25 +1,21 @@
 import { Router, Request, Response } from 'express';
-import ESI, { Provider } from 'eve-esi-client';
-import { CLIENT_ID, SECRET, CALLBACK_URI, SSO_STATE } from '../eve_sso/EveSsoConfig';
-import { industryJobsScope } from '../eve_sso/eveScopes';
+import { SSO_STATE } from '../eve_sso/EveSsoConfig';
+import { eveScopes, industryJobsScope } from '../eve_sso/eveScopes';
+import EsiProvider from '../eve_sso/EsiProvider';
 
 const route = Router();
 
-const controller = (app: Router, provider: Provider) => {
+const controller = (app: Router) => {
   app.use('/', route);
 
-  const esi = new ESI({
-    provider,
-    clientId: CLIENT_ID,
-    secretKey: SECRET,
-    callbackUri: CALLBACK_URI,
-  })
+  const esi = EsiProvider.get();
 
   route.get('/login_url', (req: Request, res: Response) => {
     // We can only send a single scope here. Sending multiple
     // scopes will cause a 403 on ESI
     // TODO parametrize the scope
-    res.send(esi.getRedirectUrl(SSO_STATE, industryJobsScope));
+    // TODO still not sure if I can query only one
+    res.send(esi.getRedirectUrl(SSO_STATE, eveScopes));
   });
 
   route.get('/sso_callback', async (req: Request, res: Response) => {
