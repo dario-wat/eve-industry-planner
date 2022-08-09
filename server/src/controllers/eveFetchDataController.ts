@@ -1,16 +1,17 @@
 import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
-import EsiProvider from '../lib/eve_sso/EsiProvider';
 import { requiredScopes } from '../lib/eve_sso/eveScopes';
 import { DIKey } from '../lib/DIKey';
-import { Provider } from 'eve-esi-client';
+import EsiProviderService from '../services/EsiProviderService';
+import EveMemoryProviderService from '../services/EveMemoryProviderService';
 
 const route = Router();
 
-const controller = (app: Router, provider: Provider) => {
+const controller = (app: Router) => {
   app.use('/', route);
 
-  const esi = EsiProvider.get();
+  const esi = Container.get(EsiProviderService).get();
+  const provider = Container.get(EveMemoryProviderService).get();
   const characterId = Container.get(DIKey.CHARACTER_ID) as number;
 
   app.get('/industry_jobs', async (req: Request, res: Response) => {

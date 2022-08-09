@@ -1,14 +1,15 @@
 import { Router, Request, Response } from 'express';
+import { Container } from 'typedi';
 import { SSO_STATE } from '../lib/eve_sso/EveSsoConfig';
 import { requiredScopes } from '../lib/eve_sso/eveScopes';
-import EsiProvider from '../lib/eve_sso/EsiProvider';
+import EsiProviderService from '../services/EsiProviderService';
 
 const route = Router();
 
 const controller = (app: Router) => {
   app.use('/', route);
 
-  const esi = EsiProvider.get();
+  const esi = Container.get(EsiProviderService).get();
 
   route.get('/login_url', (req: Request, res: Response) => {
     res.send(esi.getRedirectUrl(SSO_STATE, requiredScopes));
