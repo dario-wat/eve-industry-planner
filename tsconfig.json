@@ -23,8 +23,5 @@
   },
   "include": [
     "src",
-    "server/src/controllers",
-    "server/src/eve_sso",
-    "server/src/server.ts"
   ]
 }
