@@ -69,6 +69,37 @@ export const eveScopes = [
   'esi-characters.read_fw_stats.v1',
   'esi-corporations.read_fw_stats.v1',
   'esi-characterstats.read.v1',
-]
+];
 
-export const industryJobsScope = 'esi-industry.read_character_jobs.v1';
+// Can't request all scopes so will use a smaller subset
+// Check https://github.com/esi/esi-issues/issues/1089
+export const requiredScopes = [
+  'publicData',
+  'esi-location.read_location.v1',
+  'esi-location.read_ship_type.v1',
+  'esi-skills.read_skills.v1',
+  'esi-skills.read_skillqueue.v1',
+  'esi-wallet.read_character_wallet.v1',
+  'esi-wallet.read_corporation_wallet.v1',
+  'esi-clones.read_clones.v1',
+  'esi-universe.read_structures.v1',
+  'esi-killmails.read_killmails.v1',
+  'esi-assets.read_assets.v1',
+  'esi-planets.manage_planets.v1',
+  'esi-markets.structure_markets.v1',
+  'esi-industry.read_character_jobs.v1',
+  'esi-markets.read_character_orders.v1',
+  'esi-characters.read_blueprints.v1',
+  'esi-location.read_online.v1',
+  'esi-contracts.read_character_contracts.v1',
+  'esi-clones.read_implants.v1',
+  'esi-wallet.read_corporation_wallets.v1',
+  'esi-assets.read_corporation_assets.v1',
+  'esi-corporations.read_blueprints.v1',
+  'esi-contracts.read_corporation_contracts.v1',
+  'esi-industry.read_corporation_jobs.v1',
+  'esi-markets.read_corporation_orders.v1',
+  'esi-industry.read_character_mining.v1',
+  'esi-planets.read_customs_offices.v1',
+  'esi-characterstats.read.v1',
+];
