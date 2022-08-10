@@ -20,7 +20,7 @@ const controller = (app: Router) => {
     const code = req.query.code as string;
     const { character } = await esi.register(code);
 
-    // TODO "store" to memory. should use a proper storage
+    // TODO(EIP-2) "store" to memory. should use a proper storage
     GlobalMemory.characterId = character.characterId;
     res.redirect('http://localhost:3000');
   });

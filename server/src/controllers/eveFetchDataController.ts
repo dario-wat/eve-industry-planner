@@ -13,8 +13,7 @@ const controller = (app: Router) => {
   const esi = Container.get(EsiProviderService).get();
   const provider = Container.get(EveMemoryProviderService).get();
 
-  // TODO should be queried inside the callback function since it's
-  // not really a service. this is a temporary solution
+  // TODO(EIP-2) this is a temporary solution
   // until I get a database running
   const getCharacterId = () => GlobalMemory.characterId as number;
 
