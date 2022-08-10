@@ -16,17 +16,15 @@ const controller = (app: Router) => {
   // TODO should be queried inside the callback function since it's
   // not really a service. this is a temporary solution
   // until I get a database running
-  const characterId = () => GlobalMemory.characterId as number;
+  const getCharacterId = () => GlobalMemory.characterId as number;
 
-  // We need to pass in the string function (instead of string iself)
-  // because we don't know the full string at the time of calling this
-  // function. Most URIs have Character ID or something similar in them
-  // and we can only know that when the request is being executed.
-  function esiRequestCallback(uriFn: () => string) {
-    return async (req: Request, res: Response) => {
-      const token = await provider.getToken(characterId(), requiredScopes);
+  app.get(
+    '/industry_jobs',
+    async (req: Request, res: Response) => {
+      const characterId = getCharacterId();
+      const token = await provider.getToken(characterId, requiredScopes);
       const result = await esi.request(
-        uriFn(),
+        `/characters/${characterId}/industry/jobs/`,
         undefined,
         undefined,
         { token },
@@ -34,17 +32,24 @@ const controller = (app: Router) => {
 
       const resultJson = await result.json();
       res.json(resultJson);
-    };
-  }
-
-  app.get(
-    '/industry_jobs',
-    esiRequestCallback(() => `/characters/${characterId()}/industry/jobs/`),
+    },
   );
 
   app.get(
     '/assets',
-    esiRequestCallback(() => `/characters/${characterId()}/assets/`),
+    async (req: Request, res: Response) => {
+      const characterId = getCharacterId();
+      const token = await provider.getToken(characterId, requiredScopes);
+      const result = await esi.request(
+        `/characters/${characterId}/assets/`,
+        undefined,
+        undefined,
+        { token },
+      );
+
+      const resultJson = await result.json();
+      res.json(resultJson);
+    },
   );
 };
 
