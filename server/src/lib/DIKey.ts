@@ -1,3 +1,4 @@
 export enum DIKey {
-  CHARACTER_ID = 'character_id',
+  // TODO character ID should be removed
+  // CHARACTER_ID = 'character_id',
 }
