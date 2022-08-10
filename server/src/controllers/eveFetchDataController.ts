@@ -14,16 +14,20 @@ const controller = (app: Router) => {
   const provider = Container.get(EveMemoryProviderService).get();
   const characterId = Container.get(DIKey.CHARACTER_ID) as number;
 
-  app.get('/industry_jobs', async (req: Request, res: Response) => {
+  async function esiRequest(uri: string) {
     const token = await provider.getToken(characterId, requiredScopes);
     const result = await esi.request(
-      `/characters/${characterId}/industry/jobs/`,
+      uri,
       undefined,
       undefined,
       { token },
     );
 
-    const resultJson = await result.json();
+    return await result.json();
+  }
+
+  app.get('/industry_jobs', async (req: Request, res: Response) => {
+    const resultJson = esiRequest(`/characters/${characterId}/industry/jobs/`);
     res.json(resultJson);
   });
 };
