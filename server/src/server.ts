@@ -6,7 +6,7 @@ import mysql from 'mysql';
 import { Sequelize, DataTypes } from 'sequelize';
 import initEveLoginController from './controllers/eveLoginController';
 import initEveFetchDataController from './controllers/eveFetchDataController';
-
+import { typeIdModelDefine } from './models';
 
 
 const sequelize = new Sequelize(
@@ -26,26 +26,9 @@ sequelize.authenticate().then(() => {
   console.error('Unable to connect to the database: ', error);
 });
 
-
-
-const TypeId = sequelize.define("TypeID", {
-  group_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  // release_date: {
-  //   type: DataTypes.DATEONLY,
-  // },
-  // subject: {
-  //   type: DataTypes.INTEGER,
-  // }
-}, {
-  tableName: 'type_ids'
-});
+// TODO(EIP-5) we should use loaders for this
+// Initialize all models.
+typeIdModelDefine(sequelize);
 
 sequelize.sync().then(() => {
   console.log('TypeID table created successfully!');
@@ -57,6 +40,8 @@ const app = express();
 app.use(cors());
 const port = 8080;
 
+// TODO(EPI-4) We should use a loader for this
+// Initialize all controllers. 
 initEveLoginController(app);
 initEveFetchDataController(app);
 
