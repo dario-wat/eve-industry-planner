@@ -9,13 +9,16 @@
 */
 import 'reflect-metadata';
 
-import { typeIdModelDefine } from '../models/TypeID';
 import { parse } from 'yaml';
 import fs from 'fs';
 import Container from 'typedi';
-import SequelizeService from '../services/SequelizeService';
 import { Model, ModelStatic } from 'sequelize/types';
+import SequelizeService from '../services/SequelizeService';
 import { groupIdModelDefine } from '../models/GroupID';
+import { iconIdModelDefine } from '../models/IconID';
+import { typeIdModelDefine } from '../models/TypeID';
+import { categoryIdModelDefine } from '../models/CategoryID';
+import { stationModelDefine } from '../models/Station';
 
 // Either console.log or false
 const LOG = console.log;
@@ -57,10 +60,13 @@ async function run() {
     console.error('[Script] Unable to connect to the database: ', error);
   });
 
-  // TODO this should be put into a function since it appears in
+  // TODO(EIP-5) this should be put into a function since it appears in
   // more than one place
   const typeIdModel = typeIdModelDefine(sequelize);
   const groupIdModel = groupIdModelDefine(sequelize);
+  const iconIdModel = iconIdModelDefine(sequelize);
+  const categoryIdModel = categoryIdModelDefine(sequelize);
+  const stationModel = stationModelDefine(sequelize);
 
   LOG && LOG('[Script] Recreating tables');
   await sequelize.sync({ force: true, logging: SEQUELIZE_LOG });
@@ -90,6 +96,34 @@ async function run() {
       name: value.name.en
     }),
     groupIdModel,
+  );
+
+  await loadDataToDatabase(
+    'sde/fsd/iconIDs.yaml',
+    ([key, value]: [string, any]) => ({
+      id: key,
+      description: value.description,
+      icon_file: value.iconFile,
+    }),
+    iconIdModel,
+  );
+
+  await loadDataToDatabase(
+    'sde/fsd/categoryIDs.yaml',
+    ([key, value]: [string, any]) => ({
+      id: key,
+      name: value.name.en,
+    }),
+    categoryIdModel,
+  );
+
+  await loadDataToDatabase(
+    'sde/bsd/staStations.yaml',
+    ([_key, value]: [string, any]) => ({
+      id: value.stationID,
+      name: value.stationName,
+    }),
+    stationModel,
   );
 
   LOG && LOG('[Script] Finished!');

@@ -4,21 +4,20 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 * This is an SDE (Static Data Export) model.
 */
 
-export class TypeID extends Model { }
+export class Station extends Model { }
 
-export const typeIdModelDefine = (sequelize: Sequelize) => TypeID.init(
+export const stationModelDefine = (sequelize: Sequelize) => Station.init(
   {
     id: {
       type: DataTypes.INTEGER,
-      primaryKey: true
+      primaryKey: true,
     },
-    group_id: DataTypes.INTEGER,
     name: DataTypes.STRING,
   },
   {
     sequelize,
-    modelName: 'TypeID',
-    tableName: 'type_ids',
+    modelName: 'Station',
+    tableName: 'stations',
     timestamps: false,
   },
 );
