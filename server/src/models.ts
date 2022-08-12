@@ -19,7 +19,7 @@ export const typeIdModelDefine = (sequelize: Sequelize) => TypeID.init(
   },
   {
     sequelize,
-    modelName: "TypeID",
+    modelName: 'TypeID',
     tableName: 'type_ids',
   },
 );

@@ -7,40 +7,35 @@
 * Run like this:
 * ts-node ./server/src/scripts/loadDataIntoMySqlScript.ts
 */
+import 'reflect-metadata';
 
 import { typeIdModelDefine } from '../models';
-import { Sequelize, DataTypes } from 'sequelize';
 import { parse } from 'yaml';
 import fs from 'fs';
 import Container from 'typedi';
 import SequelizeService from '../services/SequelizeService';
 
 const sequelize = Container.get(SequelizeService).get();
+console.log('Dropping all tables ...');
+sequelize.drop();
+sequelize.sync({ logging: false });
 
+console.log('Reading file ...');
+const fileContent = fs.readFileSync('sde/fsd/typeIDs.yaml', 'utf8');
 
-// typeIdModelDefine(sequelize);
-// console.log(sequelize.models);
-
-// \r\n'\r\n
-// \r\n            '\r\n
-
-const file = fs.readFileSync('sde/fsd/typeIDs.yaml', 'utf8')
-// const file = fs.readFileSync('server/test.yaml', 'utf8');
-// console.log(JSON.stringify(file));
-const file2 = file
+console.log('Cleaning content ...');
+const cleanContent = fileContent
   .replaceAll("\r\n'\r\n", "\r\n            '\r\n")
   .replaceAll("\n'\n", "\n            '\n");
-console.log('replaced all')
-const res = parse(file2);
-console.log(res);
 
-// sequelize_fixtures.loadFile(
-//   'sde/fsd/typeIDs.yaml',
-//   [sequelize.models],
-//   {
-//     transformFixtureDataFn: function (data) {
-//       console.log(data);
-//       return data;
-//     }
-//   }
-// );
+console.log('Parsing YAML ...');
+const res = parse(cleanContent);
+
+const records = Object.entries(res).map(
+  ([key, value]: [string, any]) => ({ id: key, group_id: value.groupID, name: value.name.en })
+);
+const model = typeIdModelDefine(sequelize);
+console.log('Storing into the database ...');
+model.bulkCreate(records);
+
+console.log('Finished!');

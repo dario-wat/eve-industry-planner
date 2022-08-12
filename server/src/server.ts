@@ -2,7 +2,6 @@ import 'reflect-metadata';
 
 import cors from 'cors';
 import express from 'express';
-import mysql from 'mysql';
 import initEveLoginController from './controllers/eveLoginController';
 import initEveFetchDataController from './controllers/eveFetchDataController';
 import { typeIdModelDefine } from './models';
