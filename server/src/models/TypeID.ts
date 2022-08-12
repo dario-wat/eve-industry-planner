@@ -1,5 +1,9 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
 
+/*
+* This is an SDE (Static Data Export) model.
+*/
+
 export class TypeID extends Model { }
 
 export const typeIdModelDefine = (sequelize: Sequelize) => TypeID.init(
@@ -21,5 +25,6 @@ export const typeIdModelDefine = (sequelize: Sequelize) => TypeID.init(
     sequelize,
     modelName: 'TypeID',
     tableName: 'type_ids',
+    timestamps: false,
   },
 );

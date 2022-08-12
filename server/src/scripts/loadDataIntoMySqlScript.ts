@@ -9,33 +9,37 @@
 */
 import 'reflect-metadata';
 
-import { typeIdModelDefine } from '../models';
+import { typeIdModelDefine } from '../models/TypeID';
 import { parse } from 'yaml';
 import fs from 'fs';
 import Container from 'typedi';
 import SequelizeService from '../services/SequelizeService';
 
-const sequelize = Container.get(SequelizeService).get();
-console.log('Dropping all tables ...');
-sequelize.drop();
-sequelize.sync({ logging: false });
+// const sequelize = Container.get(SequelizeService).get();
+// console.log('Dropping all tables ...');
+// sequelize.drop();
+// sequelize.sync({ logging: false });
 
-console.log('Reading file ...');
-const fileContent = fs.readFileSync('sde/fsd/typeIDs.yaml', 'utf8');
+const fileContent = fs.readFileSync('sde/fsd/blueprints.yaml', 'utf8');
+const res = parse(fileContent);
+console.log(Object.entries(res).map((o: any) => o[1].activities));
 
-console.log('Cleaning content ...');
-const cleanContent = fileContent
-  .replaceAll("\r\n'\r\n", "\r\n            '\r\n")
-  .replaceAll("\n'\n", "\n            '\n");
+// console.log('Reading file ...');
+// const fileContent = fs.readFileSync('sde/fsd/typeIDs.yaml', 'utf8');
 
-console.log('Parsing YAML ...');
-const res = parse(cleanContent);
+// console.log('Cleaning content ...');
+// const cleanContent = fileContent
+//   .replaceAll("\r\n'\r\n", "\r\n            '\r\n")
+//   .replaceAll("\n'\n", "\n            '\n");
 
-const records = Object.entries(res).map(
-  ([key, value]: [string, any]) => ({ id: key, group_id: value.groupID, name: value.name.en })
-);
-const model = typeIdModelDefine(sequelize);
-console.log('Storing into the database ...');
-model.bulkCreate(records);
+// console.log('Parsing YAML ...');
+// const res = parse(cleanContent);
 
-console.log('Finished!');
+// const records = Object.entries(res).map(
+//   ([key, value]: [string, any]) => ({ id: key, group_id: value.groupID, name: value.name.en })
+// );
+// const model = typeIdModelDefine(sequelize);
+// console.log('Storing into the database ...');
+// model.bulkCreate(records);
+
+// console.log('Finished!');
