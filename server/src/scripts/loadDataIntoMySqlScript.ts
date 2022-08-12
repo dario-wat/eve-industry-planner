@@ -12,17 +12,11 @@ import { typeIdModelDefine } from '../models';
 import { Sequelize, DataTypes } from 'sequelize';
 import { parse } from 'yaml';
 import fs from 'fs';
+import Container from 'typedi';
+import SequelizeService from '../services/SequelizeService';
 
-// const sequelize = new Sequelize(
-//   'eve_industry_planner_db',
-//   'root',
-//   'KMkk%^FLt7%WyhHg8HcfMkShdH$tYw5Sq',
-//   {
-//     host: 'localhost',
-//     port: 3306,
-//     dialect: 'mysql'
-//   }
-// );
+const sequelize = Container.get(SequelizeService).get();
+
 
 // typeIdModelDefine(sequelize);
 // console.log(sequelize.models);

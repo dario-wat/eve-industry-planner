@@ -3,22 +3,14 @@ import 'reflect-metadata';
 import cors from 'cors';
 import express from 'express';
 import mysql from 'mysql';
-import { Sequelize, DataTypes } from 'sequelize';
 import initEveLoginController from './controllers/eveLoginController';
 import initEveFetchDataController from './controllers/eveFetchDataController';
 import { typeIdModelDefine } from './models';
+import Container from 'typedi';
+import SequelizeService from './services/SequelizeService';
 
 
-const sequelize = new Sequelize(
-  'eve_industry_planner_db',
-  'root',
-  'KMkk%^FLt7%WyhHg8HcfMkShdH$tYw5Sq',
-  {
-    host: 'localhost',
-    port: 3306,
-    dialect: 'mysql'
-  }
-);
+const sequelize = Container.get(SequelizeService).get();
 
 sequelize.authenticate().then(() => {
   console.log('Connection has been established successfully.');
