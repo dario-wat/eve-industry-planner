@@ -14,32 +14,85 @@ import { parse } from 'yaml';
 import fs from 'fs';
 import Container from 'typedi';
 import SequelizeService from '../services/SequelizeService';
+import { Model, ModelStatic } from 'sequelize/types';
+import { groupIdModelDefine } from '../models/GroupID';
 
-// const sequelize = Container.get(SequelizeService).get();
-// console.log('Dropping all tables ...');
-// sequelize.drop();
-// sequelize.sync({ logging: false });
+// Either console.log or false
+const LOG = console.log;
+const SEQUELIZE_LOG = false;
 
-const fileContent = fs.readFileSync('sde/fsd/blueprints.yaml', 'utf8');
-const res = parse(fileContent);
-console.log(Object.entries(res).map((o: any) => o[1].activities));
+async function loadDataToDatabase<MS extends ModelStatic<Model>>(
+  fileName: string,
+  transformFn: ([keyof, value]: [string, any]) => any,
+  model: MS,
+  options?:
+    {
+      cleanupInputFn?: ((inString: string) => string) | undefined,
+    },
+) {
+  LOG && LOG('[Script] Reading file: %s', fileName);
+  const fileContent = fs.readFileSync(fileName, 'utf8');
 
-// console.log('Reading file ...');
-// const fileContent = fs.readFileSync('sde/fsd/typeIDs.yaml', 'utf8');
+  let cleanedUpInput;
+  if (options && options.cleanupInputFn) {
+    LOG && LOG('[Script] Cleaning up content');
+    cleanedUpInput = options.cleanupInputFn(fileContent);
+  }
 
-// console.log('Cleaning content ...');
-// const cleanContent = fileContent
-//   .replaceAll("\r\n'\r\n", "\r\n            '\r\n")
-//   .replaceAll("\n'\n", "\n            '\n");
+  LOG && LOG('[Script] Parsing YAML');
+  const result = parse(cleanedUpInput ?? fileContent);
 
-// console.log('Parsing YAML ...');
-// const res = parse(cleanContent);
+  const records = Object.entries(result).map(transformFn);
+  LOG && LOG('[Script] Storing into the database');
+  await model.bulkCreate(records, { logging: SEQUELIZE_LOG });
+}
 
-// const records = Object.entries(res).map(
-//   ([key, value]: [string, any]) => ({ id: key, group_id: value.groupID, name: value.name.en })
-// );
-// const model = typeIdModelDefine(sequelize);
-// console.log('Storing into the database ...');
-// model.bulkCreate(records);
+async function run() {
+  LOG && LOG('[Script] Script started');
 
-// console.log('Finished!');
+  const sequelize = Container.get(SequelizeService).get();
+  await sequelize.authenticate({ logging: SEQUELIZE_LOG }).then(() => {
+    LOG && LOG('[Script] Connection has been established successfully.');
+  }).catch((error) => {
+    console.error('[Script] Unable to connect to the database: ', error);
+  });
+
+  // TODO this should be put into a function since it appears in
+  // more than one place
+  const typeIdModel = typeIdModelDefine(sequelize);
+  const groupIdModel = groupIdModelDefine(sequelize);
+
+  LOG && LOG('[Script] Recreating tables');
+  await sequelize.sync({ force: true, logging: SEQUELIZE_LOG });
+
+  await loadDataToDatabase(
+    'sde/fsd/typeIDs.yaml',
+    ([key, value]: [string, any]) => ({
+      id: key,
+      group_id: value.groupID,
+      name: value.name.en
+    }),
+    typeIdModel,
+    {
+      cleanupInputFn: (inString: string) =>
+        inString
+          .replaceAll("\r\n'\r\n", "\r\n            '\r\n")
+          .replaceAll("\n'\n", "\n            '\n"),
+    },
+  );
+
+  await loadDataToDatabase(
+    'sde/fsd/groupIDs.yaml',
+    ([key, value]: [string, any]) => ({
+      id: key,
+      category_id: value.categoryID,
+      icon_id: value.iconID,
+      name: value.name.en
+    }),
+    groupIdModel,
+  );
+
+  LOG && LOG('[Script] Finished!');
+}
+
+run();
