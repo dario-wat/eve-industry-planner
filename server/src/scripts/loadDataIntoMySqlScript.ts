@@ -12,13 +12,31 @@ import 'reflect-metadata';
 import { parse } from 'yaml';
 import fs from 'fs';
 import Container from 'typedi';
-import { Model, ModelStatic } from 'sequelize/types';
+import { Model, ModelStatic, Sequelize } from 'sequelize/types';
 import SequelizeService from '../services/SequelizeService';
 import { groupIdModelDefine } from '../models/GroupID';
 import { iconIdModelDefine } from '../models/IconID';
 import { typeIdModelDefine } from '../models/TypeID';
 import { categoryIdModelDefine } from '../models/CategoryID';
 import { stationModelDefine } from '../models/Station';
+import {
+  blueprintModelDefine,
+  bpCopyingMaterialsDefine,
+  bpInventionMaterialsDefine,
+  bpManufacturingMaterialsDefine,
+  bpMeMaterialsDefine,
+  bpTeMaterialsDefine,
+  bpInventionProductsDefine,
+  bpManufacturingProductsDefine,
+  Blueprint,
+  BpCopyingMaterials,
+  BpInventionMaterials,
+  BpManufacturingMaterials,
+  BpMeMaterials,
+  BpTeMaterials,
+  BpInventionProducts,
+  BpManufacturingProducts,
+} from '../models/Blueprint';
 
 // Either console.log or false
 const LOG = console.log;
@@ -50,6 +68,70 @@ async function loadDataToDatabase<MS extends ModelStatic<Model>>(
   await model.bulkCreate(records, { logging: SEQUELIZE_LOG });
 }
 
+function extractBlueprintData([key, value]: [string, any]) {
+  const materialMapper = (o: any) => ({
+    blueprint_id: key,
+    type_id: o.typeID,
+    quantity: o.quantity,
+  });
+
+  return {
+    [Blueprint.MODEL_NAME]: {
+      id: key,
+      copying_time: value.activities.copying?.time,
+      invention_time: value.activities.invention?.time,
+      manufacturing_time: value.activities.manufacturing?.time,
+      research_material_time: value.activities.research_material?.time,
+      research_time_time: value.activities.research_time?.time,
+    },
+    [BpCopyingMaterials.MODEL_NAME]:
+      (value.activities.copying?.materials ?? []).map(materialMapper),
+    [BpInventionMaterials.MODEL_NAME]:
+      (value.activities.invention?.materials ?? []).map(materialMapper),
+    [BpManufacturingMaterials.MODEL_NAME]:
+      (value.activities.manufacturing?.materials ?? []).map(materialMapper),
+    [BpMeMaterials.MODEL_NAME]:
+      (value.activities.research_material?.materials ?? []).map(materialMapper),
+    [BpTeMaterials.MODEL_NAME]:
+      (value.activities.research_time?.materials ?? []).map(materialMapper),
+    [BpInventionProducts.MODEL_NAME]:
+      (value.activities.invention?.products ?? []).map(materialMapper),
+    [BpManufacturingProducts.MODEL_NAME]:
+      (value.activities.manufacturing?.products ?? []).map(materialMapper),
+  };
+}
+
+async function loadBlueprintData(sequelize: Sequelize) {
+  const fileName = 'sde/fsd/blueprints.yaml';
+  LOG && LOG('[Script] Reading file: %s', fileName);
+  const fileContent = fs.readFileSync(fileName, 'utf8');
+
+  LOG && LOG('[Script] Parsing YAML');
+  const result = parse(fileContent);
+
+  const records = Object.entries(result).map(extractBlueprintData);
+
+  LOG && LOG('[Script] Storing into the database');
+  await sequelize.model(Blueprint.MODEL_NAME).bulkCreate(
+    records.map((o: any) => o[Blueprint.MODEL_NAME]),
+    { logging: SEQUELIZE_LOG },
+  );
+
+  const bulkCreateHelper = async (modelName: string) =>
+    await sequelize.model(modelName).bulkCreate(
+      records.map((o: any) => o[modelName]).flat(),
+      { logging: SEQUELIZE_LOG },
+    );
+
+  await bulkCreateHelper(BpCopyingMaterials.MODEL_NAME);
+  await bulkCreateHelper(BpInventionMaterials.MODEL_NAME);
+  await bulkCreateHelper(BpManufacturingMaterials.MODEL_NAME);
+  await bulkCreateHelper(BpMeMaterials.MODEL_NAME);
+  await bulkCreateHelper(BpTeMaterials.MODEL_NAME);
+  await bulkCreateHelper(BpInventionProducts.MODEL_NAME);
+  await bulkCreateHelper(BpManufacturingProducts.MODEL_NAME);
+}
+
 async function run() {
   LOG && LOG('[Script] Script started');
 
@@ -67,6 +149,15 @@ async function run() {
   const iconIdModel = iconIdModelDefine(sequelize);
   const categoryIdModel = categoryIdModelDefine(sequelize);
   const stationModel = stationModelDefine(sequelize);
+
+  blueprintModelDefine(sequelize);
+  bpCopyingMaterialsDefine(sequelize);
+  bpInventionMaterialsDefine(sequelize);
+  bpManufacturingMaterialsDefine(sequelize);
+  bpMeMaterialsDefine(sequelize);
+  bpTeMaterialsDefine(sequelize);
+  bpInventionProductsDefine(sequelize);
+  bpManufacturingProductsDefine(sequelize);
 
   LOG && LOG('[Script] Recreating tables');
   await sequelize.sync({ force: true, logging: SEQUELIZE_LOG });
@@ -125,6 +216,8 @@ async function run() {
     }),
     stationModel,
   );
+
+  await loadBlueprintData(sequelize);
 
   LOG && LOG('[Script] Finished!');
 }
