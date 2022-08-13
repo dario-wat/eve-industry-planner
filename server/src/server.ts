@@ -4,10 +4,9 @@ import cors from 'cors';
 import express from 'express';
 import initEveLoginController from './controllers/eveLoginController';
 import initEveFetchDataController from './controllers/eveFetchDataController';
-import { typeIdModelDefine } from './models/TypeID';
 import Container from 'typedi';
 import SequelizeService from './services/SequelizeService';
-import { blueprintModelDefine } from './models/Blueprint';
+import defineAllSequelizeModels from 'loaders/defineAllSequelizeModels';
 
 
 const sequelize = Container.get(SequelizeService).get();
@@ -18,10 +17,7 @@ sequelize.authenticate().then(() => {
   console.error('Unable to connect to the database: ', error);
 });
 
-// TODO(EIP-5) we should use loaders for this
-// Initialize all models.
-typeIdModelDefine(sequelize);
-blueprintModelDefine(sequelize);
+defineAllSequelizeModels(sequelize);
 
 sequelize.sync().then(() => {
   console.log('TypeID table created successfully!');

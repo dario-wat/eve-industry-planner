@@ -14,20 +14,12 @@ import fs from 'fs';
 import Container from 'typedi';
 import { Model, ModelStatic, Sequelize } from 'sequelize/types';
 import SequelizeService from '../services/SequelizeService';
-import { groupIdModelDefine } from '../models/GroupID';
-import { iconIdModelDefine } from '../models/IconID';
-import { typeIdModelDefine } from '../models/TypeID';
-import { categoryIdModelDefine } from '../models/CategoryID';
-import { stationModelDefine } from '../models/Station';
+import { GroupID } from '../models/GroupID';
+import { IconID } from '../models/IconID';
+import { TypeID } from '../models/TypeID';
+import { CategoryID } from '../models/CategoryID';
+import { Station } from '../models/Station';
 import {
-  blueprintModelDefine,
-  bpCopyingMaterialsDefine,
-  bpInventionMaterialsDefine,
-  bpManufacturingMaterialsDefine,
-  bpMeMaterialsDefine,
-  bpTeMaterialsDefine,
-  bpInventionProductsDefine,
-  bpManufacturingProductsDefine,
   Blueprint,
   BpCopyingMaterials,
   BpInventionMaterials,
@@ -37,6 +29,7 @@ import {
   BpInventionProducts,
   BpManufacturingProducts,
 } from '../models/Blueprint';
+import defineAllSequelizeModels from '../loaders/defineAllSequelizeModels';
 
 // Either console.log or false
 const LOG = console.log;
@@ -136,28 +129,9 @@ async function run() {
   LOG && LOG('[Script] Script started');
 
   const sequelize = Container.get(SequelizeService).get();
-  await sequelize.authenticate({ logging: SEQUELIZE_LOG }).then(() => {
-    LOG && LOG('[Script] Connection has been established successfully.');
-  }).catch((error) => {
-    console.error('[Script] Unable to connect to the database: ', error);
-  });
+  await sequelize.authenticate({ logging: SEQUELIZE_LOG });
 
-  // TODO(EIP-5) this should be put into a function since it appears in
-  // more than one place
-  const typeIdModel = typeIdModelDefine(sequelize);
-  const groupIdModel = groupIdModelDefine(sequelize);
-  const iconIdModel = iconIdModelDefine(sequelize);
-  const categoryIdModel = categoryIdModelDefine(sequelize);
-  const stationModel = stationModelDefine(sequelize);
-
-  blueprintModelDefine(sequelize);
-  bpCopyingMaterialsDefine(sequelize);
-  bpInventionMaterialsDefine(sequelize);
-  bpManufacturingMaterialsDefine(sequelize);
-  bpMeMaterialsDefine(sequelize);
-  bpTeMaterialsDefine(sequelize);
-  bpInventionProductsDefine(sequelize);
-  bpManufacturingProductsDefine(sequelize);
+  defineAllSequelizeModels(sequelize);
 
   LOG && LOG('[Script] Recreating tables');
   await sequelize.sync({ force: true, logging: SEQUELIZE_LOG });
@@ -169,7 +143,7 @@ async function run() {
       group_id: value.groupID,
       name: value.name.en
     }),
-    typeIdModel,
+    sequelize.model(TypeID.MODEL_NAME),
     {
       cleanupInputFn: (inString: string) =>
         inString
@@ -186,7 +160,7 @@ async function run() {
       icon_id: value.iconID,
       name: value.name.en
     }),
-    groupIdModel,
+    sequelize.model(GroupID.MODEL_NAME),
   );
 
   await loadDataToDatabase(
@@ -196,7 +170,7 @@ async function run() {
       description: value.description,
       icon_file: value.iconFile,
     }),
-    iconIdModel,
+    sequelize.model(IconID.MODEL_NAME),
   );
 
   await loadDataToDatabase(
@@ -205,7 +179,7 @@ async function run() {
       id: key,
       name: value.name.en,
     }),
-    categoryIdModel,
+    sequelize.model(CategoryID.MODEL_NAME),
   );
 
   await loadDataToDatabase(
@@ -214,7 +188,7 @@ async function run() {
       id: value.stationID,
       name: value.stationName,
     }),
-    stationModel,
+    sequelize.model(Station.MODEL_NAME),
   );
 
   await loadBlueprintData(sequelize);

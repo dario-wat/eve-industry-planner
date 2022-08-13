@@ -4,7 +4,9 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 * This is an SDE (Static Data Export) model.
 */
 
-export class Station extends Model { }
+export class Station extends Model {
+  static readonly MODEL_NAME: string = 'Station';
+}
 
 export const stationModelDefine = (sequelize: Sequelize) => Station.init(
   {
@@ -16,7 +18,7 @@ export const stationModelDefine = (sequelize: Sequelize) => Station.init(
   },
   {
     sequelize,
-    modelName: 'Station',
+    modelName: Station.MODEL_NAME,
     tableName: 'stations',
     timestamps: false,
   },
