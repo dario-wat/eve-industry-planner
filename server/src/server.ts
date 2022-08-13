@@ -26,17 +26,21 @@ async function databaseInit() {
   });
 }
 
-databaseInit();
+async function init() {
+  await databaseInit();
 
-const app = express();
-app.use(cors());
-const port = 8080;
+  const app = express();
+  app.use(cors());
+  const port = 8080;
 
-// TODO(EPI-4) We should use a loader for this
-// Initialize all controllers. 
-initEveLoginController(app);
-initEveFetchDataController(app);
+  // TODO(EPI-4) We should use a loader for this
+  // Initialize all controllers. 
+  initEveLoginController(app);
+  initEveFetchDataController(app);
 
-app.listen(port, () => {
-  console.log(`API server listening on port ${port}`);
-});
+  app.listen(port, () => {
+    console.log(`API server listening on port ${port}`);
+  });
+}
+
+init();
