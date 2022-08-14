@@ -9,9 +9,10 @@ import SequelizeService from './services/SequelizeService';
 import defineAllSequelizeModels from './loaders/defineAllSequelizeModels';
 
 async function databaseInit() {
-  const sequelize = Container.get(SequelizeService).get();
+  // TODO(EIP-9) maybe should use the service instead of the getter
+  const sequelize = Container.get(SequelizeService).getSequelize();
 
-  await sequelize.authenticate({ logging: false }).then(() => {
+  await sequelize.authenticate().then(() => {
     console.log('Connected to MySQL.');
   }).catch((error) => {
     console.error('Unable to connect to the database: ', error);
@@ -19,11 +20,11 @@ async function databaseInit() {
 
   defineAllSequelizeModels(sequelize);
 
-  await sequelize.sync({ logging: false }).then(() => {
-    console.log('Models synced with the database.');
-  }).catch((error) => {
-    console.error('Unable to sync table: ', error);
-  });
+  // await sequelize.sync().then(() => {
+  //   console.log('Models synced with the database.');
+  // }).catch((error) => {
+  //   console.error('Unable to sync table: ', error);
+  // });
 }
 
 async function init() {

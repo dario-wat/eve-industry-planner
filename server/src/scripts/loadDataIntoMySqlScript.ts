@@ -128,7 +128,8 @@ async function loadBlueprintData(sequelize: Sequelize) {
 async function run() {
   LOG && LOG('[Script] Script started');
 
-  const sequelize = Container.get(SequelizeService).get();
+  // TODO(EIP-9) maybe should use the service instead of the getter
+  const sequelize = Container.get(SequelizeService).getSequelize();
   await sequelize.authenticate({ logging: SEQUELIZE_LOG });
 
   defineAllSequelizeModels(sequelize);

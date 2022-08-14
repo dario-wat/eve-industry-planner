@@ -6,6 +6,7 @@ import EveMemoryProviderService from './EveMemoryProviderService';
 @Service()
 export default class EsiProviderService {
   private esi: ESI;
+  // TODO(EIP-9) maybe should use the service instead of the getter
 
   constructor(
     providerService: EveMemoryProviderService,
