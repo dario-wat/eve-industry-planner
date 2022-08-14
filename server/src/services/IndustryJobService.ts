@@ -14,22 +14,24 @@ export default class IndustryJobService {
 
   // TODO rename
   public async transform(token: Token, industryJob: any) {
-    console.log(industryJob);
-    const names = await this.sequelizeService.genNamesFromTypeIds(
+    const idNames = await this.sequelizeService.genNamesFromTypeIds(
       [industryJob.blueprint_type_id, industryJob.product_type_id]
     );
 
+    const structure = await EveQuery.genxStructure(token, industryJob.station_id);
+    const station = await EveQuery.genStation(token, industryJob.station_id);
+    const stationName = structure ? structure.name : station ? station.name : null;
     return {
-      // activity:
-      //   industryActivity[industryJob.activity_id as IndustryActivityKey]
-      //     .activityName,
-      blueprint_name: names[industryJob.blueprint_type_id],
-      duration: industryJob.duration,
-      end_date: industryJob.end_date,
+      activity:
+        industryActivity[industryJob.activity_id as IndustryActivityKey]
+          .activityName,
+      blueprint_name: idNames.find((o) => o.id === industryJob.blueprint_type_id).name,
+      duration: industryJob.duration, // TODO
+      end_date: industryJob.end_date, // TODO
       runs: industryJob.runs,
-      location: industryJob.station_id,
+      location: stationName,
       status: industryJob.status,
-      product_name: names[industryJob.product_type_id],
+      product_name: idNames.find((o) => o.id === industryJob.product_type_id).name,
     };
   }
 }

@@ -37,12 +37,13 @@ export namespace EveQuery {
     token: Token,
     characterId: number,
   ) {
-    return await esi.request(
+    const response = await esi.request(
       `/characters/${characterId}/industry/jobs/`,
       undefined,
       undefined,
       { token },
     );
+    return await response.json();
   }
 
   export async function genIndustryJobs(
@@ -66,12 +67,13 @@ export namespace EveQuery {
     token: Token,
     structureId: number,
   ) {
-    return await esi.request(
+    const response = await esi.request(
       `/universe/structures/${structureId}/`,
       undefined,
       undefined,
       { token },
     );
+    return await response.json();
   }
 
   export async function genStructure(
@@ -79,6 +81,60 @@ export namespace EveQuery {
     structureId: number,
   ) {
     return await genxStructure(token, structureId).catch(() => null);
+  }
+
+  /*
+    Station object example
+    {
+      "max_dockable_ship_volume": 50000000,
+      "name": "Muvolailen X - Moon 3 - CBD Corporation Storage",
+      "office_rental_cost": 16961473,
+      "owner": 1000002,
+      "position": {
+        "x": 1723680890880,
+        "y": 256414064640,
+        "z": -60755435520
+      },
+      "race_id": 1,
+      "reprocessing_efficiency": 0.5,
+      "reprocessing_stations_take": 0.05,
+      "services": [
+        "courier-missions",
+        "reprocessing-plant",
+        "market",
+        "repair-facilities",
+        "fitting",
+        "news",
+        "storage",
+        "insurance",
+        "docking",
+        "office-rental",
+        "loyalty-point-store",
+        "navy-offices"
+      ],
+      "station_id": 60000004,
+      "system_id": 30002780,
+      "type_id": 1531
+    }
+  */
+  export async function genxStation(
+    token: Token,
+    stationId: number,
+  ) {
+    const response = await esi.request(
+      `/universe/stations/${stationId}/`,
+      undefined,
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  export async function genStation(
+    token: Token,
+    stationId: number,
+  ) {
+    return await genxStation(token, stationId).catch(() => null);
   }
 
   /*
@@ -97,12 +153,13 @@ export namespace EveQuery {
     token: Token,
     characterId: number,
   ) {
-    return await esi.request(
+    const response = await esi.request(
       `/characters/${characterId}/assets/`,
       undefined,
       undefined,
       { token },
     );
+    return await response.json();
   }
 
   export async function genAssets(
