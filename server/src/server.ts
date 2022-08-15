@@ -2,25 +2,21 @@ import 'reflect-metadata';
 
 import cors from 'cors';
 import express from 'express';
+import { Sequelize } from 'sequelize/types';
+import Container from 'typedi';
 import initEveLoginController from './controllers/eveLoginController';
 import initEveFetchDataController from './controllers/eveFetchDataController';
 import initDatabase from './loaders/initDatabase';
-
-async function databaseInit() {
-  // TODO(EIP-9) maybe should use the service instead of the getter
-  // const sequelize = Container.get(SequelizeService).getSequelize();
-
-  // await sequelize.authenticate().then(() => {
-  //   console.log('Connected to MySQL.');
-  // }).catch((error) => {
-  //   console.error('Unable to connect to the database: ', error);
-  // });
-
-
-}
+import { DIKeys } from './lib/DIKeys';
 
 async function init() {
   initDatabase();
+  const sequelize: Sequelize = Container.get(DIKeys.DB);
+  await sequelize.authenticate().then(() => {
+    console.log('Connected to MySQL.');
+  }).catch((error) => {
+    console.error('Unable to connect to the database: ', error);
+  });
 
   const app = express();
   app.use(cors());
