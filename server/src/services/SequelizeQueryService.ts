@@ -1,25 +1,13 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { Op, Sequelize } from 'sequelize';
-import { DB_DIALECT, DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USERNAME } from '../lib/DBConfig';
 import { TypeID } from '../models/TypeID';
 
 @Service()
-export default class SequelizeService {
-  private sequelize: Sequelize;
+export default class SequelizeQueryService {
 
-  constructor() {
-    this.sequelize = new Sequelize(
-      DB_NAME,
-      DB_USERNAME,
-      DB_PASSWORD,
-      {
-        host: DB_HOST,
-        port: DB_PORT,
-        dialect: DB_DIALECT,
-        logging: false,
-      }
-    );
-  }
+  constructor(
+    @Inject('db') private readonly sequelize: Sequelize,
+  ) { }
 
   public getSequelize(): Sequelize {
     return this.sequelize;

@@ -13,7 +13,7 @@ import { parse } from 'yaml';
 import fs from 'fs';
 import Container from 'typedi';
 import { Model, ModelStatic, Sequelize } from 'sequelize/types';
-import SequelizeService from '../services/SequelizeService';
+import SequelizeService from '../services/SequelizeQueryService';
 import { GroupID } from '../models/GroupID';
 import { IconID } from '../models/IconID';
 import { TypeID } from '../models/TypeID';
@@ -29,7 +29,7 @@ import {
   BpInventionProducts,
   BpManufacturingProducts,
 } from '../models/Blueprint';
-import defineAllSequelizeModels from '../loaders/defineAllSequelizeModels';
+import initDatabase from '../loaders/initDatabase';
 
 // Either console.log or false
 const LOG = console.log;
@@ -128,11 +128,9 @@ async function loadBlueprintData(sequelize: Sequelize) {
 async function run() {
   LOG && LOG('[Script] Script started');
 
-  // TODO(EIP-9) maybe should use the service instead of the getter
-  const sequelize = Container.get(SequelizeService).getSequelize();
+  initDatabase();
+  const sequelize: Sequelize = Container.get('db');
   await sequelize.authenticate({ logging: SEQUELIZE_LOG });
-
-  defineAllSequelizeModels(sequelize);
 
   LOG && LOG('[Script] Recreating tables');
   await sequelize.sync({ force: true, logging: SEQUELIZE_LOG });

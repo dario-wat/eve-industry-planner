@@ -3,7 +3,7 @@ import { Service } from "typedi";
 import { utcToZonedTime } from 'date-fns-tz'
 import { EveQuery } from "../lib/EveQuery";
 import { industryActivity, IndustryActivityKey } from "../lib/IndustryActivity";
-import SequelizeService from "./SequelizeService";
+import SequelizeQueryService from "./SequelizeQueryService";
 import { differenceInSeconds, formatDistanceToNowStrict } from "date-fns";
 
 @Service()
@@ -12,7 +12,7 @@ export default class IndustryJobService {
   private readonly PST_TZ = 'America/Los_Angeles';
 
   constructor(
-    private sequelizeService: SequelizeService,
+    private sequelizeService: SequelizeQueryService,
   ) { }
 
   private async genStationName(token: Token, stationId: number) {

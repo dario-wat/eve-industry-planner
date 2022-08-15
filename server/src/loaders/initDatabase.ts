@@ -1,3 +1,6 @@
+import { Sequelize } from 'sequelize';
+import Container from 'typedi';
+import databaseConfig from '../config/databaseConfig';
 import {
   blueprintModelDefine,
   bpCopyingMaterialsDefine,
@@ -13,10 +16,23 @@ import { iconIdModelDefine } from '../models/IconID';
 import { typeIdModelDefine } from '../models/TypeID';
 import { categoryIdModelDefine } from '../models/CategoryID';
 import { stationModelDefine } from '../models/Station';
-import { Sequelize } from 'sequelize/types';
 
 // Every new model definer needs to be added here
-export default function defineAllSequelizeModels(sequelize: Sequelize) {
+export default function initDatabase() {
+  const sequelize = new Sequelize(
+    databaseConfig.name,
+    databaseConfig.username,
+    databaseConfig.password,
+    {
+      host: databaseConfig.host,
+      port: databaseConfig.port,
+      dialect: databaseConfig.dialect,
+      logging: false,
+    }
+  );
+
+  Container.set('db', sequelize);
+
   // Eve SDE
   typeIdModelDefine(sequelize);
   groupIdModelDefine(sequelize);
