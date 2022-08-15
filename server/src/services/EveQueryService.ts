@@ -1,15 +1,21 @@
-import { Token } from 'eve-esi-client';
-import Container from 'typedi';
-import EsiProviderService from '../services/EsiProviderService';
+import ESI, { Token } from 'eve-esi-client';
+import { Service } from 'typedi';
+import EsiProviderService from './EsiProviderService';
 
 /*
 * Each function comes in two forms: genx throws errors
 * and gen swallows them and returns null instead.
 */
-export namespace EveQuery {
+@Service()
+export default class EveQueryService {
 
-  // TODO(EIP-10) maybe turn into a service
-  const esi = Container.get(EsiProviderService).get();
+  private readonly esi: ESI;
+
+  constructor(
+    esiProviderService: EsiProviderService,
+  ) {
+    this.esi = esiProviderService.get();
+  }
 
   /*
     Industry jobs example object
@@ -34,11 +40,11 @@ export namespace EveQuery {
       "status": "active"
     }
   */
-  export async function genxIndustryJobs(
+  public async genxIndustryJobs(
     token: Token,
     characterId: number,
   ) {
-    const response = await esi.request(
+    const response = await this.esi.request(
       `/characters/${characterId}/industry/jobs/`,
       undefined,
       undefined,
@@ -47,11 +53,11 @@ export namespace EveQuery {
     return await response.json();
   }
 
-  export async function genIndustryJobs(
+  public async genIndustryJobs(
     token: Token,
     characterId: number,
   ) {
-    return await genxIndustryJobs(token, characterId).catch(() => null);
+    return await this.genxIndustryJobs(token, characterId).catch(() => null);
   }
 
   /*
@@ -64,11 +70,11 @@ export namespace EveQuery {
       type_id: 35826
     }
   */
-  export async function genxStructure(
+  public async genxStructure(
     token: Token,
     structureId: number,
   ) {
-    const response = await esi.request(
+    const response = await this.esi.request(
       `/universe/structures/${structureId}/`,
       undefined,
       undefined,
@@ -77,11 +83,11 @@ export namespace EveQuery {
     return await response.json();
   }
 
-  export async function genStructure(
+  public async genStructure(
     token: Token,
     structureId: number,
   ) {
-    return await genxStructure(token, structureId).catch(() => null);
+    return await this.genxStructure(token, structureId).catch(() => null);
   }
 
   /*
@@ -118,11 +124,11 @@ export namespace EveQuery {
       "type_id": 1531
     }
   */
-  export async function genxStation(
+  public async genxStation(
     token: Token,
     stationId: number,
   ) {
-    const response = await esi.request(
+    const response = await this.esi.request(
       `/universe/stations/${stationId}/`,
       undefined,
       undefined,
@@ -131,11 +137,11 @@ export namespace EveQuery {
     return await response.json();
   }
 
-  export async function genStation(
+  public async genStation(
     token: Token,
     stationId: number,
   ) {
-    return await genxStation(token, stationId).catch(() => null);
+    return await this.genxStation(token, stationId).catch(() => null);
   }
 
   /*
@@ -150,11 +156,11 @@ export namespace EveQuery {
         "type_id": 3244
     }
   */
-  export async function genxAssets(
+  public async genxAssets(
     token: Token,
     characterId: number,
   ) {
-    const response = await esi.request(
+    const response = await this.esi.request(
       `/characters/${characterId}/assets/`,
       undefined,
       undefined,
@@ -163,10 +169,10 @@ export namespace EveQuery {
     return await response.json();
   }
 
-  export async function genAssets(
+  public async genAssets(
     token: Token,
     characterId: number,
   ) {
-    return await genxAssets(token, characterId).catch(() => null);
+    return await this.genxAssets(token, characterId).catch(() => null);
   }
 }

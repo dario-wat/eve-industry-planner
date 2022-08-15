@@ -1,7 +1,7 @@
 import { Token } from "eve-esi-client";
 import { Service } from "typedi";
 import { utcToZonedTime } from 'date-fns-tz'
-import { EveQuery } from "../lib/EveQuery";
+import EveQueryService from "./EveQueryService";
 import { industryActivity, IndustryActivityKey } from "../lib/IndustryActivity";
 import SequelizeQueryService from "./SequelizeQueryService";
 import { differenceInSeconds, formatDistanceToNowStrict } from "date-fns";
@@ -12,13 +12,14 @@ export default class IndustryJobService {
   private readonly PST_TZ = 'America/Los_Angeles';
 
   constructor(
-    private sequelizeService: SequelizeQueryService,
+    private readonly sequelizeService: SequelizeQueryService,
+    private readonly eveQueryService: EveQueryService,
   ) { }
 
   private async genStationName(token: Token, stationId: number) {
     const [structure, station] = await Promise.all([
-      EveQuery.genxStructure(token, stationId),
-      EveQuery.genStation(token, stationId),
+      this.eveQueryService.genxStructure(token, stationId),
+      this.eveQueryService.genStation(token, stationId),
     ]);
     return structure?.name ?? station?.name;
   }
