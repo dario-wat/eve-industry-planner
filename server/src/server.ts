@@ -19,12 +19,6 @@ async function databaseInit() {
   });
 
   defineAllSequelizeModels(sequelize);
-
-  // await sequelize.sync().then(() => {
-  //   console.log('Models synced with the database.');
-  // }).catch((error) => {
-  //   console.error('Unable to sync table: ', error);
-  // });
 }
 
 async function init() {
