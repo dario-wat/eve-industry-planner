@@ -1,12 +1,13 @@
 import { Inject, Service } from 'typedi';
 import { Op, Sequelize } from 'sequelize';
 import { TypeID } from '../models/TypeID';
+import { DIKeys } from '../lib/DIKeys';
 
 @Service()
 export default class SequelizeQueryService {
 
   constructor(
-    @Inject('db') private readonly sequelize: Sequelize,
+    @Inject(DIKeys.DB) private readonly sequelize: Sequelize,
   ) { }
 
   public getSequelize(): Sequelize {

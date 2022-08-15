@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import Container from 'typedi';
 import databaseConfig from '../config/databaseConfig';
+import { DIKeys } from '../lib/DIKeys';
 import {
   blueprintModelDefine,
   bpCopyingMaterialsDefine,
@@ -31,7 +32,7 @@ export default function initDatabase() {
     }
   );
 
-  Container.set('db', sequelize);
+  Container.set(DIKeys.DB, sequelize);
 
   // Eve SDE
   typeIdModelDefine(sequelize);

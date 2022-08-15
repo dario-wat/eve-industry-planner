@@ -13,7 +13,6 @@ import { parse } from 'yaml';
 import fs from 'fs';
 import Container from 'typedi';
 import { Model, ModelStatic, Sequelize } from 'sequelize/types';
-import SequelizeService from '../services/SequelizeQueryService';
 import { GroupID } from '../models/GroupID';
 import { IconID } from '../models/IconID';
 import { TypeID } from '../models/TypeID';
@@ -30,6 +29,7 @@ import {
   BpManufacturingProducts,
 } from '../models/Blueprint';
 import initDatabase from '../loaders/initDatabase';
+import { DIKeys } from '../lib/DIKeys';
 
 // Either console.log or false
 const LOG = console.log;
@@ -129,7 +129,7 @@ async function run() {
   LOG && LOG('[Script] Script started');
 
   initDatabase();
-  const sequelize: Sequelize = Container.get('db');
+  const sequelize: Sequelize = Container.get(DIKeys.DB);
   await sequelize.authenticate({ logging: SEQUELIZE_LOG });
 
   LOG && LOG('[Script] Recreating tables');
