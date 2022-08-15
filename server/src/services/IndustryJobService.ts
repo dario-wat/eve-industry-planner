@@ -12,14 +12,14 @@ export default class IndustryJobService {
   private readonly PST_TZ = 'America/Los_Angeles';
 
   constructor(
-    private readonly sequelizeService: SequelizeQueryService,
-    private readonly eveQueryService: EveQueryService,
+    private readonly sequelizeQuery: SequelizeQueryService,
+    private readonly eveQuery: EveQueryService,
   ) { }
 
   private async genStationName(token: Token, stationId: number) {
     const [structure, station] = await Promise.all([
-      this.eveQueryService.genxStructure(token, stationId),
-      this.eveQueryService.genStation(token, stationId),
+      this.eveQuery.genxStructure(token, stationId),
+      this.eveQuery.genStation(token, stationId),
     ]);
     return structure?.name ?? station?.name;
   }
@@ -36,7 +36,7 @@ export default class IndustryJobService {
     );
 
     const [idNames, stationName] = await Promise.all([
-      this.sequelizeService.genNamesFromTypeIds(
+      this.sequelizeQuery.genNamesFromTypeIds(
         [industryJob.blueprint_type_id, industryJob.product_type_id]
       ),
       this.genStationName(token, industryJob.station_id),
