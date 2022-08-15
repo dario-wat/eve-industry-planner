@@ -8,6 +8,7 @@ import EsiProviderService from '../services/EsiProviderService';
 */
 export namespace EveQuery {
 
+  // TODO(EIP-10) maybe turn into a service
   const esi = Container.get(EsiProviderService).get();
 
   /*

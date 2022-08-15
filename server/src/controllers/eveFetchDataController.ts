@@ -23,13 +23,12 @@ const controller = (app: Router) => {
       const characterId = getCharacterId();
       const token = await provider.getToken(characterId, requiredScopes);
       const industryJobs = await EveQuery.genxIndustryJobs(token, characterId);
-      console.log(industryJobs);
 
-      // TODO move business logic out
       const industryJobService = Container.get(IndustryJobService);
-      const resu = await industryJobService.transform(token, industryJobs[0]);
-
-      res.json(resu);
+      const output = await Promise.all(industryJobs.map(
+        (job: any) => industryJobService.getData(token, job),
+      ));
+      res.json(output);
     },
   );
 
