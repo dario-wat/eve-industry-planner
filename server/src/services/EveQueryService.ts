@@ -1,6 +1,10 @@
 import ESI, { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import EsiProviderService from './EsiProviderService';
+import { chunkify } from '../lib/util';
+
+// TODO(EIP-11) create chunkify
+// TODO(EIP-11) maybe split into smaller services
 
 /*
 * Each function comes in two forms: genx throws errors
@@ -255,11 +259,7 @@ export default class EveQueryService {
     const chunkSize = 1000;
     const uniqueItemIds = [...new Set(itemIds)];
 
-    let chunks = [];
-    for (let i = 0; i < uniqueItemIds.length; i += chunkSize) {
-      const chunk = uniqueItemIds.slice(i, i + chunkSize);
-      chunks.push(chunk);
-    }
+    const chunks = chunkify(uniqueItemIds, chunkSize);
 
     const responses = await Promise.all(chunks.map(async (chunk) =>
       this.genAssetNamesLimited(token, characterId, chunk),
@@ -321,11 +321,7 @@ export default class EveQueryService {
     const chunkSize = 1000;
     const uniqueItemIds = [...new Set(itemIds)];
 
-    let chunks = [];
-    for (let i = 0; i < uniqueItemIds.length; i += chunkSize) {
-      const chunk = uniqueItemIds.slice(i, i + chunkSize);
-      chunks.push(chunk);
-    }
+    const chunks = chunkify(uniqueItemIds, chunkSize);
 
     const responses = await Promise.all(chunks.map(async (chunk) =>
       this.genAssetLocationsLimited(token, characterId, chunk),

@@ -24,11 +24,14 @@ export default class AssetsService {
       GlobalMemory.characterId!,
       assets.map((a) => a.item_id),
     );
+    console.log(items.length);
     console.log(items.filter((i: any) => i.name !== 'None' && i.name !== ''));
     return {
       name: itemNames[0].name,
       // quantity: asset.quantity,
       // location_id: asset.location_id,
+      // quantity:
+      // station:
     };
   }
 }

@@ -27,6 +27,7 @@ const controller = (app: Router) => {
       const industryJobs = await eveQuery.genxIndustryJobs(token, characterId);
 
       const industryJobService = Container.get(IndustryJobService);
+      // TODO(EIP-11) make this the same as /assets
       const output = await Promise.all(industryJobs.map(
         (job: any) => industryJobService.getData(token, job),
       ));
