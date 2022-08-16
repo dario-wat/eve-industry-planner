@@ -1,10 +1,10 @@
-import { Token } from "eve-esi-client";
-import { Service } from "typedi";
+import { Token } from 'eve-esi-client';
+import { Service } from 'typedi';
 import { utcToZonedTime } from 'date-fns-tz'
-import EveQueryService from "./EveQueryService";
-import { industryActivity, IndustryActivityKey } from "../lib/IndustryActivity";
-import SequelizeQueryService from "./SequelizeQueryService";
-import { differenceInSeconds, formatDistanceToNowStrict } from "date-fns";
+import EveQueryService from './EveQueryService';
+import { industryActivity, IndustryActivityKey } from '../lib/IndustryActivity';
+import SequelizeQueryService from './SequelizeQueryService';
+import { differenceInSeconds, formatDistanceToNowStrict } from 'date-fns';
 
 @Service()
 export default class IndustryJobService {

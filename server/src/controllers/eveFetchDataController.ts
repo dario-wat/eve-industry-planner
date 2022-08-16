@@ -5,6 +5,7 @@ import EveMemoryProviderService from '../services/EveMemoryProviderService';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 import EveQueryService from '../services/EveQueryService';
 import IndustryJobService from '../services/IndustryJobService';
+import AssetsService from '../services/AssetsService';
 
 const route = Router();
 
@@ -12,7 +13,7 @@ const controller = (app: Router) => {
   app.use('/', route);
 
   const provider = Container.get(EveMemoryProviderService).get();
-  const eveQueryService = Container.get(EveQueryService);
+  const eveQuery = Container.get(EveQueryService);
 
   // TODO(EIP-2) this is a temporary solution
   // until I get a database running
@@ -23,8 +24,7 @@ const controller = (app: Router) => {
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
       const token = await provider.getToken(characterId, requiredScopes);
-      const industryJobs =
-        await eveQueryService.genxIndustryJobs(token, characterId);
+      const industryJobs = await eveQuery.genxIndustryJobs(token, characterId);
 
       const industryJobService = Container.get(IndustryJobService);
       const output = await Promise.all(industryJobs.map(
@@ -39,10 +39,11 @@ const controller = (app: Router) => {
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
       const token = await provider.getToken(characterId, requiredScopes);
-      const result = await eveQueryService.genxAssets(token, characterId);
+      const assets = await eveQuery.genAllAssets(token, characterId);
 
-      const resultJson = await result.json();
-      res.json(resultJson);
+      const assetService = Container.get(AssetsService);
+      const output = await assetService.getData(token, assets);
+      res.json(output);
     },
   );
 };

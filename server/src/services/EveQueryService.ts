@@ -145,6 +145,12 @@ export default class EveQueryService {
   }
 
   /*
+    @param page
+      We can't query all assets a once, we need to query the specific
+      page of results. 
+      
+    So this function itself is not that useful. Check below for genAllAssets
+    
     Assets example object
     {
         "is_singleton": true,
@@ -156,23 +162,174 @@ export default class EveQueryService {
         "type_id": 3244
     }
   */
-  public async genxAssets(
+  private async genxAssetsLimited(
     token: Token,
     characterId: number,
+    page: number = 1,
   ) {
     const response = await this.esi.request(
       `/characters/${characterId}/assets/`,
-      undefined,
+      { page },
       undefined,
       { token },
     );
     return await response.json();
   }
 
-  public async genAssets(
+  private async genAssetsLimited(
+    token: Token,
+    characterId: number,
+    page: number = 1,
+  ) {
+    return await this.genxAssetsLimited(token, characterId, page)
+      .catch(() => null);
+  }
+
+  /* 
+    Similar to genxAssets and genAssets, but instead it will look for multiple
+    pages (page count is hardcoded for now) and combine all the results.
+    This function does multiple requests.
+  */
+  public async genAllAssets(
     token: Token,
     characterId: number,
   ) {
-    return await this.genxAssets(token, characterId).catch(() => null);
+    const pageCount = 5;
+    const allAssets = await Promise.all(
+      [...Array(pageCount).keys()].map(
+        async page => this.genAssetsLimited(token, characterId, page + 1)
+      ),
+    );
+    return allAssets.filter(arr => arr !== null).flat();
+  }
+
+  /*
+    @param itemIds 
+      IDs of the items returned by the genAssets functions. It can contain
+      at most 1000 elements. 
+      
+    This function on its own is not that useful (hence the private visibility).
+    Check below for genAssetNames
+    
+    Asset names example object
+    [
+      { item_id: 360052160, name: 'I do shit' },
+      { item_id: 945371609, name: '[B] Originals' },
+      { item_id: 962104165, name: '[B] Copies' },
+      { item_id: 1086967686, name: "Daki Razarac's Zephyr" },
+      { item_id: 1702215246, name: 'Pac-Man' },
+    ]
+  */
+  private async genxAssetNamesLimited(
+    token: Token,
+    characterId: number,
+    itemIds: number[],  // max 1000 elements
+  ) {
+    const response = await this.esi.request(
+      `/characters/${characterId}/assets/names/`,
+      undefined,
+      itemIds,
+      { token, method: 'POST' }
+    );
+    return await response.json();
+  }
+
+  private async genAssetNamesLimited(
+    token: Token,
+    characterId: number,
+    itemIds: number[],  // max 1000 elements
+  ) {
+    return await this.genxAssetNamesLimited(token, characterId, itemIds)
+      .catch(() => null);
+  }
+
+  /*
+    Similer to genAssetNamesLimited, but it will instead do multiple
+    requests to query all assets.
+  */
+  public async genAssetNames(
+    token: Token,
+    characterId: number,
+    itemIds: number[],  // unlimited element count
+  ) {
+    const chunkSize = 1000;
+    const uniqueItemIds = [...new Set(itemIds)];
+
+    let chunks = [];
+    for (let i = 0; i < uniqueItemIds.length; i += chunkSize) {
+      const chunk = uniqueItemIds.slice(i, i + chunkSize);
+      chunks.push(chunk);
+    }
+
+    const responses = await Promise.all(chunks.map(async (chunk) =>
+      this.genAssetNamesLimited(token, characterId, chunk),
+    ));
+    return responses.flat();
+  }
+
+  /*
+    @param itemIds
+      IDs of the items returned by the genAssets functions. It can contain
+      at most 1000 elements. 
+      
+    This function on its own is not that useful (hence the private visibility).
+    Check below for genAssetLocations
+    
+    Asset location object example
+    [
+      {
+        item_id: 161392124,
+        position: {
+          x: -63041234638.04264,
+          y: 63682433578.14636,
+          z: -207071341017.4996
+        }
+      },
+      { item_id: 166780952, position: { x: 0, y: 0, z: 0 } },
+      { item_id: 166798913, position: { x: 0, y: 0, z: 0 } },
+      { item_id: 166817336, position: { x: 0, y: 0, z: 0 } },
+    ]
+  */
+  private async genxAssetLocationsLimited(
+    token: Token,
+    characterId: number,
+    itemIds: number[],  // max 1000 elements
+  ) {
+    const response = await this.esi.request(
+      `/characters/${characterId}/assets/locations/`,
+      undefined,
+      itemIds,
+      { token, method: 'POST' }
+    );
+    return await response.json();
+  }
+
+  private async genAssetLocationsLimited(
+    token: Token,
+    characterId: number,
+    itemIds: number[],  // max 1000 elements
+  ) {
+    return await this.genxAssetLocationsLimited(token, characterId, itemIds)
+      .catch(() => null);
+  }
+
+  public async genAssetLocations(
+    token: Token,
+    characterId: number,
+    itemIds: number[],  // any number of elements
+  ) {
+    const chunkSize = 1000;
+    const uniqueItemIds = [...new Set(itemIds)];
+
+    let chunks = [];
+    for (let i = 0; i < uniqueItemIds.length; i += chunkSize) {
+      const chunk = uniqueItemIds.slice(i, i + chunkSize);
+      chunks.push(chunk);
+    }
+
+    const responses = await Promise.all(chunks.map(async (chunk) =>
+      this.genAssetLocationsLimited(token, characterId, chunk),
+    ));
+    return responses.flat();
   }
 }
