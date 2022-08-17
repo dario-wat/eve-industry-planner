@@ -1,5 +1,6 @@
 import ESI, { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
+import { zip } from 'underscore'
 import EsiProviderService from './EsiProviderService';
 import { chunkify, mapify } from '../lib/util';
 
@@ -146,6 +147,23 @@ export default class EveQueryService {
     stationId: number,
   ) {
     return await this.genxStation(token, stationId).catch(() => null);
+  }
+
+  // Figures out the name of either station or structure
+  public async genStationName(token: Token, stationId: number) {
+    const [structure, station] = await Promise.all([
+      this.genStructure(token, stationId),
+      this.genStation(token, stationId),
+    ]);
+    return structure?.name ?? station?.name;
+  }
+
+  public async genAllStationNames(token: Token, stationIds: number[]) {
+    const uniqueStationIds = [...new Set(stationIds)];
+    const stationNames = await Promise.all(uniqueStationIds.map(
+      async stationId => this.genStationName(token, stationId),
+    ));
+    return Object.fromEntries(zip(uniqueStationIds, stationNames));
   }
 
   /*

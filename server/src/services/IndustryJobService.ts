@@ -5,7 +5,6 @@ import EveQueryService from './EveQueryService';
 import { industryActivity, IndustryActivityKey } from '../lib/IndustryActivity';
 import SequelizeQueryService from './SequelizeQueryService';
 import { differenceInSeconds, formatDistanceToNowStrict } from 'date-fns';
-import { mapify } from '../lib/util';
 
 @Service()
 export default class IndustryJobService {
@@ -16,14 +15,6 @@ export default class IndustryJobService {
     private readonly sequelizeQuery: SequelizeQueryService,
     private readonly eveQuery: EveQueryService,
   ) { }
-
-  private async genStationName(token: Token, stationId: number) {
-    const [structure, station] = await Promise.all([
-      this.eveQuery.genxStructure(token, stationId),
-      this.eveQuery.genStation(token, stationId),
-    ]);
-    return structure?.name ?? station?.name;
-  }
 
   public async getData(token: Token, industryJob: any) {
     const currentDatePst = new Date();
@@ -40,7 +31,7 @@ export default class IndustryJobService {
       this.sequelizeQuery.genNamesFromTypeIds(
         [industryJob.blueprint_type_id, industryJob.product_type_id]
       ),
-      this.genStationName(token, industryJob.station_id),
+      this.eveQuery.genStationName(token, industryJob.station_id),
     ]);
 
     return {
