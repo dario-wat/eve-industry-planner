@@ -290,7 +290,7 @@ export default class EveQueryService {
     const responses = await Promise.all(chunks.map(async (chunk) =>
       this.genAssetNamesLimited(token, characterId, chunk),
     ));
-    return mapify(responses.flat(), 'item_id', 'name');
+    return mapify(responses.flat(), 'item_id');
   }
 
   /*
@@ -360,6 +360,6 @@ export default class EveQueryService {
     const responses = await Promise.all(chunks.map(async (chunk) =>
       this.genAssetLocationsLimited(token, characterId, chunk),
     ));
-    return mapify(responses.flat(), 'item_id', 'position');
+    return mapify(responses.flat(), 'item_id');
   }
 }

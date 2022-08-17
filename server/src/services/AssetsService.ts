@@ -25,7 +25,7 @@ export default class AssetsService {
       GlobalMemory.characterId!,
       assets.map(a => a.item_id),
     );
-
+    console.log(assetNames);
     const uniqueLocationIds = [...new Set(assets.map(a => a.location_id))];
     // const uniqeItemIds = [...new Set(assets.map(a => a.item_id))];
     const stationNames =
@@ -34,9 +34,9 @@ export default class AssetsService {
     return assets.map(a => ({
       name: itemNames[a.type_id],
       quantity: a.quantity,
-      location: assetNames[a.item_id],
+      location: assetNames[a.item_id]?.name,
       // below is when it's inside a ship, container, or something similar
-      location2: assetNames[a.location_id],
+      location2: assetNames[a.location_id]?.name,
       // below never exists
       location3: stationNames[a.item_id],
       // below is when it's straight up in station or structure

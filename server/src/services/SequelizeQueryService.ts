@@ -14,20 +14,19 @@ export default class SequelizeQueryService {
   /*
     Return example:
     {
-      '200': 'Phased Plasma L',
-      '201': 'EMP L',
-      '202': 'Mjolnir Cruise Missile',
+      '12038': { name: 'Purifier', group_id: 834 },
+      '12041': { name: 'Purifier Blueprint', group_id: 105 }
     }
   */
   public async genNamesFromTypeIds(typeIds: number[]) {
     const sqlResult = await this.sequelize.model(TypeID.MODEL_NAME).findAll({
-      attributes: ['id', 'name'],
+      attributes: ['id', 'name', 'group_id'],
       where: {
         id: {
           [Op.in]: typeIds,
         }
       },
     });
-    return mapify(sqlResult.map((res: TypeID) => res.get()), 'id', 'name');
+    return mapify(sqlResult.map((res: TypeID) => res.get()), 'id');
   }
 }
