@@ -5,6 +5,7 @@ import EveQueryService from './EveQueryService';
 import { industryActivity, IndustryActivityKey } from '../lib/IndustryActivity';
 import SequelizeQueryService from './SequelizeQueryService';
 import { differenceInSeconds, formatDistanceToNowStrict } from 'date-fns';
+import { mapify } from '../lib/util';
 
 @Service()
 export default class IndustryJobService {
@@ -46,15 +47,13 @@ export default class IndustryJobService {
       activity:
         industryActivity[industryJob.activity_id as IndustryActivityKey]
           .activityName,
-      blueprint_name:
-        idNames.find((o) => o.id === industryJob.blueprint_type_id).name,
+      blueprint_name: idNames[industryJob.blueprint_type_id],
       progress: 1 - remainingSeconds / industryJob.duration,
       remaining_time: remainingTime,
       runs: industryJob.runs,
       location: stationName,
       status: industryJob.status,
-      product_name:
-        idNames.find((o) => o.id === industryJob.product_type_id).name,
+      product_name: idNames[industryJob.product_type_id],
     };
   }
 }

@@ -3,6 +3,7 @@ import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 import { Service } from 'typedi';
 import EveQueryService from './EveQueryService';
 import SequelizeQueryService from './SequelizeQueryService';
+import { mapify } from '../lib/util';
 
 @Service()
 export default class AssetsService {
@@ -18,16 +19,18 @@ export default class AssetsService {
     const itemNames = await this.sequelizeQuery.genNamesFromTypeIds(
       assets.map((a) => a.type_id),
     );
-    console.log('Item names count: ', itemNames.length);
+    // console.log(itemNames);
+    // console.log('Item names count: ', itemNames);
     const items = await this.eveQuery.genAssetLocations(
       token,
       GlobalMemory.characterId!,
       assets.map((a) => a.item_id),
     );
-    console.log(items.length);
-    console.log(items.filter((i: any) => i.name !== 'None' && i.name !== ''));
+    // console.log(items);
+    // console.log(items.length);
+    // console.log(items.filter((i: any) => i.name !== 'None' && i.name !== ''));
     return {
-      name: itemNames[0].name,
+      // name: itemNames[0].name,
       // quantity: asset.quantity,
       // location_id: asset.location_id,
       // quantity:

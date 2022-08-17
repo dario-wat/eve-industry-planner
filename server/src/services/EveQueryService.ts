@@ -1,7 +1,7 @@
 import ESI, { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import EsiProviderService from './EsiProviderService';
-import { chunkify } from '../lib/util';
+import { chunkify, mapify } from '../lib/util';
 
 // TODO(EIP-11) create chunkify
 // TODO(EIP-11) maybe split into smaller services
@@ -250,6 +250,14 @@ export default class EveQueryService {
   /*
     Similer to genAssetNamesLimited, but it will instead do multiple
     requests to query all assets.
+    Mapped response:
+    {
+      { '360052160': 'I do shit' },
+      { '945371609': '[B] Originals' },
+      { '962104165': '[B] Copies' },
+      { '1086967686': "Daki Razarac's Zephyr" },
+      { '1702215246': 'Pac-Man' },
+    }
   */
   public async genAssetNames(
     token: Token,
@@ -264,7 +272,7 @@ export default class EveQueryService {
     const responses = await Promise.all(chunks.map(async (chunk) =>
       this.genAssetNamesLimited(token, characterId, chunk),
     ));
-    return responses.flat();
+    return mapify(responses.flat(), 'item_id', 'name');
   }
 
   /*
@@ -313,6 +321,14 @@ export default class EveQueryService {
       .catch(() => null);
   }
 
+  /*
+    Return example
+    {
+      '1039723727638': { x: 0, y: 0, z: 0 },
+      '1039728407570': { x: -101081437089.61157, y: 17108954167.04216, z: 277093041359.576 },
+      '1039723674706': { x: 0, y: 0, z: 0 },
+    }
+  */
   public async genAssetLocations(
     token: Token,
     characterId: number,
@@ -326,6 +342,6 @@ export default class EveQueryService {
     const responses = await Promise.all(chunks.map(async (chunk) =>
       this.genAssetLocationsLimited(token, characterId, chunk),
     ));
-    return responses.flat();
+    return mapify(responses.flat(), 'item_id', 'position');
   }
 }
