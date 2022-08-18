@@ -16,10 +16,6 @@
     }
 */
 export function mapify(objs: any[], key: any) {
-  const mapOne = (obj: any) => {
-    const objKey = obj[key];
-    delete obj[key];
-    return { [objKey]: obj };
-  };
+  const mapOne = (obj: any) => ({ [obj[key]]: obj });
   return Object.assign({}, ...objs.map(mapOne));
 }

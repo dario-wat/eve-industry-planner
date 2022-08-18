@@ -1,42 +1,73 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
+import { uniq } from 'underscore';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
+import { mapify } from '../lib/util';
 import EveQueryService from './EveQueryService';
 import SequelizeQueryService from './SequelizeQueryService';
 
 @Service()
 export default class AssetsService {
 
+  private static readonly SHIP_CAT = 6;
+
   constructor(
     private readonly sequelizeQuery: SequelizeQueryService,
     private readonly eveQuery: EveQueryService,
   ) { }
 
+  private async genAssetStation(assets: any[], itemCatMap: any) {
+    const assetMap = mapify(assets, 'item_id');
+    // console.log(assetMap);
+    const genOne = (a: any) => {
+      const parent = assetMap[a.location_id];
+      if (parent) {
+        return parent;
+      }
+      return a;
+    };
+    console.log(itemCatMap);
+    const shipItems = assets.map(a => {
+      const parent = genOne(a);
+      // return parent.item_id;
+      const parentCat = itemCatMap[parent.type_id]?.cat_id;
+      return parentCat;
+      // return parentCat === AssetsService.SHIP_CAT;
+    });
+    // console.log(shipItems);
+  }
+
   // TODO finish this
   public async getData(token: Token, assets: any[]) {
     console.log('Assets count: ', assets.length);
-    const itemNames = await this.sequelizeQuery.genTypeIds(
+    const items = await this.sequelizeQuery.genTypeIds(
       assets.map(a => a.type_id),
     );
-    const groupIds = Object.entries(itemNames).map((a: any[]) => a[1].group_id);
-    // const groupIds = await this.sequelizeQuery.genGroupIds(
-    //   itemNames.map((i: any) => i.group_id),
-    // );
-    // console.log(groupIds);
-    // console.log('Item names count: ', itemNames);
+    const groupIds = Object.entries(items).map((a: any[]) => a[1].group_id);
+    const groups = await this.sequelizeQuery.genGroupIds(groupIds);
+    // console.log(groups);
+
+    // const categoryIds = Object.entries(groups).map((a: any[]) => a[1].category_id);
+
+
+    const itemCat = Object.entries(items).map(
+      (i: any[]) => ({ item_id: i[0], cat_id: groups[i[1].group_id].category_id }),
+    );
+    const itemCatMap = mapify(itemCat, 'item_id');
+    // console.log(itemCatMap);
+    await this.genAssetStation(assets, itemCatMap);
+
     const assetNames = await this.eveQuery.genAllAssetNames(
       token,
       GlobalMemory.characterId!,
       assets.map(a => a.item_id),
     );
-    // console.log(assetNames);
+
     const uniqueLocationIds = [...new Set(assets.map(a => a.location_id))];
-    // const uniqeItemIds = [...new Set(assets.map(a => a.item_id))];
     const stationNames =
       await this.eveQuery.genAllStationNames(token, uniqueLocationIds);
-    // console.log(stationNames);
     return assets.map(a => ({
-      name: itemNames[a.type_id],
+      name: items[a.type_id].name,
       quantity: a.quantity,
       location: assetNames[a.item_id]?.name,
       // below is when it's inside a ship, container, or something similar

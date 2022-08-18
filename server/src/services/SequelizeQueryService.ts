@@ -31,6 +31,14 @@ export default class SequelizeQueryService {
     return mapify(sqlResult.map((res: TypeID) => res.get()), 'id');
   }
 
+  /*
+    Return example:
+    {
+      '1399': { name: 'Missile Guidance Computer Blueprint', category_id: 9 },
+      '1400': { name: 'Missile Guidance Script', category_id: 8 },
+      '1533': { name: 'Micro Jump Field Generators', category_id: 7 },
+    }
+  */
   public async genGroupIds(groupIds: number[]) {
     const sqlResult = await this.sequelize.model(GroupID.MODEL_NAME).findAll({
       attributes: ['id', 'name', 'category_id'],
