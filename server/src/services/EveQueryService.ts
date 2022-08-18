@@ -3,6 +3,7 @@ import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
 import EsiQueryService from './EsiQueryService';
 import { mapify } from '../lib/util';
+import { EveAsset } from '../types/EsiQuery';
 
 @Service()
 export default class EveQueryService {
@@ -37,27 +38,19 @@ export default class EveQueryService {
   public async genAllAssets(
     token: Token,
     characterId: number,
-  ) {
+  ): Promise<EveAsset[]> {
     const pageCount = 5;
     const allAssets = await Promise.all(
       range(1, pageCount + 1).map(
         async page => this.esiQuery.genAssets(token, characterId, page)
       ),
     );
-    return allAssets.filter(arr => arr !== null).flat();
+    return allAssets.filter(arr => arr !== null).flat() as EveAsset[];
   }
 
   /*
     Similer to genAssetNames, but it will instead do multiple
     requests to query all assets.
-    Mapped response:
-    {
-      { '360052160': 'I do shit' },
-      { '945371609': '[B] Originals' },
-      { '962104165': '[B] Copies' },
-      { '1086967686': "Daki Razarac's Zephyr" },
-      { '1702215246': 'Pac-Man' },
-    }
   */
   public async genAllAssetNames(
     token: Token,

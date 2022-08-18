@@ -1,5 +1,6 @@
 import ESI, { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
+import { EveAsset, EveAssetName, EveIndustryJob, EveStation, EveStructure } from '../types/EsiQuery';
 import EsiProviderService from './EsiProviderService';
 
 /*
@@ -49,7 +50,7 @@ export default class EsiQueryService {
   public async genxIndustryJobs(
     token: Token,
     characterId: number,
-  ) {
+  ): Promise<EveIndustryJob[]> {
     const response = await this.esi.request(
       `/characters/${characterId}/industry/jobs/`,
       undefined,
@@ -62,7 +63,7 @@ export default class EsiQueryService {
   public async genIndustryJobs(
     token: Token,
     characterId: number,
-  ) {
+  ): Promise<EveIndustryJob[] | null> {
     return await this.genxIndustryJobs(token, characterId).catch(() => null);
   }
 
@@ -79,7 +80,7 @@ export default class EsiQueryService {
   public async genxStructure(
     token: Token,
     structureId: number,
-  ) {
+  ): Promise<EveStructure> {
     const response = await this.esi.request(
       `/universe/structures/${structureId}/`,
       undefined,
@@ -92,7 +93,7 @@ export default class EsiQueryService {
   public async genStructure(
     token: Token,
     structureId: number,
-  ) {
+  ): Promise<EveStructure | null> {
     return await this.genxStructure(token, structureId).catch(() => null);
   }
 
@@ -133,7 +134,7 @@ export default class EsiQueryService {
   public async genxStation(
     token: Token,
     stationId: number,
-  ) {
+  ): Promise<EveStation> {
     const response = await this.esi.request(
       `/universe/stations/${stationId}/`,
       undefined,
@@ -146,7 +147,7 @@ export default class EsiQueryService {
   public async genStation(
     token: Token,
     stationId: number,
-  ) {
+  ): Promise<EveStation | null> {
     return await this.genxStation(token, stationId).catch(() => null);
   }
 
@@ -171,7 +172,7 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     page: number = 1,
-  ) {
+  ): Promise<EveAsset[]> {
     const response = await this.esi.request(
       `/characters/${characterId}/assets/`,
       { page },
@@ -185,7 +186,7 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     page: number = 1,
-  ) {
+  ): Promise<EveAsset[] | null> {
     return await this.genxAssets(token, characterId, page)
       .catch(() => null);
   }
@@ -209,7 +210,7 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     itemIds: number[],  // max 1000 elements
-  ) {
+  ): Promise<EveAssetName[]> {
     const response = await this.esi.request(
       `/characters/${characterId}/assets/names/`,
       undefined,
@@ -223,7 +224,7 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     itemIds: number[],  // max 1000 elements
-  ) {
+  ): Promise<EveAssetName[] | null> {
     return await this.genxAssetNames(token, characterId, itemIds)
       .catch(() => null);
   }

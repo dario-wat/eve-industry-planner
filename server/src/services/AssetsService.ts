@@ -5,6 +5,7 @@ import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 import { mapify } from '../lib/util';
 import EveQueryService from './EveQueryService';
 import SequelizeQueryService from './SequelizeQueryService';
+import { EveAsset } from '../types/EsiQuery';
 
 @Service()
 export default class AssetsService {
@@ -38,7 +39,7 @@ export default class AssetsService {
   }
 
   // TODO finish this
-  public async getData(token: Token, assets: any[]) {
+  public async getData(token: Token, assets: EveAsset[]) {
     console.log('Assets count: ', assets.length);
     const items = await this.sequelizeQuery.genTypeIds(
       assets.map(a => a.type_id),
