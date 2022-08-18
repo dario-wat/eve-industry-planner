@@ -16,7 +16,13 @@ export default class IndustryJobService {
     private readonly eveQuery: EveQueryService,
   ) { }
 
-  public async getData(token: Token, industryJob: any) {
+  public async getData(token: Token, industryJobs: any[]) {
+    return await Promise.all(industryJobs.map(
+      job => this.getSingle(token, job),
+    ));
+  }
+
+  private async getSingle(token: Token, industryJob: any) {
     const currentDatePst = new Date();
     const endDatePst = utcToZonedTime(industryJob.end_date, this.PST_TZ);
     const remainingSeconds =

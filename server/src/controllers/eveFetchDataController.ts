@@ -29,10 +29,7 @@ const controller = (app: Router) => {
       const industryJobs = await esiQuery.genxIndustryJobs(token, characterId);
 
       const industryJobService = Container.get(IndustryJobService);
-      // TODO(EIP-11) make this the same as /assets
-      const output = await Promise.all(industryJobs.map(
-        (job: any) => industryJobService.getData(token, job),
-      ));
+      const output = await industryJobService.getData(token, industryJobs);
       res.json(output);
     },
   );
