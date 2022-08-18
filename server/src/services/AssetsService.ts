@@ -15,22 +15,26 @@ export default class AssetsService {
   // TODO finish this
   public async getData(token: Token, assets: any[]) {
     console.log('Assets count: ', assets.length);
-    const itemNames = await this.sequelizeQuery.genNamesFromTypeIds(
+    const itemNames = await this.sequelizeQuery.genTypeIds(
       assets.map(a => a.type_id),
     );
-    // console.log(itemNames);
+    const groupIds = Object.entries(itemNames).map((a: any[]) => a[1].group_id);
+    // const groupIds = await this.sequelizeQuery.genGroupIds(
+    //   itemNames.map((i: any) => i.group_id),
+    // );
+    // console.log(groupIds);
     // console.log('Item names count: ', itemNames);
     const assetNames = await this.eveQuery.genAllAssetNames(
       token,
       GlobalMemory.characterId!,
       assets.map(a => a.item_id),
     );
-    console.log(assetNames);
+    // console.log(assetNames);
     const uniqueLocationIds = [...new Set(assets.map(a => a.location_id))];
     // const uniqeItemIds = [...new Set(assets.map(a => a.item_id))];
     const stationNames =
       await this.eveQuery.genAllStationNames(token, uniqueLocationIds);
-    console.log(stationNames);
+    // console.log(stationNames);
     return assets.map(a => ({
       name: itemNames[a.type_id],
       quantity: a.quantity,

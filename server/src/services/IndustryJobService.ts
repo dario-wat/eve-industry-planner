@@ -34,7 +34,7 @@ export default class IndustryJobService {
     );
 
     const [idNames, stationName] = await Promise.all([
-      this.sequelizeQuery.genNamesFromTypeIds(
+      this.sequelizeQuery.genTypeIds(
         [industryJob.blueprint_type_id, industryJob.product_type_id]
       ),
       this.eveQuery.genStationName(token, industryJob.station_id),

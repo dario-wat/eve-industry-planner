@@ -1,5 +1,6 @@
 import { Inject, Service } from 'typedi';
 import { Op, Sequelize } from 'sequelize';
+import { GroupID } from '../models/GroupID';
 import { TypeID } from '../models/TypeID';
 import { DIKeys } from '../lib/DIKeys';
 import { mapify } from '../lib/util';
@@ -18,7 +19,7 @@ export default class SequelizeQueryService {
       '12041': { name: 'Purifier Blueprint', group_id: 105 }
     }
   */
-  public async genNamesFromTypeIds(typeIds: number[]) {
+  public async genTypeIds(typeIds: number[]) {
     const sqlResult = await this.sequelize.model(TypeID.MODEL_NAME).findAll({
       attributes: ['id', 'name', 'group_id'],
       where: {
@@ -28,5 +29,17 @@ export default class SequelizeQueryService {
       },
     });
     return mapify(sqlResult.map((res: TypeID) => res.get()), 'id');
+  }
+
+  public async genGroupIds(groupIds: number[]) {
+    const sqlResult = await this.sequelize.model(GroupID.MODEL_NAME).findAll({
+      attributes: ['id', 'name', 'category_id'],
+      where: {
+        id: {
+          [Op.in]: groupIds,
+        }
+      },
+    });
+    return mapify(sqlResult.map((res: GroupID) => res.get()), 'id');
   }
 }

@@ -1,8 +1,8 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import { zip } from 'underscore'
+import { chunk, range, uniq, zip } from 'underscore'
 import EsiQueryService from './EsiQueryService';
-import { chunkify, mapify } from '../lib/util';
+import { mapify } from '../lib/util';
 
 @Service()
 export default class EveQueryService {
@@ -21,7 +21,7 @@ export default class EveQueryService {
   }
 
   public async genAllStationNames(token: Token, stationIds: number[]) {
-    const uniqueStationIds = [...new Set(stationIds)];
+    const uniqueStationIds = uniq(stationIds);
     const stationNames = await Promise.all(uniqueStationIds.map(
       async stationId => this.genStationName(token, stationId),
     ));
@@ -40,8 +40,8 @@ export default class EveQueryService {
   ) {
     const pageCount = 5;
     const allAssets = await Promise.all(
-      [...Array(pageCount).keys()].map(
-        async page => this.esiQuery.genAssets(token, characterId, page + 1)
+      range(1, pageCount + 1).map(
+        async page => this.esiQuery.genAssets(token, characterId, page)
       ),
     );
     return allAssets.filter(arr => arr !== null).flat();
@@ -65,12 +65,10 @@ export default class EveQueryService {
     itemIds: number[],  // unlimited element count
   ) {
     const chunkSize = 1000;
-    const uniqueItemIds = [...new Set(itemIds)];
+    const chunks = chunk(uniq(itemIds), chunkSize);
 
-    const chunks = chunkify(uniqueItemIds, chunkSize);
-
-    const responses = await Promise.all(chunks.map(async (chunk) =>
-      this.esiQuery.genAssetNames(token, characterId, chunk),
+    const responses = await Promise.all(chunks.map(async ch =>
+      this.esiQuery.genAssetNames(token, characterId, ch),
     ));
     return mapify(responses.flat(), 'item_id');
   }
