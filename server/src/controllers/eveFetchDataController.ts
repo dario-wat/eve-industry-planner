@@ -6,6 +6,7 @@ import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 import EveQueryService from '../services/EveQueryService';
 import IndustryJobService from '../services/IndustryJobService';
 import AssetsService from '../services/AssetsService';
+import EsiQueryService from '../services/EsiQueryService';
 
 const route = Router();
 
@@ -13,6 +14,7 @@ const controller = (app: Router) => {
   app.use('/', route);
 
   const provider = Container.get(EveMemoryProviderService).get();
+  const esiQuery = Container.get(EsiQueryService);
   const eveQuery = Container.get(EveQueryService);
 
   // TODO(EIP-2) this is a temporary solution
@@ -24,7 +26,7 @@ const controller = (app: Router) => {
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
       const token = await provider.getToken(characterId, requiredScopes);
-      const industryJobs = await eveQuery.genxIndustryJobs(token, characterId);
+      const industryJobs = await esiQuery.genxIndustryJobs(token, characterId);
 
       const industryJobService = Container.get(IndustryJobService);
       // TODO(EIP-11) make this the same as /assets

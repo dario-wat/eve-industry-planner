@@ -20,7 +20,7 @@ export default class AssetsService {
     );
     // console.log(itemNames);
     // console.log('Item names count: ', itemNames);
-    const assetNames = await this.eveQuery.genAssetNames(
+    const assetNames = await this.eveQuery.genAllAssetNames(
       token,
       GlobalMemory.characterId!,
       assets.map(a => a.item_id),
