@@ -27,7 +27,7 @@ export default class AssetsService {
       }
       return a;
     };
-    console.log(itemCatMap);
+    // console.log(itemCatMap);
     const shipItems = assets.map(a => {
       const parent = genOne(a);
       // return parent.item_id;
@@ -41,11 +41,11 @@ export default class AssetsService {
   // TODO finish this
   public async getData(token: Token, assets: EveAsset[]) {
     console.log('Assets count: ', assets.length);
-    const items = await this.sequelizeQuery.genTypeIds(
+    const items = await this.sequelizeQuery.genEveTypes(
       assets.map(a => a.type_id),
     );
     const groupIds = Object.entries(items).map((a: any[]) => a[1].group_id);
-    const groups = await this.sequelizeQuery.genGroupIds(groupIds);
+    const groups = await this.sequelizeQuery.genEveGroups(groupIds);
     // console.log(groups);
 
     // const categoryIds = Object.entries(groups).map((a: any[]) => a[1].category_id);
