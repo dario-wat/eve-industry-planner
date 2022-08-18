@@ -2,8 +2,8 @@ import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
 import EsiQueryService from './EsiQueryService';
-import { mapify } from '../lib/util';
-import { EveAsset } from '../types/EsiQuery';
+import { filterNullOrUndef, mapify } from '../lib/util';
+import { EveAsset, EveAssetName } from '../types/EsiQuery';
 
 @Service()
 export default class EveQueryService {
@@ -13,7 +13,10 @@ export default class EveQueryService {
   ) { }
 
   // Figures out the name of either station or structure
-  public async genStationName(token: Token, stationId: number) {
+  public async genStationName(
+    token: Token,
+    stationId: number,
+  ): Promise<string | undefined> {
     const [structure, station] = await Promise.all([
       this.esiQuery.genStructure(token, stationId),
       this.esiQuery.genStation(token, stationId),
@@ -21,7 +24,10 @@ export default class EveQueryService {
     return structure?.name ?? station?.name;
   }
 
-  public async genAllStationNames(token: Token, stationIds: number[]) {
+  public async genAllStationNames(
+    token: Token,
+    stationIds: number[],
+  ): Promise<{ [key: number]: string | undefined }> {
     const uniqueStationIds = uniq(stationIds);
     const stationNames = await Promise.all(uniqueStationIds.map(
       async stationId => this.genStationName(token, stationId),
@@ -45,7 +51,7 @@ export default class EveQueryService {
         async page => this.esiQuery.genAssets(token, characterId, page)
       ),
     );
-    return allAssets.filter(arr => arr !== null).flat() as EveAsset[];
+    return filterNullOrUndef(allAssets).flat();
   }
 
   /*
@@ -56,13 +62,13 @@ export default class EveQueryService {
     token: Token,
     characterId: number,
     itemIds: number[],  // unlimited element count
-  ) {
+  ): Promise<{ [key: number]: EveAssetName }> {
     const chunkSize = 1000;
     const chunks = chunk(uniq(itemIds), chunkSize);
 
     const responses = await Promise.all(chunks.map(async ch =>
       this.esiQuery.genAssetNames(token, characterId, ch),
     ));
-    return mapify(responses.flat(), 'item_id');
+    return mapify(filterNullOrUndef(responses.flat()), 'item_id');
   }
 }
