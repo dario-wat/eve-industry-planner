@@ -15,7 +15,10 @@
       '12041': { name: 'Purifier Blueprint', group_id: 105 }
     }
 */
-export function mapify<Type>(objs: Type[], key: any) {
+export function mapify<Type>(
+  objs: Type[],
+  key: (string | number),   // No clue how to make this more generic
+): { [key: string | number]: Type } {
   const mapOne = (obj: any) => ({ [obj[key]]: obj });
   return Object.assign({}, ...objs.map(mapOne));
 }

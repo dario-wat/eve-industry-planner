@@ -17,7 +17,7 @@ export default class AssetsService {
     private readonly eveQuery: EveQueryService,
   ) { }
 
-  private async genAssetStation(assets: any[], itemCatMap: any) {
+  private async genAssetStation(assets: EveAsset[], itemCatMap: any) {
     const assetMap = mapify(assets, 'item_id');
     // console.log(assetMap);
     const genOne = (a: any) => {
@@ -35,7 +35,7 @@ export default class AssetsService {
       return parentCat;
       // return parentCat === AssetsService.SHIP_CAT;
     });
-    // console.log(shipItems);
+    console.log(shipItems);
   }
 
   // TODO finish this
