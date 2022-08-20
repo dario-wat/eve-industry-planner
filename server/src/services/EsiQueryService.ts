@@ -154,7 +154,7 @@ export default class EsiQueryService {
   /*
     @param page
       We can't query all assets a once, we need to query the specific
-      page of results.   
+      page of results.
     So this function itself is not that useful. Check out genAllAssets.
     
     Assets example object
