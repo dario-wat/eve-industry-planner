@@ -1,10 +1,13 @@
+import { formatDistanceToNowStrict } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import { countBy, identity, uniq } from 'underscore';
 import { EveContract } from '../types/EsiQuery';
 import EsiQueryService from './EsiQueryService';
 import EveQueryService from './EveQueryService';
 import SequelizeQueryService from './SequelizeQueryService';
+
+const PST_TZ = 'America/Los_Angeles';
 
 @Service()
 export default class ContractsService {
@@ -16,31 +19,28 @@ export default class ContractsService {
   ) { }
 
   public async getData(token: Token, contracts: EveContract[]) {
-    const ids = contracts.map(c => [c.assignee_id, c.acceptor_id, c.issuer_id]).flat();
-    console.log(ids);
-    console.log(
-      await this.eveQuery.genAllNames(
-        token,
-        ids,
-      )
-    );
-    return await Promise.all(
-      contracts.map(c => this.genSingle(token, c)),
-    );
-  }
+    const names = await this.eveQuery.genAllNames(
+      token,
+      contracts.map(
+        c => [c.assignee_id, c.acceptor_id, c.issuer_id],
+      ).flat(),
+    )
 
-  private async genSingle(token: Token, contract: EveContract) {
-    // TODO const alliance: assignee_id
-    // date expired
-    // acceptor id
-    // issuer id
-    // assignee
-    return {
+    const expires = (contract: EveContract) => formatDistanceToNowStrict(
+      utcToZonedTime(contract.date_expired, PST_TZ),
+      { addSuffix: true },
+    );
+
+    return contracts.map(contract => ({
       title: contract.title,
       status: contract.status,
       price: contract.price,
       type: contract.type,
       availability: contract.availability,
-    };
+      assignee: names[contract.assignee_id] ?? null,
+      issuer: names[contract.issuer_id] ?? null,
+      acceptor: names[contract.acceptor_id] ?? null,
+      end_time_formatted: expires(contract),
+    }));
   }
 }

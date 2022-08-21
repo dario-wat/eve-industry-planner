@@ -7,10 +7,10 @@ import SequelizeQueryService from './SequelizeQueryService';
 import { differenceInSeconds, formatDistanceToNowStrict } from 'date-fns';
 import { EveIndustryJob } from '../types/EsiQuery';
 
+const PST_TZ = 'America/Los_Angeles';
+
 @Service()
 export default class IndustryJobService {
-
-  private readonly PST_TZ = 'America/Los_Angeles';
 
   constructor(
     private readonly sequelizeQuery: SequelizeQueryService,
@@ -25,7 +25,7 @@ export default class IndustryJobService {
 
   private async genSingle(token: Token, industryJob: EveIndustryJob) {
     const currentDatePst = new Date();
-    const endDatePst = utcToZonedTime(industryJob.end_date, this.PST_TZ);
+    const endDatePst = utcToZonedTime(industryJob.end_date, PST_TZ);
     const remainingSeconds =
       Math.max(differenceInSeconds(endDatePst, currentDatePst), 0);
 

@@ -40,6 +40,7 @@ const controller = (app: Router) => {
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
       const token = await provider.getToken(characterId, requiredScopes);
+      // TODO(EIP-16) swallowing exceptions here
       const assets = await eveQuery.genAllAssets(token, characterId);
 
       const assetService = Container.get(AssetsService);
