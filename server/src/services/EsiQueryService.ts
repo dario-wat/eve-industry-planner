@@ -1,6 +1,6 @@
 import ESI, { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import { EveAsset, EveAssetName, EveIndustryJob, EveStation, EveStructure } from '../types/EsiQuery';
+import { EveAsset, EveAssetName, EveContract, EveIndustryJob, EveName, EveStation, EveStructure } from '../types/EsiQuery';
 import EsiProviderService from './EsiProviderService';
 
 /*
@@ -244,5 +244,84 @@ export default class EsiQueryService {
   ): Promise<EveAssetName[] | null> {
     return await this.genxAssetNames(token, characterId, itemIds)
       .catch(() => null);
+  }
+
+  /*
+    Contract example object:
+    {
+      "acceptor_id": 0,
+      "assignee_id": 99011162,
+      "availability": "personal",
+      "collateral": 0,
+      "contract_id": 184223651,
+      "date_expired": "2022-09-11T16:30:52Z",
+      "date_issued": "2022-08-14T16:30:52Z",
+      "days_to_complete": 0,
+      "end_location_id": 1038502060900,
+      "for_corporation": false,
+      "issuer_corporation_id": 98306352,
+      "issuer_id": 1838729723,
+      "price": 280000000,
+      "reward": 0,
+      "start_location_id": 1038502060900,
+      "status": "outstanding",
+      "title": "NEW Cerb doctrine",
+      "type": "item_exchange",
+      "volume": 92000
+    }
+  */
+  public async genxContracts(
+    token: Token,
+    characterId: number,
+    page: number = 1,
+  ): Promise<EveContract[]> {
+    const response = await this.esi.request(
+      `/characters/${characterId}/contracts/`,
+      { page },
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  public async genContracts(
+    token: Token,
+    characterId: number,
+    page: number = 1,
+  ): Promise<EveContract[] | null> {
+    return await this.genxContracts(token, characterId, page)
+      .catch(() => null);
+  }
+
+  /*
+    Note: try not to use this function directly since it doesn't
+    sanitize the input. For example, ESI will throw an exception
+    if the list of IDs is not unique.
+    
+    Example object:
+    [
+      { category: 'character', id: 1688205171, name: 'Trading Lady' },
+      { category: 'character', id: 1838729723, name: 'Daki Razarac' },
+      { category: 'character', id: 1384661776, name: 'Pobjesnjeli Dario' },
+      { category: 'alliance', id: 99011162, name: 'Shadow Ultimatum' },
+      { category: 'corporation', id: 98702206, name: 'Hot Foot Powder' },
+      { category: 'corporation', id: 98143250, name: 'Prairie Doggers' }
+    ]
+  */
+  public async genxNames(token: Token, ids: number[]): Promise<EveName[]> {
+    const response = await this.esi.request(
+      `/universe/names/`,
+      undefined,
+      ids,
+      { token, method: 'POST' }
+    );
+    return await response.json();
+  }
+
+  public async genNames(
+    token: Token,
+    ids: number[],
+  ): Promise<EveName[] | null> {
+    return await this.genxNames(token, ids).catch(() => null);
   }
 }

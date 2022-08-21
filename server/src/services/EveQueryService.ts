@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
 import EsiQueryService from './EsiQueryService';
 import { filterNullOrUndef, mapify } from '../lib/util';
-import { EveAsset, EveAssetName } from '../types/EsiQuery';
+import { EveAsset, EveAssetName, EveName } from '../types/EsiQuery';
 
 @Service()
 export default class EveQueryService {
@@ -37,6 +37,8 @@ export default class EveQueryService {
   }
 
   /* 
+    TODO(EIP-16) this can throw exceptions
+    
     Similar to genxAssets and genAssets, but instead it will look for multiple
     pages (page count is hardcoded for now) and combine all the results.
     This function does multiple requests.
@@ -56,6 +58,8 @@ export default class EveQueryService {
   }
 
   /*
+    TODO(EIP-16) this can throw exceptions
+
     Similer to genAssetNames, but it will instead do multiple
     requests to query all assets.
   */
@@ -71,5 +75,19 @@ export default class EveQueryService {
       ch => this.esiQuery.genAssetNames(token, characterId, ch),
     ));
     return mapify(filterNullOrUndef(responses.flat()), 'item_id');
+  }
+
+  public async genAllNames(
+    token: Token,
+    ids: number[],
+  ): Promise<{ [key: number]: EveName }> {
+    const chunkSize = 1000;
+    const uniqueIds = uniq(ids).filter(id => id !== 0);
+    const chunks = chunk(uniqueIds, chunkSize);
+
+    const responses = await Promise.all(chunks.map(
+      ch => this.esiQuery.genxNames(token, ch),
+    ));
+    return mapify(filterNullOrUndef(responses.flat()), 'id');
   }
 }

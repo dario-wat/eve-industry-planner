@@ -5,6 +5,7 @@ import EveQueryService from './EveQueryService';
 import { industryActivity, IndustryActivityKey } from '../lib/IndustryActivity';
 import SequelizeQueryService from './SequelizeQueryService';
 import { differenceInSeconds, formatDistanceToNowStrict } from 'date-fns';
+import { EveIndustryJob } from '../types/EsiQuery';
 
 @Service()
 export default class IndustryJobService {
@@ -16,13 +17,13 @@ export default class IndustryJobService {
     private readonly eveQuery: EveQueryService,
   ) { }
 
-  public async getData(token: Token, industryJobs: any[]) {
+  public async getData(token: Token, industryJobs: EveIndustryJob[]) {
     return await Promise.all(industryJobs.map(
       job => this.genSingle(token, job),
     ));
   }
 
-  private async genSingle(token: Token, industryJob: any) {
+  private async genSingle(token: Token, industryJob: EveIndustryJob) {
     const currentDatePst = new Date();
     const endDatePst = utcToZonedTime(industryJob.end_date, this.PST_TZ);
     const remainingSeconds =

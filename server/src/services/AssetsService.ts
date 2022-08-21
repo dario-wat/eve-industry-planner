@@ -55,6 +55,7 @@ export default class AssetsService {
     const stationNames =
       await this.eveQuery.genAllStationNames(token, uniqueLocationIds);
 
+    // TODO maybe I should filter out those that don't have a parent
     // We don't care about items inside ships (fits, cargo, drones, ...)
     const nonShipAssets = assetsWithParent.filter(o =>
       o.parent

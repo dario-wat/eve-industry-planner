@@ -7,6 +7,7 @@ import EveQueryService from '../services/EveQueryService';
 import IndustryJobService from '../services/IndustryJobService';
 import AssetsService from '../services/AssetsService';
 import EsiQueryService from '../services/EsiQueryService';
+import ContractsService from '../services/ContractsService';
 
 const route = Router();
 
@@ -43,6 +44,19 @@ const controller = (app: Router) => {
 
       const assetService = Container.get(AssetsService);
       const output = await assetService.getData(token, assets);
+      res.json(output);
+    },
+  );
+
+  app.get(
+    '/contracts',
+    async (req: Request, res: Response) => {
+      const characterId = getCharacterId();
+      const token = await provider.getToken(characterId, requiredScopes);
+      const contracts = await esiQuery.genxContracts(token, characterId);
+
+      const contractsService = Container.get(ContractsService);
+      const output = await contractsService.getData(token, contracts);
       res.json(output);
     },
   );

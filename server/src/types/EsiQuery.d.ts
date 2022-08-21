@@ -1,3 +1,5 @@
+import { IndustryActivityKey } from './lib/IndustryActivity';
+
 export interface EveAsset {
   is_singleton: boolean,
   item_id: number,
@@ -43,7 +45,7 @@ export interface EveStructure {
 }
 
 export interface EveIndustryJob {
-  activity_id: number,
+  activity_id: IndustryActivityKey,
   blueprint_id: number,
   blueprint_location_id: number,
   blueprint_type_id: number,
@@ -61,4 +63,34 @@ export interface EveIndustryJob {
   start_date: string,
   station_id: number,
   status: string,
+}
+
+export interface EveContract {
+  acceptor_id: number,
+  assignee_id: number,
+  availability: string,
+  collateral: number,
+  contract_id: number,
+  date_accepted?: string,
+  date_completed?: string,
+  date_expired: string,
+  date_issued: string,
+  days_to_complete: number,
+  end_location_id: number,
+  for_corporation: boolean,
+  issuer_corporation_id: number,
+  issuer_id: number,
+  price: number,
+  reward: number,
+  start_location_id: number,
+  status: string,
+  title: string,
+  type: string,
+  volume: number,
+}
+
+export interface EveName {
+  category: string,
+  id: number,
+  name: string,
 }
