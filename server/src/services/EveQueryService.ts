@@ -13,6 +13,7 @@ export default class EveQueryService {
   ) { }
 
   // Figures out the name of either station or structure
+  // TODO(EIP-14) fix this function
   public async genStationName(
     token: Token,
     stationId: number,
@@ -30,7 +31,7 @@ export default class EveQueryService {
   ): Promise<{ [key: number]: string | undefined }> {
     const uniqueStationIds = uniq(stationIds);
     const stationNames = await Promise.all(uniqueStationIds.map(
-      async stationId => this.genStationName(token, stationId),
+      stationId => this.genStationName(token, stationId),
     ));
     return Object.fromEntries(zip(uniqueStationIds, stationNames));
   }
@@ -48,7 +49,7 @@ export default class EveQueryService {
     const pageCount = 5;
     const allAssets = await Promise.all(
       range(1, pageCount + 1).map(
-        async page => this.esiQuery.genAssets(token, characterId, page)
+        page => this.esiQuery.genAssets(token, characterId, page)
       ),
     );
     return filterNullOrUndef(allAssets).flat();
@@ -66,8 +67,8 @@ export default class EveQueryService {
     const chunkSize = 1000;
     const chunks = chunk(uniq(itemIds), chunkSize);
 
-    const responses = await Promise.all(chunks.map(async ch =>
-      this.esiQuery.genAssetNames(token, characterId, ch),
+    const responses = await Promise.all(chunks.map(
+      ch => this.esiQuery.genAssetNames(token, characterId, ch),
     ));
     return mapify(filterNullOrUndef(responses.flat()), 'item_id');
   }

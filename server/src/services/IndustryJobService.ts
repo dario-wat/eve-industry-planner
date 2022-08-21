@@ -18,11 +18,11 @@ export default class IndustryJobService {
 
   public async getData(token: Token, industryJobs: any[]) {
     return await Promise.all(industryJobs.map(
-      job => this.getSingle(token, job),
+      job => this.genSingle(token, job),
     ));
   }
 
-  private async getSingle(token: Token, industryJob: any) {
+  private async genSingle(token: Token, industryJob: any) {
     const currentDatePst = new Date();
     const endDatePst = utcToZonedTime(industryJob.end_date, this.PST_TZ);
     const remainingSeconds =

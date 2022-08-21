@@ -167,6 +167,21 @@ export default class EsiQueryService {
       "quantity": 1,
       "type_id": 3244
     }
+
+    Location for the assets can be station, structure, container,
+    ship, customs office, POS and other things. However, the root can
+    only be station, structure, custom office, POS (other?).
+    For the simplicity I will visualize only the station/structure graph.
+
+                Station/structure
+          ______________|_______________
+          |             |               |
+        Item          Container         Ship
+                        |            ____|_____
+                      Item          |          |
+                                  Item        Container
+                                               |
+                                              Item
   */
   public async genxAssets(
     token: Token,
@@ -192,6 +207,8 @@ export default class EsiQueryService {
   }
 
   /*
+    This function can be used to find out the names of named objects
+    such as ships or containers.
     @param itemIds 
       IDs of the items returned by the genAssets functions. It can contain
       at most 1000 elements. 
