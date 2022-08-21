@@ -3,9 +3,7 @@ import { utcToZonedTime } from 'date-fns-tz';
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { EveContract } from '../types/EsiQuery';
-import EsiQueryService from './EsiQueryService';
 import EveQueryService from './EveQueryService';
-import SequelizeQueryService from './SequelizeQueryService';
 
 const PST_TZ = 'America/Los_Angeles';
 
@@ -13,9 +11,7 @@ const PST_TZ = 'America/Los_Angeles';
 export default class ContractsService {
 
   constructor(
-    private readonly sequelizeQuery: SequelizeQueryService,
     private readonly eveQuery: EveQueryService,
-    private readonly esiQuery: EsiQueryService,
   ) { }
 
   public async getData(token: Token, contracts: EveContract[]) {
