@@ -1,12 +1,12 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import { countBy, identity, uniq } from 'underscore';
-import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
-import { filterNullOrUndef, mapify } from '../lib/util';
+import { uniq } from 'underscore';
+import { mapify } from '../lib/util';
 import EveQueryService from './EveQueryService';
 import SequelizeQueryService from './SequelizeQueryService';
 import { EveAsset } from '../types/EsiQuery';
-import EsiQueryService from './EsiQueryService';
+
+const SHIP_CAT = 6;
 
 // It's important to note that this service queries all assets except
 // the ones located inside ships
@@ -18,85 +18,55 @@ import EsiQueryService from './EsiQueryService';
 @Service()
 export default class AssetsService {
 
-  private static readonly SHIP_CAT = 6;
-
   constructor(
     private readonly sequelizeQuery: SequelizeQueryService,
     private readonly eveQuery: EveQueryService,
-    private readonly esiQuery: EsiQueryService,
   ) { }
 
   // TODO(EIP-13) Assets should be cached
   public async getData(token: Token, assets: EveAsset[]) {
-    console.log('Assets count: ', assets.length);
+    const assetMap = mapify(assets, 'item_id');
+    const assetsWithParent = assets.map(asset => ({
+      asset,
+      parent: assetMap[asset.location_id],
+    }));
 
-    // TODO use sequelize join to combine the two below
+    // TODO(EIP-15) use sequelize join to combine the two below
     const typeIds = assets.map(a => a.type_id);
     const types = await this.sequelizeQuery.genEveTypes(typeIds);
 
     const groupIds = Object.values(types).map(t => t.group_id);
     const groups = await this.sequelizeQuery.genEveGroups(groupIds);
 
-
     const typeCategory = Object.entries(types).map(
-      (t: any[]) => ({
+      t => ({
         item_id: t[0],
         category_id: groups[t[1].group_id].category_id
       }),
     );
     const typeCategoryMap = mapify(typeCategory, 'item_id');
 
-    const assetMap = mapify(assets, 'item_id');
-
-    const assetNames = await this.eveQuery.genAllAssetNames(
-      token,
-      GlobalMemory.characterId!,
-      assets.map(a => a.item_id),
+    // Filter out all assets whose parent doesn't exist. Those are root
+    // assets whose location must be station/structure or similar.
+    const uniqueLocationIds = uniq(assetsWithParent
+      .filter(o => o.parent === undefined)
+      .map(o => o.asset.location_id),
     );
-
-    // const uniqueLocationIds = uniq(assets.map(a => a.location_id));
-    // console.log(uniqueLocationIds.length);
-    // const stationNames =
-    //   await this.eveQuery.genAllStationNames(token, uniqueLocationIds);
-    // console.log(stationNames);
-    // const structureNames = await Promise.all(uniqueLocationIds.map(l =>
-    //   this.esiQuery.genxStation(token, l),
-    // )).catch(async e => console.log(await e.json()));
-    // console.log(filterNullOrUndef(structureNames));
-    // console.log(countBy(assets.map(a => a.location_type), identity))
-    // console.log(countBy(assets.map(a => a.location_flag), identity))
-
-    const assetsWithParent = assets.map(asset => ({
-      name: types[asset.type_id].name,
-      quantity: asset.quantity,
-      container_name: assetNames[asset.item_id]?.name,
-      // location: stationNames[asset.location_id],
-      location_id: asset.location_id,
-      item_id: asset.item_id,
-      location_flag: asset.location_flag,
-      location_type: asset.location_type,
-      category_id: typeCategoryMap[asset.type_id].category_id,
-      parent: assetMap[asset.location_id],
-    }));
-
-    const uniqueLocationIds =
-      uniq(assetsWithParent.filter(a => a.parent === undefined).map(a => a.location_id));
-    console.log(uniqueLocationIds.length);
     const stationNames =
       await this.eveQuery.genAllStationNames(token, uniqueLocationIds);
-    console.log(stationNames);
-    const nonShipAssets = assetsWithParent.filter(a =>
-      a.parent
-        ? typeCategoryMap[a.parent.type_id].category_id !== AssetsService.SHIP_CAT
+
+    // We don't care about items inside ships (fits, cargo, drones, ...)
+    const nonShipAssets = assetsWithParent.filter(o =>
+      o.parent
+        ? typeCategoryMap[o.parent.type_id].category_id !== SHIP_CAT
         : true
     );
-    return nonShipAssets.map(asset => ({
-      name: asset.name,
-      quantity: asset.quantity,
-      location_id: asset.location_id,
-      location_flag: asset.location_flag,
-      // location1: asset.location,
-      location2: (asset.parent ? stationNames[asset.parent.location_id] : 'None'),
+
+    return nonShipAssets.map(o => ({
+      name: types[o.asset.type_id].name,
+      quantity: o.asset.quantity,
+      location: stationNames[o.asset.location_id]
+        || (o.parent ? stationNames[o.parent.location_id] : 'None'),
     }));
   }
 }
