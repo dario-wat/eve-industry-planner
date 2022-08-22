@@ -8,6 +8,7 @@ import { useLocalhostAxios } from 'lib/util'
 import { useState } from 'react';
 
 // TODO
+//  2. Asset count
 //  3. Icons ?
 //  4. Header row styling
 //  5. Asset caching
@@ -55,7 +56,7 @@ export default function AssetsPage() {
         />
       </Box>
       {filteredData ?
-        (<Box sx={{ height: 'auto', width: '100%' }}>
+        <Box sx={{ height: 'auto', width: '100%' }}>
           <DataGrid
             autoHeight
             density="compact"
@@ -67,9 +68,8 @@ export default function AssetsPage() {
             disableColumnMenu
             experimentalFeatures={{ newEditingApi: true }}
           />
-        </Box>)
-        : (<CircularProgress />)
-
+        </Box>
+        : <CircularProgress />
       }
     </div>
   )

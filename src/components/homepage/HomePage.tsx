@@ -10,6 +10,7 @@ import HomePageAppBar from 'components/homepage/HomePageAppBar';
 import NavigationDrawer from 'components/NavigationDrawer';
 import AssetsPage from 'components/AssetsPage';
 import { TextField } from '@mui/material';
+import ContractsPage from 'components/ContractsPage';
 
 // TODO
 //  1. Enum for tabs
@@ -43,14 +44,8 @@ export default function HomePage() {
             Indsutry Jobs
           </Typography>
         }
-        {selectedTab === 'assets' &&
-          <AssetsPage />
-        }
-        {selectedTab === 'contracts' &&
-          <Typography paragraph>
-            Contracts
-          </Typography>
-        }
+        {selectedTab === 'assets' && <AssetsPage />}
+        {selectedTab === 'contracts' && <ContractsPage />}
       </Box>
     </Box>
   );
