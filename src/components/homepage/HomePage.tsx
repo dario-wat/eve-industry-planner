@@ -29,7 +29,7 @@ export default function HomePage() {
         onClick={setSelectedTab}
       />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Toolbar />
+        <Toolbar /> {/* need this to push the nav bar below the app bar */}
         {selectedTab === 'dashboard' &&
           <Typography paragraph>
             Dashboard

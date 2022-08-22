@@ -1,64 +1,56 @@
-import { styled } from "@mui/material/styles";
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  tableCellClasses,
-  TableContainer,
-  TableHead,
-  TableRow
+  Box,
+  TextField
 } from '@mui/material';
 import { useLocalhostAxios } from 'lib/util'
+import { useState } from "react";
 
 export default function AssetsPage() {
   const [{ data }] = useLocalhostAxios('/assets');
 
-  const StyledTableCell = styled(TableCell)(({ theme }) => ({
-    [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.common.black,
-      color: theme.palette.common.white,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      fontSize: 14,
-    },
-  }));
+  const [searchText, setSearchText] = useState('');
 
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    '&:nth-of-type(odd)': {
-      backgroundColor: theme.palette.action.hover,
+  const indexedData = data && data.map((d: any, i: number) => ({ id: i, ...d }));
+  // const filteredData = data && data.filter((d: any) =>
+  //   d.name.toLowerCase().includes(searchText.toLowerCase())
+  //   || d.location.toLowerCase().includes(searchText.toLowerCase())
+  // );
+
+  const columns: GridColDef[] = [
+    { field: 'name', headerName: 'Name', width: 300 },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      width: 150,
     },
-    // hide last border
-    '&:last-child td, &:last-child th': {
-      border: 0,
+    {
+      field: 'location',
+      headerName: 'Location',
+      width: 500,
     },
-  }));
+  ];
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-        <TableHead>
-          <TableRow>
-            <StyledTableCell>Name</StyledTableCell>
-            <StyledTableCell align="right">Quantity</StyledTableCell>
-            <StyledTableCell align="right">Location</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data && data.map((row: any, index: number) => (
-            <StyledTableRow
-              key={index}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <StyledTableCell component="th" scope="row">
-                {row.name}
-              </StyledTableCell>
-              <StyledTableCell align="right">{row.quantity}</StyledTableCell>
-              <StyledTableCell align="right">{row.location}</StyledTableCell>
-            </StyledTableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div>
+      <TextField
+        label="Search..."
+        variant="outlined"
+        value={searchText}
+        onChange={e => setSearchText(e.target.value)}
+      />
+      {indexedData &&
+        <Box sx={{ height: 400, width: '100%' }}>
+          <DataGrid
+            rows={indexedData}
+            columns={columns}
+            pageSize={100}
+            rowsPerPageOptions={[100]}
+            disableSelectionOnClick
+            experimentalFeatures={{ newEditingApi: true }}
+          />
+        </Box>
+      }
+    </div>
   )
 }
