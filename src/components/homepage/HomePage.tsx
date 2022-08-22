@@ -8,6 +8,7 @@ import TakeoutDiningIcon from '@mui/icons-material/TakeoutDining';
 import { useState } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
 import NavigationDrawer from 'components/NavigationDrawer';
+import AssetsPage from 'components/AssetsPage';
 
 // import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
@@ -40,9 +41,7 @@ export default function HomePage() {
           </Typography>
         }
         {selectedTab === 'assets' &&
-          <Typography paragraph>
-            Assets
-          </Typography>
+          <AssetsPage />
         }
         {selectedTab === 'contracts' &&
           <Typography paragraph>

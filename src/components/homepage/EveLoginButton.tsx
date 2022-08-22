@@ -1,10 +1,8 @@
-import useAxios from 'axios-hooks';
 import eveLoginImage from 'assets/eve-sso-login-white-small.png';
+import { useLocalhostAxios } from 'lib/util';
 
 export default function EveLoginButton() {
-  const [{ data }] = useAxios(
-    'http://localhost:8080/login_url',
-  );
+  const [{ data }] = useLocalhostAxios('/login_url');
 
   return (
     <a href={data}>
