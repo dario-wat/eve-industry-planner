@@ -1,16 +1,16 @@
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import CircularProgress from '@mui/material/CircularProgress';
 import {
   Box,
   TextField
 } from '@mui/material';
 import { useLocalhostAxios } from 'lib/util'
-import { useState } from "react";
+import { useState } from 'react';
 
 // TODO
-//  1. Loading indicator
-//  2. More dense table
 //  3. Icons ?
-//  4. 
+//  4. Header row styling
+//  5. Asset caching
 export default function AssetsPage() {
   const [{ data }] = useLocalhostAxios('/assets');
 
@@ -46,16 +46,19 @@ export default function AssetsPage() {
 
   return (
     <div>
-      <TextField
-        label="Search..."
-        variant="outlined"
-        value={searchText}
-        onChange={e => setSearchText(e.target.value)}
-      />
-      {filteredData &&
-        <Box sx={{ height: 'auto', width: '100%' }}>
+      <Box sx={{ pb: 2 }}>
+        <TextField
+          label="Search..."
+          variant="outlined"
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+        />
+      </Box>
+      {filteredData ?
+        (<Box sx={{ height: 'auto', width: '100%' }}>
           <DataGrid
             autoHeight
+            density="compact"
             rows={filteredData}
             columns={columns}
             pageSize={100}
@@ -64,7 +67,9 @@ export default function AssetsPage() {
             disableColumnMenu
             experimentalFeatures={{ newEditingApi: true }}
           />
-        </Box>
+        </Box>)
+        : (<CircularProgress />)
+
       }
     </div>
   )

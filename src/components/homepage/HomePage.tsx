@@ -11,9 +11,8 @@ import NavigationDrawer from 'components/NavigationDrawer';
 import AssetsPage from 'components/AssetsPage';
 import { TextField } from '@mui/material';
 
-// import {BrowserRouter, Route, Routes} from 'react-router-dom';
-
-// TODO routes and page
+// TODO
+//  1. Enum for tabs
 export default function HomePage() {
   const [selectedTab, setSelectedTab] = useState('dashboard');
   return (
