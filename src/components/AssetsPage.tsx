@@ -6,28 +6,41 @@ import {
 import { useLocalhostAxios } from 'lib/util'
 import { useState } from "react";
 
+// TODO
+//  1. Loading indicator
+//  2. More dense table
+//  3. Icons ?
+//  4. 
 export default function AssetsPage() {
   const [{ data }] = useLocalhostAxios('/assets');
 
   const [searchText, setSearchText] = useState('');
 
-  const indexedData = data && data.map((d: any, i: number) => ({ id: i, ...d }));
-  // const filteredData = data && data.filter((d: any) =>
-  //   d.name.toLowerCase().includes(searchText.toLowerCase())
-  //   || d.location.toLowerCase().includes(searchText.toLowerCase())
-  // );
+  const indexedData =
+    data && data.map((d: any, i: number) => ({ id: i, ...d }));
+  const filteredData = indexedData && indexedData.filter((d: any) =>
+    (d.name && d.name.toLowerCase().includes(searchText.toLowerCase()))
+    || (d.location && d.location.toLowerCase().includes(searchText.toLowerCase()))
+  );
 
   const columns: GridColDef[] = [
-    { field: 'name', headerName: 'Name', width: 300 },
+    {
+      field: 'name',
+      headerName: 'Name',
+      width: 400,
+      sortable: false,
+    },
     {
       field: 'quantity',
       headerName: 'Quantity',
-      width: 150,
+      width: 100,
+      sortable: false,
     },
     {
       field: 'location',
       headerName: 'Location',
       width: 500,
+      sortable: false,
     },
   ];
 
@@ -39,14 +52,16 @@ export default function AssetsPage() {
         value={searchText}
         onChange={e => setSearchText(e.target.value)}
       />
-      {indexedData &&
-        <Box sx={{ height: 400, width: '100%' }}>
+      {filteredData &&
+        <Box sx={{ height: 'auto', width: '100%' }}>
           <DataGrid
-            rows={indexedData}
+            autoHeight
+            rows={filteredData}
             columns={columns}
             pageSize={100}
             rowsPerPageOptions={[100]}
             disableSelectionOnClick
+            disableColumnMenu
             experimentalFeatures={{ newEditingApi: true }}
           />
         </Box>

@@ -9,6 +9,7 @@ import { useState } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
 import NavigationDrawer from 'components/NavigationDrawer';
 import AssetsPage from 'components/AssetsPage';
+import { TextField } from '@mui/material';
 
 // import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
@@ -31,9 +32,12 @@ export default function HomePage() {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar /> {/* need this to push the nav bar below the app bar */}
         {selectedTab === 'dashboard' &&
-          <Typography paragraph>
-            Dashboard
-          </Typography>
+          <TextField
+            label="Search..."
+            variant="outlined"
+            value={'bs'}
+          // onChange={e => setSearchText(e.target.value)}
+          />
         }
         {selectedTab === 'industry_jobs' &&
           <Typography paragraph>
