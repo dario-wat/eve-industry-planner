@@ -2,16 +2,28 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
-import HomePageNavBar from 'components/homepage/HomePageNavBar';
+import NavigationDrawer from 'components/homepage/NavigationDrawer';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import { useState } from 'react';
 
 // import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
 // TODO routes and page
 export default function HomePage() {
+  const [selectedTab, setSelectedTab] = useState('dashboard');
   return (
     <Box sx={{ display: 'flex' }}>
       <HomePageAppBar />
-      <HomePageNavBar />
+      <NavigationDrawer
+        tabs={[
+          { key: 'dashboard', label: 'Dashboard', icon: <InboxIcon /> },
+          { key: 'industry_jobs', label: 'Industry Jobs', icon: <InboxIcon /> },
+          { key: 'assets', label: 'Assets', icon: <InboxIcon /> },
+          { key: 'contracts', label: 'Contracts', icon: <InboxIcon /> },
+        ]}
+        selectedTab={selectedTab}
+        onClick={setSelectedTab}
+      />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <Typography paragraph>
