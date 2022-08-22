@@ -1,10 +1,13 @@
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import HomePageAppBar from 'components/homepage/HomePageAppBar';
-import NavigationDrawer from 'components/homepage/NavigationDrawer';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ScienceIcon from '@mui/icons-material/Science';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import TakeoutDiningIcon from '@mui/icons-material/TakeoutDining';
 import { useState } from 'react';
+import HomePageAppBar from 'components/homepage/HomePageAppBar';
+import NavigationDrawer from 'components/NavigationDrawer';
 
 // import {BrowserRouter, Route, Routes} from 'react-router-dom';
 
@@ -16,43 +19,36 @@ export default function HomePage() {
       <HomePageAppBar />
       <NavigationDrawer
         tabs={[
-          { key: 'dashboard', label: 'Dashboard', icon: <InboxIcon /> },
-          { key: 'industry_jobs', label: 'Industry Jobs', icon: <InboxIcon /> },
-          { key: 'assets', label: 'Assets', icon: <InboxIcon /> },
-          { key: 'contracts', label: 'Contracts', icon: <InboxIcon /> },
+          { key: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
+          { key: 'industry_jobs', label: 'Industry Jobs', icon: <ScienceIcon /> },
+          { key: 'assets', label: 'Assets', icon: <TakeoutDiningIcon /> },
+          { key: 'contracts', label: 'Contracts', icon: <ReceiptLongIcon /> },
         ]}
         selectedTab={selectedTab}
         onClick={setSelectedTab}
       />
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
-        <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-          enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-          imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-          Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-          Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-          nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-          leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-          feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-          consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-          sapien faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-          eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-          neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-          tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-          sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-          tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-          gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-          et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-          tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
+        {selectedTab === 'dashboard' &&
+          <Typography paragraph>
+            Dashboard
+          </Typography>
+        }
+        {selectedTab === 'industry_jobs' &&
+          <Typography paragraph>
+            Indsutry Jobs
+          </Typography>
+        }
+        {selectedTab === 'assets' &&
+          <Typography paragraph>
+            Assets
+          </Typography>
+        }
+        {selectedTab === 'contracts' &&
+          <Typography paragraph>
+            Contracts
+          </Typography>
+        }
       </Box>
     </Box>
   );

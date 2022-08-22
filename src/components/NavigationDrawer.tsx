@@ -30,7 +30,10 @@ export default function NavigationDrawer(props: Props) {
       <Box sx={{ overflow: 'auto' }}>
         <List>
           {tabs.map(tab => (
-            <ListItem key={tab.key} disablePadding onClick={_ => onClick(tab.key)}>
+            <ListItem
+              key={tab.key}
+              disablePadding
+              onClick={_ => onClick(tab.key)}>
               <ListItemButton selected={tab.key === selectedTab}>
                 <ListItemIcon>
                   {tab.icon}
