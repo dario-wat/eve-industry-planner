@@ -24,10 +24,13 @@ export default class IndustryJobService {
   }
 
   private async genSingle(token: Token, industryJob: EveIndustryJob) {
-    const currentDatePst = new Date();
-    const endDatePst = utcToZonedTime(industryJob.end_date, PST_TZ);
-    const remainingSeconds =
-      Math.max(differenceInSeconds(endDatePst, currentDatePst), 0);
+    const remainingSeconds = Math.max(
+      0,  // this is to eliminate negative time
+      differenceInSeconds(
+        new Date(industryJob.end_date),
+        new Date(),
+      ),
+    );
 
     const [idNames, stationName] = await Promise.all([
       this.sequelizeQuery.genEveTypes(
