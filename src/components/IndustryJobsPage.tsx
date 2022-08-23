@@ -3,6 +3,9 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useLocalhostAxios } from "lib/util";
 
+// TODO
+//  - Styling (colors)
+//  - Loading indicator in the center
 export default function IndustryJobsPage() {
   const [{ data }] = useLocalhostAxios('/industry_jobs');
 
@@ -27,13 +30,14 @@ export default function IndustryJobsPage() {
       headerName: 'Progress',
       width: 150,
       sortable: false,
+      valueFormatter: params => Math.round(params.value * 100) + '%',
     },
     {
       field: 'end_date',
       headerName: 'Remaining Time',
       width: 150,
       sortable: false,
-      valueGetter: params => formatDistanceToNowStrict(
+      valueFormatter: params => formatDistanceToNowStrict(
         new Date(params.value),
         { addSuffix: true },
       ),
@@ -69,6 +73,11 @@ export default function IndustryJobsPage() {
       {indexedData ?
         <Box sx={{ height: 'auto', width: '100%' }}>
           <DataGrid
+            initialState={{
+              sorting: {
+                sortModel: [{ field: 'end_date', sort: 'asc' }],
+              },
+            }}
             autoHeight
             density="compact"
             rows={indexedData}

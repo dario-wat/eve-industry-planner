@@ -46,21 +46,21 @@ export default function ContractsPage() {
       headerName: 'Issuer',
       width: 150,
       sortable: false,
-      valueGetter: params => params?.value?.name,
+      valueFormatter: params => params?.value?.name,
     },
     {
       field: 'assignee',
       headerName: 'Assignee',
       width: 150,
       sortable: false,
-      valueGetter: params => params?.value?.name,
+      valueFormatter: params => params?.value?.name,
     },
     {
       field: 'acceptor',
       headerName: 'Acceptor',
       width: 150,
       sortable: false,
-      valueGetter: params => params?.value?.name,
+      valueFormatter: params => params?.value?.name,
     },
     {
       field: 'title',
@@ -73,7 +73,7 @@ export default function ContractsPage() {
       headerName: 'Price',
       width: 100,
       sortable: false,
-      valueGetter: params =>
+      valueFormatter: params =>
         params.value > 1000000
           ? (params.value / 1000000).toFixed(1) + 'M'
           : params.value > 1000
@@ -85,7 +85,7 @@ export default function ContractsPage() {
       headerName: 'Expires',
       width: 120,
       sortable: false,
-      valueGetter: params => formatDistanceToNowStrict(
+      valueFormatter: params => formatDistanceToNowStrict(
         new Date(params.value),
         { addSuffix: true },
       ),
