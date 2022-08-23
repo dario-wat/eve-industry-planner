@@ -7,12 +7,14 @@ export const industryActivity = Object.freeze({
   "3": {
     "activityID": 3,
     "description": "Researching time efficiency",
-    "activityName": "Time Efficiency Research"
+    "activityName": "TE Research",
+    // "activityName": "Time Efficiency Research"
   },
   "4": {
     "activityID": 4,
     "description": "Researching material efficiency",
-    "activityName": "Material Efficiency Research"
+    "activityName": "ME Research",
+    // "activityName": "Material Efficiency Research"
   },
   "5": {
     "activityID": 5,

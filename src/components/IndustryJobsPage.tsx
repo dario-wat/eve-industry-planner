@@ -6,6 +6,8 @@ import { useLocalhostAxios } from "lib/util";
 // TODO
 //  - Styling (colors)
 //  - Loading indicator in the center
+//  - Add progress bar for percentage
+//  - Add icons
 export default function IndustryJobsPage() {
   const [{ data }] = useLocalhostAxios('/industry_jobs');
 
@@ -16,21 +18,8 @@ export default function IndustryJobsPage() {
     {
       field: 'activity',
       headerName: 'Activity',
-      width: 150,
+      width: 130,
       sortable: false,
-    },
-    {
-      field: 'blueprint_name',
-      headerName: 'Blueprint',
-      width: 150,
-      sortable: false,
-    },
-    {
-      field: 'progress',
-      headerName: 'Progress',
-      width: 150,
-      sortable: false,
-      valueFormatter: params => Math.round(params.value * 100) + '%',
     },
     {
       field: 'end_date',
@@ -43,27 +32,34 @@ export default function IndustryJobsPage() {
       ),
     },
     {
+      field: 'blueprint_name',
+      headerName: 'Blueprint',
+      width: 300,
+      sortable: false,
+    },
+    {
+      field: 'progress',
+      headerName: 'Progress',
+      width: 100,
+      sortable: false,
+      valueFormatter: params => Math.round(params.value * 100) + '%',
+    },
+    {
       field: 'runs',
       headerName: 'Runs',
-      width: 150,
+      width: 80,
       sortable: false,
     },
     {
       field: 'location',
       headerName: 'Location',
-      width: 150,
-      sortable: false,
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      width: 150,
+      width: 160,
       sortable: false,
     },
     {
       field: 'product_name',
       headerName: 'Product',
-      width: 150,
+      width: 250,
       sortable: false,
     },
   ];
