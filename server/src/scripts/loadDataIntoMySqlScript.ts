@@ -28,7 +28,7 @@ import {
   BpInventionProducts,
   BpManufacturingProducts,
 } from '../models/sde/Blueprint';
-import initDatabase from '../loaders/initDatabase';
+import { initDatabaseForSdeScript } from '../loaders/initDatabase';
 import { DIKeys } from '../lib/DIKeys';
 
 // Either console.log or false
@@ -128,7 +128,7 @@ async function loadBlueprintData(sequelize: Sequelize) {
 async function run() {
   LOG && LOG('[Script] Script started');
 
-  initDatabase();
+  initDatabaseForSdeScript();
   const sequelize: Sequelize = Container.get(DIKeys.DB);
   await sequelize.authenticate({ logging: SEQUELIZE_LOG });
 
