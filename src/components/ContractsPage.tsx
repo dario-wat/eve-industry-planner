@@ -1,4 +1,4 @@
-import { Box, CircularProgress, TextField, Typography } from '@mui/material';
+import { Box, Card, CardContent, CircularProgress, TextField, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useLocalhostAxios } from 'lib/util';
 import { useState } from 'react';
@@ -99,22 +99,26 @@ export default function ContractsPage() {
         Active Contracts
       </Typography>
     </Box>
-    {activeContracts ?
-      <Box sx={{ height: 'auto', width: '100%' }}>
-        <DataGrid
-          autoHeight
-          density="compact"
-          rows={activeContracts}
-          columns={columns}
-          pageSize={100}
-          rowsPerPageOptions={[100]}
-          disableSelectionOnClick
-          disableColumnMenu
-          experimentalFeatures={{ newEditingApi: true }}
-        />
-      </Box>
-      : <CircularProgress />
-    }
+    <Card>
+      <CardContent>
+        {activeContracts ?
+          <Box sx={{ height: 'auto', width: '100%' }}>
+            <DataGrid
+              autoHeight
+              density="compact"
+              rows={activeContracts}
+              columns={columns}
+              pageSize={100}
+              rowsPerPageOptions={[100]}
+              disableSelectionOnClick
+              disableColumnMenu
+              experimentalFeatures={{ newEditingApi: true }}
+            />
+          </Box>
+          : <CircularProgress />
+        }
+      </CardContent>
+    </Card>
     <Box sx={{ pb: 1, pt: 4 }}>
       <Typography variant="h6" gutterBottom>
         Finished Contracts
