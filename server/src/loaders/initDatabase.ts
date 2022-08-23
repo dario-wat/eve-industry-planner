@@ -11,12 +11,12 @@ import {
   bpTeMaterialsDefine,
   bpInventionProductsDefine,
   bpManufacturingProductsDefine,
-} from '../models/Blueprint';
-import { groupIdModelDefine } from '../models/GroupID';
-import { iconIdModelDefine } from '../models/IconID';
-import { typeIdModelDefine } from '../models/TypeID';
-import { categoryIdModelDefine } from '../models/CategoryID';
-import { stationModelDefine } from '../models/Station';
+} from '../models/sde/Blueprint';
+import { groupIdModelDefine } from '../models/sde/GroupID';
+import { iconIdModelDefine } from '../models/sde/IconID';
+import { typeIdModelDefine } from '../models/sde/TypeID';
+import { categoryIdModelDefine } from '../models/sde/CategoryID';
+import { stationModelDefine } from '../models/sde/Station';
 
 // Every new model definer needs to be added here
 export default function initDatabase() {

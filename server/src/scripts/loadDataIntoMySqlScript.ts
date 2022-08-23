@@ -13,11 +13,11 @@ import { parse } from 'yaml';
 import fs from 'fs';
 import Container from 'typedi';
 import { Model, ModelStatic, Sequelize } from 'sequelize/types';
-import { GroupID } from '../models/GroupID';
-import { IconID } from '../models/IconID';
-import { TypeID } from '../models/TypeID';
-import { CategoryID } from '../models/CategoryID';
-import { Station } from '../models/Station';
+import { GroupID } from '../models/sde/GroupID';
+import { IconID } from '../models/sde/IconID';
+import { TypeID } from '../models/sde/TypeID';
+import { CategoryID } from '../models/sde/CategoryID';
+import { Station } from '../models/sde/Station';
 import {
   Blueprint,
   BpCopyingMaterials,
@@ -27,7 +27,7 @@ import {
   BpTeMaterials,
   BpInventionProducts,
   BpManufacturingProducts,
-} from '../models/Blueprint';
+} from '../models/sde/Blueprint';
 import initDatabase from '../loaders/initDatabase';
 import { DIKeys } from '../lib/DIKeys';
 

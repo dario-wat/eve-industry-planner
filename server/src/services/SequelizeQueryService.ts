@@ -1,7 +1,7 @@
 import { Inject, Service } from 'typedi';
 import { Op, Sequelize } from 'sequelize';
-import { GroupID } from '../models/GroupID';
-import { TypeID } from '../models/TypeID';
+import { GroupID } from '../models/sde/GroupID';
+import { TypeID } from '../models/sde/TypeID';
 import { DIKeys } from '../lib/DIKeys';
 import { mapify } from '../lib/util';
 import { EveGroup, EveType } from '../types/SequelizeQuery';
