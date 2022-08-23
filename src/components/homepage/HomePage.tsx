@@ -8,15 +8,22 @@ import { useState } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
 import NavigationDrawer from 'components/NavigationDrawer';
 import AssetsPage from 'components/AssetsPage';
-import { createTheme, CssBaseline, TextField, ThemeProvider } from '@mui/material';
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import ContractsPage from 'components/ContractsPage';
 import IndustryJobsPage from 'components/IndustryJobsPage';
+import DashboardPage from 'components/DashboardPage';
+
+enum Tab {
+  DASHBOARD = 'dashboard',
+  INDUSTRY_JOBS = 'industry_jobs',
+  ASSETS = 'assets',
+  CONTRACTS = 'contracts',
+};
 
 // TODO
-//  - Enum for tabs
 //  - fix styling (button is gray, it should be white)
 export default function HomePage() {
-  const [selectedTab, setSelectedTab] = useState('dashboard');
+  const [selectedTab, setSelectedTab] = useState<string>(Tab.DASHBOARD);
 
   const themeLight = createTheme({
     palette: {
@@ -33,27 +40,20 @@ export default function HomePage() {
         <HomePageAppBar />
         <NavigationDrawer
           tabs={[
-            { key: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
-            { key: 'industry_jobs', label: 'Industry Jobs', icon: <ScienceIcon /> },
-            { key: 'assets', label: 'Assets', icon: <TakeoutDiningIcon /> },
-            { key: 'contracts', label: 'Contracts', icon: <ReceiptLongIcon /> },
+            { key: Tab.DASHBOARD, label: 'Dashboard', icon: <DashboardIcon /> },
+            { key: Tab.INDUSTRY_JOBS, label: 'Industry Jobs', icon: <ScienceIcon /> },
+            { key: Tab.ASSETS, label: 'Assets', icon: <TakeoutDiningIcon /> },
+            { key: Tab.CONTRACTS, label: 'Contracts', icon: <ReceiptLongIcon /> },
           ]}
           selectedTab={selectedTab}
           onClick={setSelectedTab}
         />
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Toolbar /> {/* need this to push the nav bar below the app bar */}
-          {selectedTab === 'dashboard' &&
-            <TextField
-              label="Search..."
-              variant="outlined"
-              value={'bs'}
-            // onChange={e => setSearchText(e.target.value)}
-            />
-          }
-          {selectedTab === 'industry_jobs' && <IndustryJobsPage />}
-          {selectedTab === 'assets' && <AssetsPage />}
-          {selectedTab === 'contracts' && <ContractsPage />}
+          {selectedTab === Tab.DASHBOARD && <DashboardPage />}
+          {selectedTab === Tab.INDUSTRY_JOBS && <IndustryJobsPage />}
+          {selectedTab === Tab.ASSETS && <AssetsPage />}
+          {selectedTab === Tab.CONTRACTS && <ContractsPage />}
         </Box>
       </Box>
     </ThemeProvider>
