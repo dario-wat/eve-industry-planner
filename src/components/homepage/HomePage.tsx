@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ScienceIcon from '@mui/icons-material/Science';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -11,16 +10,18 @@ import NavigationDrawer from 'components/NavigationDrawer';
 import AssetsPage from 'components/AssetsPage';
 import { createTheme, CssBaseline, TextField, ThemeProvider } from '@mui/material';
 import ContractsPage from 'components/ContractsPage';
+import IndustryJobsPage from 'components/IndustryJobsPage';
 
 // TODO
-//  1. Enum for tabs
+//  - Enum for tabs
+//  - fix styling (button is gray, it should be white)
 export default function HomePage() {
   const [selectedTab, setSelectedTab] = useState('dashboard');
 
   const themeLight = createTheme({
     palette: {
       background: {
-        default: "#e4e4e4"
+        default: '#e4e4e4',
       }
     }
   });
@@ -50,11 +51,7 @@ export default function HomePage() {
             // onChange={e => setSearchText(e.target.value)}
             />
           }
-          {selectedTab === 'industry_jobs' &&
-            <Typography paragraph>
-              Indsutry Jobs
-            </Typography>
-          }
+          {selectedTab === 'industry_jobs' && <IndustryJobsPage />}
           {selectedTab === 'assets' && <AssetsPage />}
           {selectedTab === 'contracts' && <ContractsPage />}
         </Box>
