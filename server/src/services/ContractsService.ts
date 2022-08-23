@@ -1,11 +1,8 @@
-import { formatDistanceToNowStrict } from 'date-fns';
-import { utcToZonedTime } from 'date-fns-tz';
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { EveContract } from '../types/EsiQuery';
 import EveQueryService from './EveQueryService';
 
-const PST_TZ = 'America/Los_Angeles';
 
 @Service()
 export default class ContractsService {
@@ -22,11 +19,6 @@ export default class ContractsService {
       ).flat(),
     )
 
-    const expires = (contract: EveContract) => formatDistanceToNowStrict(
-      utcToZonedTime(contract.date_expired, PST_TZ),
-      { addSuffix: true },
-    );
-
     return contracts.map(contract => ({
       title: contract.title,
       status: contract.status,
@@ -36,7 +28,7 @@ export default class ContractsService {
       assignee: names[contract.assignee_id] ?? null,
       issuer: names[contract.issuer_id] ?? null,
       acceptor: names[contract.acceptor_id] ?? null,
-      end_time_formatted: expires(contract),
+      date_expired: contract.date_expired,
     }));
   }
 }

@@ -4,7 +4,7 @@ import { utcToZonedTime } from 'date-fns-tz'
 import EveQueryService from './EveQueryService';
 import { industryActivity, IndustryActivityKey } from '../lib/IndustryActivity';
 import SequelizeQueryService from './SequelizeQueryService';
-import { differenceInSeconds, formatDistanceToNowStrict } from 'date-fns';
+import { differenceInSeconds } from 'date-fns';
 import { EveIndustryJob } from '../types/EsiQuery';
 
 const PST_TZ = 'America/Los_Angeles';
@@ -29,11 +29,6 @@ export default class IndustryJobService {
     const remainingSeconds =
       Math.max(differenceInSeconds(endDatePst, currentDatePst), 0);
 
-    const remainingTime = formatDistanceToNowStrict(
-      endDatePst,
-      { addSuffix: true },
-    );
-
     const [idNames, stationName] = await Promise.all([
       this.sequelizeQuery.genEveTypes(
         [industryJob.blueprint_type_id, industryJob.product_type_id]
@@ -47,7 +42,7 @@ export default class IndustryJobService {
           .activityName,
       blueprint_name: idNames[industryJob.blueprint_type_id].name,
       progress: 1 - remainingSeconds / industryJob.duration,
-      remaining_time: remainingTime,
+      end_date: industryJob.end_date,
       runs: industryJob.runs,
       location: stationName,
       status: industryJob.status,

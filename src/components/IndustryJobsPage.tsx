@@ -1,5 +1,6 @@
 import { Box, Card, CardContent, CircularProgress } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { formatDistanceToNowStrict } from "date-fns";
 import { useLocalhostAxios } from "lib/util";
 
 export default function IndustryJobsPage() {
@@ -28,10 +29,14 @@ export default function IndustryJobsPage() {
       sortable: false,
     },
     {
-      field: 'remaining_time',
+      field: 'end_date',
       headerName: 'Remaining Time',
       width: 150,
       sortable: false,
+      valueGetter: params => formatDistanceToNowStrict(
+        new Date(params.value),
+        { addSuffix: true },
+      ),
     },
     {
       field: 'runs',

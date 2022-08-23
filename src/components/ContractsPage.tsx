@@ -7,6 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { formatDistanceToNowStrict } from 'date-fns';
 import { useLocalhostAxios } from 'lib/util';
 import { useState } from 'react';
 
@@ -80,10 +81,14 @@ export default function ContractsPage() {
             : params.value
     },
     {
-      field: 'end_time_formatted',
+      field: 'date_expired',
       headerName: 'Expires',
       width: 120,
       sortable: false,
+      valueGetter: params => formatDistanceToNowStrict(
+        new Date(params.value),
+        { addSuffix: true },
+      ),
     },
     {
       field: 'type',
