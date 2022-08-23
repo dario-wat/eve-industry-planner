@@ -2,6 +2,8 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import CircularProgress from '@mui/material/CircularProgress';
 import {
   Box,
+  Card,
+  CardContent,
   TextField
 } from '@mui/material';
 import { useLocalhostAxios } from 'lib/util'
@@ -57,22 +59,27 @@ export default function AssetsPage() {
           onChange={e => setSearchText(e.target.value)}
         />
       </Box>
-      {filteredData ?
-        <Box sx={{ height: 'auto', width: '100%' }}>
-          <DataGrid
-            autoHeight
-            density="compact"
-            rows={filteredData}
-            columns={columns}
-            pageSize={100}
-            rowsPerPageOptions={[100]}
-            disableSelectionOnClick
-            disableColumnMenu
-            experimentalFeatures={{ newEditingApi: true }}
-          />
-        </Box>
-        : <CircularProgress />
-      }
-    </div>
+      <Card>
+        <CardContent>
+          {filteredData ?
+            <Box sx={{ height: 'auto', width: '100%' }}>
+              <DataGrid
+                autoHeight
+                density="compact"
+                rows={filteredData}
+                columns={columns}
+                pageSize={100}
+                rowsPerPageOptions={[100]}
+                disableSelectionOnClick
+                disableColumnMenu
+                experimentalFeatures={{ newEditingApi: true }}
+              />
+            </Box>
+            : <CircularProgress />
+          }
+        </CardContent>
+      </Card>
+
+    </div >
   )
 }

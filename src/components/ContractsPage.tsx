@@ -124,21 +124,25 @@ export default function ContractsPage() {
         Finished Contracts
       </Typography>
     </Box>
-    {finishedContracts ?
-      <Box sx={{ height: 'auto', width: '100%' }}>
-        <DataGrid
-          autoHeight
-          density="compact"
-          rows={finishedContracts}
-          columns={columns}
-          pageSize={100}
-          rowsPerPageOptions={[100]}
-          disableSelectionOnClick
-          disableColumnMenu
-          experimentalFeatures={{ newEditingApi: true }}
-        />
-      </Box>
-      : <CircularProgress />
-    }
+    <Card>
+      <CardContent>
+        {finishedContracts ?
+          <Box sx={{ height: 'auto', width: '100%' }}>
+            <DataGrid
+              autoHeight
+              density="compact"
+              rows={finishedContracts}
+              columns={columns}
+              pageSize={100}
+              rowsPerPageOptions={[100]}
+              disableSelectionOnClick
+              disableColumnMenu
+              experimentalFeatures={{ newEditingApi: true }}
+            />
+          </Box>
+          : <CircularProgress />
+        }
+      </CardContent>
+    </Card>
   </div>;
 }
