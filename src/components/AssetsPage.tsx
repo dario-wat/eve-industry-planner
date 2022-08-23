@@ -8,10 +8,10 @@ import { useLocalhostAxios } from 'lib/util'
 import { useState } from 'react';
 
 // TODO
-//  2. Asset count
-//  3. Icons ?
-//  4. Header row styling
-//  5. Asset caching
+//  - Icons ?
+//  - Header row styling
+//  - Asset caching
+//  - styling for cells
 export default function AssetsPage() {
   const [{ data }] = useLocalhostAxios('/assets');
 

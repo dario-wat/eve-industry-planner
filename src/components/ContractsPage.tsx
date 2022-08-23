@@ -1,13 +1,15 @@
-import { Box, CircularProgress, TextField } from '@mui/material';
+import { Box, CircularProgress, TextField, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useLocalhostAxios } from 'lib/util';
 import { useState } from 'react';
 
+const FINISHED_STATUS = 'finished';
+
 // TODO
-//  1. Contract count
-//  2. Split in progress and finished
-//  3. Order by time finished/expiration
-//  4. Filtering
+//  - Order by time accepted for finished
+//  - Add location
+//  - style header row
+//  - style columns (add color n shit)
 export default function ContractsPage() {
   const [{ data }] = useLocalhostAxios('/contracts');
 
@@ -25,10 +27,15 @@ export default function ContractsPage() {
     || (d.title && isIncluded(d.title))
   );
 
+  const finishedContracts = filteredData &&
+    filteredData.filter((c: any) => c.status === FINISHED_STATUS);
+  const activeContracts = filteredData &&
+    filteredData.filter((c: any) => c.status !== FINISHED_STATUS);
+
   const columns: GridColDef[] = [
     {
-      field: 'acceptor',
-      headerName: 'Acceptor',
+      field: 'issuer',
+      headerName: 'Issuer',
       width: 150,
       sortable: false,
       valueGetter: params => params?.value?.name,
@@ -41,27 +48,16 @@ export default function ContractsPage() {
       valueGetter: params => params?.value?.name,
     },
     {
-      field: 'end_time_formatted',
-      headerName: 'Expires',
-      width: 120,
+      field: 'acceptor',
+      headerName: 'Acceptor',
+      width: 150,
       sortable: false,
+      valueGetter: params => params?.value?.name,
     },
     {
       field: 'title',
       headerName: 'Title',
       width: 200,
-      sortable: false,
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      width: 100,
-      sortable: false,
-    },
-    {
-      field: 'type',
-      headerName: 'Type',
-      width: 130,
       sortable: false,
     },
     {
@@ -77,11 +73,16 @@ export default function ContractsPage() {
             : params.value
     },
     {
-      field: 'issuer',
-      headerName: 'Issuer',
-      width: 150,
+      field: 'end_time_formatted',
+      headerName: 'Expires',
+      width: 120,
       sortable: false,
-      valueGetter: params => params?.value?.name,
+    },
+    {
+      field: 'type',
+      headerName: 'Type',
+      width: 130,
+      sortable: false,
     },
   ];
   return <div>
@@ -93,12 +94,38 @@ export default function ContractsPage() {
         onChange={e => setSearchText(e.target.value)}
       />
     </Box>
-    {filteredData ?
+    <Box sx={{ pb: 1, pt: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        Active Contracts
+      </Typography>
+    </Box>
+    {activeContracts ?
       <Box sx={{ height: 'auto', width: '100%' }}>
         <DataGrid
           autoHeight
           density="compact"
-          rows={filteredData}
+          rows={activeContracts}
+          columns={columns}
+          pageSize={100}
+          rowsPerPageOptions={[100]}
+          disableSelectionOnClick
+          disableColumnMenu
+          experimentalFeatures={{ newEditingApi: true }}
+        />
+      </Box>
+      : <CircularProgress />
+    }
+    <Box sx={{ pb: 1, pt: 4 }}>
+      <Typography variant="h6" gutterBottom>
+        Finished Contracts
+      </Typography>
+    </Box>
+    {finishedContracts ?
+      <Box sx={{ height: 'auto', width: '100%' }}>
+        <DataGrid
+          autoHeight
+          density="compact"
+          rows={finishedContracts}
           columns={columns}
           pageSize={100}
           rowsPerPageOptions={[100]}
