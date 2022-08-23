@@ -29,21 +29,21 @@ export default function ContractsPage() {
     {
       field: 'acceptor',
       headerName: 'Acceptor',
-      width: 200,
+      width: 150,
       sortable: false,
       valueGetter: params => params?.value?.name,
     },
     {
       field: 'assignee',
       headerName: 'Assignee',
-      width: 200,
+      width: 150,
       sortable: false,
       valueGetter: params => params?.value?.name,
     },
     {
       field: 'end_time_formatted',
       headerName: 'Expires',
-      width: 200,
+      width: 120,
       sortable: false,
     },
     {
@@ -61,19 +61,25 @@ export default function ContractsPage() {
     {
       field: 'type',
       headerName: 'Type',
-      width: 200,
+      width: 130,
       sortable: false,
     },
     {
       field: 'price',
       headerName: 'Price',
-      width: 200,
+      width: 100,
       sortable: false,
+      valueGetter: params =>
+        params.value > 1000000
+          ? (params.value / 1000000).toFixed(1) + 'M'
+          : params.value > 1000
+            ? (params.value / 1000) + 'K'
+            : params.value
     },
     {
       field: 'issuer',
       headerName: 'Issuer',
-      width: 200,
+      width: 150,
       sortable: false,
       valueGetter: params => params?.value?.name,
     },
