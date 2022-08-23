@@ -5,7 +5,6 @@ import { useLocalhostAxios } from "lib/util";
 
 // TODO
 //  - Styling (colors)
-//  - Loading indicator in the center
 //  - Add progress bar for percentage
 //  - Add icons
 export default function IndustryJobsPage() {
@@ -64,29 +63,36 @@ export default function IndustryJobsPage() {
     },
   ];
 
-  return <Card>
-    <CardContent>
-      {indexedData ?
-        <Box sx={{ height: 'auto', width: '100%' }}>
-          <DataGrid
-            initialState={{
-              sorting: {
-                sortModel: [{ field: 'end_date', sort: 'asc' }],
-              },
-            }}
-            autoHeight
-            density="compact"
-            rows={indexedData}
-            columns={columns}
-            pageSize={100}
-            rowsPerPageOptions={[100]}
-            disableSelectionOnClick
-            disableColumnMenu
-            experimentalFeatures={{ newEditingApi: true }}
-          />
+  return (
+    <Card>
+      <CardContent>
+        <Box
+          sx={{ height: 'auto', width: '100%' }}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          {indexedData ?
+            <DataGrid
+              initialState={{
+                sorting: {
+                  sortModel: [{ field: 'end_date', sort: 'asc' }],
+                },
+              }}
+              autoHeight
+              density="compact"
+              rows={indexedData}
+              columns={columns}
+              pageSize={100}
+              rowsPerPageOptions={[100]}
+              disableSelectionOnClick
+              disableColumnMenu
+              experimentalFeatures={{ newEditingApi: true }}
+            />
+            : <CircularProgress />
+          }
         </Box>
-        : <CircularProgress />
-      }
-    </CardContent>
-  </Card>;
+      </CardContent>
+    </Card>
+  );
 }

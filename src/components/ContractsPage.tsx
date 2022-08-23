@@ -113,8 +113,13 @@ export default function ContractsPage() {
     </Box>
     <Card>
       <CardContent>
-        {activeContracts ?
-          <Box sx={{ height: 'auto', width: '100%' }}>
+        <Box
+          sx={{ height: 'auto', width: '100%' }}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          {activeContracts ?
             <DataGrid
               autoHeight
               density="compact"
@@ -126,9 +131,9 @@ export default function ContractsPage() {
               disableColumnMenu
               experimentalFeatures={{ newEditingApi: true }}
             />
-          </Box>
-          : <CircularProgress />
-        }
+            : <CircularProgress />
+          }
+        </Box>
       </CardContent>
     </Card>
     <Box sx={{ pb: 1, pt: 4 }}>
@@ -138,8 +143,13 @@ export default function ContractsPage() {
     </Box>
     <Card>
       <CardContent>
-        {finishedContracts ?
-          <Box sx={{ height: 'auto', width: '100%' }}>
+        <Box
+          sx={{ height: 'auto', width: '100%' }}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          {finishedContracts ?
             <DataGrid
               autoHeight
               density="compact"
@@ -151,9 +161,9 @@ export default function ContractsPage() {
               disableColumnMenu
               experimentalFeatures={{ newEditingApi: true }}
             />
-          </Box>
-          : <CircularProgress />
-        }
+            : <CircularProgress />
+          }
+        </Box>
       </CardContent>
     </Card>
   </div>;

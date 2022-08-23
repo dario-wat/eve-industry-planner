@@ -61,8 +61,13 @@ export default function AssetsPage() {
       </Box>
       <Card>
         <CardContent>
-          {filteredData ?
-            <Box sx={{ height: 'auto', width: '100%' }}>
+          <Box
+            sx={{ height: 'auto', width: '100%' }}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            {filteredData ?
               <DataGrid
                 autoHeight
                 density="compact"
@@ -74,9 +79,9 @@ export default function AssetsPage() {
                 disableColumnMenu
                 experimentalFeatures={{ newEditingApi: true }}
               />
-            </Box>
-            : <CircularProgress />
-          }
+              : <CircularProgress />
+            }
+          </Box>
         </CardContent>
       </Card>
 
