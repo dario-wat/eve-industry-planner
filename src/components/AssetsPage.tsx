@@ -19,9 +19,11 @@ export default function AssetsPage() {
 
   const indexedData =
     data && data.map((d: any, i: number) => ({ id: i, ...d }));
+
+  const isIncluded = (s: string) =>
+    s.toLowerCase().includes(searchText.toLowerCase());
   const filteredData = indexedData && indexedData.filter((d: any) =>
-    (d.name && d.name.toLowerCase().includes(searchText.toLowerCase()))
-    || (d.location && d.location.toLowerCase().includes(searchText.toLowerCase()))
+    (d.name && isIncluded(d.name)) || (d.location && isIncluded(d.location))
   );
 
   const columns: GridColDef[] = [
