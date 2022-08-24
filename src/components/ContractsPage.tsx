@@ -7,8 +7,8 @@ import {
   Typography,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import useAxios from 'axios-hooks';
 import { formatDistanceToNowStrict } from 'date-fns';
-import { useLocalhostAxios } from 'lib/util';
 import { useState } from 'react';
 
 const FINISHED_STATUS = 'finished';
@@ -20,7 +20,7 @@ const FINISHED_STATUS = 'finished';
 //  - style columns (add color n shit)
 //  - remove expires from finished contracts
 export default function ContractsPage() {
-  const [{ data }] = useLocalhostAxios('/contracts');
+  const [{ data }] = useAxios('/contracts');
 
   const [searchText, setSearchText] = useState('');
 

@@ -21,10 +21,14 @@ export default class PlannedProductService {
     return sqlResult.map(pp => pp.get());
   }
 
-  public async genRecreatePlannedProducts(
+  public async genParseAndRecreate(content: any) {
+
+  }
+
+  private async genRecreatePlannedProducts(
     characterId: number,
     products: TPlannedProduct[],
-  ) {
+  ): Promise<PlannedProduct[]> {
     await PlannedProduct.destroy({
       where: {
         character_id: characterId,

@@ -27,7 +27,8 @@ const controller = (app: Router) => {
   app.post(
     '/planned_products_recreate',
     async (req: Request, res: Response) => {
-      // TODO
+      console.log(req.body);
+      await plannedProductService.genParseAndRecreate(req.body);
     },
   );
 };

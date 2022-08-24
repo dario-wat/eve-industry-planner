@@ -6,8 +6,8 @@ import {
   CardContent,
   TextField
 } from '@mui/material';
-import { useLocalhostAxios } from 'lib/util'
 import { useState } from 'react';
+import useAxios from 'axios-hooks';
 
 // TODO
 //  - Icons ?
@@ -16,7 +16,7 @@ import { useState } from 'react';
 //  - styling for cells
 //  - group by location
 export default function AssetsPage() {
-  const [{ data }] = useLocalhostAxios('/assets');
+  const [{ data }] = useAxios('/assets');
 
   const [searchText, setSearchText] = useState('');
 

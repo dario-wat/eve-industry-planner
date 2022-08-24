@@ -1,7 +1,7 @@
-import { Box, Card, CardContent, CircularProgress } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { formatDistanceToNowStrict } from "date-fns";
-import { useLocalhostAxios } from "lib/util";
+import useAxios from 'axios-hooks';
+import { Box, Card, CardContent, CircularProgress } from '@mui/material';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { formatDistanceToNowStrict } from 'date-fns';
 
 const activityColors: { [key: string]: string } = {
   'Manufacturing': 'orange',
@@ -15,7 +15,7 @@ const activityColors: { [key: string]: string } = {
 //  - Add icons
 //  - Add reactions
 export default function IndustryJobsPage() {
-  const [{ data }] = useLocalhostAxios('/industry_jobs');
+  const [{ data }] = useAxios('/industry_jobs');
 
   const indexedData =
     data && data.map((d: any, i: number) => ({ id: i, ...d }));
