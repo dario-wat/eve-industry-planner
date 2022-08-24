@@ -1,14 +1,8 @@
-import { Sequelize } from 'sequelize/types';
-import { Inject, Service } from 'typedi';
-import { DIKeys } from '../lib/DIKeys';
+import { Service } from 'typedi';
 import { PlannedProduct, TPlannedProduct } from '../models/PlannedProduct';
 
 @Service()
 export default class PlannedProductService {
-
-  constructor(
-    @Inject(DIKeys.DB) private readonly sequelize: Sequelize,
-  ) { }
 
   // TODO needs return type
   public async genPlannedProducts(characterId: number) {
