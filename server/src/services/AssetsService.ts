@@ -3,8 +3,8 @@ import { Service } from 'typedi';
 import { uniq } from 'underscore';
 import { mapify } from '../lib/util';
 import EveQueryService from './EveQueryService';
-import SequelizeQueryService from './SequelizeQueryService';
 import { EveAsset } from '../types/EsiQuery';
+import { EveSdeQuery } from '../lib/EveSdeQuery';
 
 const SHIP_CAT = 6;
 
@@ -19,7 +19,6 @@ const SHIP_CAT = 6;
 export default class AssetsService {
 
   constructor(
-    private readonly sequelizeQuery: SequelizeQueryService,
     private readonly eveQuery: EveQueryService,
   ) { }
 
@@ -33,10 +32,10 @@ export default class AssetsService {
 
     // TODO(EIP-15) use sequelize join to combine the two below
     const typeIds = assets.map(a => a.type_id);
-    const types = await this.sequelizeQuery.genEveTypes(typeIds);
+    const types = await EveSdeQuery.genEveTypes(typeIds);
 
     const groupIds = Object.values(types).map(t => t.group_id);
-    const groups = await this.sequelizeQuery.genEveGroups(groupIds);
+    const groups = await EveSdeQuery.genEveGroups(groupIds);
 
     const typeCategory = Object.entries(types).map(
       t => ({

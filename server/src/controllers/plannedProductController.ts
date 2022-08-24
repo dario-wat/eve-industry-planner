@@ -2,8 +2,6 @@ import { Request, Router } from 'express';
 import Container from 'typedi';
 import PlannedProductService from '../services/PlannedProductService';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
-import { requiredScopes } from '../lib/eve_sso/eveScopes';
-import EveMemoryProviderService from '../services/EveMemoryProviderService';
 
 const route = Router();
 
