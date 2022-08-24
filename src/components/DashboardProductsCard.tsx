@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Card,
   CardContent,
   FormControlLabel,
@@ -12,6 +13,10 @@ import { useState } from "react";
 
 export default function DashboardProductsCard() {
   const [useGrid, setUseGrid] = useState(true);
+
+  // const onButtonClick = () => {
+  //   axios
+  // }
 
   const columns: GridColDef[] = [
     {
@@ -27,9 +32,10 @@ export default function DashboardProductsCard() {
       sortable: false,
     },
   ];
+
   return (
     <Card sx={{ height: 500 }}>
-      <CardContent sx={{ height: '100%' }}>
+      <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography style={{ display: 'inline-block' }} variant="h6" gutterBottom>
             Products
@@ -50,20 +56,23 @@ export default function DashboardProductsCard() {
             experimentalFeatures={{ newEditingApi: true }}
           />
           :
-          <TextField
-            sx={{ height: '100vw' }}
-            fullWidth
-            multiline
-            placeholder={
-              'Each line is a separate product.\n'
-              + 'Format: "product_name quantity" without quotes\n'
-              + 'E.g.\n'
-              + 'Nanofiber Internal Structure II 10\n'
-              + '1MN Afterburner II 5\n'
-              + 'Kikimora 1'
-            }
-            rows={17}
-          />
+          <Box>
+            <TextField
+              sx={{ pb: 2 }}
+              fullWidth
+              multiline
+              placeholder={
+                'Each line is a separate product.\n'
+                + 'Format: "product_name quantity" without quotes\n'
+                + 'E.g.\n'
+                + 'Nanofiber Internal Structure II 10\n'
+                + '1MN Afterburner II 5\n'
+                + 'Kikimora 1'
+              }
+              rows={15}
+            />
+            <Button variant="contained">Submit</Button>
+          </Box>
         }
       </CardContent>
     </Card>
