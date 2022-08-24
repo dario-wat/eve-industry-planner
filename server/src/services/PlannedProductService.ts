@@ -1,6 +1,7 @@
 import { Service } from 'typedi';
 import { PlannedProduct, TPlannedProduct } from '../models/PlannedProduct';
 
+// TODO maybe this shouldnt be a service
 @Service()
 export default class PlannedProductService {
 
