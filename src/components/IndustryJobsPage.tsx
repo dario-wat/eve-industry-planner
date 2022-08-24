@@ -3,10 +3,17 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useLocalhostAxios } from "lib/util";
 
+const activityColors: { [key: string]: string } = {
+  'Manufacturing': 'orange',
+  'TE Research': 'blue',
+  'ME Research': 'blue',
+};
+
 // TODO
-//  - Styling (colors)
+//  - Styling (colors), maybe background color is better
 //  - Add progress bar for percentage
 //  - Add icons
+//  - Add reactions
 export default function IndustryJobsPage() {
   const [{ data }] = useLocalhostAxios('/industry_jobs');
 
@@ -18,6 +25,10 @@ export default function IndustryJobsPage() {
       field: 'activity',
       headerName: 'Activity',
       width: 130,
+      renderCell: params =>
+        <div style={{ color: activityColors[params.value] }}>
+          {params.value}
+        </div>,
     },
     {
       field: 'end_date',
