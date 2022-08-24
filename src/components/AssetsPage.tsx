@@ -14,6 +14,7 @@ import { useState } from 'react';
 //  - Header row styling
 //  - Asset caching
 //  - styling for cells
+//  - group by location
 export default function AssetsPage() {
   const [{ data }] = useLocalhostAxios('/assets');
 

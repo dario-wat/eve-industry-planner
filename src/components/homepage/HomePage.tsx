@@ -23,13 +23,14 @@ enum Tab {
 
 // TODO
 //  - fix styling (button is gray, it should be white)
+//  - make datagrid header text bold
 export default function HomePage() {
   const [selectedTab, setSelectedTab] = useState<string>(Tab.DASHBOARD);
 
   const theme = createTheme({
     palette: {
       background: {
-        default: '#e4e4e4',
+        default: 'rgba(210, 210, 210, .8)',
       },
     },
     components: {
@@ -40,6 +41,26 @@ export default function HomePage() {
           pageSize: 100,
           rowHeight: 40,
           rowsPerPageOptions: [100],
+        },
+        styleOverrides: {
+          root: {
+            '& .MuiDataGrid-virtualScrollerRenderZone': {
+              '& .MuiDataGrid-row': {
+                '&:nth-child(2n)': {
+                  // Every other row is gray
+                  backgroundColor: 'rgba(240, 240, 240, .5)',
+                },
+              },
+            },
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: 'rgba(200, 200, 200, 1.0)',
+              // fontSize: 16,
+              // fontWeight: 'bold',
+            },
+            // '.MuiDataGrid-columnHeaderTitle': {
+            //   // fontWeight: 'bold !important',
+            // },
+          },
         },
       },
     },
