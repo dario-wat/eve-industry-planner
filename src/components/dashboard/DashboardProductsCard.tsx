@@ -7,9 +7,9 @@ import {
   Switch,
   TextField,
   Typography,
-} from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { useState } from "react";
+} from '@mui/material';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { useState } from 'react';
 
 export default function DashboardProductsCard() {
   const [useGrid, setUseGrid] = useState(true);

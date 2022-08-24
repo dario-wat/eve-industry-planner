@@ -1,5 +1,5 @@
-import { Card, CardContent, Grid } from "@mui/material";
-import DashboardProductsCard from "./DashboardProductsCard";
+import { Card, CardContent, Grid } from '@mui/material';
+import DashboardProductsCard from './DashboardProductsCard';
 
 export default function DashboardPage() {
   // const Item = styled(Paper)(({ theme }) => ({

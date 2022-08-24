@@ -12,7 +12,7 @@ import AssetsPage from 'components/AssetsPage';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import ContractsPage from 'components/ContractsPage';
 import IndustryJobsPage from 'components/IndustryJobsPage';
-import DashboardPage from 'components/DashboardPage';
+import DashboardPage from 'components/dashboard/DashboardPage';
 
 enum Tab {
   DASHBOARD = 'dashboard',
