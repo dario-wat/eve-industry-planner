@@ -4,6 +4,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import ScienceIcon from '@mui/icons-material/Science';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import TakeoutDiningIcon from '@mui/icons-material/TakeoutDining';
+import type { } from '@mui/x-data-grid/themeAugmentation';
 import { useState } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
 import NavigationDrawer from 'components/NavigationDrawer';
@@ -29,8 +30,15 @@ export default function HomePage() {
     palette: {
       background: {
         default: '#e4e4e4',
-      }
-    }
+      },
+    },
+    components: {
+      MuiDataGrid: {
+        defaultProps: {
+          rowHeight: 40,
+        },
+      },
+    },
   });
 
   return (

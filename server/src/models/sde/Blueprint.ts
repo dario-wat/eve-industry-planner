@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model, INTEGER } from 'sequelize';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 
 /* 
 * This is an SDE (Static Data Export) model.
