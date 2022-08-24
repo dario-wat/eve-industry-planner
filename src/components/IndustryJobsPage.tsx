@@ -18,13 +18,11 @@ export default function IndustryJobsPage() {
       field: 'activity',
       headerName: 'Activity',
       width: 130,
-      sortable: false,
     },
     {
       field: 'end_date',
       headerName: 'Remaining Time',
       width: 150,
-      sortable: false,
       valueFormatter: params => formatDistanceToNowStrict(
         new Date(params.value),
         { addSuffix: true },
@@ -79,12 +77,8 @@ export default function IndustryJobsPage() {
                   sortModel: [{ field: 'end_date', sort: 'asc' }],
                 },
               }}
-              autoHeight
-              density="compact"
               rows={indexedData}
               columns={columns}
-              pageSize={100}
-              rowsPerPageOptions={[100]}
               disableSelectionOnClick
               disableColumnMenu
               experimentalFeatures={{ newEditingApi: true }}

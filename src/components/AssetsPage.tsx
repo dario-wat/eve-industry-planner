@@ -69,12 +69,8 @@ export default function AssetsPage() {
           >
             {filteredData ?
               <DataGrid
-                autoHeight
-                density="compact"
                 rows={filteredData}
                 columns={columns}
-                pageSize={100}
-                rowsPerPageOptions={[100]}
                 disableSelectionOnClick
                 disableColumnMenu
                 experimentalFeatures={{ newEditingApi: true }}

@@ -18,6 +18,7 @@ const FINISHED_STATUS = 'finished';
 //  - Add location
 //  - style header row
 //  - style columns (add color n shit)
+//  - remove expires from finished contracts
 export default function ContractsPage() {
   const [{ data }] = useLocalhostAxios('/contracts');
 
@@ -72,7 +73,6 @@ export default function ContractsPage() {
       field: 'price',
       headerName: 'Price',
       width: 100,
-      sortable: false,
       valueFormatter: params =>
         params.value > 1000000
           ? (params.value / 1000000).toFixed(1) + 'M'
@@ -84,7 +84,6 @@ export default function ContractsPage() {
       field: 'date_expired',
       headerName: 'Expires',
       width: 120,
-      sortable: false,
       valueFormatter: params => formatDistanceToNowStrict(
         new Date(params.value),
         { addSuffix: true },
@@ -121,12 +120,8 @@ export default function ContractsPage() {
         >
           {activeContracts ?
             <DataGrid
-              autoHeight
-              density="compact"
               rows={activeContracts}
               columns={columns}
-              pageSize={100}
-              rowsPerPageOptions={[100]}
               disableSelectionOnClick
               disableColumnMenu
               experimentalFeatures={{ newEditingApi: true }}
@@ -151,12 +146,8 @@ export default function ContractsPage() {
         >
           {finishedContracts ?
             <DataGrid
-              autoHeight
-              density="compact"
               rows={finishedContracts}
               columns={columns}
-              pageSize={100}
-              rowsPerPageOptions={[100]}
               disableSelectionOnClick
               disableColumnMenu
               experimentalFeatures={{ newEditingApi: true }}

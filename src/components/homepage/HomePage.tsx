@@ -26,7 +26,7 @@ enum Tab {
 export default function HomePage() {
   const [selectedTab, setSelectedTab] = useState<string>(Tab.DASHBOARD);
 
-  const themeLight = createTheme({
+  const theme = createTheme({
     palette: {
       background: {
         default: '#e4e4e4',
@@ -35,14 +35,18 @@ export default function HomePage() {
     components: {
       MuiDataGrid: {
         defaultProps: {
+          autoHeight: true,
+          density: 'compact',
+          pageSize: 100,
           rowHeight: 40,
+          rowsPerPageOptions: [100],
         },
       },
     },
   });
 
   return (
-    <ThemeProvider theme={themeLight}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ display: 'flex' }}>
         <HomePageAppBar />
