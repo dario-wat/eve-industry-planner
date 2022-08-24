@@ -46,7 +46,7 @@ export default function HomePage() {
           root: {
             '& .MuiDataGrid-virtualScrollerRenderZone': {
               '& .MuiDataGrid-row': {
-                '&:nth-child(2n)': {
+                '&:nth-of-type(2n)': {
                   // Every other row is gray
                   backgroundColor: 'rgba(240, 240, 240, .5)',
                 },
