@@ -17,6 +17,7 @@ import { iconIdModelDefine } from '../models/sde/IconID';
 import { typeIdModelDefine } from '../models/sde/TypeID';
 import { categoryIdModelDefine } from '../models/sde/CategoryID';
 import { stationModelDefine } from '../models/sde/Station';
+import { plannedProductModelDefine } from '../models/PlannedProduct';
 
 // Every new model definer needs to be added here
 // Do not use this in the SDE script because all
@@ -53,6 +54,9 @@ export function initDatabase() {
   bpTeMaterialsDefine(sequelize);
   bpInventionProductsDefine(sequelize);
   bpManufacturingProductsDefine(sequelize);
+
+  // App models (non-SDE)
+  plannedProductModelDefine(sequelize);
 }
 
 // This should define ONLY SDE models

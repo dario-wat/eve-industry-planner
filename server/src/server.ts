@@ -19,7 +19,7 @@ async function init() {
   }).catch((error) => {
     console.error('Unable to connect to the database: ', error);
   });
-  await sequelize.sync();
+  await sequelize.sync({ alter: true });
 
   const app = express();
   app.use(cors());

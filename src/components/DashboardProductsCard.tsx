@@ -40,7 +40,8 @@ export default function DashboardProductsCard() {
             labelPlacement="start"
           />
         </Box>
-        {useGrid ?
+        {useGrid
+          ?
           <DataGrid
             rows={[]}
             columns={columns}
