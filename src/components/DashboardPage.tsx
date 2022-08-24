@@ -1,4 +1,5 @@
 import { Card, CardContent, Grid } from "@mui/material";
+import DashboardProductsCard from "./DashboardProductsCard";
 
 export default function DashboardPage() {
   // const Item = styled(Paper)(({ theme }) => ({
@@ -17,10 +18,10 @@ export default function DashboardPage() {
   );
   return (
     <Grid container spacing={2}>
-      <Grid item xs={8}>
-        {Item}
+      <Grid item xs={5}>
+        <DashboardProductsCard />
       </Grid>
-      <Grid item xs={4}>
+      <Grid item xs={6}>
         {Item}
       </Grid>
       <Grid item xs={4}>

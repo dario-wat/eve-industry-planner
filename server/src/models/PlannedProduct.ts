@@ -23,10 +23,6 @@ export const plannedProductModelDefine =
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      me: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-      },
     },
     {
       sequelize,
