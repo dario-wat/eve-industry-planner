@@ -1,4 +1,4 @@
-import { Request, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import Container from 'typedi';
 import PlannedProductService from '../services/PlannedProductService';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
@@ -18,13 +18,16 @@ const controller = (app: Router) => {
     '/planned_products',
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
-      const products = await plannedProductService.genPlannedProducts(characterId);
+      const products =
+        await plannedProductService.genPlannedProducts(characterId);
+      res.json(JSON.stringify(products));
+    },
+  );
 
-      // const industryJobs = await esiQuery.genxIndustryJobs(token, characterId);
-
-      // const industryJobService = Container.get(IndustryJobService);
-      // const output = await industryJobService.getData(token, industryJobs);
-      res.json({});
+  app.post(
+    '/planned_products_recreate',
+    async (req: Request, res: Response) => {
+      // TODO
     },
   );
 };

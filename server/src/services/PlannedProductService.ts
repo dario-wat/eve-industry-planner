@@ -10,6 +10,7 @@ export default class PlannedProductService {
     @Inject(DIKeys.DB) private readonly sequelize: Sequelize,
   ) { }
 
+  // TODO needs return type
   public async genPlannedProducts(characterId: number) {
     const sqlResult = await PlannedProduct.findAll({
       attributes: ['character_id', 'type_id', 'quantity'],
@@ -17,12 +18,18 @@ export default class PlannedProductService {
         character_id: characterId,
       },
     });
-    return sqlResult;
+    return sqlResult.map(pp => pp.get());
   }
 
-  private async genSavePlannedProducts(
-    products: TPlannedProduct[]
-  ): Promise<PlannedProduct[]> {
+  public async genRecreatePlannedProducts(
+    characterId: number,
+    products: TPlannedProduct[],
+  ) {
+    await PlannedProduct.destroy({
+      where: {
+        character_id: characterId,
+      },
+    });
     return await PlannedProduct.bulkCreate(products);
   }
 }
