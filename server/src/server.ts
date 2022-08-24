@@ -24,6 +24,8 @@ async function init() {
 
   const app = express();
   app.use(cors());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
   const port = 8080;
 
   // TODO(EPI-4) We should use a loader for this

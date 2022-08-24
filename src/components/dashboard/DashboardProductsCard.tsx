@@ -1,22 +1,17 @@
 import {
   Box,
-  Button,
   Card,
   CardContent,
   FormControlLabel,
   Switch,
-  TextField,
   Typography,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useState } from 'react';
+import DashboardProductsTextArea from './DashboardProductsTextArea';
 
 export default function DashboardProductsCard() {
   const [useGrid, setUseGrid] = useState(true);
-
-  // const onButtonClick = () => {
-  //   axios
-  // }
 
   const columns: GridColDef[] = [
     {
@@ -55,24 +50,7 @@ export default function DashboardProductsCard() {
             disableColumnMenu
             experimentalFeatures={{ newEditingApi: true }}
           />
-          :
-          <Box>
-            <TextField
-              sx={{ pb: 2 }}
-              fullWidth
-              multiline
-              placeholder={
-                'Each line is a separate product.\n'
-                + 'Format: "product_name quantity" without quotes\n'
-                + 'E.g.\n'
-                + 'Nanofiber Internal Structure II 10\n'
-                + '1MN Afterburner II 5\n'
-                + 'Kikimora 1'
-              }
-              rows={15}
-            />
-            <Button variant="contained">Submit</Button>
-          </Box>
+          : <DashboardProductsTextArea />
         }
       </CardContent>
     </Card>

@@ -29,6 +29,7 @@ const controller = (app: Router) => {
     async (req: Request, res: Response) => {
       console.log(req.body);
       await plannedProductService.genParseAndRecreate(req.body);
+      // TODO return results
     },
   );
 };
