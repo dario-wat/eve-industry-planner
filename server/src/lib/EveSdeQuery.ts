@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { GroupID } from '../models/sde/GroupID';
 import { TypeID } from '../models/sde/TypeID';
 import { mapify } from '../lib/util';
-import { EveGroup, EveType } from '../types/SequelizeQuery';
+import { EveGroup, EveType } from '../types/EveSdeQuery';
 
 export namespace EveSdeQuery {
   /*
@@ -24,6 +24,20 @@ export namespace EveSdeQuery {
       },
     });
     return mapify(sqlResult.map((res: TypeID) => res.get()), 'id');
+  }
+
+  export async function genEveTypesByName(
+    typeNames: string[],
+  ): Promise<{ [key: string]: EveType }> {
+    const sqlResult = await TypeID.findAll({
+      attributes: ['id', 'name', 'group_id'],
+      where: {
+        name: {
+          [Op.in]: typeNames,
+        }
+      },
+    });
+    return mapify(sqlResult.map((res: TypeID) => res.get()), 'name');
   }
 
   /*

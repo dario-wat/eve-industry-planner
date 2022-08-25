@@ -6,7 +6,7 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 */
 export type TPlannedProduct = {
   character_id: number,
-  typed_id: number,
+  type_id: number,
   quantity: number,
 };
 
