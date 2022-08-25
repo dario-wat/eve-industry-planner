@@ -7,8 +7,9 @@ export default function DashboardProductsTextArea(
   props: {
     data: PlannedProductsResponse,
   }) {
-  // TODO initial value should be what we get from backend
-  const [text, setText] = useState('');
+  const [text, setText] = useState(
+    props.data.map(pp => pp.name + ' ' + pp.quantity).join('\n'),
+  );
 
   const onButtonClick = () =>
     // TODO wait for returned results
