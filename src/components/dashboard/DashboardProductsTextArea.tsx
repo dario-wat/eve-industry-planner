@@ -1,8 +1,13 @@
 import { Box, Button, TextField } from '@mui/material';
 import axios from 'axios';
 import { useState } from 'react';
+import { PlannedProductsResponse } from 'types/types'
 
-export default function DashboardProductsTextArea() {
+export default function DashboardProductsTextArea(
+  props: {
+    data: PlannedProductsResponse,
+  }) {
+  // TODO initial value should be what we get from backend
   const [text, setText] = useState('');
 
   const onButtonClick = () =>

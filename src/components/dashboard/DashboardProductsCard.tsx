@@ -7,10 +7,16 @@ import {
   Typography,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import useAxios from 'axios-hooks';
 import { useState } from 'react';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 
 export default function DashboardProductsCard() {
+  // TODO maybe use a type here. probably should put TPlannedProduct as a
+  // shared type so I can use it in frontend and backend
+  // Maybe I should do that for all types, idk
+  const [{ data }] = useAxios('/planned_products');
+
   const [useGrid, setUseGrid] = useState(true);
 
   const columns: GridColDef[] = [
@@ -50,7 +56,7 @@ export default function DashboardProductsCard() {
             disableColumnMenu
             experimentalFeatures={{ newEditingApi: true }}
           />
-          : <DashboardProductsTextArea />
+          : <DashboardProductsTextArea data={data} />
         }
       </CardContent>
     </Card>

@@ -1,18 +1,19 @@
 import { EveSdeQuery } from '../lib/EveSdeQuery';
-import { PlannedProduct, TPlannedProduct } from '../models/PlannedProduct';
+import { PlannedProduct } from '../models/PlannedProduct';
+import { PlannedProductsResponse } from '../../../src/types/types';
 
 export namespace PlannedProductUtil {
 
   export async function genPlannedProducts(
     characterId: number,
-  ): Promise<TPlannedProduct[]> {
-    const sqlResult = await PlannedProduct.findAll({
-      attributes: ['character_id', 'type_id', 'quantity'],
+  ): Promise<PlannedProductsResponse> {
+    const plannedProducts = await PlannedProduct.findAll({
+      attributes: ['type_id', 'quantity'],
       where: {
         character_id: characterId,
       },
     });
-    return sqlResult.map(pp => pp.get());
+    return await genProductsForResponse(plannedProducts);
   }
 
   /*
@@ -24,7 +25,7 @@ export namespace PlannedProductUtil {
   export async function genParseAndRecreate(
     characterId: number,
     content: string,
-  ): Promise<TPlannedProduct[]> {
+  ): Promise<PlannedProductsResponse> {
     // TODO this parsing might be wrong, who knows
     const lines = content
       .split(/\r?\n/)
@@ -38,10 +39,6 @@ export namespace PlannedProductUtil {
         };
       });
 
-    const typesMap = await EveSdeQuery.genEveTypesByName(
-      lines.map(l => l.name)
-    );
-
     // Delete current data
     await PlannedProduct.destroy({
       where: {
@@ -49,6 +46,9 @@ export namespace PlannedProductUtil {
       },
     });
 
+    const typesMap = await EveSdeQuery.genEveTypesByName(
+      lines.map(l => l.name)
+    );
     // Recreate new data
     const result = await PlannedProduct.bulkCreate(
       lines.map(l => ({
@@ -57,6 +57,22 @@ export namespace PlannedProductUtil {
         quantity: Number(l.quantity),
       }))
     );
-    return result.map(r => r.get());
+    return await genProductsForResponse(result);
+  }
+
+  /*
+  * Helper function to format PlannedProducts for response.
+  * We just need the name and quantities.
+  */
+  async function genProductsForResponse(
+    plannedProducts: PlannedProduct[],
+  ): Promise<PlannedProductsResponse> {
+    const typesMap = await EveSdeQuery.genEveTypes(
+      plannedProducts.map(pp => pp.get().type_id),
+    );
+    return plannedProducts.map(pp => ({
+      name: typesMap[pp.get().type_id].name,
+      quantity: pp.get().quantity,
+    }));
   }
 }
