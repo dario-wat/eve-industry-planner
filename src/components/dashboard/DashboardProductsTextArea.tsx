@@ -6,7 +6,8 @@ import { PlannedProductsResponse } from 'types/types'
 export default function DashboardProductsTextArea(
   props: {
     data: PlannedProductsResponse,
-  }) {
+  },
+) {
   const [text, setText] = useState(
     props.data.map(pp => pp.name + ' ' + pp.quantity).join('\n'),
   );

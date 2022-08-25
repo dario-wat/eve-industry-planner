@@ -6,33 +6,16 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
 import { useState } from 'react';
+import DashboardProductsDataGrid from './DashboardProductsDataGrid';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 
 export default function DashboardProductsCard() {
-  // TODO maybe use a type here. probably should put TPlannedProduct as a
-  // shared type so I can use it in frontend and backend
-  // Maybe I should do that for all types, idk
+  // TODO should use redux here to share the state between two components
   const [{ data }] = useAxios('/planned_products');
 
   const [useGrid, setUseGrid] = useState(true);
-
-  const columns: GridColDef[] = [
-    {
-      field: 'product',
-      headerName: 'Product',
-      width: 300,
-      sortable: false,
-    },
-    {
-      field: 'quantity',
-      headerName: 'Quantity',
-      width: 100,
-      sortable: false,
-    },
-  ];
 
   return (
     <Card sx={{ height: 500 }}>
@@ -48,14 +31,7 @@ export default function DashboardProductsCard() {
           />
         </Box>
         {useGrid
-          ?
-          <DataGrid
-            rows={[]}
-            columns={columns}
-            disableSelectionOnClick
-            disableColumnMenu
-            experimentalFeatures={{ newEditingApi: true }}
-          />
+          ? <DashboardProductsDataGrid data={data} />
           : <DashboardProductsTextArea data={data} />
         }
       </CardContent>
