@@ -3,11 +3,11 @@ import { Container } from 'typedi';
 import { requiredScopes } from '../lib/eve_sso/eveScopes';
 import EveMemoryProviderService from '../services/EveMemoryProviderService';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
-import EveQueryService from '../services/EveQueryService';
 import IndustryJobService from '../services/IndustryJobService';
 import AssetsService from '../services/AssetsService';
 import EsiQueryService from '../services/EsiQueryService';
 import ContractsService from '../services/ContractsService';
+import EveCachedQueryService from '../services/EveCachedQueryService';
 
 const route = Router();
 
@@ -16,7 +16,7 @@ const controller = (app: Router) => {
 
   const provider = Container.get(EveMemoryProviderService).get();
   const esiQuery = Container.get(EsiQueryService);
-  const eveQuery = Container.get(EveQueryService);
+  const eveQuery = Container.get(EveCachedQueryService);
 
   // TODO(EIP-2) this is a temporary solution
   // until I get a database running

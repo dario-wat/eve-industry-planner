@@ -18,6 +18,7 @@ import { typeIdModelDefine } from '../models/sde/TypeID';
 import { categoryIdModelDefine } from '../models/sde/CategoryID';
 import { stationModelDefine } from '../models/sde/Station';
 import { plannedProductModelDefine } from '../models/PlannedProduct';
+import { esiCacheModelDefine } from '../models/EsiCache';
 
 // Every new model definer needs to be added here
 // Do not use this in the SDE script because all
@@ -57,6 +58,9 @@ export function initDatabase() {
 
   // App models (non-SDE)
   plannedProductModelDefine(sequelize);
+
+  // Special
+  esiCacheModelDefine(sequelize);
 }
 
 // This should define ONLY SDE models
