@@ -20,10 +20,7 @@ import { stationModelDefine } from '../models/sde/Station';
 import { plannedProductModelDefine } from '../models/PlannedProduct';
 import { esiCacheModelDefine } from '../models/EsiCache';
 
-// Every new model definer needs to be added here
-// Do not use this in the SDE script because all
-// tables will be dropped.
-export function initDatabase() {
+export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
     databaseConfig.name,
     databaseConfig.username,
@@ -37,6 +34,15 @@ export function initDatabase() {
   );
 
   Container.set(DIKeys.DB, sequelize);
+
+  return sequelize;
+}
+
+// Every new model definer needs to be added here
+// Do not use this in the SDE script because all
+// tables will be dropped.
+export function initDatabase(): void {
+  const sequelize = initDatabaseSequelize();
 
   // Eve SDE
   typeIdModelDefine(sequelize);
@@ -64,20 +70,8 @@ export function initDatabase() {
 }
 
 // This should define ONLY SDE models
-export function initDatabaseForSdeScript() {
-  const sequelize = new Sequelize(
-    databaseConfig.name,
-    databaseConfig.username,
-    databaseConfig.password,
-    {
-      host: databaseConfig.host,
-      port: databaseConfig.port,
-      dialect: databaseConfig.dialect,
-      logging: false,
-    }
-  );
-
-  Container.set(DIKeys.DB, sequelize);
+export function initDatabaseForSdeScript(): void {
+  const sequelize = initDatabaseSequelize();
 
   // Eve SDE
   typeIdModelDefine(sequelize);
