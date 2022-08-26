@@ -41,19 +41,6 @@ const controller = (app: Router) => {
       res.json(products);
     },
   );
-
-  // TODO
-  // app.post(
-  //   '/planned_products_add',
-  //   async (req: Request, res: Response) => {
-  //     const characterId = getCharacterId();
-  //     const products = await PlannedProductUtil.genParseAndRecreate(
-  //       characterId,
-  //       req.body.text,
-  //     );
-  //     res.json(products);
-  //   },
-  // );
 };
 
 export default controller;

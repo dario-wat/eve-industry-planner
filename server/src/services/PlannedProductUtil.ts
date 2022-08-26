@@ -60,21 +60,6 @@ export namespace PlannedProductUtil {
     return await genProductsForResponse(result);
   }
 
-  // TODO
-  // export async function genAdd(
-  //   characterId: number,
-  //   plannedProduct: { name: string, quantity: number },
-  // ): Promise<PlannedProductsRes> {
-  //   const typesMap = await EveSdeQuery.genEveTypesByName(
-  //     [plannedProduct.name],
-  //   );
-  //   const result = await PlannedProduct.create({
-  //     character_id: characterId,
-  //     type_id: typesMap[plannedProduct.name].id,
-  //     quantity: plannedProduct.quantity,
-  //   });
-  // }
-
   /*
   * Helper function to format PlannedProducts for response.
   * We just need the name and quantities.
