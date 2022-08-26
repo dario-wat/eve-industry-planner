@@ -15,8 +15,7 @@ const controller = (app: Router) => {
     '/planned_products',
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
-      const products =
-        await PlannedProductUtil.genPlannedProducts(characterId);
+      const products = await PlannedProductUtil.genQuery(characterId);
       res.json(products);
     },
   );
@@ -42,6 +41,19 @@ const controller = (app: Router) => {
       res.json(products);
     },
   );
+
+  // TODO
+  // app.post(
+  //   '/planned_products_add',
+  //   async (req: Request, res: Response) => {
+  //     const characterId = getCharacterId();
+  //     const products = await PlannedProductUtil.genParseAndRecreate(
+  //       characterId,
+  //       req.body.text,
+  //     );
+  //     res.json(products);
+  //   },
+  // );
 };
 
 export default controller;

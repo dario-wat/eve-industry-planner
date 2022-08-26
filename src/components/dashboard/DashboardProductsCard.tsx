@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import useAxios from 'axios-hooks';
 import { useEffect, useState } from 'react';
-import { PlannedProductsResponse } from 'types/types';
+import { PlannedProductsRes } from 'types/types';
 import DashboardProductsDataGrid from './DashboardProductsDataGrid';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 
@@ -16,7 +16,7 @@ export default function DashboardProductsCard() {
   const [{ data }] = useAxios('/planned_products');
 
   const [plannedProducts, setPlannedProducts] =
-    useState<PlannedProductsResponse>([]);
+    useState<PlannedProductsRes>([]);
   useEffect(() => setPlannedProducts(data ?? []), [data]);
 
   const [useGrid, setUseGrid] = useState(true);

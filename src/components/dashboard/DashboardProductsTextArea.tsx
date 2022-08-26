@@ -2,12 +2,12 @@ import { Box, TextField } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { PlannedProductsResponse } from 'types/types';
+import { PlannedProductsRes } from 'types/types';
 
 export default function DashboardProductsTextArea(
   props: {
-    plannedProducts: PlannedProductsResponse,
-    onUpdate: (plannedProducts: PlannedProductsResponse) => void,
+    plannedProducts: PlannedProductsRes,
+    onUpdate: (plannedProducts: PlannedProductsRes) => void,
   }
 ) {
   const [text, setText] = useState('');

@@ -1,12 +1,12 @@
 import { EveSdeQuery } from '../lib/EveSdeQuery';
 import { PlannedProduct } from '../models/PlannedProduct';
-import { PlannedProductsResponse } from '../../../src/types/types';
+import { PlannedProductsRes } from '../../../src/types/types';
 
 export namespace PlannedProductUtil {
 
-  export async function genPlannedProducts(
+  export async function genQuery(
     characterId: number,
-  ): Promise<PlannedProductsResponse> {
+  ): Promise<PlannedProductsRes> {
     const plannedProducts = await PlannedProduct.findAll({
       attributes: ['type_id', 'quantity'],
       where: {
@@ -25,7 +25,7 @@ export namespace PlannedProductUtil {
   export async function genParseAndRecreate(
     characterId: number,
     content: string,
-  ): Promise<PlannedProductsResponse> {
+  ): Promise<PlannedProductsRes> {
     // TODO this parsing might be wrong, who knows
     const lines = content
       .split(/\r?\n/)
@@ -60,13 +60,28 @@ export namespace PlannedProductUtil {
     return await genProductsForResponse(result);
   }
 
+  // TODO
+  // export async function genAdd(
+  //   characterId: number,
+  //   plannedProduct: { name: string, quantity: number },
+  // ): Promise<PlannedProductsRes> {
+  //   const typesMap = await EveSdeQuery.genEveTypesByName(
+  //     [plannedProduct.name],
+  //   );
+  //   const result = await PlannedProduct.create({
+  //     character_id: characterId,
+  //     type_id: typesMap[plannedProduct.name].id,
+  //     quantity: plannedProduct.quantity,
+  //   });
+  // }
+
   /*
   * Helper function to format PlannedProducts for response.
   * We just need the name and quantities.
   */
   async function genProductsForResponse(
     plannedProducts: PlannedProduct[],
-  ): Promise<PlannedProductsResponse> {
+  ): Promise<PlannedProductsRes> {
     const typesMap = await EveSdeQuery.genEveTypes(
       plannedProducts.map(pp => pp.get().type_id),
     );

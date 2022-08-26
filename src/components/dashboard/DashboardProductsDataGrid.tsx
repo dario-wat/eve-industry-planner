@@ -1,9 +1,9 @@
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { PlannedProductsResponse } from 'types/types';
+import { PlannedProductsRes } from 'types/types';
 
 export default function DashboardProductsDataGrid(
   props: {
-    plannedProducts: PlannedProductsResponse,
+    plannedProducts: PlannedProductsRes,
   }
 ) {
   const indexedRows = props.plannedProducts.map(
