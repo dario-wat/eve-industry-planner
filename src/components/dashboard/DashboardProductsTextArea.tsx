@@ -1,20 +1,21 @@
 import { Box, Button, TextField } from '@mui/material';
 import axios from 'axios';
 import { useState } from 'react';
-import { PlannedProductsResponse } from 'types/types'
+import { useAppSelector } from 'redux/hooks';
+import { selectPlannedProducts } from 'redux/slices/plannedProductsSlice';
 
-export default function DashboardProductsTextArea(
-  props: {
-    data: PlannedProductsResponse,
-  },
-) {
+export default function DashboardProductsTextArea() {
+  const plannedProducts = useAppSelector(selectPlannedProducts);
   const [text, setText] = useState(
-    props.data.map(pp => pp.name + ' ' + pp.quantity).join('\n'),
+    plannedProducts.map(pp => pp.name + ' ' + pp.quantity).join('\n'),
   );
 
-  const onButtonClick = () =>
+  const onButtonClick = async () => {
     // TODO wait for returned results
-    axios.post('/planned_products_recreate', { text });
+    // TODO use state to show loading
+    const response = await axios.post('/planned_products_recreate', { text });
+    console.log(response);
+  };
 
   return (
     <Box>

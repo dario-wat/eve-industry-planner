@@ -7,13 +7,19 @@ import {
   Typography,
 } from '@mui/material';
 import useAxios from 'axios-hooks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAppDispatch } from 'redux/hooks';
+import { setPlannedProducts } from 'redux/slices/plannedProductsSlice';
 import DashboardProductsDataGrid from './DashboardProductsDataGrid';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 
 export default function DashboardProductsCard() {
-  // TODO should use redux here to share the state between two components
   const [{ data }] = useAxios('/planned_products');
+  const dispatch = useAppDispatch();
+  useEffect(
+    () => { dispatch(setPlannedProducts(data ?? [])); },
+    [data, dispatch],
+  );
 
   const [useGrid, setUseGrid] = useState(true);
 
@@ -31,8 +37,8 @@ export default function DashboardProductsCard() {
           />
         </Box>
         {useGrid
-          ? <DashboardProductsDataGrid data={data} />
-          : <DashboardProductsTextArea data={data} />
+          ? <DashboardProductsDataGrid />
+          : <DashboardProductsTextArea />
         }
       </CardContent>
     </Card>

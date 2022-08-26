@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux'
+import store from 'redux/store';
 import App from './App';
 
 axios.defaults.baseURL = 'http://localhost:8080';
@@ -11,6 +13,8 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>
 );

@@ -1,15 +1,9 @@
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { useEffect, useState } from 'react';
-import { PlannedProductsResponse } from 'types/types'
+import { useAppSelector } from 'redux/hooks';
+import { selectPlannedProducts } from 'redux/slices/plannedProductsSlice';
 
-export default function DashboardProductsDataGrid(
-  props: {
-    data: PlannedProductsResponse,
-  },
-) {
-  // TODO use setRows
-  const [rows, setRows] = useState<PlannedProductsResponse>([]);
-  useEffect(() => setRows(props.data ?? []), [props.data]);
+export default function DashboardProductsDataGrid() {
+  const rows = useAppSelector(selectPlannedProducts);
 
   const indexedRows = rows.map((d: any, i: number) => ({ id: i, ...d }));
 
