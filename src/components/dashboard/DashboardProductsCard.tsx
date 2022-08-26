@@ -10,16 +10,20 @@ import useAxios from 'axios-hooks';
 import { useEffect, useState } from 'react';
 import { useAppDispatch } from 'redux/hooks';
 import { setPlannedProducts } from 'redux/slices/plannedProductsSlice';
+import { PlannedProductsResponse } from 'types/types';
 import DashboardProductsDataGrid from './DashboardProductsDataGrid';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 
 export default function DashboardProductsCard() {
+  // TODO do I really need redux for this????
   const [{ data }] = useAxios('/planned_products');
-  const dispatch = useAppDispatch();
-  useEffect(
-    () => { dispatch(setPlannedProducts(data ?? [])); },
-    [data, dispatch],
-  );
+  const [plannedProducts, setPlannedProducts] = useState<PlannedProductsResponse>([]);
+  // const dispatch = useAppDispatch();
+  // useEffect(
+  //   () => { dispatch(setPlannedProducts(data ?? [])); },
+  //   [data, dispatch],
+  // );
+  useEffect(() => setPlannedProducts(data ?? []), [data]);
 
   const [useGrid, setUseGrid] = useState(true);
 
@@ -37,8 +41,10 @@ export default function DashboardProductsCard() {
           />
         </Box>
         {useGrid
-          ? <DashboardProductsDataGrid />
-          : <DashboardProductsTextArea />
+          ? <DashboardProductsDataGrid plannedProducts={plannedProducts} />
+          : <DashboardProductsTextArea
+            plannedProducts={plannedProducts}
+            onUpdate={pps => setPlannedProducts(pps)} />
         }
       </CardContent>
     </Card>

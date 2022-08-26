@@ -1,20 +1,29 @@
 import { Box, Button, TextField } from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
 import axios from 'axios';
-import { useState } from 'react';
-import { useAppSelector } from 'redux/hooks';
-import { selectPlannedProducts } from 'redux/slices/plannedProductsSlice';
+import { useEffect, useState } from 'react';
+import { PlannedProductsResponse } from 'types/types';
 
-export default function DashboardProductsTextArea() {
-  const plannedProducts = useAppSelector(selectPlannedProducts);
-  const [text, setText] = useState(
-    plannedProducts.map(pp => pp.name + ' ' + pp.quantity).join('\n'),
+export default function DashboardProductsTextArea(
+  props: {
+    plannedProducts: PlannedProductsResponse,
+    onUpdate: (plannedProducts: PlannedProductsResponse) => void,
+  }
+) {
+  const [text, setText] = useState('');
+  useEffect(
+    () => setText(
+      props.plannedProducts.map(pp => pp.name + ' ' + pp.quantity).join('\n')
+    ),
+    [props],
   );
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const onButtonClick = async () => {
-    // TODO wait for returned results
-    // TODO use state to show loading
-    const response = await axios.post('/planned_products_recreate', { text });
-    console.log(response);
+
+    const { data } = await axios.post('/planned_products_recreate', { text });
+    props.onUpdate(data);
+    console.log(data);
   };
 
   return (
@@ -35,7 +44,12 @@ export default function DashboardProductsTextArea() {
         value={text}
         onChange={e => setText(e.target.value)}
       />
-      <Button variant="contained" onClick={onButtonClick}>Submit</Button>
+      {isSubmitting ?
+        <LoadingButton loading variant="contained">
+          Submit
+        </LoadingButton>
+        :
+        <Button variant="contained" onClick={onButtonClick}>Submit</Button>
     </Box>
   );
 }
