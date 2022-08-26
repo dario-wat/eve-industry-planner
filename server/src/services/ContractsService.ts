@@ -1,5 +1,6 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
+import { EveContractsRes } from '../../../src/types/types';
 import { EveContract } from '../types/EsiQuery';
 import EveQueryService from './EveQueryService';
 
@@ -11,7 +12,10 @@ export default class ContractsService {
     private readonly eveQuery: EveQueryService,
   ) { }
 
-  public async getData(token: Token, contracts: EveContract[]) {
+  public async getData(
+    token: Token,
+    contracts: EveContract[],
+  ): Promise<EveContractsRes> {
     const names = await this.eveQuery.genAllNames(
       token,
       contracts.map(

@@ -5,6 +5,7 @@ import { mapify } from '../lib/util';
 import EveQueryService from './EveQueryService';
 import { EveAsset } from '../types/EsiQuery';
 import { EveSdeQuery } from '../lib/EveSdeQuery';
+import { EveAssetsRes } from '../../../src/types/types';
 
 const SHIP_CAT = 6;
 
@@ -23,7 +24,10 @@ export default class AssetsService {
   ) { }
 
   // TODO(EIP-13) Assets should be cached
-  public async getData(token: Token, assets: EveAsset[]) {
+  public async getData(
+    token: Token,
+    assets: EveAsset[],
+  ): Promise<EveAssetsRes> {
     const assetMap = mapify(assets, 'item_id');
     const assetsWithParent = assets.map(asset => ({
       asset,
@@ -63,10 +67,11 @@ export default class AssetsService {
     );
 
     return nonShipAssets.map(o => ({
-      name: types[o.asset.type_id].name,
+      name: types[o.asset.type_id] && types[o.asset.type_id].name,
       quantity: o.asset.quantity,
       location: stationNames[o.asset.location_id]
-        || (o.parent ? stationNames[o.parent.location_id] : 'None'),
+        || (o.parent && stationNames[o.parent.location_id])
+        || 'None',
     }));
   }
 }

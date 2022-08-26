@@ -5,6 +5,7 @@ import { industryActivity, IndustryActivityKey } from '../lib/IndustryActivity';
 import { differenceInSeconds } from 'date-fns';
 import { EveIndustryJob } from '../types/EsiQuery';
 import { EveSdeQuery } from '../lib/EveSdeQuery';
+import { EveIndustryJobsRes } from '../../../src/types/types';
 
 @Service()
 export default class IndustryJobService {
@@ -13,7 +14,10 @@ export default class IndustryJobService {
     private readonly eveQuery: EveQueryService,
   ) { }
 
-  public async getData(token: Token, industryJobs: EveIndustryJob[]) {
+  public async getData(
+    token: Token,
+    industryJobs: EveIndustryJob[],
+  ): Promise<EveIndustryJobsRes> {
     return await Promise.all(industryJobs.map(
       job => this.genSingle(token, job),
     ));

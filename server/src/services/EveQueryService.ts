@@ -17,18 +17,18 @@ export default class EveQueryService {
   public async genStationName(
     token: Token,
     stationId: number,
-  ): Promise<string | undefined> {
+  ): Promise<string | null> {
     const [structure, station] = await Promise.all([
       this.esiQuery.genStructure(token, stationId),
       this.esiQuery.genStation(token, stationId),
     ]);
-    return structure?.name ?? station?.name;
+    return structure?.name ?? station?.name ?? null;
   }
 
   public async genAllStationNames(
     token: Token,
     stationIds: number[],
-  ): Promise<{ [key: number]: string | undefined }> {
+  ): Promise<{ [key: number]: string | null }> {
     const uniqueStationIds = uniq(stationIds);
     const stationNames = await Promise.all(uniqueStationIds.map(
       stationId => this.genStationName(token, stationId),

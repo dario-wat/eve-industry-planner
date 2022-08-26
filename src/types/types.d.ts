@@ -2,4 +2,33 @@
 // This file is used by both server and client code.
 // Importing is a bit clumsy, but it works
 
+export type EveAssetsRes = {
+  name: string,
+  quantity: number,
+  location: string,
+}[];
+
+export type EveContractsRes = {
+  title: string,
+  status: string,
+  price: number,
+  type: string,
+  availability: string,
+  assignee: EveName | null,
+  issuer: EveName | null,
+  acceptor: EveName | null,
+  date_expired: string,
+}[];
+
+export type EveIndustryJobsRes = {
+  activity: string,
+  blueprint_name: string,
+  progress: number,
+  end_date: string,
+  runs: number,
+  location: string | null,
+  status: string,
+  product_name: string,
+}[];
+
 export type PlannedProductsRes = { name: string, quantity: number }[];
