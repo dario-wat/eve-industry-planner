@@ -1,6 +1,4 @@
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { useAppSelector } from 'redux/hooks';
-import { selectPlannedProducts } from 'redux/slices/plannedProductsSlice';
 import { PlannedProductsResponse } from 'types/types';
 
 export default function DashboardProductsDataGrid(
@@ -8,9 +6,9 @@ export default function DashboardProductsDataGrid(
     plannedProducts: PlannedProductsResponse,
   }
 ) {
-  // const rows = useAppSelector(selectPlannedProducts);
-
-  const indexedRows = props.plannedProducts.map((d: any, i: number) => ({ id: i, ...d }));
+  const indexedRows = props.plannedProducts.map(
+    (d: any, i: number) => ({ id: i, ...d }),
+  );
 
   const columns: GridColDef[] = [
     {

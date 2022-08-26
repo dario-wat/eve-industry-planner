@@ -1,4 +1,4 @@
-import { Box, Button, TextField } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -15,15 +15,15 @@ export default function DashboardProductsTextArea(
     () => setText(
       props.plannedProducts.map(pp => pp.name + ' ' + pp.quantity).join('\n')
     ),
-    [props],
+    [props.plannedProducts],
   );
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const onButtonClick = async () => {
-
+    setIsSubmitting(true);
     const { data } = await axios.post('/planned_products_recreate', { text });
     props.onUpdate(data);
-    console.log(data);
+    setIsSubmitting(false);
   };
 
   return (
@@ -44,12 +44,13 @@ export default function DashboardProductsTextArea(
         value={text}
         onChange={e => setText(e.target.value)}
       />
-      {isSubmitting ?
-        <LoadingButton loading variant="contained">
-          Submit
-        </LoadingButton>
-        :
-        <Button variant="contained" onClick={onButtonClick}>Submit</Button>
+      <LoadingButton
+        loading={isSubmitting}
+        variant="contained"
+        onClick={onButtonClick}
+      >
+        Submit
+      </LoadingButton>
     </Box>
   );
 }

@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from 'redux/store'
 import { PlannedProductsResponse } from 'types/types';
 
+// TODO leave here as an example LOL
 interface PlannedProductsState {
   value: PlannedProductsResponse,
 };
