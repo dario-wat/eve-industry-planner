@@ -7,20 +7,13 @@ import { uniq } from 'underscore';
 export default function DashboardStationSelectCard() {
   // TODO(EIP-20) this is used in multiple places. That shouldn't be the case
   // I should somehow memoize this
-  // const [{ data }] = useAxios('/assets');
-  // console.log(data);
-  // // console.log(uniq(data.map((d: any) => d.location_id)))
-  // const locations = data && uniq(
-  //   data,
-  //   false,
-  //   data.map((d: any) => d.location_id),
-  // );
-  // console.log(locations);
+  const [{ data }] = useAxios('/assets');
+  const locations = data && uniq(data, d => d.location_id);
 
   return (
     <Card sx={{ height: 500 }}>
       <CardContent>
-        {/* <Autocomplete
+        <Autocomplete
           multiple
           options={locations || []}
           getOptionLabel={(option: any) => option.location}
@@ -32,7 +25,7 @@ export default function DashboardStationSelectCard() {
               placeholder="Stations"
             />
           )}
-        /> */}
+        />
       </CardContent>
     </Card>
   );

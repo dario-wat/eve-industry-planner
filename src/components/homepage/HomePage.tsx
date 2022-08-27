@@ -75,6 +75,7 @@ export default function HomePage() {
       <CssBaseline />
       <Box sx={{ display: 'flex' }}>
         <HomePageAppBar />
+        {/* TODO 100% definitely use loading to render */}
         {userContext && userContext.character_id !== null
           ?
           <>
