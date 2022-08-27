@@ -62,7 +62,6 @@ export default class AssetsService {
     //    the last case is when the parent has its own parent
     // I want to include only items inside stations.
 
-
     // Filter out all assets whose parent doesn't exist. Those are root
     // assets whose location must be station, structure or similar.
     const rootLocationIds = uniq(assetsWithParent
@@ -91,7 +90,7 @@ export default class AssetsService {
           || o.parent!.location_id,
         location:
           stationNames[o.asset.location_id]
-          || (o.parent && stationNames[o.parent.location_id])!,
+          || (o.parent && stationNames[o.parent!.location_id])!,
       }));
   }
 }

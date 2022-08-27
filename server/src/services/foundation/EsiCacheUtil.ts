@@ -21,13 +21,14 @@ export namespace EsiCacheUtil {
     intervalInSec: number,
     data: string,
   ): Promise<EsiCache> {
+    // TODO soething broken when destrying
     // Clear existing cache and overwrite
-    await EsiCache.destroy({
-      where: {
-        character_id: characterId,
-        item: item.toString(),
-      },
-    });
+    // await EsiCache.destroy({
+    //   where: {
+    //     character_id: characterId,
+    //     item: item.toString(),
+    //   },
+    // });
 
     return await EsiCache.create({
       character_id: characterId,
