@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
 import { SSO_STATE } from '../lib/eve_sso/EveSsoConfig';
 import { requiredScopes } from '../lib/eve_sso/eveScopes';
-import EsiProviderService from '../services/EsiProviderService';
+import EsiProviderService from '../services/foundation/EsiProviderService';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 
 const route = Router();

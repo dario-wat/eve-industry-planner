@@ -1,7 +1,7 @@
 import ESI, { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import { EveAsset, EveAssetName, EveContract, EveIndustryJob, EveName, EveStation, EveStructure } from '../types/EsiQuery';
-import EsiProviderService from './EsiProviderService';
+import { EveAsset, EveAssetName, EveContract, EveIndustryJob, EveName, EveStation, EveStructure } from '../../types/EsiQuery';
+import EsiProviderService from '../foundation/EsiProviderService';
 
 /*
 * This is a library of ESI (EVE Swagger Interface) queries.

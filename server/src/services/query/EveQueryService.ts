@@ -2,8 +2,8 @@ import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
 import EsiQueryService from './EsiQueryService';
-import { filterNullOrUndef, mapify } from '../lib/util';
-import { EveAsset, EveAssetName, EveName } from '../types/EsiQuery';
+import { filterNullOrUndef, mapify } from '../../lib/util';
+import { EveAsset, EveAssetName, EveName } from '../../types/EsiQuery';
 
 @Service()
 export default class EveQueryService {

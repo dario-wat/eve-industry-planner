@@ -1,6 +1,6 @@
-import { EveSdeQuery } from '../lib/EveSdeQuery';
-import { PlannedProduct } from '../models/PlannedProduct';
-import { PlannedProductsRes } from '../../../src/types/types';
+import { EveSdeQuery } from '../../lib/EveSdeQuery';
+import { PlannedProduct } from '../../models/PlannedProduct';
+import { PlannedProductsRes } from '../../../../src/types/types';
 
 export namespace PlannedProductUtil {
 

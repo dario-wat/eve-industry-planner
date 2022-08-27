@@ -1,11 +1,11 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { uniq } from 'underscore';
-import { mapify } from '../lib/util';
-import EveQueryService from './EveQueryService';
-import { EveAsset } from '../types/EsiQuery';
-import { EveSdeQuery } from '../lib/EveSdeQuery';
-import { EveAssetsRes } from '../../../src/types/types';
+import { mapify } from '../../lib/util';
+import EveQueryService from '../query/EveQueryService';
+import { EveAsset } from '../../types/EsiQuery';
+import { EveSdeQuery } from '../../lib/EveSdeQuery';
+import { EveAssetsRes } from '../../../../src/types/types';
 
 const SHIP_CAT = 6;
 

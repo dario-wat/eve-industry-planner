@@ -1,11 +1,11 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import EveQueryService from './EveQueryService';
-import { industryActivity, IndustryActivityKey } from '../lib/IndustryActivity';
+import EveQueryService from '../query/EveQueryService';
+import { industryActivity, IndustryActivityKey } from '../../lib/IndustryActivity';
 import { differenceInSeconds } from 'date-fns';
-import { EveIndustryJob } from '../types/EsiQuery';
-import { EveSdeQuery } from '../lib/EveSdeQuery';
-import { EveIndustryJobsRes } from '../../../src/types/types';
+import { EveIndustryJob } from '../../types/EsiQuery';
+import { EveSdeQuery } from '../../lib/EveSdeQuery';
+import { EveIndustryJobsRes } from '../../../../src/types/types';
 
 @Service()
 export default class IndustryJobService {

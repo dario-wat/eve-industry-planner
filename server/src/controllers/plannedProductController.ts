@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { PlannedProductUtil } from '../services/PlannedProductUtil';
+import { PlannedProductUtil } from '../services/product/PlannedProductUtil';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 
 const route = Router();

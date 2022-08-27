@@ -1,8 +1,8 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import { EveContractsRes } from '../../../src/types/types';
-import { EveContract } from '../types/EsiQuery';
-import EveQueryService from './EveQueryService';
+import { EveContractsRes } from '../../../../src/types/types';
+import { EveContract } from '../../types/EsiQuery';
+import EveQueryService from '../query/EveQueryService';
 
 
 @Service()

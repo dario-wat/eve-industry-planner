@@ -1,13 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
 import { requiredScopes } from '../lib/eve_sso/eveScopes';
-import EveMemoryProviderService from '../services/EveMemoryProviderService';
+import EveMemoryProviderService from '../services/foundation/EveMemoryProviderService';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
-import IndustryJobService from '../services/IndustryJobService';
-import AssetsService from '../services/AssetsService';
-import EsiQueryService from '../services/EsiQueryService';
-import ContractsService from '../services/ContractsService';
-import EveCachedQueryService from '../services/EveCachedQueryService';
+import IndustryJobService from '../services/product/IndustryJobService';
+import AssetsService from '../services/product/AssetsService';
+import EsiQueryService from '../services/query/EsiQueryService';
+import ContractsService from '../services/product/ContractsService';
+import EveCachedQueryService from '../services/query/EveCachedQueryService';
 
 const route = Router();
 

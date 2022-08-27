@@ -2,7 +2,7 @@ import { hoursToSeconds } from 'date-fns';
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { EveAsset } from 'types/EsiQuery';
-import { EsiCacheItem, EsiCacheUtil } from './EsiCacheUtil';
+import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
 import EveQueryService from './EveQueryService';
 
 @Service()

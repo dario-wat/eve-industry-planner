@@ -1,12 +1,11 @@
 import { Service } from 'typedi';
 import ESI from 'eve-esi-client';
-import { CLIENT_ID, SECRET, CALLBACK_URI } from '../lib/eve_sso/EveSsoConfig';
+import { CLIENT_ID, SECRET, CALLBACK_URI } from '../../lib/eve_sso/EveSsoConfig';
 import EveMemoryProviderService from './EveMemoryProviderService';
 
 @Service()
 export default class EsiProviderService {
   private esi: ESI;
-  // TODO(EIP-9) maybe should use the service instead of the getter
 
   constructor(
     providerService: EveMemoryProviderService,
