@@ -90,6 +90,7 @@ export default class AssetsService {
           || o.parent!.location_id,
         location:
           stationNames[o.asset.location_id]
+          // TODO parent should always be there
           || (o.parent && stationNames[o.parent!.location_id])!,
       }));
   }

@@ -5,7 +5,7 @@ import ScienceIcon from '@mui/icons-material/Science';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import TakeoutDiningIcon from '@mui/icons-material/TakeoutDining';
 import type { } from '@mui/x-data-grid/themeAugmentation';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
 import NavigationDrawer from 'components/NavigationDrawer';
 import AssetsPage from 'components/AssetsPage';
@@ -13,6 +13,7 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import ContractsPage from 'components/ContractsPage';
 import IndustryJobsPage from 'components/IndustryJobsPage';
 import DashboardPage from 'components/dashboard/DashboardPage';
+import { UserContext } from './UserContext';
 
 enum Tab {
   DASHBOARD = 'dashboard',
@@ -25,6 +26,9 @@ enum Tab {
 //  - fix styling (button is gray, it should be white)
 //  - make datagrid header text bold
 export default function HomePage() {
+
+  // TODO finish login page
+  const userContext = useContext(UserContext);
   const [selectedTab, setSelectedTab] = useState<string>(Tab.DASHBOARD);
 
   const theme = createTheme({
@@ -71,23 +75,34 @@ export default function HomePage() {
       <CssBaseline />
       <Box sx={{ display: 'flex' }}>
         <HomePageAppBar />
-        <NavigationDrawer
-          tabs={[
-            { key: Tab.DASHBOARD, label: 'Dashboard', icon: <DashboardIcon /> },
-            { key: Tab.INDUSTRY_JOBS, label: 'Industry Jobs', icon: <ScienceIcon /> },
-            { key: Tab.ASSETS, label: 'Assets', icon: <TakeoutDiningIcon /> },
-            { key: Tab.CONTRACTS, label: 'Contracts', icon: <ReceiptLongIcon /> },
-          ]}
-          selectedTab={selectedTab}
-          onClick={setSelectedTab}
-        />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <Toolbar /> {/* need this to push the nav bar below the app bar */}
-          {selectedTab === Tab.DASHBOARD && <DashboardPage />}
-          {selectedTab === Tab.INDUSTRY_JOBS && <IndustryJobsPage />}
-          {selectedTab === Tab.ASSETS && <AssetsPage />}
-          {selectedTab === Tab.CONTRACTS && <ContractsPage />}
-        </Box>
+        {userContext && userContext.character_id !== null
+          ?
+          <>
+            <NavigationDrawer
+              tabs={[
+                { key: Tab.DASHBOARD, label: 'Dashboard', icon: <DashboardIcon /> },
+                { key: Tab.INDUSTRY_JOBS, label: 'Industry Jobs', icon: <ScienceIcon /> },
+                { key: Tab.ASSETS, label: 'Assets', icon: <TakeoutDiningIcon /> },
+                { key: Tab.CONTRACTS, label: 'Contracts', icon: <ReceiptLongIcon /> },
+              ]}
+              selectedTab={selectedTab}
+              onClick={setSelectedTab}
+            />
+            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+              <Toolbar /> {/* need this to push the nav bar below the app bar */}
+              {selectedTab === Tab.DASHBOARD && <DashboardPage />}
+              {selectedTab === Tab.INDUSTRY_JOBS && <IndustryJobsPage />}
+              {selectedTab === Tab.ASSETS && <AssetsPage />}
+              {selectedTab === Tab.CONTRACTS && <ContractsPage />}
+            </Box>
+          </>
+          :
+          <Box>
+            {/* Change this component */}
+            <Toolbar /> {/* need this to push the nav bar below the app bar */}
+            You gotta log in bro
+          </Box>
+        }
       </Box>
     </ThemeProvider>
   );

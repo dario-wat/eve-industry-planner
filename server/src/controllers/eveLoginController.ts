@@ -24,6 +24,11 @@ const controller = (app: Router) => {
     GlobalMemory.characterId = character.characterId;
     res.redirect('http://localhost:3000');
   });
+
+  // TODO is this the best place to do it?
+  route.get('/logged_in_user', (req: Request, res: Response) => {
+    res.json({ character_id: GlobalMemory.characterId });
+  });
 };
 
 export default controller;
