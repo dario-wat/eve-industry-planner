@@ -11,12 +11,24 @@ export enum EsiCacheItem {
 */
 export namespace EsiCacheUtil {
 
+  /*
+  * Adds data to the cache. If data for the same key already exists,
+  * it will replace it.
+  */
   export async function genAdd(
     characterId: number,
     item: EsiCacheItem,
     intervalInSec: number,
     data: string,
   ): Promise<EsiCache> {
+    // Clear existing cache and overwrite
+    await EsiCache.destroy({
+      where: {
+        character_id: characterId,
+        item: item.toString(),
+      },
+    });
+
     return await EsiCache.create({
       character_id: characterId,
       item: item.toString(),

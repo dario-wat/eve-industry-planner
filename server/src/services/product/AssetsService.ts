@@ -51,14 +51,13 @@ export default class AssetsService {
 
     // Filter out all assets whose parent doesn't exist. Those are root
     // assets whose location must be station/structure or similar.
-    const uniqueLocationIds = uniq(assetsWithParent
+    const rootLocationIds = uniq(assetsWithParent
       .filter(o => o.parent === undefined)
       .map(o => o.asset.location_id),
     );
     const stationNames =
-      await this.eveQuery.genAllStationNames(token, uniqueLocationIds);
+      await this.eveQuery.genAllStationNames(token, rootLocationIds);
 
-    // TODO maybe I should filter out those that don't have a parent
     // We don't care about items inside ships (fits, cargo, drones, ...)
     const nonShipAssets = assetsWithParent.filter(o =>
       o.parent
@@ -66,12 +65,18 @@ export default class AssetsService {
         : true
     );
 
+    // First check if the item is in the root location. If not then
+    // check the parent
+    const getLocationId = (o: any) =>
+      (rootLocationIds.includes(o.asset.location_id) && o.asset.location_id)
+      || (rootLocationIds.includes(o.parent.location_id) && o.parent.location_id)
+      || null;
     return nonShipAssets.map(o => ({
       name: types[o.asset.type_id] && types[o.asset.type_id].name,
+      type_id: o.asset.type_id,
       quantity: o.asset.quantity,
-      location: stationNames[o.asset.location_id]
-        || (o.parent && stationNames[o.parent.location_id])
-        || 'None',
+      location_id: getLocationId(o),
+      location: getLocationId(o) && stationNames[getLocationId(o)],
     }));
   }
 }

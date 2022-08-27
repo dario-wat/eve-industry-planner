@@ -4,7 +4,9 @@
 
 export type EveAssetsRes = {
   name: string,
+  type_id: number,
   quantity: number,
+  location_id: number,
   location: string,
 }[];
 
