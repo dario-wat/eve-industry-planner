@@ -33,4 +33,12 @@ export type EveIndustryJobsRes = {
   product_name: string,
 }[];
 
-export type PlannedProductsRes = { name: string, quantity: number }[];
+export type PlannedProductsRes = {
+  name: string,
+  quantity: number,
+}[];
+
+export type MaterialStationsRes = {
+  station_name: string | null,
+  station_id: number,
+}[];

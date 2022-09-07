@@ -7,6 +7,7 @@ import Container from 'typedi';
 import initEveLoginController from './controllers/eveLoginController';
 import initEveFetchDataController from './controllers/eveFetchDataController';
 import initPlannedProductController from './controllers/plannedProductController';
+import initMaterialStationController from './controllers/materialStationController';
 import { initDatabase } from './loaders/initDatabase';
 import { DIKeys } from './lib/DIKeys';
 
@@ -33,6 +34,7 @@ async function init() {
   initEveLoginController(app);
   initEveFetchDataController(app);
   initPlannedProductController(app);
+  initMaterialStationController(app);
 
   app.listen(port, () => {
     console.log(`API server listening on port ${port}`);

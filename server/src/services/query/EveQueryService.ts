@@ -25,6 +25,7 @@ export default class EveQueryService {
     return structure?.name ?? station?.name ?? null;
   }
 
+  // TODO cache this
   public async genAllStationNames(
     token: Token,
     stationIds: number[],

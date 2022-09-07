@@ -19,6 +19,7 @@ import { categoryIdModelDefine } from '../models/sde/CategoryID';
 import { stationModelDefine } from '../models/sde/Station';
 import { plannedProductModelDefine } from '../models/PlannedProduct';
 import { esiCacheModelDefine } from '../models/EsiCache';
+import { materialStationModelDefine } from '../models/MaterialStation';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -64,6 +65,7 @@ export function initDatabase(): void {
 
   // App models (non-SDE)
   plannedProductModelDefine(sequelize);
+  materialStationModelDefine(sequelize);
 
   // Special
   esiCacheModelDefine(sequelize);
