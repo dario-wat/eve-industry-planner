@@ -13,11 +13,6 @@
       "react-app/jest"
     ]
   },
-  "overrides": {
-    "eve-sso": {
-      "node-fetch": "^2.6.1"
-    }
-  },
   "browserslist": [
     ">0.2%",
     "not dead",
