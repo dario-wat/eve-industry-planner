@@ -49,7 +49,8 @@
   "scripts": {
     "server": "nodemon ./server/src/server.ts",
     "server-test": "cd server && npm run test",
-    "server-install": "cd server && npm i"
+    "server-install": "cd server && npm i",
+    "client": "cd client && npm start"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
