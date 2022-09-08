@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import ESI from 'eve-esi-client';
-import { CLIENT_ID, SECRET, CALLBACK_URI } from '../../lib/eve_sso/EveSsoConfig';
+import { CLIENT_ID, SECRET, CALLBACK_URI } from '../../config/eveSsoConfig';
 import EveMemoryProviderService from './EveMemoryProviderService';
 
 @Service()
