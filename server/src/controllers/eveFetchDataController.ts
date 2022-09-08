@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { requiredScopes } from '../lib/eve_sso/eveScopes';
+import { requiredScopes } from '../const/EveScopes';
 import EveMemoryProviderService from '../services/foundation/EveMemoryProviderService';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 import IndustryJobService from '../services/product/IndustryJobService';

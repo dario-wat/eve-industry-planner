@@ -29,7 +29,7 @@ import {
   BpManufacturingProducts,
 } from '../models/sde/Blueprint';
 import { initDatabaseForSdeScript } from '../loaders/initDatabase';
-import { DIKeys } from '../lib/DIKeys';
+import { DIKeys } from '../const/DIKeys';
 
 // Either console.log or false
 const LOG = console.log;

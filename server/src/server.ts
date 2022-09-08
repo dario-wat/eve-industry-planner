@@ -9,7 +9,7 @@ import initEveFetchDataController from './controllers/eveFetchDataController';
 import initPlannedProductController from './controllers/plannedProductController';
 import initMaterialStationController from './controllers/materialStationController';
 import { initDatabase } from './loaders/initDatabase';
-import { DIKeys } from './lib/DIKeys';
+import { DIKeys } from './const/DIKeys';
 
 async function init() {
   initDatabase();

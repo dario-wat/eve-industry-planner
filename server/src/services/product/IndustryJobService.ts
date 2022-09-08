@@ -1,7 +1,7 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import EveQueryService from '../query/EveQueryService';
-import { industryActivity, IndustryActivityKey } from '../../lib/IndustryActivity';
+import { industryActivity, IndustryActivityKey } from '../../const/IndustryActivity';
 import { differenceInSeconds } from 'date-fns';
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { EveSdeQuery } from '../query/EveSdeQuery';
