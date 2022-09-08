@@ -1,6 +1,8 @@
 import { EveSdeQuery } from '../query/EveSdeQuery';
 import { PlannedProduct } from '../../models/PlannedProduct';
-import { PlannedProductsRes } from '../../../../src/types/types';
+
+// TODO move to a more reasonable place
+import { PlannedProductsRes } from '../../../../client/src/types/types';
 
 export namespace PlannedProductUtil {
 

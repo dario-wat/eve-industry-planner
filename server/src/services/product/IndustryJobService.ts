@@ -5,7 +5,9 @@ import { industryActivity, IndustryActivityKey } from '../../const/IndustryActiv
 import { differenceInSeconds } from 'date-fns';
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { EveSdeQuery } from '../query/EveSdeQuery';
-import { EveIndustryJobsRes } from '../../../../src/types/types';
+
+// TODO move to a more reasonable place
+import { EveIndustryJobsRes } from '../../../../client/src/types/types';
 
 @Service()
 export default class IndustryJobService {

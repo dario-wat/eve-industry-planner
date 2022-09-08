@@ -1,6 +1,4 @@
 {
-  "name": "eve-industry-planner",
-  "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.0",
@@ -51,28 +49,8 @@
   "scripts": {
     "server": "nodemon ./server/src/server.ts",
     "server-test": "cd server && npm run test",
-    "server-install": "cd server && npm i",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "server-install": "cd server && npm i"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "overrides": {
-    "eve-sso": {
-      "node-fetch": "^2.6.1"
-    }
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not op_mini all"
-  ],
   "devDependencies": {
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",

@@ -1,6 +1,6 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import { MaterialStationsRes } from '../../../../src/types/types';
+import { MaterialStationsRes } from '../../../../client/src/types/types';
 import { MaterialStation } from '../../models/MaterialStation';
 import EveQueryService from '../query/EveQueryService';
 
