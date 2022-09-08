@@ -4,7 +4,7 @@ import EveQueryService from '../query/EveQueryService';
 import { industryActivity, IndustryActivityKey } from '../../lib/IndustryActivity';
 import { differenceInSeconds } from 'date-fns';
 import { EveIndustryJob } from '../../types/EsiQuery';
-import { EveSdeQuery } from '../../lib/EveSdeQuery';
+import { EveSdeQuery } from '../query/EveSdeQuery';
 import { EveIndustryJobsRes } from '../../../../src/types/types';
 
 @Service()

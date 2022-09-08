@@ -1,17 +1,18 @@
 import { Op } from 'sequelize';
-import { GroupID } from '../models/sde/GroupID';
-import { TypeID } from '../models/sde/TypeID';
-import { mapify } from '../lib/util';
-import { EveGroup, EveType } from '../types/EveSdeQuery';
+import { GroupID } from '../../models/sde/GroupID';
+import { TypeID } from '../../models/sde/TypeID';
+import { mapify } from '../../lib/util';
+import { EveGroup, EveType } from '../../types/EveSdeQuery';
 
 export namespace EveSdeQuery {
+
   /*
-      Return example:
-      {
-        '12038': { name: 'Purifier', group_id: 834 },
-        '12041': { name: 'Purifier Blueprint', group_id: 105 }
-      }
-    */
+    Return example:
+    {
+      '12038': { name: 'Purifier', group_id: 834 },
+      '12041': { name: 'Purifier Blueprint', group_id: 105 }
+    }
+  */
   export async function genEveTypes(
     typeIds: number[],
   ): Promise<{ [key: number]: EveType }> {
@@ -41,13 +42,13 @@ export namespace EveSdeQuery {
   }
 
   /*
-      Return example:
-      {
-        '1399': { name: 'Missile Guidance Computer Blueprint', category_id: 9 },
-        '1400': { name: 'Missile Guidance Script', category_id: 8 },
-        '1533': { name: 'Micro Jump Field Generators', category_id: 7 },
-      }
-    */
+    Return example:
+    {
+      '1399': { name: 'Missile Guidance Computer Blueprint', category_id: 9 },
+      '1400': { name: 'Missile Guidance Script', category_id: 8 },
+      '1533': { name: 'Micro Jump Field Generators', category_id: 7 },
+    }
+  */
   export async function genEveGroups(
     groupIds: number[],
   ): Promise<{ [key: number]: EveGroup }> {

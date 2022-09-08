@@ -1,4 +1,4 @@
-import { EveSdeQuery } from '../../lib/EveSdeQuery';
+import { EveSdeQuery } from '../query/EveSdeQuery';
 import { PlannedProduct } from '../../models/PlannedProduct';
 import { PlannedProductsRes } from '../../../../src/types/types';
 

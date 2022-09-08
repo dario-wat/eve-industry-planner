@@ -4,7 +4,7 @@ import { uniq } from 'underscore';
 import { mapify } from '../../lib/util';
 import EveQueryService from '../query/EveQueryService';
 import { EveAsset } from '../../types/EsiQuery';
-import { EveSdeQuery } from '../../lib/EveSdeQuery';
+import { EveSdeQuery } from '../query/EveSdeQuery';
 import { EveAssetsRes } from '../../../../src/types/types';
 
 const SHIP_CAT = 6;
