@@ -51,6 +51,8 @@
   },
   "scripts": {
     "server": "nodemon ./server/src/server.ts",
+    "server-test": "cd server && npm run test",
+    "server-install": "cd server && npm i",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
