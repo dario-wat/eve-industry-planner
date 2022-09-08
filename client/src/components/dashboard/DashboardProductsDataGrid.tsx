@@ -1,5 +1,5 @@
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { PlannedProductsRes } from 'types/types';
+import { PlannedProductsRes } from '@internal/shared';
 
 export default function DashboardProductsDataGrid(
   props: {

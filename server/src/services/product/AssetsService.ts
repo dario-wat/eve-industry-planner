@@ -5,9 +5,7 @@ import { mapify } from '../../lib/util';
 import EveQueryService from '../query/EveQueryService';
 import { EveAsset } from '../../types/EsiQuery';
 import { EveSdeQuery } from '../query/EveSdeQuery';
-
-// TODO move to a more reasonable place
-import { EveAssetsRes } from '../../../../client/src/types/types';
+import { EveAssetsRes } from '@internal/shared';
 
 const SHIP_CAT = 6;
 

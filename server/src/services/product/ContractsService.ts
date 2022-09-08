@@ -1,8 +1,6 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-
-// TODO move to a more reasonable place
-import { EveContractsRes } from '../../../../client/src/types/types';
+import { EveContractsRes } from '@internal/shared';
 import { EveContract } from '../../types/EsiQuery';
 import EveQueryService from '../query/EveQueryService';
 

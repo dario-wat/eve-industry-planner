@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import useAxios from 'axios-hooks';
 import { useEffect, useState } from 'react';
-import { PlannedProductsRes } from 'types/types';
+import { PlannedProductsRes } from '@internal/shared';
 import DashboardProductsDataGrid from './DashboardProductsDataGrid';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 

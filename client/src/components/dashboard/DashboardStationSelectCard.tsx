@@ -2,7 +2,7 @@ import { Autocomplete, Card, CardContent, TextField } from '@mui/material';
 import axios from 'axios';
 import useAxios from 'axios-hooks';
 import { useEffect, useState } from 'react';
-import { MaterialStationsRes } from 'types/types';
+import { MaterialStationsRes } from '@internal/shared';
 import { uniq } from 'underscore';
 
 
