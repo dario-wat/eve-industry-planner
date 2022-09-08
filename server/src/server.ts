@@ -4,12 +4,9 @@ import cors from 'cors';
 import express from 'express';
 import { Sequelize } from 'sequelize/types';
 import Container from 'typedi';
-import initEveLoginController from './controllers/eveLoginController';
-import initEveFetchDataController from './controllers/eveFetchDataController';
-import initPlannedProductController from './controllers/plannedProductController';
-import initMaterialStationController from './controllers/materialStationController';
 import { initDatabase } from './loaders/initDatabase';
 import { DIKeys } from './const/DIKeys';
+import { initControllers } from './loaders/initControllers';
 
 async function init() {
   initDatabase();
@@ -29,12 +26,8 @@ async function init() {
   app.use(express.json());
   const port = 8080;
 
-  // TODO(EPI-4) We should use a loader for this
   // Initialize all controllers. 
-  initEveLoginController(app);
-  initEveFetchDataController(app);
-  initPlannedProductController(app);
-  initMaterialStationController(app);
+  initControllers(app);
 
   app.listen(port, () => {
     console.log(`API server listening on port ${port}`);
