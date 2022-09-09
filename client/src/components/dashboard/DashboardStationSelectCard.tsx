@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react';
 import { MaterialStationsRes } from '@internal/shared';
 import { uniq } from 'underscore';
 
-
-// replace indexify with unique id
 export default function DashboardStationSelectCard() {
   // TODO(EIP-20) this is used in multiple places. That shouldn't be the case
   // I should somehow memoize this

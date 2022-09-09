@@ -20,12 +20,9 @@ export default function AssetsPage() {
 
   const [searchText, setSearchText] = useState('');
 
-  const indexedData =
-    data && data.map((d: any, i: number) => ({ id: i, ...d }));
-
   const isIncluded = (s: string) =>
     s.toLowerCase().includes(searchText.toLowerCase());
-  const filteredData = indexedData && indexedData.filter((d: any) =>
+  const filteredData = data && data.filter((d: any) =>
     (d.name && isIncluded(d.name)) || (d.location && isIncluded(d.location))
   );
 

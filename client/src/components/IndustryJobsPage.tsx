@@ -17,9 +17,6 @@ const activityColors: { [key: string]: string } = {
 export default function IndustryJobsPage() {
   const [{ data }] = useAxios('/industry_jobs');
 
-  const indexedData =
-    data && data.map((d: any, i: number) => ({ id: i, ...d }));
-
   const columns: GridColDef[] = [
     {
       field: 'activity',
@@ -81,14 +78,14 @@ export default function IndustryJobsPage() {
           justifyContent="center"
           alignItems="center"
         >
-          {indexedData ?
+          {data ?
             <DataGrid
               initialState={{
                 sorting: {
                   sortModel: [{ field: 'end_date', sort: 'asc' }],
                 },
               }}
-              rows={indexedData}
+              rows={data}
               columns={columns}
               disableSelectionOnClick
               disableColumnMenu

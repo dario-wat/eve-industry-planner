@@ -6,6 +6,7 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import TakeoutDiningIcon from '@mui/icons-material/TakeoutDining';
 import type { } from '@mui/x-data-grid/themeAugmentation';
 import { useContext, useState } from 'react';
+import { uniqueId } from 'underscore';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
 import NavigationDrawer from 'components/NavigationDrawer';
 import AssetsPage from 'components/AssetsPage';
@@ -42,6 +43,7 @@ export default function HomePage() {
         defaultProps: {
           autoHeight: true,
           density: 'compact',
+          getRowId: _ => uniqueId(),
           pageSize: 100,
           rowHeight: 40,
           rowsPerPageOptions: [100],

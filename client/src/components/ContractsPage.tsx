@@ -24,12 +24,9 @@ export default function ContractsPage() {
 
   const [searchText, setSearchText] = useState('');
 
-  const indexedData =
-    data && data.map((d: any, i: number) => ({ id: i, ...d }));
-
   const isIncluded = (s: string) =>
     s.toLowerCase().includes(searchText.toLowerCase());
-  const filteredData = indexedData && indexedData.filter((d: any) =>
+  const filteredData = data && data.filter((d: any) =>
     (d.acceptor && isIncluded(d.acceptor.name))
     || (d.assignee && isIncluded(d.assignee.name))
     || (d.issuer && isIncluded(d.issuer.name))

@@ -6,10 +6,6 @@ export default function DashboardProductsDataGrid(
     plannedProducts: PlannedProductsRes,
   }
 ) {
-  const indexedRows = props.plannedProducts.map(
-    (d: any, i: number) => ({ id: i, ...d }),
-  );
-
   const columns: GridColDef[] = [
     {
       field: 'name',
@@ -27,7 +23,7 @@ export default function DashboardProductsDataGrid(
 
   return (
     <DataGrid
-      rows={indexedRows}
+      rows={props.plannedProducts}
       columns={columns}
       disableSelectionOnClick
       disableColumnMenu
