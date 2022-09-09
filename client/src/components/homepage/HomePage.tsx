@@ -27,6 +27,7 @@ enum Tab {
 // TODO
 //  - fix styling (button is gray, it should be white)
 //  - make datagrid header text bold
+//  - render something default while it's loading, like a loding page
 export default function HomePage() {
 
   const userContext = useContext(UserContext);

@@ -22,12 +22,16 @@ const controller = (app: Router) => {
 
     // TODO(EIP-2) "store" to memory. should use a proper storage
     GlobalMemory.characterId = character.characterId;
+    GlobalMemory.characterName = character.characterName;
     res.redirect('http://localhost:3000');
   });
 
   // TODO is this the best place to do it?
   route.get('/logged_in_user', (req: Request, res: Response) => {
-    res.json({ character_id: GlobalMemory.characterId });
+    res.json({
+      character_id: GlobalMemory.characterId,
+      character_name: GlobalMemory.characterName,
+    });
   });
 };
 
