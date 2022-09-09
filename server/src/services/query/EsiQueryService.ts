@@ -324,4 +324,19 @@ export default class EsiQueryService {
   ): Promise<EveName[] | null> {
     return await this.genxNames(token, ids).catch(() => null);
   }
+
+  // TODO example
+  public async genxPortrait(token: Token, characterId: number) {
+    const response = await this.esi.request(
+      `/characters/${characterId}/portrait/`,
+      undefined,
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  public async genPortrait(token: Token, characterId: number) {
+    return await this.genxStation(token, characterId).catch(() => null);
+  }
 }

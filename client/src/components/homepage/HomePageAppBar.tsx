@@ -2,28 +2,25 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import ExtensionIcon from '@mui/icons-material/Extension';
-import { useContext } from 'react';
 import EveLoginButton from 'components/homepage/EveLoginButton';
-import { UserContext } from './UserContext';
-import { Box } from '@mui/material';
+import LoggedInUserCard from 'components/homepage/LoggedInUserCard';
 
 // TODO
 // - add a nice button for character
+// - figure out placement of buttons
 export default function HomePageAppBar() {
-  const userContext = useContext(UserContext);
   return (
     <AppBar
       position="fixed"
       sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-      <Toolbar>
+      <Toolbar sx={{ justifyContent: "space-between" }}>
         <ExtensionIcon sx={{ mr: 2 }} />
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div"
+          sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
           Eve Industry Planner
         </Typography>
-        <Box>
-          {userContext && userContext.character_name}
-          <EveLoginButton />
-        </Box>
+        <LoggedInUserCard />
+        <EveLoginButton />
       </Toolbar>
     </AppBar>
   );

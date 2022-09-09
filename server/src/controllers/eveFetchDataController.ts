@@ -20,6 +20,7 @@ const controller = (app: Router) => {
 
   // TODO(EIP-2) this is a temporary solution
   // until I get a database running
+  // TODO need to check if user is logged in every time
   const getCharacterId = () => GlobalMemory.characterId as number;
 
   app.get(
@@ -59,6 +60,21 @@ const controller = (app: Router) => {
       const contractsService = Container.get(ContractsService);
       const output = await contractsService.getData(token, contracts);
       res.json(output);
+    },
+  );
+
+  app.get(
+    '/portrait',
+    async (req: Request, res: Response) => {
+      const characterId = getCharacterId();
+      if (!characterId) {
+        res.json(null);
+        return;
+      }
+
+      const token = await provider.getToken(characterId, requiredScopes);
+      const portrait = await esiQuery.genxPortrait(token, characterId);
+      res.json(portrait);
     },
   );
 };
