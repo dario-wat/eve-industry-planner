@@ -14,6 +14,7 @@ import ContractsPage from 'components/ContractsPage';
 import IndustryJobsPage from 'components/IndustryJobsPage';
 import DashboardPage from 'components/dashboard/DashboardPage';
 import { UserContext } from './UserContext';
+import EveLoginButton from './EveLoginButton';
 
 enum Tab {
   DASHBOARD = 'dashboard',
@@ -27,7 +28,6 @@ enum Tab {
 //  - make datagrid header text bold
 export default function HomePage() {
 
-  // TODO finish login page
   const userContext = useContext(UserContext);
   const [selectedTab, setSelectedTab] = useState<string>(Tab.DASHBOARD);
 
@@ -98,10 +98,16 @@ export default function HomePage() {
             </Box>
           </>
           :
-          <Box>
-            {/* Change this component */}
+          <Box sx={{ height: 300, width: 1 }}>
             <Toolbar /> {/* need this to push the nav bar below the app bar */}
-            You gotta log in bro
+            <Box
+              sx={{ height: '100%', width: 1 }}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <EveLoginButton useBlack />
+            </Box>
           </Box>
         }
       </Box>
