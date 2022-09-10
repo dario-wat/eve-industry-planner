@@ -1,6 +1,15 @@
 import ESI, { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import { EveAsset, EveAssetName, EveContract, EveIndustryJob, EveName, EveStation, EveStructure } from '../../types/EsiQuery';
+import {
+  EveAsset,
+  EveAssetName,
+  EveContract,
+  EveIndustryJob,
+  EveName,
+  EvePortrait,
+  EveStation,
+  EveStructure,
+} from '../../types/EsiQuery';
 import EsiProviderService from '../foundation/EsiProviderService';
 
 /*
@@ -334,7 +343,10 @@ export default class EsiQueryService {
       px512x512: "https://images.evetech.net/characters/1838729723/portrait?tenant=tranquility&size=512"
     }
   */
-  public async genxPortrait(token: Token, characterId: number) {
+  public async genxPortrait(
+    token: Token,
+    characterId: number,
+  ): Promise<EvePortrait> {
     const response = await this.esi.request(
       `/characters/${characterId}/portrait/`,
       undefined,
@@ -344,7 +356,10 @@ export default class EsiQueryService {
     return await response.json();
   }
 
-  public async genPortrait(token: Token, characterId: number) {
-    return await this.genxStation(token, characterId).catch(() => null);
+  public async genPortrait(
+    token: Token,
+    characterId: number,
+  ): Promise<EvePortrait | null> {
+    return await this.genxPortrait(token, characterId).catch(() => null);
   }
 }
