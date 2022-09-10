@@ -1,18 +1,19 @@
 import { Model } from 'sequelize-typescript';
-import { Service } from 'typedi';
-import { EveGroup, EveType } from '../../types/EveSdeQuery';
+import { EveSdeGroup, EveSdeStation, EveSdeType } from '../../types/EveSde';
 import { mapify } from '../../lib/util';
 import { TypeID } from '../../models/sde/TypeID';
 import { GroupID } from '../../models/sde/GroupID';
+import { Station } from '../../models/sde/Station';
 
 export default class EveSdeData {
 
   private static initialized: boolean = false;
 
   private constructor(
-    public readonly types: { [key: number]: EveType },
-    public readonly typeByName: { [key: string]: EveType },
-    public readonly groups: { [key: number]: EveGroup },
+    public readonly types: { [key: number]: EveSdeType },
+    public readonly typeByName: { [key: string]: EveSdeType },
+    public readonly groups: { [key: number]: EveSdeGroup },
+    public readonly stations: { [key: number]: EveSdeStation },
   ) {
   }
 
@@ -27,13 +28,18 @@ export default class EveSdeData {
       throw new Error('EveSdeData is already initialized!');
     }
 
-    const [typesData, groupsData] =
-      await Promise.all([TypeID.findAll(), GroupID.findAll()]);
+    const [typesData, groupsData, stationsData] =
+      await Promise.all([
+        TypeID.findAll(),
+        GroupID.findAll(),
+        Station.findAll(),
+      ]);
 
     return new EveSdeData(
       mapifySequelize(typesData, 'id'),
       mapifySequelize(typesData, 'name'),
       mapifySequelize(groupsData, 'id'),
+      mapifySequelize(stationsData, 'id'),
     );
   }
 }

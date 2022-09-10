@@ -9,6 +9,7 @@ import { DIKeys } from './const/DIKeys';
 import { initControllers } from './loaders/initControllers';
 import EveSdeData from './services/query/EveSdeData';
 
+// TODO figure out how to properly organize Container sets at the beginning
 async function init() {
   initDatabase();
   // TODO do I need this

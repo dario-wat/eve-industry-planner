@@ -4,12 +4,14 @@ import { chunk, range, uniq, zip } from 'underscore'
 import EsiQueryService from './EsiQueryService';
 import { filterNullOrUndef, mapify } from '../../lib/util';
 import { EveAsset, EveAssetName, EveName } from '../../types/EsiQuery';
+import EveSdeData from './EveSdeData';
 
 @Service()
 export default class EveQueryService {
 
   constructor(
     private readonly esiQuery: EsiQueryService,
+    private readonly sdeData: EveSdeData,
   ) { }
 
   // Figures out the name of either station or structure
@@ -18,6 +20,11 @@ export default class EveQueryService {
     token: Token,
     stationId: number,
   ): Promise<string | null> {
+    const sdeStation = this.sdeData.stations[stationId];
+    if (sdeStation) {
+      return sdeStation.name;
+    }
+
     const [structure, station] = await Promise.all([
       this.esiQuery.genStructure(token, stationId),
       this.esiQuery.genStation(token, stationId),
