@@ -16,22 +16,22 @@ export namespace EsiCacheUtil {
   * it will replace it.
   */
   export async function genAdd(
-    characterId: number,
+    key: string,
     item: EsiCacheItem,
     intervalInSec: number,
     data: string,
   ): Promise<EsiCache> {
-    // TODO soething broken when destrying
+    // TODO soething broken when destroying
     // Clear existing cache and overwrite
     // await EsiCache.destroy({
     //   where: {
-    //     character_id: characterId,
+    //     key,
     //     item: item.toString(),
     //   },
     // });
 
     return await EsiCache.create({
-      character_id: characterId,
+      key: key,
       item: item.toString(),
       expiration: addSeconds(new Date(), intervalInSec),
       data,
@@ -39,13 +39,13 @@ export namespace EsiCacheUtil {
   }
 
   export async function genQuery(
-    characterId: number,
+    key: string,
     item: EsiCacheItem,
   ): Promise<string | null> {
     const result = await EsiCache.findOne({
       attributes: ['expiration', 'data'],
       where: {
-        character_id: characterId,
+        key,
         item: item.toString(),
       },
     });
@@ -60,7 +60,7 @@ export namespace EsiCacheUtil {
       // Data exists, but cache has expired
       await EsiCache.destroy({
         where: {
-          character_id: characterId,
+          key,
           item: item.toString(),
         },
       });

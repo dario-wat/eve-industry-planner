@@ -6,8 +6,8 @@ export class EsiCache extends Model {
 
 export const esiCacheModelDefine = (sequelize: Sequelize) => EsiCache.init(
   {
-    character_id: {
-      type: DataTypes.INTEGER,
+    key: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     item: {

@@ -19,7 +19,10 @@ export default class EveCachedQueryService {
     const item = EsiCacheItem.ASSETS;
     const interval = hoursToSeconds(6);
 
-    const cachedData = await EsiCacheUtil.genQuery(characterId, item);
+    const cachedData = await EsiCacheUtil.genQuery(
+      characterId.toString(),
+      item,
+    );
     if (cachedData !== null) {
       return JSON.parse(cachedData);
     }
@@ -27,7 +30,7 @@ export default class EveCachedQueryService {
     const data = await this.eveQuery.genAllAssets(token, characterId);
     // TODO this doesn't have to be blocking so maybe I should remove await
     await EsiCacheUtil.genAdd(
-      characterId,
+      characterId.toString(),
       item,
       interval,
       JSON.stringify(data),
