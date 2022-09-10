@@ -1,6 +1,7 @@
 import eveLoginImageWhiteSmall from 'assets/eve-sso-login-white-small.png';
 import eveLoginImageBlackLarge from 'assets/eve-sso-login-black-large.png';
 import useAxios from 'axios-hooks';
+import { Box } from '@mui/material';
 
 type Props = {
   useBlack?: boolean,
@@ -16,7 +17,9 @@ export default function EveLoginButton(
     : eveLoginImageWhiteSmall;
   return (
     <a href={data}>
-      <img src={eveLoginImage} alt="Eve login" />
+      <Box display="flex" justifyContent="center">
+        <img src={eveLoginImage} alt="Eve login" />
+      </Box>
     </a>
   );
 }

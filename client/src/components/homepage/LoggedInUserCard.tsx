@@ -13,15 +13,15 @@ export default function LoggedInUserCard() {
   const userContext = useContext(UserContext);
 
   const CardContentNoPadding = styled(CardContent)(`
-    padding: 8px;
+    padding: 4px;
     &:last-child {
-      padding-bottom: 8px;
+      padding-bottom: 4px;
     }
   `);
   return (
     <Box sx={{ width: CARD_WIDTH, display: { xs: 'none', sm: 'block' } }}>
       <Card>
-        <CardContentNoPadding>
+        <CardContentNoPadding style={{ backgroundColor: '#d9d9d9' }}>
           <Grid container sx={{ alignItems: 'center' }}>
             <Grid item xs={3} sx={{ pr: 1 }}>
               {data &&
