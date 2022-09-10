@@ -4,14 +4,15 @@ import EveQueryService from '../query/EveQueryService';
 import { industryActivity, IndustryActivityKey } from '../../const/IndustryActivity';
 import { differenceInSeconds } from 'date-fns';
 import { EveIndustryJob } from '../../types/EsiQuery';
-import { EveSdeQuery } from '../query/EveSdeQuery';
 import { EveIndustryJobsRes } from '@internal/shared';
+import EveSdeData from '../../services/query/EveSdeData';
 
 @Service()
 export default class IndustryJobService {
 
   constructor(
     private readonly eveQuery: EveQueryService,
+    private readonly sdeData: EveSdeData,
   ) { }
 
   public async getData(
@@ -32,24 +33,22 @@ export default class IndustryJobService {
       ),
     );
 
-    const [idNames, stationName] = await Promise.all([
-      EveSdeQuery.genEveTypes(
-        [industryJob.blueprint_type_id, industryJob.product_type_id]
-      ),
-      this.eveQuery.genStationName(token, industryJob.station_id),
-    ]);
+    const stationName = await this.eveQuery.genStationName(
+      token,
+      industryJob.station_id,
+    );
 
     return {
       activity:
         industryActivity[industryJob.activity_id as IndustryActivityKey]
           .activityName,
-      blueprint_name: idNames[industryJob.blueprint_type_id].name,
+      blueprint_name: this.sdeData.types[industryJob.blueprint_type_id].name,
       progress: 1 - remainingSeconds / industryJob.duration,
       end_date: industryJob.end_date,
       runs: industryJob.runs,
       location: stationName,
       status: industryJob.status,
-      product_name: idNames[industryJob.product_type_id].name,
+      product_name: this.sdeData.types[industryJob.product_type_id].name,
     };
   }
 }

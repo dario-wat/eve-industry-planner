@@ -1,10 +1,17 @@
-import { EveSdeQuery } from '../query/EveSdeQuery';
+import { Service } from 'typedi';
 import { PlannedProduct } from '../../models/PlannedProduct';
 import { PlannedProductsRes } from '@internal/shared';
+import EveSdeData from '../query/EveSdeData';
 
-export namespace PlannedProductUtil {
+@Service()
+export default class PlannedProductService {
 
-  export async function genQuery(
+  constructor(
+    private readonly sdeData: EveSdeData,
+  ) { }
+
+  // TODO rename to genData?
+  public async getData(
     characterId: number,
   ): Promise<PlannedProductsRes> {
     const plannedProducts = await PlannedProduct.findAll({
@@ -13,7 +20,7 @@ export namespace PlannedProductUtil {
         character_id: characterId,
       },
     });
-    return await genProductsForResponse(plannedProducts);
+    return await this.genProductsForResponse(plannedProducts);
   }
 
   /*
@@ -22,7 +29,7 @@ export namespace PlannedProductUtil {
   * This was the easiest option since it doesn't require figuring out
   * what has changed.
   */
-  export async function genParseAndRecreate(
+  public async genParseAndRecreate(
     characterId: number,
     content: string,
   ): Promise<PlannedProductsRes> {
@@ -46,32 +53,26 @@ export namespace PlannedProductUtil {
       },
     });
 
-    const typesMap = await EveSdeQuery.genEveTypesByName(
-      lines.map(l => l.name)
-    );
     // Recreate new data
     const result = await PlannedProduct.bulkCreate(
       lines.map(l => ({
         character_id: characterId,
-        type_id: typesMap[l.name].id,
+        type_id: this.sdeData.typeByName[l.name].id,
         quantity: Number(l.quantity),
       }))
     );
-    return await genProductsForResponse(result);
+    return await this.genProductsForResponse(result);
   }
 
   /*
   * Helper function to format PlannedProducts for response.
   * We just need the name and quantities.
   */
-  async function genProductsForResponse(
+  async genProductsForResponse(
     plannedProducts: PlannedProduct[],
   ): Promise<PlannedProductsRes> {
-    const typesMap = await EveSdeQuery.genEveTypes(
-      plannedProducts.map(pp => pp.get().type_id),
-    );
     return plannedProducts.map(pp => ({
-      name: typesMap[pp.get().type_id].name,
+      name: this.sdeData.types[pp.get().type_id].name,
       quantity: pp.get().quantity,
     }));
   }

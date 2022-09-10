@@ -3,8 +3,8 @@ import { Service } from 'typedi';
 import { uniq } from 'underscore';
 import { mapify } from '../../lib/util';
 import EveQueryService from '../query/EveQueryService';
+import EveSdeData from '../query/EveSdeData';
 import { EveAsset } from '../../types/EsiQuery';
-import { EveSdeQuery } from '../query/EveSdeQuery';
 import { EveAssetsRes } from '@internal/shared';
 
 const SHIP_CAT = 6;
@@ -21,32 +21,13 @@ export default class AssetsService {
 
   constructor(
     private readonly eveQuery: EveQueryService,
+    private readonly sdeData: EveSdeData,
   ) { }
 
-  // TODO(EIP-13) Assets should be cached
   public async getData(
     token: Token,
     assets: EveAsset[],
   ): Promise<EveAssetsRes> {
-    // 1. Mapping data preparation
-
-    // TODO(EIP-15) use sequelize join to combine the two below
-    const typeIds = assets.map(a => a.type_id);
-    const types = await EveSdeQuery.genEveTypes(typeIds);
-
-    const groupIds = Object.values(types).map(t => t.group_id);
-    const groups = await EveSdeQuery.genEveGroups(groupIds);
-
-    const typeCategory = Object.entries(types).map(
-      t => ({
-        item_id: t[0],
-        category_id: groups[t[1].group_id].category_id
-      }),
-    );
-    const typeCategoryMap = mapify(typeCategory, 'item_id');
-
-    // 2. Filtering down
-
     const assetMap = mapify(assets, 'item_id');
     const assetsWithParent = assets.map(asset => ({
       asset,
@@ -76,13 +57,17 @@ export default class AssetsService {
         // No parent, but also not a station (pos, customs office)
         (o.parent === null && stationNames[o.asset.location_id] === undefined)
         // Has a parent, but parent is a ship (inside a ship)
-        || (o.parent && typeCategoryMap[o.parent.type_id].category_id === SHIP_CAT)
+        || (
+          o.parent
+          && this.sdeData.categoryIdFromTypeId(o.parent.type_id) === SHIP_CAT
+        )
         // Has a parent (container), but parent also has a parent (ship)
         // (inside a container inside a ship)
         || (o.parent && assetMap[o.parent.location_id] !== undefined)
       ))
       .map(o => ({
-        name: types[o.asset.type_id] && types[o.asset.type_id].name,
+        name: this.sdeData.types[o.asset.type_id]
+          && this.sdeData.types[o.asset.type_id].name,
         type_id: o.asset.type_id,
         quantity: o.asset.quantity,
         location_id:

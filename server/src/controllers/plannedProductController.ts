@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
-import { PlannedProductUtil } from '../services/product/PlannedProductUtil';
+import Container from 'typedi';
+import PlannedProductService from '../services/product/PlannedProductService';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 
 const route = Router();
@@ -10,12 +11,13 @@ const controller = (app: Router) => {
   // TODO(EIP-2) this is a temporary solution
   // until I get a database running
   const getCharacterId = () => GlobalMemory.characterId as number;
+  const plannedProductService = Container.get(PlannedProductService);
 
   app.get(
     '/planned_products',
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
-      const products = await PlannedProductUtil.genQuery(characterId);
+      const products = await plannedProductService.getData(characterId);
       res.json(products);
     },
   );
@@ -34,7 +36,7 @@ const controller = (app: Router) => {
     '/planned_products_recreate',
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
-      const products = await PlannedProductUtil.genParseAndRecreate(
+      const products = await plannedProductService.genParseAndRecreate(
         characterId,
         req.body.text,
       );

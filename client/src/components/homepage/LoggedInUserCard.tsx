@@ -6,7 +6,6 @@ import { styled } from '@mui/system';
 
 const CARD_WIDTH = 170;
 
-// TODO make it look nicer
 export default function LoggedInUserCard() {
   const [{ data }] = useAxios('/portrait');
 

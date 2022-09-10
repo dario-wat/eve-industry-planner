@@ -7,9 +7,11 @@ import Container from 'typedi';
 import { initDatabase } from './loaders/initDatabase';
 import { DIKeys } from './const/DIKeys';
 import { initControllers } from './loaders/initControllers';
+import EveSdeData from './services/query/EveSdeData';
 
 async function init() {
   initDatabase();
+  // TODO do I need this
   const sequelize: Sequelize = Container.get(DIKeys.DB);
 
   // TODO maybe put this into database init
@@ -19,6 +21,10 @@ async function init() {
     console.error('Unable to connect to the database: ', error);
   });
   await sequelize.sync({ alter: true });
+
+  // Needs to be called after the database init
+  const sdeData = await EveSdeData.init();
+  Container.set(EveSdeData, sdeData);
 
   const app = express();
   app.use(cors());
