@@ -29,7 +29,6 @@ enum Tab {
 //  - make datagrid header text bold
 //  - render something default while it's loading, like a loding page
 export default function HomePage() {
-
   const userContext = useContext(UserContext);
   const [selectedTab, setSelectedTab] = useState<string>(Tab.DASHBOARD);
 
@@ -79,7 +78,7 @@ export default function HomePage() {
       <Box sx={{ display: 'flex' }}>
         <HomePageAppBar />
         {/* TODO 100% definitely use loading to render */}
-        {userContext && userContext.character_id !== null
+        {userContext && userContext.is_logged_in
           ?
           <>
             <NavigationDrawer

@@ -1,8 +1,8 @@
 import { useContext } from 'react';
-import { UserContext } from './UserContext';
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 import useAxios from 'axios-hooks';
 import { styled } from '@mui/system';
+import { UserContext } from './UserContext';
 
 const CARD_WIDTH = 170;
 

@@ -5,10 +5,13 @@ import ExtensionIcon from '@mui/icons-material/Extension';
 import EveLoginButton from 'components/homepage/EveLoginButton';
 import LoggedInUserCard from 'components/homepage/LoggedInUserCard';
 import { Box } from '@mui/material';
+import { useContext } from 'react';
+import { UserContext } from './UserContext';
 
 // TODO
 // - figure out placement of buttons
 export default function HomePageAppBar() {
+  const userContext = useContext(UserContext);
   return (
     <AppBar
       position="fixed"
@@ -19,9 +22,11 @@ export default function HomePageAppBar() {
           sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}>
           Eve Industry Planner
         </Typography>
-        <Box sx={{ pr: 2 }}>
-          <LoggedInUserCard />
-        </Box>
+        {userContext && userContext.is_logged_in &&
+          <Box sx={{ pr: 2 }}>
+            <LoggedInUserCard />
+          </Box>
+        }
         <EveLoginButton />
       </Toolbar>
     </AppBar >

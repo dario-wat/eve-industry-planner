@@ -325,7 +325,15 @@ export default class EsiQueryService {
     return await this.genxNames(token, ids).catch(() => null);
   }
 
-  // TODO example
+  /*
+    Example object:
+    {
+      px64x64: "https://images.evetech.net/characters/1838729723/portrait?tenant=tranquility&size=64"
+      px128x128: "https://images.evetech.net/characters/1838729723/portrait?tenant=tranquility&size=128"
+      px256x256: "https://images.evetech.net/characters/1838729723/portrait?tenant=tranquility&size=256"
+      px512x512: "https://images.evetech.net/characters/1838729723/portrait?tenant=tranquility&size=512"
+    }
+  */
   public async genxPortrait(token: Token, characterId: number) {
     const response = await this.esi.request(
       `/characters/${characterId}/portrait/`,
