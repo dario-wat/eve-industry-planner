@@ -42,9 +42,9 @@ export type MaterialStationsRes = {
   station_id: number,
 }[];
 
-export type ManufactureMaterialsRes = {
+export type ManufactureTreeRes = {
   type_id: number,
   name: string,
   quantity: number,
-  materials: ManufactureMaterials[],
+  materials: ManufactureTreeRes[],
 }

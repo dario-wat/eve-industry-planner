@@ -17,10 +17,21 @@ const controller = (app: Router) => {
     '/planned_products',
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
-      const products = await plannedProductService.getData(characterId);
+      const products = await plannedProductService.genData(characterId);
       res.json(products);
     },
   );
+
+  app.get(
+    '/planned_products_material_tree',
+    async (req: Request, res: Response) => {
+      const characterId = getCharacterId();
+      const materialTree = await plannedProductService.genMaterialTree(
+        characterId,
+      );
+      res.json(materialTree);
+    },
+  )
 
   /*
     Input for testing:

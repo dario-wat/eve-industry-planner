@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { PlannedProduct } from '../../models/PlannedProduct';
-import { ManufactureMaterialsRes, PlannedProductsRes } from '@internal/shared';
+import { ManufactureTreeRes, PlannedProductsRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 
 @Service()
@@ -10,10 +10,25 @@ export default class PlannedProductService {
     private readonly sdeData: EveSdeData,
   ) { }
 
-  // TODO rename to genData?
-  public async getData(
+  public async genData(characterId: number): Promise<PlannedProductsRes> {
+    const plannedProducts = await PlannedProduct.findAll({
+      attributes: ['type_id', 'quantity'],
+      where: {
+        character_id: characterId,
+      },
+    });
+    return await this.genProductsForResponse(plannedProducts);
+  }
+
+  /*
+  * Takes all planned products and finds the required materials to build those.
+  * Then for each material recursively keeps finding the next list of materials
+  * until it reaches leaves (minerals, planetary commodities, 
+  * moon minerals, ...).
+  */
+  public async genMaterialTree(
     characterId: number,
-  ): Promise<PlannedProductsRes> {
+  ): Promise<ManufactureTreeRes[]> {
     const plannedProducts = await PlannedProduct.findAll({
       attributes: ['type_id', 'quantity'],
       where: {
@@ -21,25 +36,21 @@ export default class PlannedProductService {
       },
     });
 
-    const buildMaterialTree = (product: ManufactureMaterialsRes) => {
-      // const materials = this.sdeData.manufactureMaterialsForTypeId(
-      //   product.get().type_id,
-      // );
+    const buildMaterialTree = (product: ManufactureTreeRes) => {
       const productBp =
         this.sdeData.bpManufactureProductsByProduct[product.type_id]
         || this.sdeData.bpReactionProductsByProduct[product.type_id];
-      // console.log(this.sdeData.bpManufactureProductsByProduct[product.type_id]);
-      // console.log(this.sdeData.bpReactionProductsByProduct[product.type_id]);
       if (productBp === undefined) {
         return;
       }
-      const multiplier = Math.ceil(product.quantity / productBp.quantity);
-      // console.log(this.sdeData.bpManufactureMaterialsByBlueprint[productBp.blueprint_id]);
-      // console.log(this.sdeData.bpReactionMaterialsByBlueprint[productBp.blueprint_id]);
+
+      // TODO add ME 10
       const materials =
         this.sdeData.bpManufactureMaterialsByBlueprint[productBp.blueprint_id]
         || this.sdeData.bpReactionMaterialsByBlueprint[productBp.blueprint_id]
         || [];
+
+      const multiplier = Math.ceil(product.quantity / productBp.quantity);
       product.materials = materials.map(m => ({
         type_id: m.type_id,
         name: this.sdeData.types[m.type_id].name,
@@ -49,8 +60,7 @@ export default class PlannedProductService {
       product.materials.forEach(m => buildMaterialTree(m));
     };
 
-
-    plannedProducts.map(pp => {
+    return plannedProducts.map(pp => {
       const rootProduct = {
         type_id: pp.get().type_id,
         name: this.sdeData.types[pp.get().type_id].name,
@@ -58,16 +68,8 @@ export default class PlannedProductService {
         materials: [],
       };
       buildMaterialTree(rootProduct);
-      console.log(JSON.stringify(rootProduct));
+      return rootProduct;
     });
-
-    // console.log(plannedProducts.map(pp =>
-    //   this.sdeData.manufactureMaterialsForTypeId(pp.get().type_id).map(m =>
-    //     this.sdeData.types[m.type_id].name)
-    // ));
-
-
-    return await this.genProductsForResponse(plannedProducts);
   }
 
   /*

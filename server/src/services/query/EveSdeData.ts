@@ -42,13 +42,6 @@ export default class EveSdeData {
     return group.category_id;
   }
 
-  public manufactureMaterialsForTypeId(
-    typeId: number,
-  ): EveSdeBlueprintMaterial[] {
-    const blueprintId = this.bpManufactureProductsByProduct[typeId].blueprint_id;
-    return this.bpManufactureMaterialsByBlueprint[blueprintId];
-  }
-
   public static async init(): Promise<EveSdeData> {
     if (this.initialized) {
       throw new Error('EveSdeData is already initialized!');

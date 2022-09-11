@@ -13,6 +13,7 @@ import EveQueryService from '../services/query/EveQueryService';
 
 const route = Router();
 
+// TODO make this nicer, move all business logic out of this file
 const controller = (app: Router) => {
   app.use('/', route);
 
