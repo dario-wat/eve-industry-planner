@@ -1,6 +1,5 @@
 // NOTE!
 // This file is used by both server and client code.
-// Importing is a bit clumsy, but it works
 
 export type EveAssetsRes = {
   name: string,
@@ -42,3 +41,10 @@ export type MaterialStationsRes = {
   station_name: string | null,
   station_id: number,
 }[];
+
+export type ManufactureMaterialsRes = {
+  type_id: number,
+  name: string,
+  quantity: number,
+  materials: ManufactureMaterials[],
+}

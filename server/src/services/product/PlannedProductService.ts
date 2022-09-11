@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { PlannedProduct } from '../../models/PlannedProduct';
-import { PlannedProductsRes } from '@internal/shared';
+import { ManufactureMaterialsRes, PlannedProductsRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 
 @Service()
@@ -20,6 +20,45 @@ export default class PlannedProductService {
         character_id: characterId,
       },
     });
+
+    const buildMaterialTree = (product: ManufactureMaterialsRes) => {
+      // const materials = this.sdeData.manufactureMaterialsForTypeId(
+      //   product.get().type_id,
+      // );
+      const productBp =
+        this.sdeData.bpManufactureProductsByProduct[product.type_id];
+      if (productBp === undefined) {
+        return;
+      }
+      const multiplier = Math.ceil(product.quantity / productBp.quantity);
+      const materials = this.sdeData.bpManufactureMaterialsByBlueprint[productBp.blueprint_id];
+      product.materials = materials.map(m => ({
+        type_id: m.type_id,
+        name: this.sdeData.types[m.type_id].name,
+        quantity: m.quantity * multiplier,
+        materials: [],
+      }));
+      product.materials.forEach(m => buildMaterialTree(m));
+    };
+
+
+    plannedProducts.map(pp => {
+      const rootProduct = {
+        type_id: pp.get().type_id,
+        name: this.sdeData.types[pp.get().type_id].name,
+        quantity: pp.get().quantity,
+        materials: [],
+      };
+      buildMaterialTree(rootProduct);
+      console.log(JSON.stringify(rootProduct));
+    });
+
+    // console.log(plannedProducts.map(pp =>
+    //   this.sdeData.manufactureMaterialsForTypeId(pp.get().type_id).map(m =>
+    //     this.sdeData.types[m.type_id].name)
+    // ));
+
+
     return await this.genProductsForResponse(plannedProducts);
   }
 
