@@ -25,11 +25,8 @@ export default class EveQueryService {
       return sdeStation.name;
     }
 
-    const [structure, station] = await Promise.all([
-      this.esiQuery.genStructure(token, stationId),
-      this.esiQuery.genStation(token, stationId),
-    ]);
-    return structure?.name ?? station?.name ?? null;
+    const structure = await this.esiQuery.genStructure(token, stationId);
+    return structure?.name ?? null;
   }
 
   // TODO cache this
