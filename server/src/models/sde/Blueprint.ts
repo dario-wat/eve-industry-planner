@@ -65,6 +65,20 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 *       typeID: INTEGER (foreign key)
 *     ]
 *     time: INTEGER
+*   reaction:
+*     materials: ARRAY [
+*      quantity: INTEGER
+*      typeID: INTEGER (foreign key)
+*     ]
+*     products: ARRAY [
+*       quantity: INTEGER  
+*       typeID: INTEGER (foreign key)
+*     ]
+*     skills: ARRAY [
+*       level: INTEGER
+*       typeID: INTEGER (foreign key)
+*     ]
+*     time: INTEGER
 *
 * However, not all fields are necessary for the app so some of them
 * will be omitted.
@@ -85,6 +99,7 @@ export const blueprintModelDefine = (sequelize: Sequelize) => Blueprint.init(
     manufacturing_time: DataTypes.INTEGER,
     research_material_time: DataTypes.INTEGER,
     research_time_time: DataTypes.INTEGER,
+    reaction_time: DataTypes.INTEGER,
   },
   {
     sequelize,
@@ -189,6 +204,25 @@ export const bpTeMaterialsDefine =
     }
   );
 
+export class BpReactionMaterials extends Model {
+  static readonly MODEL_NAME: string = 'BpReactionMaterials';
+}
+
+export const bpReactionMaterialsDefine =
+  (sequelize: Sequelize) => BpReactionMaterials.init(
+    {
+      blueprint_id: DataTypes.INTEGER,
+      type_id: DataTypes.INTEGER,
+      quantity: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: BpReactionMaterials.MODEL_NAME,
+      tableName: 'bp_reaction_materials',
+      timestamps: false,
+    }
+  );
+
 export class BpInventionProducts extends Model {
   static readonly MODEL_NAME: string = 'BpInventionProducts';
 }
@@ -223,6 +257,25 @@ export const bpManufacturingProductsDefine =
       sequelize,
       modelName: BpManufacturingProducts.MODEL_NAME,
       tableName: 'bp_manufacturing_products',
+      timestamps: false,
+    }
+  );
+
+export class BpReactionProducts extends Model {
+  static readonly MODEL_NAME: string = 'BpReactionProducts';
+}
+
+export const bpReactionProductsDefine =
+  (sequelize: Sequelize) => BpReactionProducts.init(
+    {
+      blueprint_id: DataTypes.INTEGER,
+      type_id: DataTypes.INTEGER,
+      quantity: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: BpReactionProducts.MODEL_NAME,
+      tableName: 'bp_reaction_products',
       timestamps: false,
     }
   );

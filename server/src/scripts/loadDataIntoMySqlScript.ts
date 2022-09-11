@@ -27,6 +27,8 @@ import {
   BpTeMaterials,
   BpInventionProducts,
   BpManufacturingProducts,
+  BpReactionMaterials,
+  BpReactionProducts,
 } from '../models/sde/Blueprint';
 import { initDatabaseForSdeScript } from '../loaders/initDatabase';
 import { DIKeys } from '../const/DIKeys';
@@ -76,12 +78,15 @@ function extractBlueprintData([key, value]: [string, any]) {
       manufacturing_time: value.activities.manufacturing?.time,
       research_material_time: value.activities.research_material?.time,
       research_time_time: value.activities.research_time?.time,
+      reaction_time: value.activities.reaction?.time,
     },
     [BpCopyingMaterials.MODEL_NAME]:
       (value.activities.copying?.materials ?? []).map(materialMapper),
     [BpInventionMaterials.MODEL_NAME]:
       (value.activities.invention?.materials ?? []).map(materialMapper),
     [BpManufacturingMaterials.MODEL_NAME]:
+      (value.activities.manufacturing?.materials ?? []).map(materialMapper),
+    [BpReactionMaterials.MODEL_NAME]:
       (value.activities.manufacturing?.materials ?? []).map(materialMapper),
     [BpMeMaterials.MODEL_NAME]:
       (value.activities.research_material?.materials ?? []).map(materialMapper),
@@ -90,6 +95,8 @@ function extractBlueprintData([key, value]: [string, any]) {
     [BpInventionProducts.MODEL_NAME]:
       (value.activities.invention?.products ?? []).map(materialMapper),
     [BpManufacturingProducts.MODEL_NAME]:
+      (value.activities.manufacturing?.products ?? []).map(materialMapper),
+    [BpReactionProducts.MODEL_NAME]:
       (value.activities.manufacturing?.products ?? []).map(materialMapper),
   };
 }
@@ -119,10 +126,12 @@ async function loadBlueprintData(sequelize: Sequelize) {
   await bulkCreateHelper(BpCopyingMaterials.MODEL_NAME);
   await bulkCreateHelper(BpInventionMaterials.MODEL_NAME);
   await bulkCreateHelper(BpManufacturingMaterials.MODEL_NAME);
+  await bulkCreateHelper(BpReactionMaterials.MODEL_NAME);
   await bulkCreateHelper(BpMeMaterials.MODEL_NAME);
   await bulkCreateHelper(BpTeMaterials.MODEL_NAME);
   await bulkCreateHelper(BpInventionProducts.MODEL_NAME);
   await bulkCreateHelper(BpManufacturingProducts.MODEL_NAME);
+  await bulkCreateHelper(BpReactionProducts.MODEL_NAME);
 }
 
 async function run() {

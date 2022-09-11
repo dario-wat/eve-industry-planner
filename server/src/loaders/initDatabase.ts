@@ -11,6 +11,8 @@ import {
   bpTeMaterialsDefine,
   bpInventionProductsDefine,
   bpManufacturingProductsDefine,
+  bpReactionMaterialsDefine,
+  bpReactionProductsDefine,
 } from '../models/sde/Blueprint';
 import { groupIdModelDefine } from '../models/sde/GroupID';
 import { iconIdModelDefine } from '../models/sde/IconID';
@@ -58,10 +60,12 @@ export function initDatabase(): void {
   bpCopyingMaterialsDefine(sequelize);
   bpInventionMaterialsDefine(sequelize);
   bpManufacturingMaterialsDefine(sequelize);
+  bpReactionMaterialsDefine(sequelize);
   bpMeMaterialsDefine(sequelize);
   bpTeMaterialsDefine(sequelize);
   bpInventionProductsDefine(sequelize);
   bpManufacturingProductsDefine(sequelize);
+  bpReactionProductsDefine(sequelize);
 
   // App models (non-SDE)
   plannedProductModelDefine(sequelize);
@@ -88,8 +92,10 @@ export function initDatabaseForSdeScript(): void {
   bpCopyingMaterialsDefine(sequelize);
   bpInventionMaterialsDefine(sequelize);
   bpManufacturingMaterialsDefine(sequelize);
+  bpReactionMaterialsDefine(sequelize);
   bpMeMaterialsDefine(sequelize);
   bpTeMaterialsDefine(sequelize);
   bpInventionProductsDefine(sequelize);
   bpManufacturingProductsDefine(sequelize);
+  bpReactionProductsDefine(sequelize);
 }
