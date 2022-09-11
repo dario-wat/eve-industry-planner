@@ -1,10 +1,12 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
+import { hoursToSeconds } from 'date-fns';
 import EsiQueryService from './EsiQueryService';
 import { filterNullOrUndef, mapify } from '../../lib/util';
 import { EveAsset, EveAssetName, EveName } from '../../types/EsiQuery';
 import EveSdeData from './EveSdeData';
+import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
 
 @Service()
 export default class EveQueryService {
@@ -25,11 +27,17 @@ export default class EveQueryService {
       return sdeStation.name;
     }
 
-    const structure = await this.esiQuery.genStructure(token, stationId);
-    return structure?.name ?? null;
+    return await EsiCacheUtil.gen(
+      stationId.toString(),
+      EsiCacheItem.STRUCTURE,
+      hoursToSeconds(24),
+      async () => {
+        const structure = await this.esiQuery.genStructure(token, stationId);
+        return structure?.name ?? null;
+      },
+    );
   }
 
-  // TODO cache this
   public async genAllStationNames(
     token: Token,
     stationIds: number[],
