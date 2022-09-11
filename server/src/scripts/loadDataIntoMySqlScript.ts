@@ -87,7 +87,7 @@ function extractBlueprintData([key, value]: [string, any]) {
     [BpManufacturingMaterials.MODEL_NAME]:
       (value.activities.manufacturing?.materials ?? []).map(materialMapper),
     [BpReactionMaterials.MODEL_NAME]:
-      (value.activities.manufacturing?.materials ?? []).map(materialMapper),
+      (value.activities.reaction?.materials ?? []).map(materialMapper),
     [BpMeMaterials.MODEL_NAME]:
       (value.activities.research_material?.materials ?? []).map(materialMapper),
     [BpTeMaterials.MODEL_NAME]:
@@ -97,7 +97,7 @@ function extractBlueprintData([key, value]: [string, any]) {
     [BpManufacturingProducts.MODEL_NAME]:
       (value.activities.manufacturing?.products ?? []).map(materialMapper),
     [BpReactionProducts.MODEL_NAME]:
-      (value.activities.manufacturing?.products ?? []).map(materialMapper),
+      (value.activities.reaction?.products ?? []).map(materialMapper),
   };
 }
 

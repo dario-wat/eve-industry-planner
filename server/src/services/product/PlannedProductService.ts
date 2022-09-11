@@ -26,12 +26,20 @@ export default class PlannedProductService {
       //   product.get().type_id,
       // );
       const productBp =
-        this.sdeData.bpManufactureProductsByProduct[product.type_id];
+        this.sdeData.bpManufactureProductsByProduct[product.type_id]
+        || this.sdeData.bpReactionProductsByProduct[product.type_id];
+      // console.log(this.sdeData.bpManufactureProductsByProduct[product.type_id]);
+      // console.log(this.sdeData.bpReactionProductsByProduct[product.type_id]);
       if (productBp === undefined) {
         return;
       }
       const multiplier = Math.ceil(product.quantity / productBp.quantity);
-      const materials = this.sdeData.bpManufactureMaterialsByBlueprint[productBp.blueprint_id];
+      // console.log(this.sdeData.bpManufactureMaterialsByBlueprint[productBp.blueprint_id]);
+      // console.log(this.sdeData.bpReactionMaterialsByBlueprint[productBp.blueprint_id]);
+      const materials =
+        this.sdeData.bpManufactureMaterialsByBlueprint[productBp.blueprint_id]
+        || this.sdeData.bpReactionMaterialsByBlueprint[productBp.blueprint_id]
+        || [];
       product.materials = materials.map(m => ({
         type_id: m.type_id,
         name: this.sdeData.types[m.type_id].name,
