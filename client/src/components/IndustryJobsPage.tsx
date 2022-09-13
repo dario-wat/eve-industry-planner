@@ -7,13 +7,13 @@ const activityColors: { [key: string]: string } = {
   'Manufacturing': 'orange',
   'TE Research': 'blue',
   'ME Research': 'blue',
+  'Invention': 'green',
 };
 
 // TODO
 //  - Styling (colors), maybe background color is better
 //  - Add progress bar for percentage
 //  - Add icons
-//  - Add reactions
 export default function IndustryJobsPage() {
   const [{ data }] = useAxios('/industry_jobs');
 
@@ -30,15 +30,15 @@ export default function IndustryJobsPage() {
     {
       field: 'end_date',
       headerName: 'Remaining Time',
-      width: 150,
+      width: 170,
       valueFormatter: params => formatDistanceToNowStrict(
         new Date(params.value),
         { addSuffix: true },
       ),
     },
     {
-      field: 'blueprint_name',
-      headerName: 'Blueprint',
+      field: 'product_name',
+      headerName: 'Product',
       width: 300,
       sortable: false,
     },
@@ -47,7 +47,10 @@ export default function IndustryJobsPage() {
       headerName: 'Progress',
       width: 100,
       sortable: false,
-      valueFormatter: params => Math.round(params.value * 100) + '%',
+      renderCell: params =>
+        <div style={{ color: params.value === 1 ? 'green' : 'default' }}>
+          {Math.round(params.value * 100) + '%'}
+        </div>,
     },
     {
       field: 'runs',
@@ -58,13 +61,7 @@ export default function IndustryJobsPage() {
     {
       field: 'location',
       headerName: 'Location',
-      width: 160,
-      sortable: false,
-    },
-    {
-      field: 'product_name',
-      headerName: 'Product',
-      width: 250,
+      width: 200,
       sortable: false,
     },
   ];
