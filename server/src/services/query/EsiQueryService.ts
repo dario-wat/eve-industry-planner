@@ -10,6 +10,7 @@ import {
   EveStructure,
 } from '../../types/EsiQuery';
 import EsiProviderService from '../foundation/EsiProviderService';
+import { AppLog } from '../../models/AppLog';
 
 /*
 * This is a library of ESI (EVE Swagger Interface) queries.
@@ -72,7 +73,8 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
   ): Promise<EveIndustryJob[] | null> {
-    return await this.genxIndustryJobs(token, characterId).catch(() => null);
+    return await this.genxIndustryJobs(token, characterId)
+      .catch(logEsiErrorAndReturnNull);
   }
 
   /*
@@ -102,7 +104,8 @@ export default class EsiQueryService {
     token: Token,
     structureId: number,
   ): Promise<EveStructure | null> {
-    return await this.genxStructure(token, structureId).catch(() => null);
+    return await this.genxStructure(token, structureId)
+      .catch(logEsiErrorAndReturnNull);
   }
 
   /*
@@ -157,7 +160,7 @@ export default class EsiQueryService {
     page: number = 1,
   ): Promise<EveAsset[] | null> {
     return await this.genxAssets(token, characterId, page)
-      .catch(() => null);
+      .catch(logEsiErrorAndReturnNull);
   }
 
   /*
@@ -197,7 +200,7 @@ export default class EsiQueryService {
     itemIds: number[],  // max 1000 elements
   ): Promise<EveAssetName[] | null> {
     return await this.genxAssetNames(token, characterId, itemIds)
-      .catch(() => null);
+      .catch(logEsiErrorAndReturnNull);
   }
 
   /*
@@ -244,7 +247,7 @@ export default class EsiQueryService {
     page: number = 1,
   ): Promise<EveContract[] | null> {
     return await this.genxContracts(token, characterId, page)
-      .catch(() => null);
+      .catch(logEsiErrorAndReturnNull);
   }
 
   /*
@@ -276,7 +279,7 @@ export default class EsiQueryService {
     token: Token,
     ids: number[],
   ): Promise<EveName[] | null> {
-    return await this.genxNames(token, ids).catch(() => null);
+    return await this.genxNames(token, ids).catch(logEsiErrorAndReturnNull);
   }
 
   /*
@@ -305,6 +308,13 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
   ): Promise<EvePortrait | null> {
-    return await this.genxPortrait(token, characterId).catch(() => null);
+    return await this.genxPortrait(token, characterId)
+      .catch(logEsiErrorAndReturnNull);
   }
+}
+
+async function logEsiErrorAndReturnNull(e: any): Promise<null> {
+  const errorJson = await e.json();
+  await AppLog.warn('esi_query', errorJson);
+  return null;
 }

@@ -22,6 +22,7 @@ import { stationModelDefine } from '../models/sde/Station';
 import { plannedProductModelDefine } from '../models/PlannedProduct';
 import { esiCacheModelDefine } from '../models/EsiCache';
 import { materialStationModelDefine } from '../models/MaterialStation';
+import { appLogModelDefine } from '../models/AppLog';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -73,6 +74,7 @@ export function initDatabase(): void {
 
   // Special
   esiCacheModelDefine(sequelize);
+  appLogModelDefine(sequelize);
 }
 
 // This should define ONLY SDE models
