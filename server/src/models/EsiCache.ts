@@ -9,10 +9,12 @@ export const esiCacheModelDefine = (sequelize: Sequelize) => EsiCache.init(
     key: {
       type: DataTypes.STRING,
       allowNull: false,
+      primaryKey: true,
     },
     item: {
       type: DataTypes.STRING,
       allowNull: false,
+      primaryKey: true,
     },
     expiration: {
       type: DataTypes.DATE,
