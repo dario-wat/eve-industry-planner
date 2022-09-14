@@ -82,18 +82,7 @@ export default class PlannedProductService {
     characterId: number,
     content: string,
   ): Promise<PlannedProductsRes> {
-    // TODO this parsing might be wrong, who knows
-    const lines = content
-      .split(/\r?\n/)
-      .filter(l => l !== '')
-      .map(l => {
-        const trimmedLine = l.trim();
-        const splitIndex = trimmedLine.lastIndexOf(' ');
-        return {
-          name: trimmedLine.slice(0, splitIndex),
-          quantity: trimmedLine.slice(splitIndex, trimmedLine.length).trim(),
-        };
-      });
+    const lines = PlannedProductService.parseInput(content);
 
     // Delete current data
     await PlannedProduct.destroy({
@@ -107,10 +96,33 @@ export default class PlannedProductService {
       lines.map(l => ({
         character_id: characterId,
         type_id: this.sdeData.typeByName[l.name].id,
-        quantity: Number(l.quantity),
+        quantity: l.quantity,
       }))
     );
     return await this.genProductsForResponse(result);
+  }
+
+  static parseInput(
+    content: string,
+  ): { name: string, quantity?: number, error?: string }[] {
+    return content
+      .split(/\r?\n/)
+      .map(l => l.trim().replace(/\s\s+/g, ' '))  // remove extra spaces
+      .filter(l => l !== '')
+      .map(l => {
+        const splitIndex = l.lastIndexOf(' ');
+        const quantity = Number(l.slice(splitIndex, l.length).trim());
+        if (Number.isNaN(quantity)) {
+          return {
+            name: l,
+            error: 'Missing quantity',
+          }
+        }
+        return {
+          name: l.slice(0, splitIndex),
+          quantity
+        };
+      });
   }
 
   /*
