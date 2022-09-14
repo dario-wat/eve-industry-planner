@@ -37,10 +37,18 @@ export default function IndustryJobsPage() {
       ),
     },
     {
-      field: 'product_name',
+      field: 'product',
       headerName: 'Product',
       width: 300,
       sortable: false,
+      renderCell: params => {
+        if (params.row.activity === 'Manufacturing') {
+          return <img src={
+            `https://images.evetech.net/types/${params.row.product_type_id}/icon`} alt="BS" />;
+        }
+        return <img src={
+          `https://images.evetech.net/types/${params.row.product_type_id}/bp`} alt="BS" />;
+      },
     },
     {
       field: 'progress',

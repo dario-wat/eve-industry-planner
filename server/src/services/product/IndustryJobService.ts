@@ -49,6 +49,7 @@ export default class IndustryJobService {
       location: stationName,
       status: industryJob.status,
       product_name: this.sdeData.types[industryJob.product_type_id].name,
+      product_type_id: industryJob.product_type_id,
     };
   }
 }
