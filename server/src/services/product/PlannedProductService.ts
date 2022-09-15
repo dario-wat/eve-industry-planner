@@ -3,6 +3,9 @@ import { PlannedProduct } from '../../models/PlannedProduct';
 import { ManufactureTreeRes, PlannedProductsRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 
+// TODO maybe split out parsing from here
+type ParsedLine = { name: string, quantity: number | null };
+
 @Service()
 export default class PlannedProductService {
 
@@ -17,7 +20,7 @@ export default class PlannedProductService {
         character_id: characterId,
       },
     });
-    return await this.genProductsForResponse(plannedProducts);
+    return this.getProductsForResponse(plannedProducts);
   }
 
   /*
@@ -83,6 +86,10 @@ export default class PlannedProductService {
     content: string,
   ): Promise<PlannedProductsRes> {
     const lines = PlannedProductService.parseInput(content);
+    const errors = this.validateParsedInput(lines);
+    if (errors.length !== 0) {
+      return errors;
+    }
 
     // Delete current data
     await PlannedProduct.destroy({
@@ -99,28 +106,42 @@ export default class PlannedProductService {
         quantity: l.quantity,
       }))
     );
-    return await this.genProductsForResponse(result);
+    return this.getProductsForResponse(result);
   }
 
-  static parseInput(
-    content: string,
-  ): { name: string, quantity?: number, error?: string }[] {
+  private validateParsedInput(
+    lines: ParsedLine[],
+  ): { name: string, error: string }[] {
+    const getError = (line: ParsedLine) =>
+      this.sdeData.typeByName[line.name] === undefined
+        ? `Product with name '${line.name}' doesn't exist`
+        : line.quantity === null || Number.isNaN(line.quantity)
+          ? `Incorrect format '${line.name}'`
+          : null;
+    return lines.map(l => ({ name: l.name, error: getError(l) }))
+      .filter(l => l.error)
+      .map(l => ({ name: l.name, error: l.error! })); // typescript happy
+  }
+
+  // TODO curretly public for testing
+  public static parseInput(content: string): ParsedLine[] {
     return content
       .split(/\r?\n/)
-      .map(l => l.trim().replace(/\s\s+/g, ' '))  // remove extra spaces
+      .map(l => l.trim())
       .filter(l => l !== '')
       .map(l => {
-        const splitIndex = l.lastIndexOf(' ');
-        const quantity = Number(l.slice(splitIndex, l.length).trim());
+        const words = l.replace(/\s\s+/g, ' ').split(' ');
+        if (words.length == 1) {  // can't be 0 because that's filtered
+          return { name: l, quantity: null };
+        }
+
+        const quantity = Number(words[words.length - 1]);
         if (Number.isNaN(quantity)) {
-          return {
-            name: l,
-            error: 'Missing quantity',
-          }
+          return { name: l, quantity: null };
         }
         return {
-          name: l.slice(0, splitIndex),
-          quantity
+          name: words.slice(0, words.length - 1).join(' '),
+          quantity: quantity,
         };
       });
   }
@@ -129,9 +150,9 @@ export default class PlannedProductService {
   * Helper function to format PlannedProducts for response.
   * We just need the name and quantities.
   */
-  async genProductsForResponse(
+  private getProductsForResponse(
     plannedProducts: PlannedProduct[],
-  ): Promise<PlannedProductsRes> {
+  ): PlannedProductsRes {
     return plannedProducts.map(pp => ({
       name: this.sdeData.types[pp.get().type_id].name,
       quantity: pp.get().quantity,

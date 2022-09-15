@@ -34,7 +34,8 @@ export type EveIndustryJobsRes = {
 
 export type PlannedProductsRes = {
   name: string,
-  quantity: number,
+  quantity?: number,
+  error?: string,
 }[];
 
 export type MaterialStationsRes = {

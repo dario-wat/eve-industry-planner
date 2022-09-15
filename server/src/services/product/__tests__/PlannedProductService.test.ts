@@ -34,10 +34,10 @@ describe('Test planned product parser', () => {
       `,
     );
     expect(output).toEqual([
-      { name: 'Kikimora', error: 'Missing quantity' },
+      { name: 'Kikimora', quantity: null },
       { name: 'Large Shield Extender II', quantity: 2 },
       { name: 'Ballistic Control System I', quantity: 200 },
-      { name: 'Warrior II', error: 'Missing quantity' },
+      { name: 'Warrior II', quantity: null },
     ]);
   });
 
