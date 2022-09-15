@@ -3,11 +3,12 @@ import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 import useAxios from 'axios-hooks';
 import { styled } from '@mui/system';
 import { UserContext } from './UserContext';
+import { EvePortraitRes } from '@internal/shared';
 
 const CARD_WIDTH = 170;
 
 export default function LoggedInUserCard() {
-  const [{ data }] = useAxios('/portrait');
+  const [{ data }] = useAxios<EvePortraitRes>('/portrait');
 
   const userContext = useContext(UserContext);
 

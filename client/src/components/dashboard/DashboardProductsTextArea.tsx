@@ -1,8 +1,8 @@
-import { Box, TextField } from '@mui/material';
+import { Box, Grid, TextField } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { PlannedProductsRes } from '@internal/shared';
+import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
 
 export default function DashboardProductsTextArea(
   props: {
@@ -21,11 +21,13 @@ export default function DashboardProductsTextArea(
   const [isSubmitting, setIsSubmitting] = useState(false);
   const onButtonClick = async () => {
     setIsSubmitting(true);
-    const { data } = await axios.post('/planned_products_recreate', { text });
-    props.onUpdate(data);
+    const { data } = await axios.post<PlannedProductsWithErrorRes>('/planned_products_recreate', { text });
+    // TODO dont onupdate when there are errors
+    // props.onUpdate(data);
     setIsSubmitting(false);
   };
 
+  // TODO add error infor
   return (
     <Box>
       <TextField
@@ -44,13 +46,20 @@ export default function DashboardProductsTextArea(
         value={text}
         onChange={e => setText(e.target.value)}
       />
-      <LoadingButton
-        loading={isSubmitting}
-        variant="contained"
-        onClick={onButtonClick}
-      >
-        Submit
-      </LoadingButton>
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <LoadingButton
+            loading={isSubmitting}
+            variant="contained"
+            onClick={onButtonClick}
+          >
+            Submit
+          </LoadingButton>
+        </Grid>
+        <Grid item xs={8}>
+          Bullshit
+        </Grid>
+      </Grid>
     </Box>
   );
 }

@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import useAxios from 'axios-hooks';
+import { EveAssetsRes } from '@internal/shared';
 
 // TODO
 //  - Icons ?
@@ -16,7 +17,7 @@ import useAxios from 'axios-hooks';
 //  - styling for cells
 //  - group by location
 export default function AssetsPage() {
-  const [{ data }] = useAxios('/assets');
+  const [{ data }] = useAxios<EveAssetsRes>('/assets');
 
   const [searchText, setSearchText] = useState('');
 

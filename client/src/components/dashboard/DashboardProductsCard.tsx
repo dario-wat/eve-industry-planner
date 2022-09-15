@@ -13,7 +13,7 @@ import DashboardProductsDataGrid from './DashboardProductsDataGrid';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 
 export default function DashboardProductsCard() {
-  const [{ data }] = useAxios('/planned_products');
+  const [{ data }] = useAxios<PlannedProductsRes>('/planned_products');
 
   const [plannedProducts, setPlannedProducts] =
     useState<PlannedProductsRes>([]);

@@ -10,7 +10,7 @@ type Props = {
 export default function EveLoginButton(
   { useBlack = false }: Props,
 ) {
-  const [{ data }] = useAxios('/login_url');
+  const [{ data }] = useAxios<string>('/login_url');
 
   const eveLoginImage = useBlack
     ? eveLoginImageBlackLarge

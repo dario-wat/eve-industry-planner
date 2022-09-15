@@ -1,3 +1,4 @@
+import { EveContractsRes } from '@internal/shared';
 import {
   Box,
   Card,
@@ -20,7 +21,7 @@ const FINISHED_STATUS = 'finished';
 //  - style columns (add color n shit)
 //  - remove expires from finished contracts
 export default function ContractsPage() {
-  const [{ data }] = useAxios('/contracts');
+  const [{ data }] = useAxios<EveContractsRes>('/contracts');
 
   const [searchText, setSearchText] = useState('');
 

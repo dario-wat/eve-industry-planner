@@ -1,6 +1,10 @@
 import { Service } from 'typedi';
 import { PlannedProduct } from '../../models/PlannedProduct';
-import { ManufactureTreeRes, PlannedProductsRes } from '@internal/shared';
+import {
+  ManufactureTreeRes,
+  PlannedProductsRes,
+  PlannedProductsWithErrorRes,
+} from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 
 // TODO maybe split out parsing from here
@@ -31,7 +35,7 @@ export default class PlannedProductService {
   */
   public async genMaterialTree(
     characterId: number,
-  ): Promise<ManufactureTreeRes[]> {
+  ): Promise<ManufactureTreeRes[]> {  // TODO wrong return type
     const plannedProducts = await PlannedProduct.findAll({
       attributes: ['type_id', 'quantity'],
       where: {
@@ -84,7 +88,7 @@ export default class PlannedProductService {
   public async genParseAndRecreate(
     characterId: number,
     content: string,
-  ): Promise<PlannedProductsRes> {
+  ): Promise<PlannedProductsWithErrorRes> {
     const lines = PlannedProductService.parseInput(content);
     const errors = this.validateParsedInput(lines);
     if (errors.length !== 0) {

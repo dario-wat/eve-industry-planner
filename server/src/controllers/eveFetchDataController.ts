@@ -14,6 +14,7 @@ import EveQueryService from '../services/query/EveQueryService';
 const route = Router();
 
 // TODO make this nicer, move all business logic out of this file
+// TODO add types to responses
 const controller = (app: Router) => {
   app.use('/', route);
 
@@ -82,7 +83,7 @@ const controller = (app: Router) => {
 
       const token = await provider.getToken(characterId, requiredScopes);
       const portrait = await esiQuery.genxPortrait(token, characterId);
-      res.json(portrait);
+      res.json({ px64x64: portrait.px64x64 });
     },
   );
 };

@@ -7,7 +7,8 @@ import useAxios from 'axios-hooks';
 import { ManufactureTreeRes } from '@internal/shared';
 
 export default function DashboardProductMaterialTreeCard() {
-  const [{ data }] = useAxios('/planned_products_material_tree');
+  const [{ data }] =
+    useAxios<ManufactureTreeRes[]>('/planned_products_material_tree');
 
   const renderTree = (node: ManufactureTreeRes) => (
     <TreeItem

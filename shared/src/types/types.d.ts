@@ -32,7 +32,21 @@ export type EveIndustryJobsRes = {
   product_name: string,
 }[];
 
+export type EvePortraitRes = {
+  px64x64: string,
+};
+
+export type EveLoggedInUserRes = {
+  character_id: number | null,
+  character_name: string | null,
+};
+
 export type PlannedProductsRes = {
+  name: string,
+  quantity: number,
+}[];
+
+export type PlannedProductsWithErrorRes = {
   name: string,
   quantity?: number,
   error?: string,

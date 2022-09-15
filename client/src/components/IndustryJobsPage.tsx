@@ -2,6 +2,7 @@ import useAxios from 'axios-hooks';
 import { Box, Card, CardContent, CircularProgress } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { formatDistanceToNowStrict } from 'date-fns';
+import { EveIndustryJobsRes } from '@internal/shared';
 
 const activityColors: { [key: string]: string } = {
   'Manufacturing': 'orange',
@@ -15,7 +16,7 @@ const activityColors: { [key: string]: string } = {
 //  - Add progress bar for percentage
 //  - Add icons
 export default function IndustryJobsPage() {
-  const [{ data }] = useAxios('/industry_jobs');
+  const [{ data }] = useAxios<EveIndustryJobsRes>('/industry_jobs');
 
   const columns: GridColDef[] = [
     {
