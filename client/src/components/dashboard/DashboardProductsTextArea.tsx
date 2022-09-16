@@ -2,7 +2,11 @@ import { Box, Grid, TextField } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
+import {
+  filterNullOrUndef,
+  PlannedProductsRes,
+  PlannedProductsWithErrorRes,
+} from '@internal/shared';
 
 export default function DashboardProductsTextArea(
   props: {
@@ -29,7 +33,7 @@ export default function DashboardProductsTextArea(
       { text },
     );
 
-    const errors = data.map(pp => pp.error);
+    const errors = filterNullOrUndef(data.map(pp => pp.error));
     if (!data.some(e => e.error === null)) {
       // Update only when no errors
       props.onUpdate(data.map(pp => ({

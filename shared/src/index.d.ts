@@ -1,5 +1,5 @@
-// NOTE!
-// This file is used by both server and client code.
+export function notEmpty<T>(value: T | null | undefined): value is T;
+export function filterNullOrUndef<T>(arr: (T | null | undefined)[]): T[];
 
 export type EveAssetsRes = {
   name: string,
