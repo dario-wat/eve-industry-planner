@@ -11,23 +11,35 @@ export default function DashboardProductsTextArea(
   }
 ) {
   const [text, setText] = useState('');
+  const [errors, setErrors] = useState([]);
   useEffect(
     () => setText(
-      props.plannedProducts.map(pp => pp.name + ' ' + pp.quantity).join('\n')
+      props.plannedProducts.map(pp => pp.name + ' ' + pp.quantity).join('\n'),
     ),
     [props.plannedProducts],
   );
 
+
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const onButtonClick = async () => {
     setIsSubmitting(true);
-    const { data } = await axios.post<PlannedProductsWithErrorRes>('/planned_products_recreate', { text });
-    // TODO dont onupdate when there are errors
-    // props.onUpdate(data);
+    const { data } = await axios.post<PlannedProductsWithErrorRes>(
+      '/planned_products_recreate',
+      { text },
+    );
+
+    const errors = data.map(pp => pp.error);
+    if (!data.some(e => e.error === null)) {
+      // Update only when no errors
+      props.onUpdate(data.map(pp => ({
+        name: pp.name,
+        quantity: pp.quantity!,
+      })));
+    }
     setIsSubmitting(false);
   };
 
-  // TODO add error infor
   return (
     <Box>
       <TextField

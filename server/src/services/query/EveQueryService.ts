@@ -3,10 +3,11 @@ import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
 import { hoursToSeconds } from 'date-fns';
 import EsiQueryService from './EsiQueryService';
-import { filterNullOrUndef, mapify } from '../../lib/util';
+import { mapify } from '../../lib/util';
 import { EveAsset, EveAssetName, EveName } from '../../types/EsiQuery';
 import EveSdeData from './EveSdeData';
 import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
+import { filterNullOrUndef } from '@internal/shared';
 
 @Service()
 export default class EveQueryService {

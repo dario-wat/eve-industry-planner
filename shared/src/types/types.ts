@@ -9,6 +9,12 @@ export type EveAssetsRes = {
   location: string,
 }[];
 
+type EveName = {
+  category: string,
+  id: number,
+  name: string,
+};
+
 export type EveContractsRes = {
   title: string,
   status: string,

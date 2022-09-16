@@ -16,6 +16,7 @@
     "server-test": "cd server && npm run test",
     "server-install": "cd server && npm i",
     "client": "cd client && npm start",
-    "client-install": "cd client && npm i"
+    "client-install": "cd client && npm i",
+    "shared-test": "cd shared && npm run test"
   }
 }
