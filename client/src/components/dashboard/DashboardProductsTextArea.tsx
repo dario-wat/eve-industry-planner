@@ -1,7 +1,9 @@
-import { Box, Grid, TextField } from '@mui/material';
+import { Box, Grid, TextField, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { withStyles } from '@material-ui/styles';
+import { first } from 'underscore';
 import {
   filterNullOrUndef,
   PlannedProductsRes,
@@ -15,15 +17,13 @@ export default function DashboardProductsTextArea(
   }
 ) {
   const [text, setText] = useState('');
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState<string[]>([]);
   useEffect(
     () => setText(
       props.plannedProducts.map(pp => pp.name + ' ' + pp.quantity).join('\n'),
     ),
     [props.plannedProducts],
   );
-
-
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const onButtonClick = async () => {
@@ -34,15 +34,22 @@ export default function DashboardProductsTextArea(
     );
 
     const errors = filterNullOrUndef(data.map(pp => pp.error));
-    if (!data.some(e => e.error === null)) {
+    if (errors.length === 0) {
       // Update only when no errors
       props.onUpdate(data.map(pp => ({
         name: pp.name,
         quantity: pp.quantity!,
       })));
     }
+    setErrors(errors);
     setIsSubmitting(false);
   };
+
+  const RedTextTypography = withStyles({
+    root: {
+      color: 'red',
+    },
+  })(Typography);
 
   return (
     <Box>
@@ -63,7 +70,7 @@ export default function DashboardProductsTextArea(
         onChange={e => setText(e.target.value)}
       />
       <Grid container spacing={2}>
-        <Grid item xs={4}>
+        <Grid item xs={3}>
           <LoadingButton
             loading={isSubmitting}
             variant="contained"
@@ -72,8 +79,12 @@ export default function DashboardProductsTextArea(
             Submit
           </LoadingButton>
         </Grid>
-        <Grid item xs={8}>
-          Bullshit
+        <Grid item xs={9} sx={{ display: 'flex' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <RedTextTypography variant='body2'>
+              {first(errors)}
+            </RedTextTypography>
+          </Box>
         </Grid>
       </Grid>
     </Box>
