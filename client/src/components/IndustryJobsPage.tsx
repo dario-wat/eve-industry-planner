@@ -3,8 +3,7 @@ import { Box, Card, CardContent, CircularProgress } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { EveIndustryJobsRes } from '@internal/shared';
-import EveIcon from 'components/util/EveIcon';
-import { Grid } from '@material-ui/core';
+import EveIconAndName from 'components/util/EveIconAndName';
 
 const activityColors: { [key: string]: string } = {
   'Manufacturing': 'orange',
@@ -41,17 +40,11 @@ export default function IndustryJobsPage() {
       width: 320,
       sortable: false,
       renderCell: params =>
-        <Grid container alignItems="center">
-          <Grid item xs={2}>
-            <EveIcon
-              typeId={params.row.product_type_id}
-              categoryId={params.row.category_id}
-              size={24} />
-          </Grid>
-          <Grid item xs={10}>
-            {params.row.product_name}
-          </Grid>
-        </Grid>,
+        <EveIconAndName
+          typeId={params.row.product_type_id}
+          categoryId={params.row.category_id}
+          name={params.row.product_name}
+        />,
     },
     {
       field: 'progress',
