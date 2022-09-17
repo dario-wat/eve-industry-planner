@@ -17,7 +17,6 @@ const FINISHED_STATUS = 'finished';
 // TODO
 //  - Order by time accepted for finished
 //  - Add location
-//  - style header row
 //  - style columns (add color n shit)
 //  - remove expires from finished contracts
 export default function ContractsPage() {
@@ -97,6 +96,11 @@ export default function ContractsPage() {
   return <div>
     <Box sx={{ pb: 2 }}>
       <TextField
+        InputProps={{
+          sx: {
+            backgroundColor: 'white',
+          }
+        }}
         label="Search..."
         variant="outlined"
         value={searchText}

@@ -12,7 +12,6 @@ import { EveAssetsRes } from '@internal/shared';
 
 // TODO
 //  - Icons ?
-//  - Header row styling
 //  - Asset caching
 //  - styling for cells
 //  - group by location
@@ -52,6 +51,11 @@ export default function AssetsPage() {
     <div>
       <Box sx={{ pb: 2 }}>
         <TextField
+          InputProps={{
+            sx: {
+              backgroundColor: 'white',
+            }
+          }}
           label="Search..."
           variant="outlined"
           value={searchText}
