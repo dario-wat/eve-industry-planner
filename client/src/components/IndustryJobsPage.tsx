@@ -10,6 +10,7 @@ const activityColors: { [key: string]: string } = {
   'TE Research': 'blue',
   'ME Research': 'blue',
   'Invention': 'green',
+  'Reactions': 'orange',
 };
 
 export default function IndustryJobsPage() {
