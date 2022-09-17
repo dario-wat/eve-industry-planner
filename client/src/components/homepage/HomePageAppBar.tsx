@@ -6,7 +6,7 @@ import EveLoginButton from 'components/homepage/EveLoginButton';
 import LoggedInUserCard from 'components/homepage/LoggedInUserCard';
 import { Box } from '@mui/material';
 import { useContext } from 'react';
-import { UserContext } from './UserContext';
+import { UserContext } from 'contexts/UserContext';
 
 // TODO
 // - figure out placement of buttons

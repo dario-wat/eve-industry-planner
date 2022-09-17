@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 import useAxios from 'axios-hooks';
 import { styled } from '@mui/system';
-import { UserContext } from 'components/homepage/UserContext';
+import { UserContext } from 'contexts/UserContext';
 import { EvePortraitRes } from '@internal/shared';
 import CenteredImg from 'components/util/CenteredImg';
 

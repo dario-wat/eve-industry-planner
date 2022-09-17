@@ -14,7 +14,7 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import ContractsPage from 'components/ContractsPage';
 import IndustryJobsPage from 'components/IndustryJobsPage';
 import DashboardPage from 'components/dashboard/DashboardPage';
-import { UserContext } from './UserContext';
+import { UserContext } from 'contexts/UserContext';
 import EveLoginButton from './EveLoginButton';
 
 enum Tab {

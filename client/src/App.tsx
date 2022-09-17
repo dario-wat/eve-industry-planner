@@ -1,7 +1,7 @@
 import useAxios from 'axios-hooks';
 import { Provider } from 'react-redux';
 import HomePage from 'components/homepage/HomePage';
-import { defaultUserContextValue, UserContext } from 'components/homepage/UserContext';
+import { defaultUserContextValue, UserContext } from 'contexts/UserContext';
 import store from 'redux/store';
 import { EveLoggedInUserRes } from '@internal/shared';
 
