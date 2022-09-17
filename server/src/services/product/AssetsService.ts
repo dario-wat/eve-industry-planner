@@ -11,11 +11,6 @@ const SHIP_CAT = 6;
 
 // It's important to note that this service queries all assets except
 // the ones located inside ships
-//
-// TODO(EIP-14)
-// This works when the number of stations/structures is small. The problem
-// is that genStationName throws a lot of errors and the app gets error
-// limited on ESI server. This needs to be fixed.
 @Service()
 export default class AssetsService {
 
@@ -69,6 +64,7 @@ export default class AssetsService {
         name: this.sdeData.types[o.asset.type_id]
           && this.sdeData.types[o.asset.type_id].name,
         type_id: o.asset.type_id,
+        category_id: this.sdeData.categoryIdFromTypeId(o.asset.type_id),
         quantity: o.asset.quantity,
         location_id:
           (rootLocationIds.includes(o.asset.location_id) && o.asset.location_id)

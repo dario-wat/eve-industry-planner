@@ -36,10 +36,10 @@ export default class EveSdeData {
       { [type_id: number]: EveSdeBlueprintMaterial },
   ) { }
 
-  public categoryIdFromTypeId(typeId: number): number {
+  public categoryIdFromTypeId(typeId: number): number | undefined {
     const type = this.types[typeId];
-    const group = this.groups[type.group_id];
-    return group.category_id;
+    const group = type && this.groups[type.group_id];
+    return group?.category_id;
   }
 
   public static async init(): Promise<EveSdeData> {

@@ -3,6 +3,7 @@ export * from './lib/util';
 export type EveAssetsRes = {
   name: string,
   type_id: number,
+  category_id: number | undefined
   quantity: number,
   location_id: number,
   location: string,
@@ -36,7 +37,7 @@ export type EveIndustryJobsRes = {
   status: string,
   product_name: string,
   product_type_id: number,
-  category_id: number,
+  category_id: number | undefined,
 }[];
 
 export type EvePortraitRes = {
