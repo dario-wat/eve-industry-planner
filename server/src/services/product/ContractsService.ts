@@ -33,6 +33,7 @@ export default class ContractsService {
       issuer: names[contract.issuer_id] ?? null,
       acceptor: names[contract.acceptor_id] ?? null,
       date_expired: contract.date_expired,
+      date_accepted: contract.date_accepted ?? null,
     }));
   }
 }

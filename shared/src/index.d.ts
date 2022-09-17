@@ -25,6 +25,7 @@ export type EveContractsRes = {
   issuer: EveName | null,
   acceptor: EveName | null,
   date_expired: string,
+  date_accepted: string | null,
 }[];
 
 export type EveIndustryJobsRes = {

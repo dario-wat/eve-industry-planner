@@ -16,7 +16,6 @@ import { useContext, useState } from 'react';
 const FINISHED_STATUS = 'finished';
 
 // TODO
-//  - Order by time accepted for finished
 //  - Add location
 export default function ContractsPage() {
   const [{ data }] = useAxios<EveContractsRes>('/contracts');
@@ -46,7 +45,8 @@ export default function ContractsPage() {
         {text}
       </div>
       : text;
-  const columns: GridColDef[] = [
+
+  const columns = (dateField: GridColDef): GridColDef[] => ([
     {
       field: 'issuer',
       headerName: 'Issuer',
@@ -88,24 +88,39 @@ export default function ContractsPage() {
             ? (params.value / 1000) + 'K'
             : params.value
     },
-    {
-      field: 'date_expired',
-      headerName: 'Expires',
-      width: 120,
-      valueFormatter: params => formatDistanceToNowStrict(
-        new Date(params.value),
-        { addSuffix: true },
-      ),
-    },
+    dateField,  // Inject date field here
     {
       field: 'type',
       headerName: 'Type',
       width: 130,
       sortable: false,
     },
-  ];
+  ]);
 
-  const columnsFinished = columns.filter(col => col.field !== 'date_expired');
+  const columnsActive = columns(
+    {
+      field: 'date_expired',
+      headerName: 'Expires',
+      width: 120,
+      sortable: false,
+      valueFormatter: params => formatDistanceToNowStrict(
+        new Date(params.value),
+        { addSuffix: true },
+      ),
+    },
+  );
+  const columnsFinished = columns(
+    {
+      field: 'date_accepted',
+      headerName: 'Accepted',
+      width: 120,
+      sortable: false,
+      valueFormatter: params => formatDistanceToNowStrict(
+        new Date(params.value),
+        { addSuffix: true },
+      ),
+    },
+  );
   return <div>
     <Box sx={{ pb: 2 }}>
       <TextField
@@ -135,8 +150,13 @@ export default function ContractsPage() {
         >
           {activeContracts ?
             <DataGrid
+              initialState={{
+                sorting: {
+                  sortModel: [{ field: 'date_expired', sort: 'asc' }],
+                },
+              }}
               rows={activeContracts}
-              columns={columns}
+              columns={columnsActive}
               disableSelectionOnClick
               disableColumnMenu
               experimentalFeatures={{ newEditingApi: true }}
@@ -161,6 +181,11 @@ export default function ContractsPage() {
         >
           {finishedContracts ?
             <DataGrid
+              initialState={{
+                sorting: {
+                  sortModel: [{ field: 'date_accepted', sort: 'desc' }],
+                },
+              }}
               rows={finishedContracts}
               columns={columnsFinished}
               disableSelectionOnClick
