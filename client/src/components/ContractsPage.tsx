@@ -18,7 +18,6 @@ const FINISHED_STATUS = 'finished';
 // TODO
 //  - Order by time accepted for finished
 //  - Add location
-//  - remove expires from finished contracts
 export default function ContractsPage() {
   const [{ data }] = useAxios<EveContractsRes>('/contracts');
 
@@ -40,7 +39,7 @@ export default function ContractsPage() {
   const activeContracts = filteredData &&
     filteredData.filter((c: any) => c.status !== FINISHED_STATUS);
 
-  const emphasizeSelf = (characterId: number, text: string) =>
+  const emphasizeSelf = (characterId: number | null, text: string) =>
     userContext.is_logged_in && userContext.character_id === characterId
       ?
       <div style={{ color: 'orange' }}>
@@ -54,7 +53,7 @@ export default function ContractsPage() {
       width: 150,
       sortable: false,
       valueGetter: params => params?.value?.name,
-      renderCell: params => emphasizeSelf(params.row.issuer.id, params.value),
+      renderCell: params => emphasizeSelf(params.row.issuer?.id, params.value),
     },
     {
       field: 'assignee',
@@ -62,7 +61,7 @@ export default function ContractsPage() {
       width: 150,
       sortable: false,
       valueGetter: params => params?.value?.name,
-      renderCell: params => emphasizeSelf(params.row.assignee.id, params.value),
+      renderCell: params => emphasizeSelf(params.row.assignee?.id, params.value),
     },
     {
       field: 'acceptor',
@@ -70,12 +69,12 @@ export default function ContractsPage() {
       width: 150,
       sortable: false,
       valueGetter: params => params?.value?.name,
-      renderCell: params => emphasizeSelf(params.row.acceptor.id, params.value),
+      renderCell: params => emphasizeSelf(params.row.acceptor?.id, params.value),
     },
     {
       field: 'title',
       headerName: 'Title',
-      width: 200,
+      width: 300,
       sortable: false,
     },
     {
@@ -105,6 +104,8 @@ export default function ContractsPage() {
       sortable: false,
     },
   ];
+
+  const columnsFinished = columns.filter(col => col.field !== 'date_expired');
   return <div>
     <Box sx={{ pb: 2 }}>
       <TextField
@@ -161,7 +162,7 @@ export default function ContractsPage() {
           {finishedContracts ?
             <DataGrid
               rows={finishedContracts}
-              columns={columns}
+              columns={columnsFinished}
               disableSelectionOnClick
               disableColumnMenu
               experimentalFeatures={{ newEditingApi: true }}
