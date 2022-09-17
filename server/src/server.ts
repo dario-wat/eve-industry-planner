@@ -2,10 +2,9 @@ import 'reflect-metadata';
 
 import cors from 'cors';
 import express from 'express';
-import { Sequelize } from 'sequelize/types';
+import { Sequelize } from 'sequelize';
 import Container from 'typedi';
 import { initDatabase } from './loaders/initDatabase';
-import { DIKeys } from './const/DIKeys';
 import { initControllers } from './loaders/initControllers';
 import EveSdeData from './services/query/EveSdeData';
 
@@ -13,7 +12,7 @@ import EveSdeData from './services/query/EveSdeData';
 async function init() {
   initDatabase();
   // TODO do I need this
-  const sequelize: Sequelize = Container.get(DIKeys.DB);
+  const sequelize = Container.get(Sequelize);
 
   // TODO maybe put this into database init
   await sequelize.authenticate().then(() => {

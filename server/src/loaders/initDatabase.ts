@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
 import Container from 'typedi';
 import databaseConfig from '../config/databaseConfig';
-import { DIKeys } from '../const/DIKeys';
 import {
   blueprintModelDefine,
   bpCopyingMaterialsDefine,
@@ -37,7 +36,7 @@ export function initDatabaseSequelize(): Sequelize {
     }
   );
 
-  Container.set(DIKeys.DB, sequelize);
+  Container.set(Sequelize, sequelize);
 
   return sequelize;
 }

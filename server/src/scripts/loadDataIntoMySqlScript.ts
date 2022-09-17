@@ -31,7 +31,6 @@ import {
   BpReactionProducts,
 } from '../models/sde/Blueprint';
 import { initDatabaseForSdeScript } from '../loaders/initDatabase';
-import { DIKeys } from '../const/DIKeys';
 
 // Either console.log or false
 const LOG = console.log;
@@ -138,7 +137,7 @@ async function run() {
   LOG && LOG('[Script] Script started');
 
   initDatabaseForSdeScript();
-  const sequelize: Sequelize = Container.get(DIKeys.DB);
+  const sequelize = Container.get(Sequelize);
   await sequelize.authenticate({ logging: SEQUELIZE_LOG });
 
   LOG && LOG('[Script] Recreating tables');
