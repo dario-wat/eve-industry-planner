@@ -12,7 +12,8 @@ import 'reflect-metadata';
 import { parse } from 'yaml';
 import fs from 'fs';
 import Container from 'typedi';
-import { Model, ModelStatic, Sequelize } from 'sequelize/types';
+import { Sequelize } from 'sequelize';
+import { Model, ModelStatic } from 'sequelize/types';
 import { GroupID } from '../models/sde/GroupID';
 import { IconID } from '../models/sde/IconID';
 import { TypeID } from '../models/sde/TypeID';
@@ -70,7 +71,7 @@ function extractBlueprintData([key, value]: [string, any]) {
   });
 
   return {
-    [Blueprint.MODEL_NAME]: {
+    [Blueprint.name]: {
       id: key,
       copying_time: value.activities.copying?.time,
       invention_time: value.activities.invention?.time,
@@ -79,23 +80,23 @@ function extractBlueprintData([key, value]: [string, any]) {
       research_time_time: value.activities.research_time?.time,
       reaction_time: value.activities.reaction?.time,
     },
-    [BpCopyingMaterials.MODEL_NAME]:
+    [BpCopyingMaterials.name]:
       (value.activities.copying?.materials ?? []).map(materialMapper),
-    [BpInventionMaterials.MODEL_NAME]:
+    [BpInventionMaterials.name]:
       (value.activities.invention?.materials ?? []).map(materialMapper),
-    [BpManufacturingMaterials.MODEL_NAME]:
+    [BpManufacturingMaterials.name]:
       (value.activities.manufacturing?.materials ?? []).map(materialMapper),
-    [BpReactionMaterials.MODEL_NAME]:
+    [BpReactionMaterials.name]:
       (value.activities.reaction?.materials ?? []).map(materialMapper),
-    [BpMeMaterials.MODEL_NAME]:
+    [BpMeMaterials.name]:
       (value.activities.research_material?.materials ?? []).map(materialMapper),
-    [BpTeMaterials.MODEL_NAME]:
+    [BpTeMaterials.name]:
       (value.activities.research_time?.materials ?? []).map(materialMapper),
-    [BpInventionProducts.MODEL_NAME]:
+    [BpInventionProducts.name]:
       (value.activities.invention?.products ?? []).map(materialMapper),
-    [BpManufacturingProducts.MODEL_NAME]:
+    [BpManufacturingProducts.name]:
       (value.activities.manufacturing?.products ?? []).map(materialMapper),
-    [BpReactionProducts.MODEL_NAME]:
+    [BpReactionProducts.name]:
       (value.activities.reaction?.products ?? []).map(materialMapper),
   };
 }
@@ -111,8 +112,8 @@ async function loadBlueprintData(sequelize: Sequelize) {
   const records = Object.entries(result).map(extractBlueprintData);
 
   LOG && LOG('[Script] Storing into the database');
-  await sequelize.model(Blueprint.MODEL_NAME).bulkCreate(
-    records.map((o: any) => o[Blueprint.MODEL_NAME]),
+  await Blueprint.bulkCreate(
+    records.map((o: any) => o[Blueprint.name]),
     { logging: SEQUELIZE_LOG },
   );
 
@@ -122,15 +123,15 @@ async function loadBlueprintData(sequelize: Sequelize) {
       { logging: SEQUELIZE_LOG },
     );
 
-  await bulkCreateHelper(BpCopyingMaterials.MODEL_NAME);
-  await bulkCreateHelper(BpInventionMaterials.MODEL_NAME);
-  await bulkCreateHelper(BpManufacturingMaterials.MODEL_NAME);
-  await bulkCreateHelper(BpReactionMaterials.MODEL_NAME);
-  await bulkCreateHelper(BpMeMaterials.MODEL_NAME);
-  await bulkCreateHelper(BpTeMaterials.MODEL_NAME);
-  await bulkCreateHelper(BpInventionProducts.MODEL_NAME);
-  await bulkCreateHelper(BpManufacturingProducts.MODEL_NAME);
-  await bulkCreateHelper(BpReactionProducts.MODEL_NAME);
+  await bulkCreateHelper(BpCopyingMaterials.name);
+  await bulkCreateHelper(BpInventionMaterials.name);
+  await bulkCreateHelper(BpManufacturingMaterials.name);
+  await bulkCreateHelper(BpReactionMaterials.name);
+  await bulkCreateHelper(BpMeMaterials.name);
+  await bulkCreateHelper(BpTeMaterials.name);
+  await bulkCreateHelper(BpInventionProducts.name);
+  await bulkCreateHelper(BpManufacturingProducts.name);
+  await bulkCreateHelper(BpReactionProducts.name);
 }
 
 async function run() {
@@ -150,7 +151,7 @@ async function run() {
       group_id: value.groupID,
       name: value.name.en
     }),
-    sequelize.model(TypeID.MODEL_NAME),
+    TypeID,
     {
       cleanupInputFn: (inString: string) =>
         inString
@@ -167,7 +168,7 @@ async function run() {
       icon_id: value.iconID,
       name: value.name.en
     }),
-    sequelize.model(GroupID.MODEL_NAME),
+    GroupID,
   );
 
   await loadDataToDatabase(
@@ -177,7 +178,7 @@ async function run() {
       description: value.description,
       icon_file: value.iconFile,
     }),
-    sequelize.model(IconID.MODEL_NAME),
+    IconID,
   );
 
   await loadDataToDatabase(
@@ -186,7 +187,7 @@ async function run() {
       id: key,
       name: value.name.en,
     }),
-    sequelize.model(CategoryID.MODEL_NAME),
+    CategoryID,
   );
 
   await loadDataToDatabase(
@@ -195,7 +196,7 @@ async function run() {
       id: value.stationID,
       name: value.stationName,
     }),
-    sequelize.model(Station.MODEL_NAME),
+    Station,
   );
 
   await loadBlueprintData(sequelize);
