@@ -24,7 +24,10 @@ export default function NavigationDrawer(props: Props) {
       sx={{
         width: drawerWidth,
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+        [`& .MuiDrawer-paper`]: {
+          width: drawerWidth,
+          boxSizing: 'border-box',
+        },
       }}>
       <Toolbar /> {/* need this to push the nav bar below the app bar */}
       <Box sx={{ overflow: 'auto' }}>

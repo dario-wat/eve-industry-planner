@@ -26,7 +26,6 @@ enum Tab {
 
 // TODO
 //  - fix styling (button is gray, it should be white)
-//  - make datagrid header text bold
 //  - render something default while it's loading, like a loding page
 export default function HomePage() {
   const userContext = useContext(UserContext);
@@ -50,6 +49,9 @@ export default function HomePage() {
         },
         styleOverrides: {
           root: {
+            '& .MuiDataGrid-row:hover': {
+              backgroundColor: 'rgba(220, 220, 220, .5) !important',
+            },
             '& .MuiDataGrid-virtualScrollerRenderZone': {
               '& .MuiDataGrid-row': {
                 '&:nth-of-type(2n)': {
@@ -60,12 +62,10 @@ export default function HomePage() {
             },
             '& .MuiDataGrid-columnHeaders': {
               backgroundColor: 'rgba(200, 200, 200, 1.0)',
-              // fontSize: 16,
-              // fontWeight: 'bold',
             },
-            // '.MuiDataGrid-columnHeaderTitle': {
-            //   // fontWeight: 'bold !important',
-            // },
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontWeight: 'bold',
+            },
           },
         },
       },
