@@ -3,7 +3,7 @@ import PlannedProductService from "../PlannedProductService";
 describe('Test planned product parser', () => {
 
   test('Test correct input', () => {
-    const output = PlannedProductService.parseInput(
+    const output = PlannedProductService['parseInput'](
       `Kikimora 10
       Raptor 1
       Large Shield Extender II 4
@@ -21,12 +21,12 @@ describe('Test planned product parser', () => {
   });
 
   test('Empty input', () => {
-    const output = PlannedProductService.parseInput('');
+    const output = PlannedProductService['parseInput']('');
     expect(output).toEqual([]);
   });
 
   test('Missing quantity', () => {
-    const output = PlannedProductService.parseInput(
+    const output = PlannedProductService['parseInput'](
       `Kikimora
       Large Shield Extender II 2
       Ballistic Control System I 200
@@ -42,7 +42,7 @@ describe('Test planned product parser', () => {
   });
 
   test('Multiple spaces in between', () => {
-    const output = PlannedProductService.parseInput(
+    const output = PlannedProductService['parseInput'](
       `Kikimora     10
       Raptor    1
       Large Shield Extender   II 4

@@ -127,8 +127,7 @@ export default class PlannedProductService {
       .map(l => ({ name: l.name, error: l.error! })); // typescript happy
   }
 
-  // TODO curretly public for testing
-  public static parseInput(content: string): ParsedLine[] {
+  private static parseInput(content: string): ParsedLine[] {
     return content
       .split(/\r?\n/)
       .map(l => l.trim())
