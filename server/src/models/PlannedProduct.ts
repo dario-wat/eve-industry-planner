@@ -5,7 +5,6 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 * This is later used to plan all manufacturing jobs.
 */
 export class PlannedProduct extends Model {
-  static readonly MODEL_NAME: string = 'PlannedProduct';
 }
 
 export const plannedProductModelDefine =
@@ -26,7 +25,7 @@ export const plannedProductModelDefine =
     },
     {
       sequelize,
-      modelName: PlannedProduct.MODEL_NAME,
+      modelName: PlannedProduct.name,
       tableName: 'planned_products',
       timestamps: false,
     }

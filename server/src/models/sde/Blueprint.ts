@@ -85,7 +85,6 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 */
 
 export class Blueprint extends Model {
-  static readonly MODEL_NAME: string = 'Blueprint';
 }
 
 export const blueprintModelDefine = (sequelize: Sequelize) => Blueprint.init(
@@ -103,14 +102,13 @@ export const blueprintModelDefine = (sequelize: Sequelize) => Blueprint.init(
   },
   {
     sequelize,
-    modelName: Blueprint.MODEL_NAME,
+    modelName: Blueprint.name,
     tableName: 'blueprints',
     timestamps: false,
   }
 );
 
 export class BpCopyingMaterials extends Model {
-  static readonly MODEL_NAME: string = 'BpCopyingMaterials';
 }
 
 export const bpCopyingMaterialsDefine =
@@ -122,14 +120,13 @@ export const bpCopyingMaterialsDefine =
     },
     {
       sequelize,
-      modelName: BpCopyingMaterials.MODEL_NAME,
+      modelName: BpCopyingMaterials.name,
       tableName: 'bp_copying_materials',
       timestamps: false,
     }
   );
 
 export class BpInventionMaterials extends Model {
-  static readonly MODEL_NAME: string = 'BpInventionMaterials';
 }
 
 export const bpInventionMaterialsDefine =
@@ -141,14 +138,13 @@ export const bpInventionMaterialsDefine =
     },
     {
       sequelize,
-      modelName: BpInventionMaterials.MODEL_NAME,
+      modelName: BpInventionMaterials.name,
       tableName: 'bp_invention_materials',
       timestamps: false,
     }
   );
 
 export class BpManufacturingMaterials extends Model {
-  static readonly MODEL_NAME: string = 'BpManufacturingMaterials';
 }
 
 export const bpManufacturingMaterialsDefine =
@@ -160,14 +156,13 @@ export const bpManufacturingMaterialsDefine =
     },
     {
       sequelize,
-      modelName: BpManufacturingMaterials.MODEL_NAME,
+      modelName: BpManufacturingMaterials.name,
       tableName: 'bp_manufacturing_materials',
       timestamps: false,
     }
   );
 
 export class BpMeMaterials extends Model {
-  static readonly MODEL_NAME: string = 'BpMeMaterials';
 }
 
 export const bpMeMaterialsDefine =
@@ -179,14 +174,13 @@ export const bpMeMaterialsDefine =
     },
     {
       sequelize,
-      modelName: BpMeMaterials.MODEL_NAME,
+      modelName: BpMeMaterials.name,
       tableName: 'bp_me_materials',
       timestamps: false,
     }
   );
 
 export class BpTeMaterials extends Model {
-  static readonly MODEL_NAME: string = 'BpTeMaterials';
 }
 
 export const bpTeMaterialsDefine =
@@ -198,14 +192,13 @@ export const bpTeMaterialsDefine =
     },
     {
       sequelize,
-      modelName: BpTeMaterials.MODEL_NAME,
+      modelName: BpTeMaterials.name,
       tableName: 'bp_te_materials',
       timestamps: false,
     }
   );
 
 export class BpReactionMaterials extends Model {
-  static readonly MODEL_NAME: string = 'BpReactionMaterials';
 }
 
 export const bpReactionMaterialsDefine =
@@ -217,14 +210,13 @@ export const bpReactionMaterialsDefine =
     },
     {
       sequelize,
-      modelName: BpReactionMaterials.MODEL_NAME,
+      modelName: BpReactionMaterials.name,
       tableName: 'bp_reaction_materials',
       timestamps: false,
     }
   );
 
 export class BpInventionProducts extends Model {
-  static readonly MODEL_NAME: string = 'BpInventionProducts';
 }
 
 export const bpInventionProductsDefine =
@@ -236,14 +228,13 @@ export const bpInventionProductsDefine =
     },
     {
       sequelize,
-      modelName: BpInventionProducts.MODEL_NAME,
+      modelName: BpInventionProducts.name,
       tableName: 'bp_invention_products',
       timestamps: false,
     }
   );
 
 export class BpManufacturingProducts extends Model {
-  static readonly MODEL_NAME: string = 'BpManufacturingProducts';
 }
 
 export const bpManufacturingProductsDefine =
@@ -255,14 +246,13 @@ export const bpManufacturingProductsDefine =
     },
     {
       sequelize,
-      modelName: BpManufacturingProducts.MODEL_NAME,
+      modelName: BpManufacturingProducts.name,
       tableName: 'bp_manufacturing_products',
       timestamps: false,
     }
   );
 
 export class BpReactionProducts extends Model {
-  static readonly MODEL_NAME: string = 'BpReactionProducts';
 }
 
 export const bpReactionProductsDefine =
@@ -274,7 +264,7 @@ export const bpReactionProductsDefine =
     },
     {
       sequelize,
-      modelName: BpReactionProducts.MODEL_NAME,
+      modelName: BpReactionProducts.name,
       tableName: 'bp_reaction_products',
       timestamps: false,
     }

@@ -5,7 +5,6 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 * (materials).
 */
 export class MaterialStation extends Model {
-  static readonly MODEL_NAME: string = 'MaterialStation';
 }
 
 export const materialStationModelDefine =
@@ -22,7 +21,7 @@ export const materialStationModelDefine =
     },
     {
       sequelize,
-      modelName: MaterialStation.MODEL_NAME,
+      modelName: MaterialStation.name,
       tableName: 'material_stations',
       timestamps: false,
     }

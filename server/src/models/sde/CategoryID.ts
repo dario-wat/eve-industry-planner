@@ -5,7 +5,6 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 */
 
 export class CategoryID extends Model {
-  static readonly MODEL_NAME: string = 'CategoryID';
 }
 
 export const categoryIdModelDefine = (sequelize: Sequelize) => CategoryID.init(
@@ -18,7 +17,7 @@ export const categoryIdModelDefine = (sequelize: Sequelize) => CategoryID.init(
   },
   {
     sequelize,
-    modelName: CategoryID.MODEL_NAME,
+    modelName: CategoryID.name,
     tableName: 'category_ids',
     timestamps: false,
   },

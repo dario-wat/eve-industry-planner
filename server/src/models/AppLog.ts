@@ -6,7 +6,6 @@ export enum ErrorSeverity {
 }
 
 export class AppLog extends Model {
-  static readonly MODEL_NAME: string = 'AppLog';
 
   public static async warn(event: string, data: any): Promise<void> {
     await AppLog.create({
@@ -27,7 +26,7 @@ export const appLogModelDefine = (sequelize: Sequelize) => AppLog.init(
   },
   {
     sequelize,
-    modelName: AppLog.MODEL_NAME,
+    modelName: AppLog.name,
     tableName: 'app_logs',
   },
 );

@@ -1,7 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
 export class EsiCache extends Model {
-  static readonly MODEL_NAME: string = 'EsiCache';
 }
 
 export const esiCacheModelDefine = (sequelize: Sequelize) => EsiCache.init(
@@ -27,7 +26,7 @@ export const esiCacheModelDefine = (sequelize: Sequelize) => EsiCache.init(
   },
   {
     sequelize,
-    modelName: EsiCache.MODEL_NAME,
+    modelName: EsiCache.name,
     tableName: 'esi_cache',
     timestamps: false,
   },
