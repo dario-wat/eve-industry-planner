@@ -9,18 +9,20 @@ import {
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
+import { UserContext } from 'contexts/UserContext';
 import { formatDistanceToNowStrict } from 'date-fns';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 const FINISHED_STATUS = 'finished';
 
 // TODO
 //  - Order by time accepted for finished
 //  - Add location
-//  - style columns (add color n shit)
 //  - remove expires from finished contracts
 export default function ContractsPage() {
   const [{ data }] = useAxios<EveContractsRes>('/contracts');
+
+  const userContext = useContext(UserContext);
 
   const [searchText, setSearchText] = useState('');
 
@@ -38,27 +40,37 @@ export default function ContractsPage() {
   const activeContracts = filteredData &&
     filteredData.filter((c: any) => c.status !== FINISHED_STATUS);
 
+  const emphasizeSelf = (characterId: number, text: string) =>
+    userContext.is_logged_in && userContext.character_id === characterId
+      ?
+      <div style={{ color: 'orange' }}>
+        {text}
+      </div>
+      : text;
   const columns: GridColDef[] = [
     {
       field: 'issuer',
       headerName: 'Issuer',
       width: 150,
       sortable: false,
-      valueFormatter: params => params?.value?.name,
+      valueGetter: params => params?.value?.name,
+      renderCell: params => emphasizeSelf(params.row.issuer.id, params.value),
     },
     {
       field: 'assignee',
       headerName: 'Assignee',
       width: 150,
       sortable: false,
-      valueFormatter: params => params?.value?.name,
+      valueGetter: params => params?.value?.name,
+      renderCell: params => emphasizeSelf(params.row.assignee.id, params.value),
     },
     {
       field: 'acceptor',
       headerName: 'Acceptor',
       width: 150,
       sortable: false,
-      valueFormatter: params => params?.value?.name,
+      valueGetter: params => params?.value?.name,
+      renderCell: params => emphasizeSelf(params.row.acceptor.id, params.value),
     },
     {
       field: 'title',
