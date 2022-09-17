@@ -35,6 +35,8 @@ export type EveIndustryJobsRes = {
   location: string | null,
   status: string,
   product_name: string,
+  product_type_id: number,
+  category_id: number,
 }[];
 
 export type EvePortraitRes = {

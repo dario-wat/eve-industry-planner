@@ -3,6 +3,8 @@ import { Box, Card, CardContent, CircularProgress } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { EveIndustryJobsRes } from '@internal/shared';
+import EveIcon from 'components/util/EveIcon';
+import { Grid } from '@material-ui/core';
 
 const activityColors: { [key: string]: string } = {
   'Manufacturing': 'orange',
@@ -11,10 +13,6 @@ const activityColors: { [key: string]: string } = {
   'Invention': 'green',
 };
 
-// TODO
-//  - Styling (colors), maybe background color is better
-//  - Add progress bar for percentage
-//  - Add icons
 export default function IndustryJobsPage() {
   const [{ data }] = useAxios<EveIndustryJobsRes>('/industry_jobs');
 
@@ -40,16 +38,20 @@ export default function IndustryJobsPage() {
     {
       field: 'product',
       headerName: 'Product',
-      width: 300,
+      width: 320,
       sortable: false,
-      renderCell: params => {
-        if (params.row.activity === 'Manufacturing') {
-          return <img src={
-            `https://images.evetech.net/types/${params.row.product_type_id}/icon`} alt="BS" />;
-        }
-        return <img src={
-          `https://images.evetech.net/types/${params.row.product_type_id}/bp`} alt="BS" />;
-      },
+      renderCell: params =>
+        <Grid container alignItems="center">
+          <Grid item xs={2}>
+            <EveIcon
+              typeId={params.row.product_type_id}
+              categoryId={params.row.category_id}
+              size={24} />
+          </Grid>
+          <Grid item xs={10}>
+            {params.row.product_name}
+          </Grid>
+        </Grid>,
     },
     {
       field: 'progress',

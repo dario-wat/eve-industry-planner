@@ -2,10 +2,9 @@ import { useContext } from 'react';
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 import useAxios from 'axios-hooks';
 import { styled } from '@mui/system';
-import { UserContext } from './UserContext';
+import { UserContext } from 'components/homepage/UserContext';
 import { EvePortraitRes } from '@internal/shared';
-
-const CARD_WIDTH = 170;
+import CenteredImg from 'components/util/CenteredImg';
 
 export default function LoggedInUserCard() {
   const [{ data }] = useAxios<EvePortraitRes>('/portrait');
@@ -19,23 +18,18 @@ export default function LoggedInUserCard() {
     }
   `);
   return (
-    <Box sx={{ width: CARD_WIDTH, display: { xs: 'none', sm: 'block' } }}>
+    <Box sx={{ width: 170, display: { xs: 'none', sm: 'block' } }}>
       <Card>
         <CardContentNoPadding style={{ backgroundColor: '#d9d9d9' }}>
           <Grid container sx={{ alignItems: 'center' }}>
             <Grid item xs={3} sx={{ pr: 1 }}>
               {data &&
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center">
-                  <img
-                    src={data.px64x64}
-                    alt="Portrait"
-                    width={32}
-                    height={32}
-                  />
-                </Box>
+                <CenteredImg
+                  src={data.px64x64}
+                  alt="Portrait"
+                  width={32}
+                  height={32}
+                />
               }
             </Grid>
             <Grid item xs={9}>

@@ -50,6 +50,8 @@ export default class IndustryJobService {
       status: industryJob.status,
       product_name: this.sdeData.types[industryJob.product_type_id].name,
       product_type_id: industryJob.product_type_id,
+      category_id:
+        this.sdeData.categoryIdFromTypeId(industryJob.product_type_id),
     };
   }
 }
