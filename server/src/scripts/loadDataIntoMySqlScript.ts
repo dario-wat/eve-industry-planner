@@ -101,7 +101,7 @@ function extractBlueprintData([key, value]: [string, any]) {
   };
 }
 
-async function loadBlueprintData(sequelize: Sequelize) {
+async function loadBlueprintData() {
   const fileName = 'sde/fsd/blueprints.yaml';
   LOG && LOG('[Script] Reading file: %s', fileName);
   const fileContent = fs.readFileSync(fileName, 'utf8');
@@ -117,21 +117,22 @@ async function loadBlueprintData(sequelize: Sequelize) {
     { logging: SEQUELIZE_LOG },
   );
 
-  const bulkCreateHelper = async (modelName: string) =>
-    await sequelize.model(modelName).bulkCreate(
-      records.map((o: any) => o[modelName]).flat(),
-      { logging: SEQUELIZE_LOG },
-    );
+  const bulkCreateHelper =
+    async <MS extends ModelStatic<Model>>(model: MS) =>
+      await model.bulkCreate(
+        records.map((o: any) => o[model.name]).flat(),
+        { logging: SEQUELIZE_LOG },
+      );
 
-  await bulkCreateHelper(BpCopyingMaterials.name);
-  await bulkCreateHelper(BpInventionMaterials.name);
-  await bulkCreateHelper(BpManufacturingMaterials.name);
-  await bulkCreateHelper(BpReactionMaterials.name);
-  await bulkCreateHelper(BpMeMaterials.name);
-  await bulkCreateHelper(BpTeMaterials.name);
-  await bulkCreateHelper(BpInventionProducts.name);
-  await bulkCreateHelper(BpManufacturingProducts.name);
-  await bulkCreateHelper(BpReactionProducts.name);
+  await bulkCreateHelper(BpCopyingMaterials);
+  await bulkCreateHelper(BpInventionMaterials);
+  await bulkCreateHelper(BpManufacturingMaterials);
+  await bulkCreateHelper(BpReactionMaterials);
+  await bulkCreateHelper(BpMeMaterials);
+  await bulkCreateHelper(BpTeMaterials);
+  await bulkCreateHelper(BpInventionProducts);
+  await bulkCreateHelper(BpManufacturingProducts);
+  await bulkCreateHelper(BpReactionProducts);
 }
 
 async function run() {
@@ -199,7 +200,7 @@ async function run() {
     Station,
   );
 
-  await loadBlueprintData(sequelize);
+  await loadBlueprintData();
 
   LOG && LOG('[Script] Finished!');
 }
