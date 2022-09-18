@@ -9,7 +9,7 @@ export type EveAssetsRes = {
   location: string,
 }[];
 
-type EveName = {
+type EveNameRes = {
   category: string,
   id: number,
   name: string,
@@ -21,9 +21,9 @@ export type EveContractsRes = {
   price: number,
   type: string,
   availability: string,
-  assignee: EveName | null,
-  issuer: EveName | null,
-  acceptor: EveName | null,
+  assignee: EveNameRes | null,
+  issuer: EveNameRes | null,
+  acceptor: EveNameRes | null,
   date_expired: string,
   date_accepted: string | null,
 }[];
@@ -65,6 +65,8 @@ export type MaterialStationsRes = {
   station_name: string | null,
   station_id: number,
 }[];
+
+export type ManufactureTreeRootRes = ManufactureTreeRes[];
 
 export type ManufactureTreeRes = {
   type_id: number,

@@ -2,6 +2,7 @@ import { Service } from 'typedi';
 import { PlannedProduct } from '../../models/PlannedProduct';
 import {
   ManufactureTreeRes,
+  ManufactureTreeRootRes,
   PlannedProductsRes,
   PlannedProductsWithErrorRes,
 } from '@internal/shared';
@@ -35,7 +36,7 @@ export default class PlannedProductService {
   */
   public async genMaterialTree(
     characterId: number,
-  ): Promise<ManufactureTreeRes[]> {  // TODO wrong return type
+  ): Promise<ManufactureTreeRootRes> {
     const plannedProducts = await PlannedProduct.findAll({
       attributes: ['type_id', 'quantity'],
       where: {

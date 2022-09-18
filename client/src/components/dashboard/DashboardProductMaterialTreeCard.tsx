@@ -4,11 +4,11 @@ import TreeItem from '@mui/lab/TreeItem';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import useAxios from 'axios-hooks';
-import { ManufactureTreeRes } from '@internal/shared';
+import { ManufactureTreeRes, ManufactureTreeRootRes } from '@internal/shared';
 
 export default function DashboardProductMaterialTreeCard() {
   const [{ data }] =
-    useAxios<ManufactureTreeRes[]>('/planned_products_material_tree');
+    useAxios<ManufactureTreeRootRes>('/planned_products_material_tree');
 
   const renderTree = (node: ManufactureTreeRes) => (
     <TreeItem
