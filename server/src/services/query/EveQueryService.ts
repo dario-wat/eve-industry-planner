@@ -9,6 +9,7 @@ import EveSdeData from './EveSdeData';
 import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
 import { filterNullOrUndef } from '@internal/shared';
 
+// TODO(EIP-16) swallowing exceptions here
 @Service()
 export default class EveQueryService {
 
@@ -17,8 +18,6 @@ export default class EveQueryService {
     private readonly sdeData: EveSdeData,
   ) { }
 
-  // Figures out the name of either station or structure
-  // TODO(EIP-14) fix this function
   public async genStationName(
     token: Token,
     stationId: number,

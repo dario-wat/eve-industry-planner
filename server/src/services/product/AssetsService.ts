@@ -1,10 +1,11 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { uniq } from 'underscore';
+import { hoursToSeconds } from 'date-fns';
 import { mapify } from '../../lib/util';
 import EveQueryService from '../query/EveQueryService';
 import EveSdeData from '../query/EveSdeData';
-import { EveAsset } from '../../types/EsiQuery';
+import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
 import { EveAssetsRes } from '@internal/shared';
 
 const SHIP_CAT = 6;
@@ -19,10 +20,17 @@ export default class AssetsService {
     private readonly sdeData: EveSdeData,
   ) { }
 
-  public async getData(
+  public async genData(
+    characterId: number,
     token: Token,
-    assets: EveAsset[],
   ): Promise<EveAssetsRes> {
+    const assets = await EsiCacheUtil.gen(
+      characterId.toString(),
+      EsiCacheItem.ASSETS,
+      hoursToSeconds(6),
+      async () => await this.eveQuery.genAllAssets(token, characterId),
+    );
+
     const assetMap = mapify(assets, 'item_id');
     const assetsWithParent = assets.map(asset => ({
       asset,
