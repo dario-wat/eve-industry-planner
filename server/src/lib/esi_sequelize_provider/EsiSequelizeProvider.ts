@@ -3,11 +3,10 @@ import { EsiAccount } from '../../models/esi_provider/EsiAccount';
 import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
 import { EsiToken } from '../../models/esi_provider/EsiToken';
 import { first } from 'underscore';
-import EsiSeqCharacter from './EsiSeqCharacter';
 import EsiSeqToken from './EsiSeqToken';
 
 export default class EsiSequelizeProvider
-  implements Provider<EsiAccount, EsiSeqCharacter, EsiSeqToken> {
+  implements Provider<EsiAccount, EsiCharacter, EsiSeqToken> {
 
   public async getAccount(
     owner: string,
@@ -19,12 +18,8 @@ export default class EsiSequelizeProvider
   public async getCharacter(
     characterId: number,
     onLogin?: boolean,
-  ): Promise<EsiSeqCharacter | null> {
-    const character = await EsiCharacter.findByPk(characterId);
-    if (character === null) {
-      return null;
-    }
-    return new EsiSeqCharacter(character);
+  ): Promise<EsiCharacter | null> {
+    return await EsiCharacter.findByPk(characterId);
   }
 
   public async getToken(
@@ -44,13 +39,12 @@ export default class EsiSequelizeProvider
     owner: string,
     characterId: number,
     characterName: string,
-  ): Promise<EsiSeqCharacter> {
-    const character = await EsiCharacter.create({
+  ): Promise<EsiCharacter> {
+    return EsiCharacter.create({
       characterId,
       characterName,
       ownerId: owner,
     });
-    return new EsiSeqCharacter(character);
   }
 
   public async createToken(
