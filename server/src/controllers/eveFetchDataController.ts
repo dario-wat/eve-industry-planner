@@ -1,21 +1,16 @@
 import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { requiredScopes } from '../const/EveScopes';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 import IndustryJobService from '../services/product/IndustryJobService';
 import AssetsService from '../services/product/AssetsService';
-import EsiQueryService from '../services/query/EsiQueryService';
 import ContractsService from '../services/product/ContractsService';
-import EsiSequelizeProvider from '../services/foundation/EsiSequelizeProvider';
+import PortraitService from '../services/product/PortraitService';
 
 const route = Router();
 
 // TODO add types to responses
 const controller = (app: Router) => {
   app.use('/', route);
-
-  const provider = Container.get(EsiSequelizeProvider);
-  const esiQuery = Container.get(EsiQueryService);
 
   // TODO(EIP-2) this is a temporary solution
   // until I get a database running
@@ -56,14 +51,16 @@ const controller = (app: Router) => {
     '/portrait',
     async (req: Request, res: Response) => {
       const characterId = getCharacterId();
+      // TODO this should be handled better once I have sessions
+      // in general figure out how to handle non logged in users
       if (!characterId) {
         res.json(null);
         return;
       }
 
-      const token = await provider.getToken(characterId, requiredScopes);
-      const portrait = await esiQuery.genxPortrait(token!, characterId);
-      res.json({ px64x64: portrait.px64x64 });
+      const portraitService = Container.get(PortraitService);
+      const output = await portraitService.genData(characterId);
+      res.json(output);
     },
   );
 };

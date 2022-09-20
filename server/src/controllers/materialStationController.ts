@@ -2,7 +2,6 @@ import { Request, Response, Router } from 'express';
 import Container from 'typedi';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 import MaterialStationService from '../services/product/MaterialStationService';
-import EsiSequelizeProvider from '../services/foundation/EsiSequelizeProvider';
 
 const route = Router();
 
