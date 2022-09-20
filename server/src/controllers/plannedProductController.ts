@@ -22,17 +22,6 @@ const controller = (app: Router) => {
     },
   );
 
-  app.get(
-    '/planned_products_material_tree',
-    async (req: Request, res: Response) => {
-      const characterId = getCharacterId();
-      const materialTree = await plannedProductService.genMaterialTree(
-        characterId,
-      );
-      res.json(materialTree);
-    },
-  )
-
   /*
     Input for testing:
       Kikimora 10

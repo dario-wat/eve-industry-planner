@@ -33,6 +33,8 @@ const controller = (app: Router) => {
       character_name: GlobalMemory.characterName,
     });
   });
+
+  // TODO add log out
 };
 
 export default controller;
