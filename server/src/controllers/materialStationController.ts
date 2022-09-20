@@ -23,7 +23,7 @@ const controller = (app: Router) => {
       // TODO required scopes should be abstracted
       const token = await provider.getToken(characterId, requiredScopes);
       const stations =
-        await materialStationService.genQuery(token, characterId);
+        await materialStationService.genQuery(token!, characterId);
       res.json(stations);
     },
   );
@@ -34,7 +34,7 @@ const controller = (app: Router) => {
       const characterId = getCharacterId();
       const token = await provider.getToken(characterId, requiredScopes);
       const products = await materialStationService.genUpdate(
-        token,
+        token!,
         characterId,
         req.body.stations.map((s: any) => s.station_id),
       );

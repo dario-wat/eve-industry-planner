@@ -30,7 +30,7 @@ const controller = (app: Router) => {
       const token = await provider.getToken(characterId, requiredScopes);
 
       const industryJobService = Container.get(IndustryJobService);
-      const output = await industryJobService.genData(characterId, token);
+      const output = await industryJobService.genData(characterId, token!);
       res.json(output);
     },
   );
@@ -42,7 +42,7 @@ const controller = (app: Router) => {
       const token = await provider.getToken(characterId, requiredScopes);
 
       const assetService = Container.get(AssetsService);
-      const output = await assetService.genData(characterId, token);
+      const output = await assetService.genData(characterId, token!);
       res.json(output);
     },
   );
@@ -54,7 +54,7 @@ const controller = (app: Router) => {
       const token = await provider.getToken(characterId, requiredScopes);
 
       const contractsService = Container.get(ContractsService);
-      const output = await contractsService.genData(characterId, token);
+      const output = await contractsService.genData(characterId, token!);
       res.json(output);
     },
   );
@@ -69,7 +69,7 @@ const controller = (app: Router) => {
       }
 
       const token = await provider.getToken(characterId, requiredScopes);
-      const portrait = await esiQuery.genxPortrait(token, characterId);
+      const portrait = await esiQuery.genxPortrait(token!, characterId);
       res.json({ px64x64: portrait.px64x64 });
     },
   );
