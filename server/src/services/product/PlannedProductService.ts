@@ -3,7 +3,6 @@ import { PlannedProduct } from '../../models/PlannedProduct';
 import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 
-// TODO maybe split out parsing from here
 type ParsedLine = { name: string, quantity: number | null };
 
 @Service()

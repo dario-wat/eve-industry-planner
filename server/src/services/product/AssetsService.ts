@@ -1,4 +1,3 @@
-import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { uniq } from 'underscore';
 import { hoursToSeconds } from 'date-fns';
@@ -6,6 +5,7 @@ import { mapify } from '../../lib/util';
 import EveQueryService from '../query/EveQueryService';
 import EveSdeData from '../query/EveSdeData';
 import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
+import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 import { EveAssetsRes } from '@internal/shared';
 
 const SHIP_CAT = 6;
@@ -18,12 +18,11 @@ export default class AssetsService {
   constructor(
     private readonly eveQuery: EveQueryService,
     private readonly sdeData: EveSdeData,
+    private readonly esiSequelizeProvider: EsiSequelizeProvider,
   ) { }
 
-  public async genData(
-    characterId: number,
-    token: Token,
-  ): Promise<EveAssetsRes> {
+  public async genData(characterId: number): Promise<EveAssetsRes> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
     const assets = await EsiCacheUtil.gen(
       characterId.toString(),
       EsiCacheItem.ASSETS,

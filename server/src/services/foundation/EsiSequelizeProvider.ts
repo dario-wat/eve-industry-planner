@@ -1,6 +1,7 @@
 import { Provider } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { difference } from 'underscore';
+import { requiredScopes } from '../../const/EveScopes';
 import { EsiAccount } from '../../models/esi_provider/EsiAccount';
 import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
 import { EsiToken } from '../../models/esi_provider/EsiToken';
@@ -91,5 +92,18 @@ export default class EsiSequelizeProvider
 
   public async deleteToken(accessToken: string): Promise<void> {
     throw new Error('Unused');
+  }
+
+  /**
+   * Helper getToken function that will apply `requiredScopes` by default
+   * so that we don't have to call them everywhere.
+   * It will also return a non-nullable version of the token.
+   */
+  public async genxToken(
+    characterId: number,
+    scopes: string[] = requiredScopes,
+  ): Promise<EsiToken> {
+    const token = await this.getToken(characterId, scopes);
+    return token!;
   }
 }

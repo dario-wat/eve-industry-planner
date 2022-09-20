@@ -3,18 +3,20 @@ import { Service } from 'typedi';
 import { MaterialStationsRes } from '@internal/shared';
 import { MaterialStation } from '../../models/MaterialStation';
 import EveQueryService from '../query/EveQueryService';
+import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 
 @Service()
 export default class MaterialStationUtil {
 
   constructor(
-    private readonly eveQuery: EveQueryService
+    private readonly eveQuery: EveQueryService,
+    private readonly esiSequelizeProvider: EsiSequelizeProvider,
   ) { }
 
   public async genQuery(
-    token: Token,
     characterId: number,
   ): Promise<MaterialStationsRes> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
     const materialStations = await MaterialStation.findAll({
       attributes: ['station_id'],
       where: {
@@ -25,10 +27,11 @@ export default class MaterialStationUtil {
   }
 
   public async genUpdate(
-    token: Token,
     characterId: number,
     stationIds: number[],
   ): Promise<MaterialStationsRes> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
+
     // Delete current data
     await MaterialStation.destroy({
       where: {

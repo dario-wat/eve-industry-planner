@@ -1,12 +1,13 @@
 import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
-import EveQueryService from '../query/EveQueryService';
-import { industryActivity, IndustryActivityKey } from '../../const/IndustryActivity';
 import { differenceInSeconds } from 'date-fns';
+import { industryActivity, IndustryActivityKey } from '../../const/IndustryActivity';
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { EveIndustryJobsRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 import EsiQueryService from '../query/EsiQueryService';
+import EveQueryService from '../query/EveQueryService';
+import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 
 @Service()
 export default class IndustryJobService {
@@ -15,12 +16,11 @@ export default class IndustryJobService {
     private readonly eveQuery: EveQueryService,
     private readonly esiQuery: EsiQueryService,
     private readonly sdeData: EveSdeData,
+    private readonly esiSequelizeProvider: EsiSequelizeProvider,
   ) { }
 
-  public async genData(
-    characterId: number,
-    token: Token,
-  ): Promise<EveIndustryJobsRes> {
+  public async genData(characterId: number): Promise<EveIndustryJobsRes> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
     const industryJobs = await this.esiQuery.genxIndustryJobs(
       token,
       characterId,
