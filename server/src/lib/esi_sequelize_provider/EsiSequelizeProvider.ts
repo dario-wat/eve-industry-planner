@@ -24,7 +24,7 @@ export default class EsiSequelizeProvider
   public async getToken(
     characterId: number,
     scopes?: string | string[],
-  ): Promise<EsiToken | null> { // TODO maybe undefined
+  ): Promise<EsiToken | null> {
     const character = await EsiCharacter.findByPk(characterId);
     const tokens = await character?.getEsiTokens();
     return (tokens && first(tokens)) || null;

@@ -1,0 +1,17 @@
+diff --git a/node_modules/eve-esi-client/dist/index.d.ts b/node_modules/eve-esi-client/dist/index.d.ts
+index e9fda8f..e309081 100644
+--- a/node_modules/eve-esi-client/dist/index.d.ts
++++ b/node_modules/eve-esi-client/dist/index.d.ts
+@@ -32,9 +32,9 @@ export interface Token {
+     deleteToken(): Promise<void>;
+ }
+ export interface Provider<A extends Account = Account, C extends Character = Character, T extends Token = Token> {
+-    getAccount(owner: string, onLogin?: boolean): Promise<A>;
+-    getCharacter(characterId: number, onLogin?: boolean): Promise<C>;
+-    getToken(characterId: number, scopes?: string | string[]): Promise<T>;
++    getAccount(owner: string, onLogin?: boolean): Promise<A | null>;
++    getCharacter(characterId: number, onLogin?: boolean): Promise<C | null>;
++    getToken(characterId: number, scopes?: string | string[]): Promise<T | null>;
+     createAccount(owner: string): Promise<A>;
+     createCharacter(owner: string, characterId: number, characterName: string): Promise<C>;
+     createToken(characterId: number, accessToken: string, refreshToken: string, expires: Date, scopes?: string | string[]): Promise<T>;
