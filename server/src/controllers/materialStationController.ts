@@ -3,7 +3,7 @@ import Container from 'typedi';
 import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 import { requiredScopes } from '../const/EveScopes';
 import MaterialStationService from '../services/product/MaterialStationService';
-import EveMemoryProviderService from '../services/foundation/EveMemoryProviderService';
+import EsiSequelizeProvider from '../services/foundation/EsiSequelizeProvider';
 
 const route = Router();
 
@@ -13,7 +13,7 @@ const controller = (app: Router) => {
   // TODO(EIP-2) this is a temporary solution
   // until I get a database running
   const getCharacterId = () => GlobalMemory.characterId as number;
-  const provider = Container.get(EveMemoryProviderService).get();
+  const provider = Container.get(EsiSequelizeProvider);
   const materialStationService = Container.get(MaterialStationService);
 
   app.get(

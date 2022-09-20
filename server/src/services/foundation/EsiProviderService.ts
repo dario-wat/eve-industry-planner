@@ -1,18 +1,17 @@
 import { Service } from 'typedi';
 import ESI from 'eve-esi-client';
 import { CLIENT_ID, SECRET, CALLBACK_URI } from '../../config/eveSsoConfig';
-import EveMemoryProviderService from './EveMemoryProviderService';
+import EsiSequelizeProvider from './EsiSequelizeProvider';
 
 @Service()
 export default class EsiProviderService {
   private esi: ESI;
 
   constructor(
-    providerService: EveMemoryProviderService,
+    provider: EsiSequelizeProvider,
   ) {
-    const memoryProvider = providerService.get();
     this.esi = new ESI({
-      provider: memoryProvider,
+      provider: provider,
       clientId: CLIENT_ID,
       secretKey: SECRET,
       callbackUri: CALLBACK_URI,

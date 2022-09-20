@@ -1,9 +1,11 @@
 import { Provider } from 'eve-esi-client';
+import { Service } from 'typedi';
 import { difference } from 'underscore';
 import { EsiAccount } from '../../models/esi_provider/EsiAccount';
 import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
 import { EsiToken } from '../../models/esi_provider/EsiToken';
 
+@Service()
 export default class EsiSequelizeProvider
   implements Provider<EsiAccount, EsiCharacter, EsiToken> {
 
@@ -55,11 +57,7 @@ export default class EsiSequelizeProvider
     characterId: number,
     characterName: string,
   ): Promise<EsiCharacter> {
-    return EsiCharacter.create({
-      characterId,
-      characterName,
-      ownerId: owner,
-    });
+    return EsiCharacter.create({ characterId, characterName, ownerId: owner });
   }
 
   public async createToken(
@@ -83,7 +81,15 @@ export default class EsiSequelizeProvider
     });
   }
 
-  public async deleteAccount(owner: string): Promise<void> { }
-  public async deleteCharacter(characterId: number): Promise<void> { }
-  public async deleteToken(accessToken: string): Promise<void> { }
+  public async deleteAccount(owner: string): Promise<void> {
+    throw new Error('Unused');
+  }
+
+  public async deleteCharacter(characterId: number): Promise<void> {
+    throw new Error('Unused');
+  }
+
+  public async deleteToken(accessToken: string): Promise<void> {
+    throw new Error('Unused');
+  }
 }
