@@ -29,13 +29,15 @@ export class EsiToken
     expires: Date,
     scopes?: string | string[]
   ): Promise<void> {
-    // TODO needs to be finished
-    await this.update({
-      accessToken,
-      refreshToken,
-      expires,
-      // scopes,
-    });
+    if (!scopes) {
+      await this.update({ accessToken, refreshToken, expires });
+      return;
+    }
+
+    if (typeof scopes === 'string') {
+      scopes = scopes.split(' ');
+    }
+    await this.update({ accessToken, refreshToken, expires, scopes });
   }
 
   public async deleteToken(): Promise<void> {
@@ -60,12 +62,11 @@ export const esiTokenModelDefine = (sequelize: Sequelize) => EsiToken.init(
     scopes: {
       type: DataTypes.TEXT,
       get() {
-        const sc = this.getDataValue('scopes');
-        // @ts-ignore
-        return JSON.parse(sc);
+        // @ts-ignore field declaration wants this to be an array
+        return JSON.parse(this.getDataValue('scopes'));
       },
       set(scopes: string[]) {
-        // @ts-ignore
+        // @ts-ignore field declaration wants this to be an array
         this.setDataValue('scopes', JSON.stringify(scopes));
       },
     }

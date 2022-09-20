@@ -1,5 +1,5 @@
 import { Provider } from 'eve-esi-client';
-import { first } from 'underscore';
+import { difference } from 'underscore';
 import { EsiAccount } from '../../models/esi_provider/EsiAccount';
 import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
 import { EsiToken } from '../../models/esi_provider/EsiToken';
@@ -27,7 +27,23 @@ export default class EsiSequelizeProvider
   ): Promise<EsiToken | null> {
     const character = await EsiCharacter.findByPk(characterId);
     const tokens = await character?.getEsiTokens();
-    return (tokens && first(tokens)) || null;
+    if (!tokens || tokens.length === 0) {
+      return null;
+    }
+
+    if (!scopes) {
+      scopes = [];
+    } else if (typeof scopes === 'string') {
+      scopes = scopes.split(' ');
+    }
+    for (const token of tokens) {
+      const missingScopes = difference(scopes, token.scopes);
+      if (missingScopes.length === 0) {
+        return token;
+      }
+    }
+
+    return null;
   }
 
   public async createAccount(owner: string): Promise<EsiAccount> {
@@ -53,13 +69,17 @@ export default class EsiSequelizeProvider
     expires: Date,
     scopes?: string | string[],
   ): Promise<EsiToken> {
-    // TODO needs fixin
+    if (!scopes) {
+      scopes = [];
+    } else if (typeof scopes === 'string') {
+      scopes = scopes.split(' ');
+    }
     return await EsiToken.create({
       characterId,
       accessToken,
       refreshToken,
       expires,
-      // scopes,
+      scopes,
     });
   }
 
