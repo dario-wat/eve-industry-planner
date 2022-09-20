@@ -1,12 +1,19 @@
 import { Service } from 'typedi';
+import { hoursToSeconds } from 'date-fns';
+import { PlannedProduct } from '../../models/PlannedProduct';
 import { ManufactureTreeRes, ManufactureTreeRootRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
-import { PlannedProduct } from '../../models/PlannedProduct';
+import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
+import EveQueryService from '../query/EveQueryService';
+import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
+import { requiredScopes } from '../../const/EveScopes';
 
 @Service()
 export default class ProductionPlanService {
 
   constructor(
+    private readonly eveQuery: EveQueryService,
+    private readonly esiSequelizeProvider: EsiSequelizeProvider,
     private readonly sdeData: EveSdeData,
   ) { }
 
@@ -25,6 +32,15 @@ export default class ProductionPlanService {
         character_id: characterId,
       },
     });
+
+    // TODO finish using assets
+    const token = await this.esiSequelizeProvider.getToken(characterId, requiredScopes);
+    const assets = await EsiCacheUtil.gen(
+      characterId.toString(),
+      EsiCacheItem.ASSETS,
+      hoursToSeconds(6),
+      async () => await this.eveQuery.genAllAssets(token!, characterId),
+    );
 
     const buildMaterialTree = (product: ManufactureTreeRes) => {
       const productBp =
