@@ -6,7 +6,6 @@ import {
   InferAttributes,
   InferCreationAttributes,
   HasManyGetAssociationsMixin,
-  NonAttribute,
   ForeignKey,
 } from 'sequelize';
 import { EsiAccount } from './EsiAccount';

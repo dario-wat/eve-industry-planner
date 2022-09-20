@@ -68,8 +68,8 @@ export default class EsiSequelizeProvider
   ): Promise<EsiSeqToken> {
     const token = await EsiToken.create({
       characterId,
-      access_token: accessToken,
-      refresh_token: refreshToken,
+      accessToken,
+      refreshToken,
       expires,
       // scopes,
     });

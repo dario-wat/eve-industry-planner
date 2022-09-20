@@ -22,9 +22,10 @@ import { plannedProductModelDefine } from '../models/PlannedProduct';
 import { esiCacheModelDefine } from '../models/EsiCache';
 import { materialStationModelDefine } from '../models/MaterialStation';
 import { appLogModelDefine } from '../models/AppLog';
-import { EsiAccount, esiAccountModelDefine } from '../models/esi_provider/EsiAccount';
-import { EsiCharacter, esiCharacterModelDefine } from '../models/esi_provider/EsiCharacter';
-import { EsiToken, esiTokenModelDefine } from '../models/esi_provider/EsiToken';
+import { esiAccountModelDefine } from '../models/esi_provider/EsiAccount';
+import { esiCharacterModelDefine } from '../models/esi_provider/EsiCharacter';
+import { esiTokenModelDefine } from '../models/esi_provider/EsiToken';
+import esiAssocsDefine from '../models/esi_provider/EsiAssocs';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -82,11 +83,7 @@ export function initDatabase(): void {
   esiAccountModelDefine(sequelize);
   esiCharacterModelDefine(sequelize);
   esiTokenModelDefine(sequelize);
-
-  EsiAccount.hasMany(EsiCharacter, { foreignKey: 'ownerId' });
-  EsiToken.belongsTo(EsiCharacter, { foreignKey: 'characterId' });
-  EsiCharacter.belongsTo(EsiAccount, { foreignKey: 'ownerId' });
-  EsiCharacter.hasMany(EsiToken, { foreignKey: 'characterId' });
+  esiAssocsDefine();
 }
 
 // This should define ONLY SDE models

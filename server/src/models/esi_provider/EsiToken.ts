@@ -16,8 +16,8 @@ export class EsiToken
     InferCreationAttributes<EsiToken>
   > {
 
-  declare access_token: string;
-  declare refresh_token: string;
+  declare accessToken: string;
+  declare refreshToken: string;
   declare expires: Date;
   declare scopes: CreationOptional<string>;
 
@@ -26,11 +26,11 @@ export class EsiToken
 
 export const esiTokenModelDefine = (sequelize: Sequelize) => EsiToken.init(
   {
-    access_token: {
+    accessToken: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    refresh_token: {
+    refreshToken: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
@@ -41,7 +41,8 @@ export const esiTokenModelDefine = (sequelize: Sequelize) => EsiToken.init(
     scopes: {
       type: DataTypes.TEXT,
       get() {
-        return JSON.parse(this.getDataValue('scopes'));
+        const sc = this.getDataValue('scopes');
+        return JSON.parse(sc);
       },
       set(scopes: string[]) {
         this.setDataValue('scopes', JSON.stringify(scopes));

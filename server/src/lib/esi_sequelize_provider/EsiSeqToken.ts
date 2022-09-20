@@ -11,8 +11,8 @@ export default class EsiSeqToken implements Token {
 
   public constructor(token: EsiToken) {
     this.characterId = 1;
-    this.accessToken = token.access_token;
-    this.refreshToken = token.refresh_token;
+    this.accessToken = token.accessToken;
+    this.refreshToken = token.refreshToken;
     this.expires = token.expires;
     this.scopes = undefined;
   }
