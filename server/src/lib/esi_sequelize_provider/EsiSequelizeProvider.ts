@@ -1,12 +1,11 @@
 import { Provider } from 'eve-esi-client';
+import { first } from 'underscore';
 import { EsiAccount } from '../../models/esi_provider/EsiAccount';
 import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
 import { EsiToken } from '../../models/esi_provider/EsiToken';
-import { first } from 'underscore';
-import EsiSeqToken from './EsiSeqToken';
 
 export default class EsiSequelizeProvider
-  implements Provider<EsiAccount, EsiCharacter, EsiSeqToken> {
+  implements Provider<EsiAccount, EsiCharacter, EsiToken> {
 
   public async getAccount(
     owner: string,
@@ -25,10 +24,10 @@ export default class EsiSequelizeProvider
   public async getToken(
     characterId: number,
     scopes?: string | string[],
-  ): Promise<EsiSeqToken | null> {
+  ): Promise<EsiToken | null> { // TODO maybe undefined
     const character = await EsiCharacter.findByPk(characterId);
     const tokens = await character?.getEsiTokens();
-    return (tokens && first(tokens) && new EsiSeqToken(first(tokens)!)) || null;
+    return (tokens && first(tokens)) || null;
   }
 
   public async createAccount(owner: string): Promise<EsiAccount> {
@@ -53,15 +52,15 @@ export default class EsiSequelizeProvider
     refreshToken: string,
     expires: Date,
     scopes?: string | string[],
-  ): Promise<EsiSeqToken> {
-    const token = await EsiToken.create({
+  ): Promise<EsiToken> {
+    // TODO needs fixin
+    return await EsiToken.create({
       characterId,
       accessToken,
       refreshToken,
       expires,
       // scopes,
     });
-    return new EsiSeqToken(token);
   }
 
   public async deleteAccount(owner: string): Promise<void> { }
