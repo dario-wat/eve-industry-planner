@@ -3,22 +3,17 @@ import { EsiAccount } from '../../models/esi_provider/EsiAccount';
 import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
 import { EsiToken } from '../../models/esi_provider/EsiToken';
 import { first } from 'underscore';
-import EsiSeqAccount from './EsiSeqAccount';
 import EsiSeqCharacter from './EsiSeqCharacter';
 import EsiSeqToken from './EsiSeqToken';
 
 export default class EsiSequelizeProvider
-  implements Provider<EsiSeqAccount, EsiSeqCharacter, EsiSeqToken> {
+  implements Provider<EsiAccount, EsiSeqCharacter, EsiSeqToken> {
 
   public async getAccount(
     owner: string,
     onLogin?: boolean,
-  ): Promise<EsiSeqAccount | null> {
-    const account = await EsiAccount.findByPk(owner);
-    if (account === null) {
-      return null;
-    }
-    return new EsiSeqAccount(account);
+  ): Promise<EsiAccount | null> {
+    return await EsiAccount.findByPk(owner);
   }
 
   public async getCharacter(
@@ -41,9 +36,8 @@ export default class EsiSequelizeProvider
     return (tokens && first(tokens) && new EsiSeqToken(first(tokens)!)) || null;
   }
 
-  public async createAccount(owner: string): Promise<EsiSeqAccount> {
-    const account = await EsiAccount.create({ owner });
-    return new EsiSeqAccount(account);
+  public async createAccount(owner: string): Promise<EsiAccount> {
+    return await EsiAccount.create({ owner });
   }
 
   public async createCharacter(
