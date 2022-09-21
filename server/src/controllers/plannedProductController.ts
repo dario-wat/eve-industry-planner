@@ -1,22 +1,18 @@
 import { Request, Response, Router } from 'express';
 import Container from 'typedi';
 import PlannedProductService from '../services/product/PlannedProductService';
-import GlobalMemory from '../lib/GlobalMemory_DO_NOT_USE';
 
 const route = Router();
 
 const controller = (app: Router) => {
   app.use('/', route);
 
-  // TODO(EIP-2) this is a temporary solution
-  // until I get a database running
-  const getCharacterId = () => GlobalMemory.characterId as number;
   const plannedProductService = Container.get(PlannedProductService);
 
   app.get(
     '/planned_products',
     async (req: Request, res: Response) => {
-      const characterId = getCharacterId();
+      const characterId = req.session.characterId!;
       const products = await plannedProductService.genData(characterId);
       res.json(products);
     },
@@ -35,7 +31,7 @@ const controller = (app: Router) => {
   app.post(
     '/planned_products_recreate',
     async (req: Request, res: Response) => {
-      const characterId = getCharacterId();
+      const characterId = req.session.characterId!;
       const products = await plannedProductService.genParseAndRecreate(
         characterId,
         req.body.text,

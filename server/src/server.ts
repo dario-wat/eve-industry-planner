@@ -12,11 +12,10 @@ import EveSdeData from './services/query/EveSdeData';
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
-
 declare module 'express-session' {
   interface SessionData {
-    characterId: number,
-    characterName: string,
+    characterId: number;
+    characterName: string;
   }
 }
 
