@@ -2,11 +2,23 @@ import 'reflect-metadata';
 
 import cors from 'cors';
 import express from 'express';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import { Sequelize } from 'sequelize';
 import Container from 'typedi';
 import { initDatabase } from './loaders/initDatabase';
 import { initControllers } from './loaders/initControllers';
 import EveSdeData from './services/query/EveSdeData';
+
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
+
+
+declare module 'express-session' {
+  interface SessionData {
+    characterId: number,
+    characterName: string,
+  }
+}
 
 // TODO figure out how to properly organize Container sets at the beginning
 async function init() {
@@ -27,9 +39,27 @@ async function init() {
   Container.set(EveSdeData, sdeData);
 
   const app = express();
-  app.use(cors());
+
+  const sequelizeSessionStore = new SequelizeStore({
+    db: sequelize,
+  });
+  app.use(session({
+    secret: 'keyboard cat',
+    store: sequelizeSessionStore,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }, // TODO add max age
+  }))
+  await sequelizeSessionStore.sync();
+
+  app.use(cookieParser());
+  app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  }));
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
+
   const port = 8080;
 
   // Initialize all controllers. 

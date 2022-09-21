@@ -20,6 +20,9 @@ const controller = (app: Router) => {
   app.get(
     '/industry_jobs',
     async (req: Request, res: Response) => {
+      console.log(req.session);
+      console.log(req.session.id);
+      console.log(req.cookies);
       const characterId = getCharacterId();
       const industryJobService = Container.get(IndustryJobService);
       const output = await industryJobService.genData(characterId);

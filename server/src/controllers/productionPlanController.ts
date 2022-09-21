@@ -24,3 +24,5 @@ const controller = (app: Router) => {
     },
   )
 };
+
+export default controller;

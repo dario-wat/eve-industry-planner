@@ -23,6 +23,13 @@ const controller = (app: Router) => {
     // TODO(EIP-2) "store" to memory. should use a proper storage
     GlobalMemory.characterId = character.characterId;
     GlobalMemory.characterName = character.characterName;
+
+    req.session.characterId = character.characterId;
+    req.session.characterName = character.characterName;
+    console.log(req.session);
+    console.log(req.session.id);
+    console.log(req.cookies);
+
     res.redirect('http://localhost:3000');
   });
 
