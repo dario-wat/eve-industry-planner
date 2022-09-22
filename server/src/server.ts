@@ -14,6 +14,7 @@ import initSessionStore from './loaders/initSessionStore';
 
 const port = 8080;
 const domain = 'http://localhost:3000';
+const sessionSecret = 'mcqbjEBpLRT0FgUBMI8d7qOHVfhM8WkYm0sKpHrO';
 
 async function connectToDatabase(
   sequelize: Sequelize,
@@ -43,7 +44,7 @@ async function init() {
 
   const sequelizeSessionStore = await initSessionStore(sequelize);
   app.use(session({
-    secret: 'keyboard cat',
+    secret: sessionSecret,
     store: sequelizeSessionStore,
     resave: false,
     saveUninitialized: true,
