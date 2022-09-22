@@ -12,12 +12,12 @@ import EveSdeData from './services/query/EveSdeData';
 import { hoursToMilliseconds } from 'date-fns';
 import initSessionStore from './loaders/initSessionStore';
 
-// TODO figure out how to properly organize Container sets at the beginning
-async function init() {
-  initDatabase();
-  // TODO do I need this
-  const sequelize = Container.get(Sequelize);
+const port = 8080;
+const domain = 'http://localhost:3000';
 
+async function connectToDatabase(
+  sequelize: Sequelize,
+): Promise<void> {
   // TODO maybe put this into database init
   await sequelize.authenticate().then(() => {
     console.log('Connected to MySQL.');
@@ -25,6 +25,15 @@ async function init() {
     console.error('Unable to connect to the database: ', error);
   });
   await sequelize.sync({ alter: true });
+}
+
+// TODO figure out how to properly organize Container sets at the beginning
+async function init() {
+  initDatabase();
+  // TODO do I need this
+  const sequelize = Container.get(Sequelize);
+
+  await connectToDatabase(sequelize);
 
   // Needs to be called after the database init
   const sdeData = await EveSdeData.init();
@@ -41,16 +50,13 @@ async function init() {
     cookie: { secure: false, maxAge: hoursToMilliseconds(24) },
   }))
 
-
   app.use(cookieParser());
   app.use(cors({
-    origin: "http://localhost:3000",
+    origin: domain,
     credentials: true,
   }));
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
-
-  const port = 8080;
 
   // Initialize all controllers. 
   initControllers(app);
