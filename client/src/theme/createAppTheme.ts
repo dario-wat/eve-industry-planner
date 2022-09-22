@@ -1,30 +1,11 @@
 import { createTheme } from '@mui/material';
 import { uniqueId } from 'underscore';
 
-declare module '@mui/material/styles' {
-  interface Palette {
-    neutral: Palette['primary'];
-  }
-  interface PaletteOptions {
-    neutral: PaletteOptions['primary'];
-  }
-}
-
-declare module '@mui/material/Button' {
-  interface ButtonPropsColorOverrides {
-    neutral: true;
-  }
-}
-
 export default function createAppTheme() {
   return createTheme({
     palette: {
       background: {
         default: 'rgba(210, 210, 210, .8)',
-      },
-      neutral: {
-        main: '#d9d9d9',
-        contrastText: 'black',
       },
     },
     components: {

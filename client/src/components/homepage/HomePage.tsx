@@ -50,7 +50,7 @@ export default function HomePage() {
                 { key: Tab.CONTRACTS, label: 'Contracts', icon: <ReceiptLongIcon /> },
               ]}
               selectedTab={selectedTab}
-              onClick={setSelectedTab}
+              onTabClick={setSelectedTab}
             />
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
               <Toolbar /> {/* need this to push the nav bar below the app bar */}
