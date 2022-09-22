@@ -6,7 +6,7 @@ import EsiQueryService from './EsiQueryService';
 import { mapify } from '../../lib/util';
 import { EveAsset, EveAssetName, EveName } from '../../types/EsiQuery';
 import EveSdeData from './EveSdeData';
-import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
+import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
 import { filterNullOrUndef } from '@internal/shared';
 
 // TODO(EIP-16) swallowing exceptions here
@@ -27,7 +27,7 @@ export default class EveQueryService {
       return sdeStation.name;
     }
 
-    return await EsiCacheUtil.gen(
+    return await EsiCacheAction.gen(
       stationId.toString(),
       EsiCacheItem.STRUCTURE,
       hoursToSeconds(24),

@@ -3,7 +3,7 @@ import { hoursToSeconds } from 'date-fns';
 import { PlannedProduct } from '../../models/PlannedProduct';
 import { ManufactureTreeRes, ManufactureTreeRootRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
-import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
+import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
 import EveQueryService from '../query/EveQueryService';
 import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 import { requiredScopes } from '../../const/EveScopes';
@@ -26,45 +26,23 @@ export default class ProductionPlanService {
   public async genMaterialTree(
     characterId: number,
   ): Promise<ManufactureTreeRootRes> {
-    const plannedProducts = await PlannedProduct.findAll({
-      attributes: ['type_id', 'quantity'],
-      where: {
-        character_id: characterId,
-      },
-    });
-
-    // TODO finish using assets
-    const token = await this.esiSequelizeProvider.getToken(characterId, requiredScopes);
-    const assets = await EsiCacheUtil.gen(
-      characterId.toString(),
-      EsiCacheItem.ASSETS,
-      hoursToSeconds(6),
-      async () => await this.eveQuery.genAllAssets(token!, characterId),
-    );
-
-    const buildMaterialTree = (product: ManufactureTreeRes) => {
-      const productBp =
-        this.sdeData.bpManufactureProductsByProduct[product.type_id]
-        || this.sdeData.bpReactionProductsByProduct[product.type_id];
-      if (productBp === undefined) {
-        return;
-      }
-
-      // TODO add ME 10
-      const materials =
-        this.sdeData.bpManufactureMaterialsByBlueprint[productBp.blueprint_id]
-        || this.sdeData.bpReactionMaterialsByBlueprint[productBp.blueprint_id]
-        || [];
-
-      const multiplier = Math.ceil(product.quantity / productBp.quantity);
-      product.materials = materials.map(m => ({
-        type_id: m.type_id,
-        name: this.sdeData.types[m.type_id].name,
-        quantity: m.quantity * multiplier,
-        materials: [],
-      }));
-      product.materials.forEach(m => buildMaterialTree(m));
-    };
+    const [plannedProducts, assets] = await Promise.all([
+      PlannedProduct.findAll({
+        attributes: ['type_id', 'quantity'],
+        where: {
+          character_id: characterId,
+        },
+      }),
+      (async () => {
+        const token = await this.esiSequelizeProvider.genxToken(characterId);
+        return await EsiCacheAction.gen(
+          characterId.toString(),
+          EsiCacheItem.ASSETS,
+          hoursToSeconds(6),
+          async () => await this.eveQuery.genAllAssets(token, characterId),
+        );
+      })(),
+    ]);
 
     return plannedProducts.map(pp => {
       const rootProduct = {
@@ -73,9 +51,38 @@ export default class ProductionPlanService {
         quantity: pp.get().quantity,
         materials: [],
       };
-      buildMaterialTree(rootProduct);
+      this.buildMaterialTree(rootProduct);
       return rootProduct;
     });
   }
 
+  /**
+   * Recursive helper function to build the tree of required materials
+   * for the given product.
+   * @param product 
+   * @returns Built out tree with 'product' as the root node
+   */
+  private buildMaterialTree(product: ManufactureTreeRes): void {
+    const productBp =
+      this.sdeData.bpManufactureProductsByProduct[product.type_id]
+      || this.sdeData.bpReactionProductsByProduct[product.type_id];
+    if (productBp === undefined) {
+      return;
+    }
+
+    // TODO add ME 10
+    const materials =
+      this.sdeData.bpManufactureMaterialsByBlueprint[productBp.blueprint_id]
+      || this.sdeData.bpReactionMaterialsByBlueprint[productBp.blueprint_id]
+      || [];
+
+    const multiplier = Math.ceil(product.quantity / productBp.quantity);
+    product.materials = materials.map(m => ({
+      type_id: m.type_id,
+      name: this.sdeData.types[m.type_id].name,
+      quantity: m.quantity * multiplier,
+      materials: [],
+    }));
+    product.materials.forEach(m => this.buildMaterialTree(m));
+  };
 }

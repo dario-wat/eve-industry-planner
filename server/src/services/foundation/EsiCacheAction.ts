@@ -6,11 +6,13 @@ export enum EsiCacheItem {
   STRUCTURE,
 };
 
+// TODO maybe I should move use cases into a file so they can be reused
+
 /*
 * Service to manage MySql caching. The purpose of this is to query
 * ESI and store the result in MySql.
 */
-export namespace EsiCacheUtil {
+export namespace EsiCacheAction {
 
   /*
   * Adds data to the cache. If data for the same key already exists,

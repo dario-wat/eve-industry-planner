@@ -4,7 +4,7 @@ import { hoursToSeconds } from 'date-fns';
 import { mapify } from '../../lib/util';
 import EveQueryService from '../query/EveQueryService';
 import EveSdeData from '../query/EveSdeData';
-import { EsiCacheItem, EsiCacheUtil } from '../foundation/EsiCacheUtil';
+import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
 import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 import { EveAssetsRes } from '@internal/shared';
 
@@ -23,7 +23,7 @@ export default class AssetsService {
 
   public async genData(characterId: number): Promise<EveAssetsRes> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
-    const assets = await EsiCacheUtil.gen(
+    const assets = await EsiCacheAction.gen(
       characterId.toString(),
       EsiCacheItem.ASSETS,
       hoursToSeconds(6),
