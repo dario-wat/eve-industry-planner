@@ -7,6 +7,7 @@ import LoggedInUserCard from 'components/homepage/LoggedInUserCard';
 import { Box } from '@mui/material';
 import { useContext } from 'react';
 import { UserContext } from 'contexts/UserContext';
+import LogOutButton from 'components/homepage/LogOutButton';
 
 // TODO
 // - figure out placement of buttons
@@ -25,6 +26,11 @@ export default function HomePageAppBar() {
         {userContext && userContext.is_logged_in &&
           <Box sx={{ pr: 2 }}>
             <LoggedInUserCard />
+          </Box>
+        }
+        {userContext && userContext.is_logged_in &&
+          <Box sx={{ pr: 2 }}>
+            <LogOutButton />
           </Box>
         }
         <EveLoginButton />

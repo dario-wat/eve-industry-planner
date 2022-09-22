@@ -9,6 +9,7 @@ import Container from 'typedi';
 import { initDatabase } from './loaders/initDatabase';
 import { initControllers } from './loaders/initControllers';
 import EveSdeData from './services/query/EveSdeData';
+import { hoursToMilliseconds } from 'date-fns';
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
@@ -45,9 +46,12 @@ async function init() {
   app.use(session({
     secret: 'keyboard cat',
     store: sequelizeSessionStore,
+    // TODO something about below booleans breaks resetting the coookie
     resave: false,
+    // rolling: true,
     saveUninitialized: true,
-    cookie: { secure: true }, // TODO add max age
+    // TODO might need to be false to update the cookie
+    cookie: { secure: false, maxAge: hoursToMilliseconds(24) },
   }))
   await sequelizeSessionStore.sync();
 

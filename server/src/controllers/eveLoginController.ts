@@ -22,10 +22,10 @@ const controller = (app: Router) => {
     req.session.characterId = character.characterId;
     req.session.characterName = character.characterName;
 
+    // TODO do I need to type in the entire domain?
     res.redirect('http://localhost:3000');
   });
 
-  // TODO is this the best place to do it?
   route.get('/logged_in_user', (req: Request, res: Response) => {
     res.json({
       character_id: req.session.characterId ?? null,
@@ -33,7 +33,19 @@ const controller = (app: Router) => {
     });
   });
 
-  // TODO add log out
+  route.delete('/logout', (req: Request, res: Response) => {
+    if (req.session) {
+      req.session.destroy(err => {
+        if (err) {
+          res.status(400).end();
+        } else {
+          res.status(200).end();
+        }
+      });
+    } else {
+      res.end();
+    }
+  });
 };
 
 export default controller;

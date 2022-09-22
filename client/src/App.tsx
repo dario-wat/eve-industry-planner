@@ -7,8 +7,6 @@ import { EveLoggedInUserRes } from '@internal/shared';
 
 function App() {
   // TODO(EIP-7) is this the right way?
-  // TODO properly gate logged in user content. Have a separate page
-  // that is gated by whether the user is logged in or not
   const [{ data }] = useAxios<EveLoggedInUserRes>('/logged_in_user');
   const userContext = data
     ? {

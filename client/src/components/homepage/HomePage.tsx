@@ -24,8 +24,25 @@ enum Tab {
   CONTRACTS = 'contracts',
 };
 
+declare module '@mui/material/styles' {
+  interface Palette {
+    neutral: Palette['primary'];
+  }
+  interface PaletteOptions {
+    neutral: PaletteOptions['primary'];
+  }
+}
+
+declare module '@mui/material/Button' {
+  interface ButtonPropsColorOverrides {
+    neutral: true;
+  }
+}
+
+
 // TODO
 //  - render something default while it's loading, like a loding page
+//  - move stuff out of here
 export default function HomePage() {
   const userContext = useContext(UserContext);
   const [selectedTab, setSelectedTab] = useState<string>(Tab.DASHBOARD);
@@ -34,6 +51,10 @@ export default function HomePage() {
     palette: {
       background: {
         default: 'rgba(210, 210, 210, .8)',
+      },
+      neutral: {
+        main: '#d9d9d9',
+        contrastText: 'black',
       },
     },
     components: {
