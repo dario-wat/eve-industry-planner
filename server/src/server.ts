@@ -10,15 +10,7 @@ import { initDatabase } from './loaders/initDatabase';
 import { initControllers } from './loaders/initControllers';
 import EveSdeData from './services/query/EveSdeData';
 import { hoursToMilliseconds } from 'date-fns';
-
-const SequelizeStore = require("connect-session-sequelize")(session.Store);
-
-declare module 'express-session' {
-  interface SessionData {
-    characterId: number;
-    characterName: string;
-  }
-}
+import initSessionStore from './loaders/initSessionStore';
 
 // TODO figure out how to properly organize Container sets at the beginning
 async function init() {
@@ -40,20 +32,15 @@ async function init() {
 
   const app = express();
 
-  const sequelizeSessionStore = new SequelizeStore({
-    db: sequelize,
-  });
+  const sequelizeSessionStore = await initSessionStore(sequelize);
   app.use(session({
     secret: 'keyboard cat',
     store: sequelizeSessionStore,
-    // TODO something about below booleans breaks resetting the coookie
     resave: false,
-    // rolling: true,
     saveUninitialized: true,
-    // TODO might need to be false to update the cookie
     cookie: { secure: false, maxAge: hoursToMilliseconds(24) },
   }))
-  await sequelizeSessionStore.sync();
+
 
   app.use(cookieParser());
   app.use(cors({
