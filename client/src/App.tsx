@@ -6,7 +6,6 @@ import store from 'redux/store';
 import { EveLoggedInUserRes } from '@internal/shared';
 
 function App() {
-  // TODO(EIP-7) is this the right way?
   const [{ data }] = useAxios<EveLoggedInUserRes>('/logged_in_user');
   const userContext = data
     ? {
