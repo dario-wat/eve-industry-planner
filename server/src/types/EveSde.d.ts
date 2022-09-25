@@ -2,6 +2,7 @@ export interface EveSdeType {
   id: number,
   name: string,
   group_id: number,
+  meta_group_id: number,
 }
 
 export interface EveSdeGroup {

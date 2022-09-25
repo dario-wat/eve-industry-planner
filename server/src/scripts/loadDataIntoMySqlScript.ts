@@ -150,7 +150,8 @@ async function run() {
     ([key, value]: [string, any]) => ({
       id: key,
       group_id: value.groupID,
-      name: value.name.en
+      name: value.name.en,
+      meta_group_id: value.metaGroupID,
     }),
     TypeID,
     {

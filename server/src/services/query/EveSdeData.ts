@@ -42,6 +42,12 @@ export default class EveSdeData {
     return group?.category_id;
   }
 
+  public typeIdIsReactionFormula(typeId: number): boolean {
+    const reactionFormulaGroupIds = [1888, 1889, 1890, 4097];
+    const groupId = this.types[typeId]?.group_id;
+    return reactionFormulaGroupIds.includes(groupId);
+  }
+
   public static async init(): Promise<EveSdeData> {
     if (this.initialized) {
       throw new Error('EveSdeData is already initialized!');

@@ -14,7 +14,7 @@ export default function DashboardProductMaterialTreeCard() {
     <TreeItem
       key={node.type_id}
       nodeId={node.type_id.toString()}
-      label={node.name + ' - ' + node.quantity}
+      label={node.name + ' - ' + node.quantity + ' (' + (node.runs ?? 0) + ')'}
     >
       {node.materials.map((node) => renderTree(node))}
     </TreeItem>

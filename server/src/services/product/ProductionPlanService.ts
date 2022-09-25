@@ -6,7 +6,12 @@ import EveSdeData from '../query/EveSdeData';
 import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
 import EveQueryService from '../query/EveQueryService';
 import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
-import { requiredScopes } from '../../const/EveScopes';
+import { mapify } from '../../lib/util';
+import { EveAsset } from '../../types/EsiQuery';
+import { MetaGroup } from '../../const/MetaGroups';
+
+const MAX_ME = 0.9; // For ME = 10
+const MIN_ME = 1.0  // For ME = 0
 
 @Service()
 export default class ProductionPlanService {
@@ -50,8 +55,12 @@ export default class ProductionPlanService {
         name: this.sdeData.types[pp.get().type_id].name,
         quantity: pp.get().quantity,
         materials: [],
+        blueprint_id: null,
+        runs: null,
       };
-      this.buildMaterialTree(rootProduct);
+      const assetMap = mapify(assets, 'item_id');
+
+      this.buildMaterialTree(rootProduct, assetMap);
       return rootProduct;
     });
   }
@@ -62,27 +71,49 @@ export default class ProductionPlanService {
    * @param product 
    * @returns Built out tree with 'product' as the root node
    */
-  private buildMaterialTree(product: ManufactureTreeRes): void {
-    const productBp =
-      this.sdeData.bpManufactureProductsByProduct[product.type_id]
-      || this.sdeData.bpReactionProductsByProduct[product.type_id];
-    if (productBp === undefined) {
+  private buildMaterialTree(
+    product: ManufactureTreeRes,
+    assets: { [key: number]: EveAsset },
+  ): void {
+    const productBlueprint =
+      this.sdeData.bpManufactureProductsByProduct[product.type_id];
+    const productReaction =
+      this.sdeData.bpReactionProductsByProduct[product.type_id];
+    if (productBlueprint === undefined && productReaction === undefined) {
+      // Leaf node (mineral, planetary commodity, ice, ...)
       return;
     }
 
-    // TODO add ME 10
-    const materials =
-      this.sdeData.bpManufactureMaterialsByBlueprint[productBp.blueprint_id]
-      || this.sdeData.bpReactionMaterialsByBlueprint[productBp.blueprint_id]
-      || [];
+    const blueprintId = productBlueprint?.blueprint_id;
+    const reactionId = productReaction?.blueprint_id;
 
-    const multiplier = Math.ceil(product.quantity / productBp.quantity);
+    const materials =
+      this.sdeData.bpManufactureMaterialsByBlueprint[blueprintId]
+      || this.sdeData.bpReactionMaterialsByBlueprint[reactionId]
+      || [];    // TODO is empty array even possible?
+
+    const meLevel = this.sdeData.typeIdIsReactionFormula(reactionId)
+      || this.sdeData.types[product.type_id]?.meta_group_id === MetaGroup.TECH_I
+      ? MIN_ME :
+      MAX_ME;
+
+    // Blueprint or reaction output quantity
+    const productQuantity =
+      productBlueprint?.quantity ?? productReaction?.quantity;
+
+    // Minimum number of runs required to produce necessary product quantity
+    const runs = Math.ceil(product.quantity / productQuantity);
+
+    product.runs = runs;
+    product.blueprint_id = blueprintId ?? reactionId;
     product.materials = materials.map(m => ({
       type_id: m.type_id,
       name: this.sdeData.types[m.type_id].name,
-      quantity: m.quantity * multiplier,
+      quantity: Math.ceil(m.quantity * meLevel) * runs,
       materials: [],
+      blueprint_id: null,
+      runs: null,
     }));
-    product.materials.forEach(m => this.buildMaterialTree(m));
+    product.materials.forEach(m => this.buildMaterialTree(m, assets));
   };
 }
