@@ -69,11 +69,13 @@ export type MaterialStationsRes = {
 export type ProductionPlanRes = {
   blueprintRuns: {
     typeId: number,
+    categoryId: number | undefined,
     name: string,
     runs: number,
   }[],
   materials: {
     typeId: number,
+    categoryId: number | undefined,
     name: string,
     quantity: number,
   }[],

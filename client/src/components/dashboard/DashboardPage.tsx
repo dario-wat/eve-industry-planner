@@ -12,7 +12,7 @@ export default function DashboardPage() {
       <Grid item xs={6}>
         <DashboardStationSelectCard />
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={5}>
         <DashboardProductMaterialTreeCard />
       </Grid>
       <Grid item xs={6}>

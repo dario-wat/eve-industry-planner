@@ -58,11 +58,13 @@ export default class ProductionPlanService {
       })),
     );
 
+    // TODO split runs by categories
     return {
       blueprintRuns: Object.entries(materialsPlan.materials)
         .filter((e: any) => e[1].runs > 0)
         .map((e: any) => ({
           typeId: e[0],
+          categoryId: this.sdeData.categoryIdFromTypeId(e[0]),
           name: this.sdeData.types[e[0]].name,
           runs: e[1].runs,
         })),
@@ -70,6 +72,7 @@ export default class ProductionPlanService {
         .filter((e: any) => e[1].runs === 0)
         .map((e: any) => ({
           typeId: e[0],
+          categoryId: this.sdeData.categoryIdFromTypeId(e[0]),
           name: this.sdeData.types[e[0]].name,
           quantity: e[1].quantity,
         })),

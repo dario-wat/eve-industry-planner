@@ -16,7 +16,7 @@ import useAxios from 'axios-hooks';
 import { EvePortraitRes } from '@internal/shared';
 import { UserContext } from 'contexts/UserContext';
 
-const drawerWidth = 240;
+const drawerWidth = 220;
 
 type Props = {
   tabs: { key: string, label: string, icon: ReactNode }[],
