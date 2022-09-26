@@ -73,6 +73,6 @@ export type ManufactureTreeRes = {
   name: string,
   quantity: number,
   materials: ManufactureTreeRes[],
-  blueprint_id: number | null,
-  runs: number | null,
+  // blueprint_id: number | null,
+  // runs: number | null,
 }

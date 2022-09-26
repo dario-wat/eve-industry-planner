@@ -5,6 +5,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import useAxios from 'axios-hooks';
 import { ManufactureTreeRes, ManufactureTreeRootRes } from '@internal/shared';
+import { uniqueId } from 'underscore';
 
 export default function DashboardProductMaterialTreeCard() {
   const [{ data }] =
@@ -12,9 +13,9 @@ export default function DashboardProductMaterialTreeCard() {
 
   const renderTree = (node: ManufactureTreeRes) => (
     <TreeItem
-      key={node.type_id}
+      key={uniqueId()}
       nodeId={node.type_id.toString()}
-      label={node.name + ' - ' + node.quantity + ' (' + (node.runs ?? 0) + ')'}
+      label={node.name + ' - ' + node.quantity}
     >
       {node.materials.map((node) => renderTree(node))}
     </TreeItem>
