@@ -10,13 +10,13 @@ const controller = (app: Router) => {
   const productionPlanService = Container.get(ProductionPlanService);
 
   app.get(
-    '/planned_products_material_tree',
+    '/production_plan',
     async (req: Request, res: Response) => {
       const characterId = req.session.characterId!;
-      const materialTree = await productionPlanService.genMaterialTree(
+      const productionPlan = await productionPlanService.genProductionPlan(
         characterId,
       );
-      res.json(materialTree);
+      res.json(productionPlan);
     },
   )
 };

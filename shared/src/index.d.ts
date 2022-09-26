@@ -66,13 +66,15 @@ export type MaterialStationsRes = {
   station_id: number,
 }[];
 
-export type ManufactureTreeRootRes = ManufactureTreeRes[];
-
-export type ManufactureTreeRes = {
-  type_id: number,
-  name: string,
-  quantity: number,
-  materials: ManufactureTreeRes[],
-  // blueprint_id: number | null,
-  // runs: number | null,
-}
+export type ProductionPlanRes = {
+  blueprintRuns: {
+    typeId: number,
+    name: string,
+    runs: number,
+  }[],
+  materials: {
+    typeId: number,
+    name: string,
+    quantity: number,
+  }[],
+};

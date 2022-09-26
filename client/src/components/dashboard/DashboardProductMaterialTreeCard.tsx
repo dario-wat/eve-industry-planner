@@ -3,34 +3,42 @@ import TreeView from '@mui/lab/TreeView';
 import TreeItem from '@mui/lab/TreeItem';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
-import { ManufactureTreeRes, ManufactureTreeRootRes } from '@internal/shared';
+import { ProductionPlanRes } from '@internal/shared';
 import { uniqueId } from 'underscore';
 
 export default function DashboardProductMaterialTreeCard() {
-  const [{ data }] =
-    useAxios<ManufactureTreeRootRes>('/planned_products_material_tree');
+  const [{ data }] = useAxios<ProductionPlanRes>('/production_plan');
 
-  const renderTree = (node: ManufactureTreeRes) => (
-    <TreeItem
-      key={uniqueId()}
-      nodeId={node.type_id.toString()}
-      label={node.name + ' - ' + node.quantity}
-    >
-      {node.materials.map((node) => renderTree(node))}
-    </TreeItem>
-  );
+  const columns: GridColDef[] = [
+    {
+      field: 'name',
+      headerName: 'Material',
+      width: 300,
+      sortable: false,
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      width: 100,
+      sortable: false,
+    },
+  ];
 
+  // TODO add circular progress
   return (
     <Card>
       <CardContent>
-        <TreeView
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          sx={{ height: 600, flexGrow: 1, maxWidth: 500, overflowY: 'auto' }}
-        >
-          {data && data.map(renderTree)}
-        </TreeView>
+        {data &&
+          <DataGrid
+            rows={data.materials}
+            columns={columns}
+            disableSelectionOnClick
+            disableColumnMenu
+            experimentalFeatures={{ newEditingApi: true }}
+          />
+        }
       </CardContent>
     </Card >
   );

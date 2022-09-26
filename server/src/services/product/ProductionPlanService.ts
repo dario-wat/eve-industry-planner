@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { hoursToSeconds } from 'date-fns';
 import { PlannedProduct } from '../../models/PlannedProduct';
-import { ManufactureTreeRes, ManufactureTreeRootRes } from '@internal/shared';
+import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
 import EveQueryService from '../query/EveQueryService';
@@ -28,9 +28,10 @@ export default class ProductionPlanService {
     * until it reaches leaves (minerals, planetary commodities, 
     * moon minerals, ...).
     */
-  public async genMaterialTree(
+  public async genProductionPlan(
     characterId: number,
-  ): Promise<ManufactureTreeRootRes> {
+  ): Promise<ProductionPlanRes> {
+    // TODO finish assets
     const [plannedProducts, assets] = await Promise.all([
       PlannedProduct.findAll({
         attributes: ['type_id', 'quantity'],
@@ -49,33 +50,30 @@ export default class ProductionPlanService {
       })(),
     ]);
 
-    let materials = {};
-    this.traverseMaterialTree(
+
+    const materialsPlan = this.traverseMaterialTree(
       plannedProducts.map(pp => ({
         typeId: pp.get().type_id,
         quantity: pp.get().quantity,
       })),
-      materials,
     );
-    console.log(Object.entries(materials).map((e: any) => ({
-      name: this.sdeData.types[e[0]].name,
-      quantity: e[1],
-    })));
 
-    return plannedProducts.map(pp => {
-      const rootProduct = {
-        type_id: pp.get().type_id,
-        name: this.sdeData.types[pp.get().type_id].name,
-        quantity: pp.get().quantity,
-        materials: [],
-        // blueprint_id: null,
-        // runs: null,
-      };
-      const assetMap = mapify(assets, 'item_id');
-
-      this.buildMaterialTree(rootProduct, assetMap);
-      return rootProduct;
-    });
+    return {
+      blueprintRuns: Object.entries(materialsPlan.materials)
+        .filter((e: any) => e[1].runs > 0)
+        .map((e: any) => ({
+          typeId: e[0],
+          name: this.sdeData.types[e[0]].name,
+          runs: e[1].runs,
+        })),
+      materials: Object.entries(materialsPlan.materials)
+        .filter((e: any) => e[1].runs === 0)
+        .map((e: any) => ({
+          typeId: e[0],
+          name: this.sdeData.types[e[0]].name,
+          quantity: e[1].quantity,
+        })),
+    };
   }
 
   /**
@@ -85,31 +83,20 @@ export default class ProductionPlanService {
    *    non leaf materials)
    * 2. Amounts of materials to buy (only matters for leaf nodes,
    *    i.e. things that don't have a blueprint)
-   * @param products 
-   * @param materials 
    */
   private traverseMaterialTree(
     products: { typeId: number, quantity: number }[],
-    materials: { [key: number]: number },
-  ): void {
-    let leftoverMaterials: { [key: number]: number } = {};
+  ): MaterialPlan {
+    let materialPlan = new MaterialPlan();
     while (products.length > 0) {
       const product = products.pop()!;
 
-      if (product.typeId in materials) {
-        materials[product.typeId] += product.quantity;
-      } else {
-        materials[product.typeId] = product.quantity;
-      }
-
-      if (product.typeId in leftoverMaterials) {
-        const stockQuantity = Math.min(
-          leftoverMaterials[product.typeId],
-          product.quantity,
-        );
-        leftoverMaterials[product.typeId] -= stockQuantity;
-        product.quantity -= stockQuantity;
-      }
+      materialPlan.addQuantity(product.typeId, product.quantity);
+      const subtracted = materialPlan.subtractLeftover(
+        product.typeId,
+        product.quantity,
+      );
+      product.quantity -= subtracted;
 
       if (product.quantity === 0) {
         continue;
@@ -129,24 +116,21 @@ export default class ProductionPlanService {
         || this.sdeData.bpReactionMaterialsByBlueprint[blueprintId]
         || [];    // TODO is empty array even possible?
 
-      // const meLevel = this.sdeData.typeIdIsReactionFormula(blueprintId)
-      //   || this.sdeData.types[product.typeId]?.meta_group_id === MetaGroup.TECH_I
-      //   ? MIN_ME :
-      //   MAX_ME;
-      const meLevel = MIN_ME;
+      const meLevel = this.sdeData.typeIdIsReactionFormula(blueprintId)
+        || this.sdeData.types[product.typeId]?.meta_group_id === MetaGroup.TECH_I
+        ? MIN_ME :
+        MAX_ME;
 
       // This is just the minimum number of runs required to build
       // the product. Actual number of blueprint runs for the output
       // will be computed later.
       const runs = Math.ceil(product.quantity / productBlueprint.quantity);
 
+      materialPlan.addRuns(product.typeId, runs);
+
       const leftoverProduct = productBlueprint.quantity * runs - product.quantity;
       if (leftoverProduct > 0) {
-        if (product.typeId in leftoverMaterials) {
-          leftoverMaterials[product.typeId] += leftoverProduct;
-        } else {
-          leftoverMaterials[product.typeId] = leftoverProduct
-        }
+        materialPlan.addLeftover(product.typeId, leftoverProduct);
       }
 
       if (bpMaterials.length > 0) {
@@ -157,55 +141,61 @@ export default class ProductionPlanService {
       }
     }
 
-    console.log(Object.entries(leftoverMaterials).map((e: any) => ({
-      name: this.sdeData.types[e[0]].name,
-      quantity: e[1],
-    })));
+    return materialPlan;
+  }
+}
+
+type MaterialsType = {
+  [typeId: number]: {
+    quantity: number,
+    runs: number,
+    leftover: number,
+  }
+};
+
+class MaterialPlan {
+
+  constructor(
+    public materials: MaterialsType = {},
+  ) { }
+
+  public addQuantity(typeId: number, quantity: number): void {
+    if (typeId in this.materials) {
+      this.materials[typeId].quantity += quantity;
+    } else {
+      this.materials[typeId] = { quantity, runs: 0, leftover: 0 };
+    }
+  }
+
+  public addRuns(typeId: number, runs: number): void {
+    if (typeId in this.materials) {
+      this.materials[typeId].runs += runs;
+    } else {
+      this.materials[typeId] = { quantity: 0, runs, leftover: 0 };
+    }
+  }
+
+  public addLeftover(typeId: number, leftover: number): void {
+    if (typeId in this.materials) {
+      this.materials[typeId].leftover += leftover;
+    } else {
+      this.materials[typeId] = { quantity: 0, runs: 0, leftover };
+    }
   }
 
   /**
-   * Recursive helper function to build the tree of required materials
-   * for the given product.
-   * @param product 
-   * @returns Built out tree with 'product' as the root node
+   * Subtracts the quantity from leftover
+   * @returns the amount subtracted
    */
-  private buildMaterialTree(
-    product: ManufactureTreeRes,
-    assets: { [key: number]: EveAsset },
-  ): void {
-    const productBlueprint =
-      this.sdeData.bpManufactureProductsByProduct[product.type_id]
-      || this.sdeData.bpReactionProductsByProduct[product.type_id];
-    if (productBlueprint === undefined) {
-      // Leaf node (mineral, planetary commodity, ice, ...)
-      return;
+  public subtractLeftover(typeId: number, quantity: number): number {
+    if (typeId in this.materials) {
+      const stockQuantity = Math.min(
+        this.materials[typeId].leftover,
+        quantity,
+      );
+      this.materials[typeId].leftover -= stockQuantity;
+      return stockQuantity;
     }
-
-    const blueprintId = productBlueprint.blueprint_id;
-
-    const materials =
-      this.sdeData.bpManufactureMaterialsByBlueprint[blueprintId]
-      || this.sdeData.bpReactionMaterialsByBlueprint[blueprintId]
-      || [];    // TODO is empty array even possible?
-
-    const meLevel = this.sdeData.typeIdIsReactionFormula(blueprintId)
-      || this.sdeData.types[product.type_id]?.meta_group_id === MetaGroup.TECH_I
-      ? MIN_ME :
-      MAX_ME;
-
-    // Minimum number of runs required to produce necessary product quantity
-    const runs = Math.ceil(product.quantity / productBlueprint.quantity);
-
-    // product.runs = runs;
-    // product.blueprint_id = blueprintId;
-    product.materials = materials.map(m => ({
-      type_id: m.type_id,
-      name: this.sdeData.types[m.type_id].name,
-      quantity: Math.ceil(m.quantity * meLevel) * runs,
-      materials: [],
-      // blueprint_id: null,
-      // runs: null,
-    }));
-    product.materials.forEach(m => this.buildMaterialTree(m, assets));
-  };
+    return 0;
+  }
 }
