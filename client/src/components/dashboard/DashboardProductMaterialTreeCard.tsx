@@ -1,4 +1,12 @@
-import { Box, Card, CardContent, Tab, Tabs, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
+  Tab,
+  Tabs,
+  Typography,
+} from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
 import { useState } from 'react';
@@ -15,7 +23,33 @@ export default function DashboardProductMaterialTreeCard() {
 
   const [selectedTab, setSelectedTab] = useState(SelectedTab.RUNS);
 
-  const materialColumns: GridColDef[] = [
+  return (
+    <Card>
+      <CardContent>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 1 }}>
+          <Tabs
+            value={selectedTab}
+            onChange={(_, newValue) => setSelectedTab(newValue)}
+          >
+            <Tab label="Runs" value={SelectedTab.RUNS} />
+            <Tab label="Materials" value={SelectedTab.MATERIALS} />
+          </Tabs>
+        </Box>
+        {selectedTab === SelectedTab.MATERIALS
+          ? <MaterialsTab data={data} />
+          : <BlueprintRunsTab data={data} />
+        }
+      </CardContent>
+    </Card >
+  );
+}
+
+function MaterialsTab(props: {
+  data: ProductionPlanRes | undefined,
+}) {
+
+  // TODO add copy to clipboard
+  const columns: GridColDef[] = [
     {
       field: 'name',
       headerName: 'Material',
@@ -36,7 +70,42 @@ export default function DashboardProductMaterialTreeCard() {
     },
   ];
 
-  const runColumns: GridColDef[] = [
+  return (
+    <>
+      <Box>
+        <Typography
+          style={{ display: 'inline-block' }}
+          variant="h6"
+          gutterBottom
+        >
+          Missing Materials
+        </Typography>
+      </Box>
+      {props.data ?
+        <DataGrid
+          rows={props.data.materials}
+          columns={columns}
+          disableSelectionOnClick
+          disableColumnMenu
+          experimentalFeatures={{ newEditingApi: true }}
+        />
+        :
+        <Box
+          sx={{ height: 'auto', width: '100%' }}
+          display="flex"
+          justifyContent="center"
+          alignItems="center">
+          <CircularProgress />
+        </Box>
+      }
+    </>
+  );
+}
+
+function BlueprintRunsTab(props: {
+  data: ProductionPlanRes | undefined,
+}) {
+  const columns: GridColDef[] = [
     {
       field: 'name',
       headerName: 'Material',
@@ -57,58 +126,35 @@ export default function DashboardProductMaterialTreeCard() {
     },
   ];
 
-  // TODO add circular progress
   return (
-    <Card>
-      <CardContent>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 1 }}>
-          <Tabs
-            value={selectedTab}
-            onChange={(_, newValue) => setSelectedTab(newValue)}
-          >
-            <Tab label="Runs" value={SelectedTab.RUNS} />
-            <Tab label="Materials" value={SelectedTab.MATERIALS} />
-          </Tabs>
+    <>
+      <Box>
+        <Typography
+          style={{ display: 'inline-block' }}
+          variant="h6"
+          gutterBottom
+        >
+          Blueprint Runs
+        </Typography>
+      </Box>
+      {props.data
+        ?
+        <DataGrid
+          rows={props.data.blueprintRuns}
+          columns={columns}
+          disableSelectionOnClick
+          disableColumnMenu
+          experimentalFeatures={{ newEditingApi: true }}
+        />
+        :
+        <Box
+          sx={{ height: 'auto', width: '100%' }}
+          display="flex"
+          justifyContent="center"
+          alignItems="center">
+          <CircularProgress />
         </Box>
-        {selectedTab === SelectedTab.MATERIALS ?
-          <>
-            <Typography
-              style={{ display: 'inline-block' }}
-              variant="h6"
-              gutterBottom
-            >
-              Missing Materials
-            </Typography>
-            {data &&
-              <DataGrid
-                rows={data.materials}
-                columns={materialColumns}
-                disableSelectionOnClick
-                disableColumnMenu
-                experimentalFeatures={{ newEditingApi: true }}
-              />
-            }
-          </>
-          : <>
-            <Typography
-              style={{ display: 'inline-block' }}
-              variant="h6"
-              gutterBottom
-            >
-              Blueprint Runs
-            </Typography>
-            {data &&
-              <DataGrid
-                rows={data.blueprintRuns}
-                columns={runColumns}
-                disableSelectionOnClick
-                disableColumnMenu
-                experimentalFeatures={{ newEditingApi: true }}
-              />
-            }
-          </>
-        }
-      </CardContent>
-    </Card >
+      }
+    </>
   );
 }

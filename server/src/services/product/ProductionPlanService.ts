@@ -81,9 +81,7 @@ export default class ProductionPlanService {
 
   /**
    * Outputs:
-   * 1. Number of runs per blueprint (this is for non leaf nodes, but 
-   *    I need to build a list of ALL materials first, including 
-   *    non leaf materials)
+   * 1. Number of runs per blueprint (this is for non leaf nodes)
    * 2. Amounts of materials to buy (only matters for leaf nodes,
    *    i.e. things that don't have a blueprint)
    */
@@ -124,11 +122,7 @@ export default class ProductionPlanService {
         ? MIN_ME :
         MAX_ME;
 
-      // This is just the minimum number of runs required to build
-      // the product. Actual number of blueprint runs for the output
-      // will be computed later.
       const runs = Math.ceil(product.quantity / productBlueprint.quantity);
-
       materialPlan.addRuns(product.typeId, runs);
 
       const leftoverProduct = productBlueprint.quantity * runs - product.quantity;
