@@ -7,8 +7,7 @@ import EveSdeData from '../query/EveSdeData';
 import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
 import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 import { EveAssetsRes } from '@internal/shared';
-
-const SHIP_CAT = 6;
+import { SHIP } from '../../const/Categories';
 
 // It's important to note that this service queries all assets except
 // the ones located inside ships
@@ -61,7 +60,7 @@ export default class AssetsService {
         // Has a parent, but parent is a ship (inside a ship)
         || (
           o.parent
-          && this.sdeData.categoryIdFromTypeId(o.parent.type_id) === SHIP_CAT
+          && this.sdeData.categoryIdFromTypeId(o.parent.type_id) === SHIP
         )
         // Has a parent (container), but parent also has a parent (ship)
         // (inside a container inside a ship)

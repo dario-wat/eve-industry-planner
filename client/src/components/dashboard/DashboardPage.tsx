@@ -10,10 +10,10 @@ export default function DashboardPage() {
         <DashboardProductsCard />
       </Grid>
       <Grid item xs={6}>
-        <DashboardStationSelectCard />
+        <DashboardProductionPlanCard />
       </Grid>
       <Grid item xs={5}>
-        <DashboardProductionPlanCard />
+        <DashboardStationSelectCard />
       </Grid>
       <Grid item xs={6}>
         <Card>

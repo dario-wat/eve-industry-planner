@@ -1,14 +1,11 @@
 import { Service } from 'typedi';
-import { hoursToSeconds } from 'date-fns';
 import { PlannedProduct } from '../../models/PlannedProduct';
-import { ProductionPlanRes } from '@internal/shared';
+import { EveAssetsRes, ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
-import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
-import EveQueryService from '../query/EveQueryService';
-import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
-import { mapify } from '../../lib/util';
-import { EveAsset } from '../../types/EsiQuery';
 import { MetaGroup } from '../../const/MetaGroups';
+import { MaterialStation } from '../../models/MaterialStation';
+import AssetsService from './AssetsService';
+import { SHIP } from '../../const/Categories';
 
 const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0  // For ME = 0
@@ -17,9 +14,8 @@ const MIN_ME = 1.0  // For ME = 0
 export default class ProductionPlanService {
 
   constructor(
-    private readonly eveQuery: EveQueryService,
-    private readonly esiSequelizeProvider: EsiSequelizeProvider,
     private readonly sdeData: EveSdeData,
+    private readonly assetService: AssetsService,
   ) { }
 
   /*
@@ -31,7 +27,6 @@ export default class ProductionPlanService {
   public async genProductionPlan(
     characterId: number,
   ): Promise<ProductionPlanRes> {
-    // TODO finish assets
     const [plannedProducts, assets] = await Promise.all([
       PlannedProduct.findAll({
         attributes: ['type_id', 'quantity'],
@@ -39,15 +34,7 @@ export default class ProductionPlanService {
           character_id: characterId,
         },
       }),
-      (async () => {
-        const token = await this.esiSequelizeProvider.genxToken(characterId);
-        return await EsiCacheAction.gen(
-          characterId.toString(),
-          EsiCacheItem.ASSETS,
-          hoursToSeconds(6),
-          async () => await this.eveQuery.genAllAssets(token, characterId),
-        );
-      })(),
+      this.genAssetsForProductionPlan(characterId),
     ]);
 
     const materialsPlan = this.traverseMaterialTree(
@@ -55,6 +42,7 @@ export default class ProductionPlanService {
         typeId: pp.get().type_id,
         quantity: pp.get().quantity,
       })),
+      assets,
     );
 
     const plannedProductIds = plannedProducts.map(pp => pp.get().type_id);
@@ -68,7 +56,7 @@ export default class ProductionPlanService {
             Number(e[0]),
             plannedProductIds,
           ),
-          name: this.sdeData.types[Number(e[0])].name,
+          name: this.sdeData.types[Number(e[0])]?.name,
           runs: e[1].runs,
         })),
       materials: Object.entries(materialsPlan.materials)
@@ -76,10 +64,37 @@ export default class ProductionPlanService {
         .map(e => ({
           typeId: Number(e[0]),
           categoryId: this.sdeData.categoryIdFromTypeId(Number(e[0])),
-          name: this.sdeData.types[Number(e[0])].name,
+          name: this.sdeData.types[Number(e[0])]?.name,
           quantity: e[1].quantity,
         })),
     };
+  }
+
+  /**
+   * We don't want all assets, but only those that the user has configured.
+   * The user cares about assets located only in a specific set of
+   * stations stored in MaterialStation.
+   */
+  private async genAssetsForProductionPlan(
+    characterId: number,
+  ): Promise<EveAssetsRes> {
+    const materialStations = await MaterialStation.findAll({
+      attributes: ['station_id'],
+      where: {
+        character_id: characterId,
+      },
+    });
+    const stationIds =
+      materialStations.map(station => station.get().station_id);
+
+    const allAssets = await this.assetService.genData(characterId);
+    return allAssets.filter(asset =>
+      // TODO ignoring ships for now since there are a lot of fitted
+      // ships that I don't want to include as assets here.
+      // Ideally I would modify the asset service to be modular
+      // and filter stuff based on the inputs
+      stationIds.includes(asset.location_id) && asset.category_id !== SHIP,
+    );
   }
 
   private getProductionCategory(
@@ -109,13 +124,15 @@ export default class ProductionPlanService {
    */
   private traverseMaterialTree(
     products: { typeId: number, quantity: number }[],
+    assets: EveAssetsRes,
   ): MaterialPlan {
-    let materialPlan = new MaterialPlan();
+    let materialPlan = new MaterialPlan(assets);
     while (products.length > 0) {
       const product = products.pop()!;
       materialPlan.addQuantity(product.typeId, product.quantity);
 
       // FIRST check if we have any leftover from previous blueprint runs
+      // or from pre-existing assets
       const subtracted = materialPlan.subtractLeftover(
         product.typeId,
         product.quantity,
@@ -138,8 +155,7 @@ export default class ProductionPlanService {
       const blueprintId = productBlueprint.blueprint_id;
       const bpMaterials =
         this.sdeData.bpManufactureMaterialsByBlueprint[blueprintId]
-        || this.sdeData.bpReactionMaterialsByBlueprint[blueprintId]
-        || [];    // TODO is empty array even possible?
+        || this.sdeData.bpReactionMaterialsByBlueprint[blueprintId];
 
       const meLevel = this.sdeData.typeIdIsReactionFormula(blueprintId)
         || this.sdeData.types[product.typeId]?.meta_group_id === MetaGroup.TECH_I
@@ -176,9 +192,15 @@ type MaterialsType = {
 
 class MaterialPlan {
 
+  public materials: MaterialsType;
+
   constructor(
-    public materials: MaterialsType = {},
-  ) { }
+    assets: EveAssetsRes,
+  ) {
+    this.materials = {};
+    // Initialize leftover with existing assets
+    assets.forEach(a => this.addLeftover(a.type_id, a.quantity));
+  }
 
   public addQuantity(typeId: number, quantity: number): void {
     if (typeId in this.materials) {
