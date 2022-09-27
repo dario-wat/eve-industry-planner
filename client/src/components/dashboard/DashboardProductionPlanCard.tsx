@@ -7,18 +7,22 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
 import { useState } from 'react';
 import { ProductionPlanRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
+import { LoadingButton } from '@mui/lab';
 
 enum SelectedTab {
   RUNS = 'RUNS',
   MATERIALS = 'MATERIALS',
 };
 
-export default function DashboardProductMaterialTreeCard() {
+export default function DashboardProductionPlanCard() {
   const [{ data }] = useAxios<ProductionPlanRes>('/production_plan');
 
   const [selectedTab, setSelectedTab] = useState(SelectedTab.RUNS);
@@ -47,8 +51,8 @@ export default function DashboardProductMaterialTreeCard() {
 function MaterialsTab(props: {
   data: ProductionPlanRes | undefined,
 }) {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  // TODO add copy to clipboard
   const columns: GridColDef[] = [
     {
       field: 'name',
@@ -72,7 +76,7 @@ function MaterialsTab(props: {
 
   return (
     <>
-      <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', pb: 1 }}>
         <Typography
           style={{ display: 'inline-block' }}
           variant="h6"
@@ -80,6 +84,36 @@ function MaterialsTab(props: {
         >
           Missing Materials
         </Typography>
+        <LoadingButton
+          loading={props.data === undefined}
+          variant="contained"
+          size="small"
+          onClick={() => {
+            navigator.clipboard.writeText(
+              props.data!.materials
+                .map(m => m.name + ' ' + m.quantity)
+                .join('\r\n')
+            );
+            setSnackbarOpen(true);
+          }}>
+          Copy
+        </LoadingButton>
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={3000}
+          message="Copied!"
+          onClose={() => setSnackbarOpen(false)}
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={() => setSnackbarOpen(false)}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          }
+        />
       </Box>
       {props.data ?
         <DataGrid

@@ -1,5 +1,5 @@
 import { Card, CardContent, Grid } from '@mui/material';
-import DashboardProductMaterialTreeCard from './DashboardProductMaterialTreeCard';
+import DashboardProductionPlanCard from './DashboardProductionPlanCard';
 import DashboardProductsCard from './DashboardProductsCard';
 import DashboardStationSelectCard from './DashboardStationSelectCard';
 
@@ -13,7 +13,7 @@ export default function DashboardPage() {
         <DashboardStationSelectCard />
       </Grid>
       <Grid item xs={5}>
-        <DashboardProductMaterialTreeCard />
+        <DashboardProductionPlanCard />
       </Grid>
       <Grid item xs={6}>
         <Card>
