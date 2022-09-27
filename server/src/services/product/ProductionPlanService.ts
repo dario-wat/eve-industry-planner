@@ -50,7 +50,6 @@ export default class ProductionPlanService {
       })(),
     ]);
 
-
     const materialsPlan = this.traverseMaterialTree(
       plannedProducts.map(pp => ({
         typeId: pp.get().type_id,
@@ -58,25 +57,48 @@ export default class ProductionPlanService {
       })),
     );
 
-    // TODO split runs by categories
+    const plannedProductIds = plannedProducts.map(pp => pp.get().type_id);
     return {
       blueprintRuns: Object.entries(materialsPlan.materials)
-        .filter((e: any) => e[1].runs > 0)
-        .map((e: any) => ({
-          typeId: e[0],
-          categoryId: this.sdeData.categoryIdFromTypeId(e[0]),
-          name: this.sdeData.types[e[0]].name,
+        .filter(e => e[1].runs > 0)
+        .map(e => ({
+          typeId: Number(e[0]),
+          categoryId: this.sdeData.categoryIdFromTypeId(Number(e[0])),
+          productionCategory: this.getProductionCategory(
+            Number(e[0]),
+            plannedProductIds,
+          ),
+          name: this.sdeData.types[Number(e[0])].name,
           runs: e[1].runs,
         })),
       materials: Object.entries(materialsPlan.materials)
-        .filter((e: any) => e[1].runs === 0)
-        .map((e: any) => ({
-          typeId: e[0],
-          categoryId: this.sdeData.categoryIdFromTypeId(e[0]),
-          name: this.sdeData.types[e[0]].name,
+        .filter(e => e[1].runs === 0)
+        .map(e => ({
+          typeId: Number(e[0]),
+          categoryId: this.sdeData.categoryIdFromTypeId(Number(e[0])),
+          name: this.sdeData.types[Number(e[0])].name,
           quantity: e[1].quantity,
         })),
     };
+  }
+
+  private getProductionCategory(
+    typeId: number,
+    plannedProductIds: number[],
+  ): string {
+    if (plannedProductIds.includes(typeId)) {
+      return 'End Product / Other';
+    }
+
+    const groupId = this.sdeData.types[typeId].group_id;
+    switch (groupId) {
+      case 334: return 'Construction Components';
+      case 428: return 'Intermediate Materials';
+      case 429: return 'Composite Materials';
+      case 964: return 'Hybrid Tech Components';
+      case 974: return 'Hybrid Polymers';
+      default: return 'Other';
+    }
   }
 
   /**
@@ -91,8 +113,9 @@ export default class ProductionPlanService {
     let materialPlan = new MaterialPlan();
     while (products.length > 0) {
       const product = products.pop()!;
-
       materialPlan.addQuantity(product.typeId, product.quantity);
+
+      // FIRST check if we have any leftover from previous blueprint runs
       const subtracted = materialPlan.subtractLeftover(
         product.typeId,
         product.quantity,
@@ -103,6 +126,7 @@ export default class ProductionPlanService {
         continue;
       }
 
+      // SECOND if there wasn't enough leftover then we go make more
       const productBlueprint =
         this.sdeData.bpManufactureProductsByProduct[product.typeId]
         || this.sdeData.bpReactionProductsByProduct[product.typeId];

@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { ProductionPlanRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
 import { LoadingButton } from '@mui/lab';
+import { groupBy, uniqueId } from 'underscore';
 
 enum SelectedTab {
   RUNS = 'RUNS',
@@ -139,10 +140,13 @@ function MaterialsTab(props: {
 function BlueprintRunsTab(props: {
   data: ProductionPlanRes | undefined,
 }) {
-  const columns: GridColDef[] = [
+  const groupedData = props.data
+    && groupBy(props.data.blueprintRuns, 'productionCategory');
+
+  const columns: (headerName: string) => GridColDef[] = headerName => [
     {
       field: 'name',
-      headerName: 'Material',
+      headerName,
       width: 300,
       sortable: false,
       renderCell: params =>
@@ -171,15 +175,19 @@ function BlueprintRunsTab(props: {
           Blueprint Runs
         </Typography>
       </Box>
-      {props.data
+      {groupedData
         ?
-        <DataGrid
-          rows={props.data.blueprintRuns}
-          columns={columns}
-          disableSelectionOnClick
-          disableColumnMenu
-          experimentalFeatures={{ newEditingApi: true }}
-        />
+        Object.entries(groupedData).map(d =>
+          <DataGrid
+            key={uniqueId()}
+            rows={d[1]}
+            columns={columns(d[0])}
+            disableSelectionOnClick
+            disableColumnMenu
+            hideFooter
+            experimentalFeatures={{ newEditingApi: true }}
+          />
+        )
         :
         <Box
           sx={{ height: 'auto', width: '100%' }}

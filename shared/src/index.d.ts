@@ -70,6 +70,7 @@ export type ProductionPlanRes = {
   blueprintRuns: {
     typeId: number,
     categoryId: number | undefined,
+    productionCategory: string,
     name: string,
     runs: number,
   }[],
