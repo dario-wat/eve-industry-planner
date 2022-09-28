@@ -9,6 +9,8 @@ import {
   PlannedProductsRes,
   PlannedProductsWithErrorRes,
 } from '@internal/shared';
+import { useAppDispatch } from 'redux/hooks';
+import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
 
 export default function DashboardProductsTextArea(
   props: {
@@ -24,6 +26,8 @@ export default function DashboardProductsTextArea(
     ),
     [props.plannedProducts],
   );
+
+  const dispatch = useAppDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const onButtonClick = async () => {
@@ -41,6 +45,7 @@ export default function DashboardProductsTextArea(
         quantity: pp.quantity!,
         stock: pp.stock!,
       })));
+      dispatch(fetchProductionPlan());
     }
     setErrors(errors);
     setIsSubmitting(false);

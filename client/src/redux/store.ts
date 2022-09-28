@@ -1,9 +1,9 @@
-import { configureStore } from '@reduxjs/toolkit'
-import plannedProductReducer from 'redux/slices/plannedProductsSlice'
+import { configureStore } from '@reduxjs/toolkit';
+import productionPlanReducer from 'redux/slices/productionPlanSlice';
 
 const store = configureStore({
   reducer: {
-    plannedProducts: plannedProductReducer,
+    productionPlan: productionPlanReducer,
   },
 })
 

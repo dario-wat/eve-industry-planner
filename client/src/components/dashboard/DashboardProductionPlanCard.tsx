@@ -11,12 +11,13 @@ import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import useAxios from 'axios-hooks';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ProductionPlanRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
 import { LoadingButton } from '@mui/lab';
 import { groupBy, uniqueId } from 'underscore';
+import { fetchProductionPlan, selectProductionPlan } from 'redux/slices/productionPlanSlice';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
 
 enum SelectedTab {
   RUNS = 'RUNS',
@@ -24,7 +25,12 @@ enum SelectedTab {
 };
 
 export default function DashboardProductionPlanCard() {
-  const [{ data }] = useAxios<ProductionPlanRes>('/production_plan');
+  const data = useAppSelector(selectProductionPlan);
+  const dispatch = useAppDispatch();
+  useEffect(
+    () => { dispatch(fetchProductionPlan()); },
+    [dispatch],
+  );
 
   const [selectedTab, setSelectedTab] = useState(SelectedTab.RUNS);
 
@@ -41,8 +47,8 @@ export default function DashboardProductionPlanCard() {
           </Tabs>
         </Box>
         {selectedTab === SelectedTab.MATERIALS
-          ? <MaterialsTab data={data} />
-          : <BlueprintRunsTab data={data} />
+          ? <MaterialsTab data={data.value} loading={data.loading} />
+          : <BlueprintRunsTab data={data.value} loading={data.loading} />
         }
       </CardContent>
     </Card >
@@ -50,7 +56,8 @@ export default function DashboardProductionPlanCard() {
 }
 
 function MaterialsTab(props: {
-  data: ProductionPlanRes | undefined,
+  data: ProductionPlanRes,
+  loading: boolean,
 }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
@@ -86,7 +93,7 @@ function MaterialsTab(props: {
           Missing Materials
         </Typography>
         <LoadingButton
-          loading={props.data === undefined}
+          loading={props.loading}
           variant="contained"
           size="small"
           onClick={() => {
@@ -116,7 +123,8 @@ function MaterialsTab(props: {
           }
         />
       </Box>
-      {props.data ?
+      {!props.loading
+        ?
         <DataGrid
           rows={props.data.materials}
           columns={columns}
@@ -138,10 +146,10 @@ function MaterialsTab(props: {
 }
 
 function BlueprintRunsTab(props: {
-  data: ProductionPlanRes | undefined,
+  data: ProductionPlanRes,
+  loading: boolean,
 }) {
-  const groupedData = props.data
-    && groupBy(props.data.blueprintRuns, 'productionCategory');
+  const groupedData = groupBy(props.data.blueprintRuns, 'productionCategory');
 
   const columns: (headerName: string) => GridColDef[] = headerName => [
     {
@@ -175,7 +183,7 @@ function BlueprintRunsTab(props: {
           Blueprint Runs
         </Typography>
       </Box>
-      {groupedData
+      {!props.loading
         ?
         Object.entries(groupedData).map(d =>
           <DataGrid
