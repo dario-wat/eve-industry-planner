@@ -3,6 +3,8 @@ import { PlannedProduct } from '../../models/PlannedProduct';
 import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 import AssetsService from './AssetsService';
+import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
+import { MANUFACTURING } from '../../const/IndustryActivity';
 
 type ParsedLine = { name: string, quantity: number | null };
 
@@ -12,6 +14,7 @@ export default class PlannedProductService {
   constructor(
     private readonly sdeData: EveSdeData,
     private readonly assetService: AssetsService,
+    private readonly esiQuery: EsiTokenlessQueryService,
   ) { }
 
   public async genData(characterId: number): Promise<PlannedProductsRes> {
@@ -103,15 +106,27 @@ export default class PlannedProductService {
     characterId: number,
     plannedProducts: PlannedProduct[],
   ): Promise<PlannedProductsRes> {
-    const assets = await this.assetService.genAssetsForProductionPlan(
-      characterId,
+    const [assets, industryJobs] = await Promise.all([
+      this.assetService.genAssetsForProductionPlan(characterId),
+      this.esiQuery.genxIndustryJobs(characterId),
+    ]);
+
+    const manufacturingJobs = industryJobs.filter(
+      j => j.activity_id === MANUFACTURING,
     );
+
+    const getActiveRuns = (typeId: number) =>
+      manufacturingJobs.find(j => j.product_type_id === typeId)?.runs ?? 0;
+    const getBpProductQuantity = (typeId: number) =>
+      this.sdeData.bpManufactureProductsByProduct[typeId]?.quantity ?? 0;
     return plannedProducts.map(pp => ({
       name: this.sdeData.types[pp.get().type_id].name,
       quantity: pp.get().quantity,
       stock: assets.find(asset =>
         asset.type_id === pp.get().type_id,
       )?.quantity ?? 0,
+      active:
+        getActiveRuns(pp.get().type_id) * getBpProductQuantity(pp.get().type_id),
     }));
   }
 }

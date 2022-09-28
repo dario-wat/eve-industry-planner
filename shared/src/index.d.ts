@@ -54,12 +54,14 @@ export type PlannedProductsRes = {
   name: string,
   quantity: number,
   stock: number,
+  active: number,
 }[];
 
 export type PlannedProductsWithErrorRes = {
   name: string,
   quantity?: number,
   stock?: number,
+  active?: number,
   error?: string,
 }[];
 

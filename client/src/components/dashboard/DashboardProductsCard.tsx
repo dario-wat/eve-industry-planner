@@ -94,6 +94,7 @@ function DashboardProductsDataGrid(
             : 'default',
         }}>
           {Math.min(params.row.stock, params.row.quantity)
+            + (params.row.active > 0 ? ' (+' + params.row.active + ')' : '')
             + ' / '
             + params.row.quantity}
         </div>
@@ -143,6 +144,7 @@ function DashboardProductsTextArea(
         name: pp.name,
         quantity: pp.quantity!,
         stock: pp.stock!,
+        active: pp.active!,
       })));
 
       // Trigger new production plan
