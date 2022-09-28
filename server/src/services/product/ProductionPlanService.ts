@@ -5,6 +5,7 @@ import EveSdeData from '../query/EveSdeData';
 import { MetaGroup } from '../../const/MetaGroups';
 import AssetsService from './AssetsService';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
+import { MANUFACTURING } from '../../const/IndustryActivity';
 
 const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0  // For ME = 0
@@ -38,8 +39,6 @@ export default class ProductionPlanService {
       this.esiQuery.genxIndustryJobs(characterId),
     ]);
 
-    // TODO do industry jobs
-
     const materialsPlan = this.traverseMaterialTree(
       plannedProducts.map(pp => ({
         typeId: pp.get().type_id,
@@ -49,6 +48,9 @@ export default class ProductionPlanService {
     );
 
     const plannedProductIds = plannedProducts.map(pp => pp.get().type_id);
+    const manufacturingJobs = industryJobs.filter(
+      j => j.activity_id === MANUFACTURING,
+    );
     return {
       blueprintRuns: Object.entries(materialsPlan.materials)
         .filter(e => e[1].runs > 0)
@@ -61,6 +63,9 @@ export default class ProductionPlanService {
           ),
           name: this.sdeData.types[Number(e[0])]?.name,
           runs: e[1].runs,
+          activeRuns: manufacturingJobs.find(
+            j => j.product_type_id === Number(e[0]),
+          )?.runs,
         })),
       materials: Object.entries(materialsPlan.materials)
         .filter(e => e[1].runs === 0)

@@ -169,6 +169,11 @@ function BlueprintRunsTab(props: {
       headerName: 'Runs',
       width: 100,
       sortable: false,
+      renderCell: params => params.row.activeRuns
+        ? <div style={{ color: 'green', fontWeight: 'bold' }}>
+          {params.row.activeRuns + ' / ' + params.row.runs}
+        </div>
+        : params.row.runs,
     },
   ];
 

@@ -75,6 +75,7 @@ export type ProductionPlanRes = {
     productionCategory: string,
     name: string,
     runs: number,
+    activeRuns: number | undefined,
   }[],
   materials: {
     typeId: number,

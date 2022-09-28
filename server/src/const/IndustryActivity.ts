@@ -35,3 +35,5 @@ export const industryActivity = Object.freeze({
 
 export type IndustryActivity = typeof industryActivity;
 export type IndustryActivityKey = keyof typeof industryActivity;
+
+export const MANUFACTURING = 1;

@@ -89,6 +89,9 @@ function DashboardProductsDataGrid(
       renderCell: params =>
         <div style={{
           color: params.row.stock >= params.row.quantity ? 'green' : 'default',
+          fontWeight: params.row.stock >= params.row.quantity
+            ? 'bold'
+            : 'default',
         }}>
           {Math.min(params.row.stock, params.row.quantity)
             + ' / '
