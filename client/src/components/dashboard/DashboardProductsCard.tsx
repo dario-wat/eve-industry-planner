@@ -48,7 +48,10 @@ export default function DashboardProductsCard() {
           :
           <DashboardProductsTextArea
             plannedProducts={plannedProducts}
-            onUpdate={pps => setPlannedProducts(pps)}
+            onUpdate={pps => {
+              setPlannedProducts(pps);
+              setUseGrid(true);
+            }}
           />
         }
       </CardContent>
