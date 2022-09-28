@@ -8,6 +8,7 @@ import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
 import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 import { EveAssetsRes } from '@internal/shared';
 import { SHIP } from '../../const/Categories';
+import { MaterialStation } from '../../models/MaterialStation';
 
 // It's important to note that this service queries all assets except
 // the ones located inside ships
@@ -81,4 +82,32 @@ export default class AssetsService {
           || (o.parent && stationNames[o.parent!.location_id])!,
       }));
   }
+
+  /**
+   * We don't want all assets, but only those that the user has configured.
+   * The user cares about assets located only in a specific set of
+   * stations stored in MaterialStation.
+   */
+  public async genAssetsForProductionPlan(
+    characterId: number,
+  ): Promise<EveAssetsRes> {
+    const materialStations = await MaterialStation.findAll({
+      attributes: ['station_id'],
+      where: {
+        character_id: characterId,
+      },
+    });
+    const stationIds =
+      materialStations.map(station => station.get().station_id);
+
+    const allAssets = await this.genData(characterId);
+    return allAssets.filter(asset =>
+      // TODO ignoring ships for now since there are a lot of fitted
+      // ships that I don't want to include as assets here.
+      // Ideally I would modify the asset service to be modular
+      // and filter stuff based on the inputs
+      stationIds.includes(asset.location_id) && asset.category_id !== SHIP,
+    );
+  }
+
 }

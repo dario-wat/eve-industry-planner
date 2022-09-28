@@ -18,6 +18,14 @@ export default function DashboardProductsDataGrid(
       headerName: 'Quantity',
       width: 100,
       sortable: false,
+      renderCell: params =>
+        <div style={{
+          color: params.row.stock >= params.row.quantity ? 'green' : 'default',
+        }}>
+          {Math.min(params.row.stock, params.row.quantity)
+            + ' / '
+            + params.row.quantity}
+        </div>
     },
   ];
 

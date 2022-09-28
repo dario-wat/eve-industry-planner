@@ -3,9 +3,7 @@ import { PlannedProduct } from '../../models/PlannedProduct';
 import { EveAssetsRes, ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 import { MetaGroup } from '../../const/MetaGroups';
-import { MaterialStation } from '../../models/MaterialStation';
 import AssetsService from './AssetsService';
-import { SHIP } from '../../const/Categories';
 
 const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0  // For ME = 0
@@ -34,7 +32,7 @@ export default class ProductionPlanService {
           character_id: characterId,
         },
       }),
-      this.genAssetsForProductionPlan(characterId),
+      this.assetService.genAssetsForProductionPlan(characterId),
     ]);
 
     const materialsPlan = this.traverseMaterialTree(
@@ -68,33 +66,6 @@ export default class ProductionPlanService {
           quantity: e[1].quantity,
         })),
     };
-  }
-
-  /**
-   * We don't want all assets, but only those that the user has configured.
-   * The user cares about assets located only in a specific set of
-   * stations stored in MaterialStation.
-   */
-  private async genAssetsForProductionPlan(
-    characterId: number,
-  ): Promise<EveAssetsRes> {
-    const materialStations = await MaterialStation.findAll({
-      attributes: ['station_id'],
-      where: {
-        character_id: characterId,
-      },
-    });
-    const stationIds =
-      materialStations.map(station => station.get().station_id);
-
-    const allAssets = await this.assetService.genData(characterId);
-    return allAssets.filter(asset =>
-      // TODO ignoring ships for now since there are a lot of fitted
-      // ships that I don't want to include as assets here.
-      // Ideally I would modify the asset service to be modular
-      // and filter stuff based on the inputs
-      stationIds.includes(asset.location_id) && asset.category_id !== SHIP,
-    );
   }
 
   private getProductionCategory(

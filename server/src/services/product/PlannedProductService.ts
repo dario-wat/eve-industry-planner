@@ -2,6 +2,7 @@ import { Service } from 'typedi';
 import { PlannedProduct } from '../../models/PlannedProduct';
 import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
+import AssetsService from './AssetsService';
 
 type ParsedLine = { name: string, quantity: number | null };
 
@@ -10,6 +11,7 @@ export default class PlannedProductService {
 
   constructor(
     private readonly sdeData: EveSdeData,
+    private readonly assetService: AssetsService,
   ) { }
 
   public async genData(characterId: number): Promise<PlannedProductsRes> {
@@ -19,7 +21,7 @@ export default class PlannedProductService {
         character_id: characterId,
       },
     });
-    return this.getProductsForResponse(plannedProducts);
+    return await this.genProductsForResponse(characterId, plannedProducts);
   }
 
   /*
@@ -53,7 +55,7 @@ export default class PlannedProductService {
         quantity: l.quantity,
       }))
     );
-    return this.getProductsForResponse(result);
+    return await this.genProductsForResponse(characterId, result);
   }
 
   private validateParsedInput(
@@ -93,15 +95,23 @@ export default class PlannedProductService {
   }
 
   /*
-  * Helper function to format PlannedProducts for response.
-  * We just need the name and quantities.
+  * Matches planned products to the existing ones in assets so that we
+  * can see how much is built so far.
+  * This function will also format the result for output.
   */
-  private getProductsForResponse(
+  private async genProductsForResponse(
+    characterId: number,
     plannedProducts: PlannedProduct[],
-  ): PlannedProductsRes {
+  ): Promise<PlannedProductsRes> {
+    const assets = await this.assetService.genAssetsForProductionPlan(
+      characterId,
+    );
     return plannedProducts.map(pp => ({
       name: this.sdeData.types[pp.get().type_id].name,
       quantity: pp.get().quantity,
+      stock: assets.find(asset =>
+        asset.type_id === pp.get().type_id,
+      )?.quantity ?? 0,
     }));
   }
 }

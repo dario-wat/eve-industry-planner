@@ -53,11 +53,13 @@ export type EveLoggedInUserRes = {
 export type PlannedProductsRes = {
   name: string,
   quantity: number,
+  stock: number,
 }[];
 
 export type PlannedProductsWithErrorRes = {
   name: string,
   quantity?: number,
+  stock?: number,
   error?: string,
 }[];
 

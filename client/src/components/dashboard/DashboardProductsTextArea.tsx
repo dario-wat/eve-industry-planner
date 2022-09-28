@@ -39,6 +39,7 @@ export default function DashboardProductsTextArea(
       props.onUpdate(data.map(pp => ({
         name: pp.name,
         quantity: pp.quantity!,
+        stock: pp.stock!,
       })));
     }
     setErrors(errors);
