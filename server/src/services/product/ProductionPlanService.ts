@@ -68,7 +68,7 @@ export default class ProductionPlanService {
           )?.runs,
         })),
       materials: Object.entries(materialsPlan.materials)
-        .filter(e => e[1].runs === 0)
+        .filter(e => e[1].runs === 0 && e[1].quantity !== 0)
         .map(e => ({
           typeId: Number(e[0]),
           categoryId: this.sdeData.categoryIdFromTypeId(Number(e[0])),
