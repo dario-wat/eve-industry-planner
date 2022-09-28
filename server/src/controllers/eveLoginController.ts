@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
 import { SSO_STATE } from '../config/eveSsoConfig';
 import { requiredScopes } from '../const/EveScopes';
+import { DOMAIN } from '../const/ServerConst';
 import EsiProviderService from '../services/foundation/EsiProviderService';
 
 const route = Router();
@@ -22,8 +23,7 @@ const controller = (app: Router) => {
     req.session.characterId = character.characterId;
     req.session.characterName = character.characterName;
 
-    // TODO do I need to type in the entire domain?
-    res.redirect('http://localhost:3000');
+    res.redirect(DOMAIN);
   });
 
   route.get('/logged_in_user', (req: Request, res: Response) => {

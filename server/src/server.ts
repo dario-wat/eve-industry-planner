@@ -11,9 +11,10 @@ import { initControllers } from './loaders/initControllers';
 import EveSdeData from './services/query/EveSdeData';
 import { hoursToMilliseconds } from 'date-fns';
 import initSessionStore from './loaders/initSessionStore';
+import { DOMAIN } from './const/ServerConst';
 
 const port = 8080;
-const domain = 'http://localhost:3000';
+const domain = DOMAIN;
 const sessionSecret = 'mcqbjEBpLRT0FgUBMI8d7qOHVfhM8WkYm0sKpHrO';
 
 async function connectToDatabase(
