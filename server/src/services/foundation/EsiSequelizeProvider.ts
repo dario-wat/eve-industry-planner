@@ -1,6 +1,7 @@
 import { Provider } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { difference } from 'underscore';
+import memoize from 'memoizee';
 import { requiredScopes } from '../../const/EveScopes';
 import { EsiAccount } from '../../models/esi_provider/EsiAccount';
 import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
@@ -9,6 +10,18 @@ import { EsiToken } from '../../models/esi_provider/EsiToken';
 @Service()
 export default class EsiSequelizeProvider
   implements Provider<EsiAccount, EsiCharacter, EsiToken> {
+
+  constructor() {
+    this.getToken = memoize(
+      this.getToken,
+      {
+        primitive: true,
+        async: true,
+        preFetch: true,
+        maxAge: 2000,   // 2 seconds
+      },
+    );
+  }
 
   public async getAccount(
     owner: string,
