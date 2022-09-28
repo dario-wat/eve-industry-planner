@@ -4,6 +4,9 @@ import { EveAssetsRes, ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 import { MetaGroup } from '../../const/MetaGroups';
 import AssetsService from './AssetsService';
+import _ from 'underscore';
+import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
+import EsiQueryService from '../query/EsiQueryService';
 
 const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0  // For ME = 0
@@ -14,6 +17,8 @@ export default class ProductionPlanService {
   constructor(
     private readonly sdeData: EveSdeData,
     private readonly assetService: AssetsService,
+    private readonly esiSequelizeProvider: EsiSequelizeProvider,
+    private readonly esiQuery: EsiQueryService,
   ) { }
 
   /*
@@ -25,7 +30,7 @@ export default class ProductionPlanService {
   public async genProductionPlan(
     characterId: number,
   ): Promise<ProductionPlanRes> {
-    const [plannedProducts, assets] = await Promise.all([
+    const [plannedProducts, assets, industryJobs] = await Promise.all([
       PlannedProduct.findAll({
         attributes: ['type_id', 'quantity'],
         where: {
@@ -33,7 +38,16 @@ export default class ProductionPlanService {
         },
       }),
       this.assetService.genAssetsForProductionPlan(characterId),
+      (async () => {
+        const token = await this.esiSequelizeProvider.genxToken(characterId);
+        return await this.esiQuery.genxIndustryJobs(
+          token,
+          characterId,
+        );
+      })(),
     ]);
+
+    // TODO do industry jobs
 
     const materialsPlan = this.traverseMaterialTree(
       plannedProducts.map(pp => ({
