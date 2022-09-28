@@ -3,17 +3,15 @@
 * Run like this:
 * ts-node ./server/src/scripts/clearCache.ts
 */
+import { EsiCacheAction } from '../services/foundation/EsiCacheAction';
 import { initDatabaseSequelize } from '../loaders/initDatabase';
-import { EsiCache, esiCacheModelDefine } from '../models/EsiCache';
+import { esiCacheModelDefine } from '../models/EsiCache';
 
 
 async function run() {
   const sequelize = initDatabaseSequelize();
   esiCacheModelDefine(sequelize);
-  const rowsDropped = await EsiCache.destroy({
-    where: {},
-    truncate: true
-  });
+  const rowsDropped = await EsiCacheAction.genClearCache();
   console.log('Cache cleared!');
   console.log('Rows dropped: ' + rowsDropped);
 }

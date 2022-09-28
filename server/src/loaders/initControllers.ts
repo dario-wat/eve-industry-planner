@@ -4,6 +4,7 @@ import initEveFetchDataController from '../controllers/eveFetchDataController';
 import initPlannedProductController from '../controllers/plannedProductController';
 import initMaterialStationController from '../controllers/materialStationController';
 import initProductionPlanController from '../controllers/productionPlanController';
+import initClearCacheController from '../controllers/clearCacheController';
 import loggedOutMiddleware from '../controllers/loggedOutMiddleware';
 
 // NOTE: every new controller needs to be added here
@@ -18,4 +19,5 @@ export function initControllers(app: Express): void {
   initPlannedProductController(app);
   initMaterialStationController(app);
   initProductionPlanController(app);
+  initClearCacheController(app);
 }

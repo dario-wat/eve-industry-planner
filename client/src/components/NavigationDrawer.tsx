@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
+import Divider from '@mui/material/Divider';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -9,6 +10,7 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import LogoutIcon from '@mui/icons-material/Logout';
+import CachedIcon from '@mui/icons-material/Cached';
 import axios from 'axios';
 import { ReactNode, useContext } from 'react';
 import { uniqueId } from 'underscore';
@@ -32,6 +34,13 @@ export default function NavigationDrawer(props: Props) {
 
   const onLogoutClick = async () => {
     const { status } = await axios.delete('/logout');
+    if (status === 200) {
+      window.location.reload();
+    }
+  };
+
+  const onClearCacheClick = async () => {
+    const { status } = await axios.delete('/clear_cache');
     if (status === 200) {
       window.location.reload();
     }
@@ -69,11 +78,20 @@ export default function NavigationDrawer(props: Props) {
                 </ListItemButton>
               </ListItem>
             ))}
+            <Divider />
+            <ListItem key="clearCache" disablePadding>
+              <ListItemButton onClick={onClearCacheClick}>
+                <ListItemIcon>
+                  <CachedIcon />
+                </ListItemIcon>
+                <ListItemText primary="Clear Cache" />
+              </ListItemButton>
+            </ListItem>
           </List>
         </Box>
         <Box>
           <List>
-            <ListItem key={uniqueId()} disablePadding>
+            <ListItem key="loggedInUser" disablePadding>
               <ListItemButton>
                 <ListItemIcon>
                   <ListItemAvatar>
@@ -86,7 +104,7 @@ export default function NavigationDrawer(props: Props) {
                 <ListItemText primary={userContext.character_name} />
               </ListItemButton>
             </ListItem>
-            <ListItem key={uniqueId()} disablePadding>
+            <ListItem key="logout" disablePadding>
               <ListItemButton onClick={onLogoutClick}>
                 <ListItemIcon>
                   <LogoutIcon />

@@ -113,4 +113,11 @@ export namespace EsiCacheAction {
 
     return data;
   }
+
+  export async function genClearCache(): Promise<void> {
+    await EsiCache.destroy({
+      where: {},
+      truncate: true
+    });
+  }
 }
