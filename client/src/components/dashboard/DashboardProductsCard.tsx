@@ -13,7 +13,7 @@ import { PlannedProductsRes } from '@internal/shared';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 
 export default function DashboardProductsCard() {
-  const [{ data }] = useAxios<PlannedProductsRes>('/planned_products');
+  const [{ data, loading }] = useAxios<PlannedProductsRes>('/planned_products');
 
   const [plannedProducts, setPlannedProducts] =
     useState<PlannedProductsRes>([]);
@@ -44,15 +44,17 @@ export default function DashboardProductsCard() {
           />
         </Box>
         {useGrid
-          ? <DashboardProductsDataGrid plannedProducts={plannedProducts} />
+          ?
+          <DashboardProductsDataGrid
+            plannedProducts={plannedProducts}
+            loading={loading} />
           :
           <DashboardProductsTextArea
             plannedProducts={plannedProducts}
             onUpdate={pps => {
               setPlannedProducts(pps);
               setUseGrid(true);
-            }}
-          />
+            }} />
         }
       </CardContent>
     </Card>
@@ -62,6 +64,7 @@ export default function DashboardProductsCard() {
 function DashboardProductsDataGrid(
   props: {
     plannedProducts: PlannedProductsRes,
+    loading: boolean,
   }
 ) {
   const columns: GridColDef[] = [
@@ -89,6 +92,7 @@ function DashboardProductsDataGrid(
 
   return (
     <DataGrid
+      loading={props.loading}
       rows={props.plannedProducts}
       columns={columns}
       disableSelectionOnClick
