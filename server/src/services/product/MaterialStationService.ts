@@ -1,4 +1,3 @@
-import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { MaterialStationsRes } from '@internal/shared';
 import { MaterialStation } from '../../models/MaterialStation';
@@ -16,22 +15,19 @@ export default class MaterialStationUtil {
   public async genQuery(
     characterId: number,
   ): Promise<MaterialStationsRes> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
     const materialStations = await MaterialStation.findAll({
       attributes: ['station_id'],
       where: {
         character_id: characterId,
       },
     });
-    return await this.genStationsForResponse(token, materialStations);
+    return await this.genStationsForResponse(characterId, materialStations);
   }
 
   public async genUpdate(
     characterId: number,
     stationIds: number[],
   ): Promise<MaterialStationsRes> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
-
     // Delete current data
     await MaterialStation.destroy({
       where: {
@@ -43,18 +39,18 @@ export default class MaterialStationUtil {
     const result = await MaterialStation.bulkCreate(
       stationIds.map(sid => ({ character_id: characterId, station_id: sid })),
     );
-    return await this.genStationsForResponse(token, result);
+    return await this.genStationsForResponse(characterId, result);
   }
 
   /*
   * Helper function to format Stations for response.
   */
   private async genStationsForResponse(
-    token: Token,
+    characterId: number,
     materialStations: MaterialStation[],
   ): Promise<MaterialStationsRes> {
     const stations = await this.eveQuery.genAllStationNames(
-      token,
+      characterId,
       materialStations.map(station => station.get().station_id),
     );
     return Object.entries(stations).map(station => ({

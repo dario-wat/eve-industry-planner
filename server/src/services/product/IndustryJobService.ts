@@ -1,36 +1,32 @@
-import { Token } from 'eve-esi-client';
 import { Service } from 'typedi';
 import { differenceInSeconds } from 'date-fns';
 import { industryActivity, IndustryActivityKey } from '../../const/IndustryActivity';
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { EveIndustryJobsRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
-import EsiQueryService from '../query/EsiQueryService';
 import EveQueryService from '../query/EveQueryService';
 import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
+import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 
 @Service()
 export default class IndustryJobService {
 
   constructor(
     private readonly eveQuery: EveQueryService,
-    private readonly esiQuery: EsiQueryService,
+    private readonly esiQuery: EsiTokenlessQueryService,
     private readonly sdeData: EveSdeData,
     private readonly esiSequelizeProvider: EsiSequelizeProvider,
   ) { }
 
   public async genData(characterId: number): Promise<EveIndustryJobsRes> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
-    const industryJobs = await this.esiQuery.genxIndustryJobs(
-      token,
-      characterId,
-    );
+    const industryJobs = await this.esiQuery.genxIndustryJobs(characterId);
     return await Promise.all(industryJobs.map(
-      job => this.genSingle(token, job),
+      job => this.genSingle(characterId, job),
     ));
   }
 
-  private async genSingle(token: Token, industryJob: EveIndustryJob) {
+  private async genSingle(characterId: number, industryJob: EveIndustryJob) {
     const remainingSeconds = Math.max(
       0,  // this is to eliminate negative time
       differenceInSeconds(
@@ -40,7 +36,7 @@ export default class IndustryJobService {
     );
 
     const stationName = await this.eveQuery.genStationName(
-      token,
+      characterId,
       industryJob.station_id,
     );
 

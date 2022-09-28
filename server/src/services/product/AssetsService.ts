@@ -27,7 +27,7 @@ export default class AssetsService {
       characterId.toString(),
       EsiCacheItem.ASSETS,
       hoursToSeconds(6),
-      async () => await this.eveQuery.genAllAssets(token, characterId),
+      async () => await this.eveQuery.genAllAssets(characterId),
     );
 
     const assetMap = mapify(assets, 'item_id');
@@ -52,7 +52,7 @@ export default class AssetsService {
       .map(o => o.asset.location_id),
     );
     const stationNames =
-      await this.eveQuery.genAllStationNames(token, rootLocationIds);
+      await this.eveQuery.genAllStationNames(characterId, rootLocationIds);
 
     return assetsWithParent
       .filter(o => !(   // NOTE, below expression is negated
