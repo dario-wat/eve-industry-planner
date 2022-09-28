@@ -110,7 +110,6 @@ export default class ProductionPlanService {
     let materialPlan = new MaterialPlan(assets);
     while (products.length > 0) {
       const product = products.pop()!;
-      materialPlan.addQuantity(product.typeId, product.quantity);
 
       // FIRST check if we have any leftover from previous blueprint runs
       // or from pre-existing assets
@@ -123,6 +122,12 @@ export default class ProductionPlanService {
       if (product.quantity === 0) {
         continue;
       }
+
+      // IF the material already exists in the leftover or assets,
+      // then we don't need to add it to the plan (since it doesn't
+      // need to be built nor bought). Hence this is the right place
+      // to add it to the plan
+      materialPlan.addQuantity(product.typeId, product.quantity);
 
       // SECOND if there wasn't enough leftover then we go make more
       const productBlueprint =
