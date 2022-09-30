@@ -21,11 +21,13 @@ export default function MarketPage() {
     (d.name && isIncluded(d.name)) || (d.locationName && isIncluded(d.location))
   );
 
+  // const moneyFormatter = new Intl.NumberFormat();
+
   const columns: GridColDef[] = [
     {
       field: 'name',
       headerName: 'Name',
-      width: 400,
+      width: 350,
       sortable: false,
       renderCell: params =>
         <EveIconAndName
@@ -38,22 +40,29 @@ export default function MarketPage() {
       field: 'quantity',
       headerName: 'Quantity',
       width: 100,
+      align: 'right',
       sortable: false,
     },
     {
       field: 'unitPrice',
       headerName: 'Unit Price',
       width: 100,
+      align: 'right',
       sortable: false,
+      valueFormatter: params => params.value.toLocaleString('en-US'),
     },
     {
       field: 'total',
       headerName: 'Total',
       width: 100,
+      align: 'right',
       sortable: false,
       renderCell: params =>
-        <div style={{ color: params.row.isBuy ? 'red' : 'green' }}>
-          {params.row.quantity * params.row.unitPrice}
+        <div style={{
+          color: params.row.isBuy ? 'red' : 'green',
+          fontWeight: 'bold',
+        }}>
+          {(params.row.quantity * params.row.unitPrice).toLocaleString('en-US')}
         </div>,
     },
     {
