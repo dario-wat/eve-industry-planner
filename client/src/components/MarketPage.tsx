@@ -17,8 +17,9 @@ export default function MarketPage() {
 
   const isIncluded = (s: string) =>
     s.toLowerCase().includes(searchText.toLowerCase());
-  const filteredData = data && data.filter((d: any) =>
-    (d.name && isIncluded(d.name)) || (d.locationName && isIncluded(d.location))
+  const filteredData = data && data.filter(d =>
+    (d.name && isIncluded(d.name))
+    || (d.locationName && isIncluded(d.locationName))
   );
 
   // const moneyFormatter = new Intl.NumberFormat();

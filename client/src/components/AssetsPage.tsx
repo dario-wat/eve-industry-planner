@@ -18,7 +18,7 @@ export default function AssetsPage() {
 
   const isIncluded = (s: string) =>
     s.toLowerCase().includes(searchText.toLowerCase());
-  const filteredData = data && data.filter((d: any) =>
+  const filteredData = data && data.filter(d =>
     (d.name && isIncluded(d.name)) || (d.location && isIncluded(d.location))
   );
 
