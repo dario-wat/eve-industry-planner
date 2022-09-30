@@ -1,5 +1,13 @@
 import { Service } from 'typedi';
-import { EveAsset, EveContract, EveIndustryJob, EveName, EvePortrait, EveStructure } from '../../types/EsiQuery';
+import {
+  EveAsset,
+  EveContract,
+  EveIndustryJob,
+  EveName,
+  EvePortrait,
+  EveStructure,
+  EveWalletTransaction,
+} from '../../types/EsiQuery';
 import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 import EsiQueryService from './EsiQueryService';
 
@@ -56,5 +64,12 @@ export default class EsiTokenlessQueryService {
   ): Promise<EveStructure | null> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genStructure(token, structureId);
+  }
+
+  public async genxWalletTransactions(
+    characterId: number,
+  ): Promise<EveWalletTransaction[]> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
+    return await this.esiQuery.genxWalletTransactions(token, characterId);
   }
 }

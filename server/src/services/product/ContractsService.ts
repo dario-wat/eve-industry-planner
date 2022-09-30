@@ -1,7 +1,6 @@
 import { Service } from 'typedi';
 import { EveContractsRes } from '@internal/shared';
 import EveQueryService from '../query/EveQueryService';
-import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 
 @Service()
@@ -10,7 +9,6 @@ export default class ContractsService {
   constructor(
     private readonly eveQuery: EveQueryService,
     private readonly esiQuery: EsiTokenlessQueryService,
-    private readonly esiSequelizeProvider: EsiSequelizeProvider,
   ) { }
 
   public async genData(characterId: number): Promise<EveContractsRes> {

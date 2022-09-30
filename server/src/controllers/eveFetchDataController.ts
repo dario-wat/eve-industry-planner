@@ -4,6 +4,7 @@ import IndustryJobService from '../services/product/IndustryJobService';
 import AssetsService from '../services/product/AssetsService';
 import ContractsService from '../services/product/ContractsService';
 import PortraitService from '../services/product/PortraitService';
+import MarketService from '../services/product/MarketService';
 
 const route = Router();
 
@@ -46,6 +47,16 @@ const controller = (app: Router) => {
       const characterId = req.session.characterId!;
       const portraitService = Container.get(PortraitService);
       const output = await portraitService.genData(characterId);
+      res.json(output);
+    },
+  );
+
+  app.get(
+    '/wallet_transactions',
+    async (req: Request, res: Response) => {
+      const characterId = req.session.characterId!;
+      const marketService = Container.get(MarketService);
+      const output = await marketService.genWalletTransactions(characterId);
       res.json(output);
     },
   );

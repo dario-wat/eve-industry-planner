@@ -8,6 +8,7 @@ import {
   EveName,
   EvePortrait,
   EveStructure,
+  EveWalletTransaction,
 } from '../../types/EsiQuery';
 import EsiProviderService from '../foundation/EsiProviderService';
 import { AppLog } from '../../models/AppLog';
@@ -309,6 +310,42 @@ export default class EsiQueryService {
     characterId: number,
   ): Promise<EvePortrait | null> {
     return await this.genxPortrait(token, characterId)
+      .catch(logEsiErrorAndReturnNull);
+  }
+
+  /*
+    Example object:
+    {
+      client_id: 2119236428,
+      date: '2022-09-30T03:04:17Z',
+      is_buy: true,
+      is_personal: true,
+      journal_ref_id: 20822226074,
+      location_id: 1038502060900,
+      quantity: 1000,
+      transaction_id: 5925930334,
+      type_id: 12767,
+      unit_price: 400
+    }
+  */
+  public async genxWalletTransactions(
+    token: Token,
+    characterId: number,
+  ): Promise<EveWalletTransaction[]> {
+    const response = await this.esi.request(
+      `/characters/${characterId}/wallet/transactions/`,
+      undefined,
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  public async genWalletTransactions(
+    token: Token,
+    characterId: number,
+  ): Promise<EveWalletTransaction[] | null> {
+    return await this.genxWalletTransactions(token, characterId)
       .catch(logEsiErrorAndReturnNull);
   }
 }
