@@ -5,6 +5,7 @@ import {
   EveAssetName,
   EveContract,
   EveIndustryJob,
+  EveMarketOrder,
   EveName,
   EvePortrait,
   EveStructure,
@@ -346,6 +347,43 @@ export default class EsiQueryService {
     characterId: number,
   ): Promise<EveWalletTransaction[] | null> {
     return await this.genxWalletTransactions(token, characterId)
+      .catch(logEsiErrorAndReturnNull);
+  }
+
+  /*
+    Example object:
+    {
+      duration: 90,
+      is_corporation: false,
+      issued: '2022-09-19T16:40:57Z',
+      location_id: 1038502060900,
+      order_id: 6340708290,
+      price: 16950000,
+      range: 'region',
+      region_id: 10000051,
+      type_id: 626,
+      volume_remain: 4,
+      volume_total: 6
+    }
+  */
+  public async genxMarketOrders(
+    token: Token,
+    characterId: number,
+  ): Promise<EveMarketOrder[]> {
+    const response = await this.esi.request(
+      `/characters/${characterId}/orders/`,
+      undefined,
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  public async genMarketOrders(
+    token: Token,
+    characterId: number,
+  ): Promise<EveMarketOrder[] | null> {
+    return await this.genxMarketOrders(token, characterId)
       .catch(logEsiErrorAndReturnNull);
   }
 }

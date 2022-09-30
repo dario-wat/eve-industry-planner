@@ -60,6 +60,16 @@ const controller = (app: Router) => {
       res.json(output);
     },
   );
+
+  app.get(
+    '/market_orders',
+    async (req: Request, res: Response) => {
+      const characterId = req.session.characterId!;
+      const marketService = Container.get(MarketService);
+      const output = await marketService.genMarketOrders(characterId);
+      res.json(output);
+    },
+  );
 };
 
 export default controller;

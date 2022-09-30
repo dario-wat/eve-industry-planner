@@ -3,6 +3,7 @@ import {
   EveAsset,
   EveContract,
   EveIndustryJob,
+  EveMarketOrder,
   EveName,
   EvePortrait,
   EveStructure,
@@ -71,5 +72,12 @@ export default class EsiTokenlessQueryService {
   ): Promise<EveWalletTransaction[]> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxWalletTransactions(token, characterId);
+  }
+
+  public async genxMarketOrders(
+    characterId: number,
+  ): Promise<EveMarketOrder[]> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
+    return await this.esiQuery.genxMarketOrders(token, characterId);
   }
 }

@@ -15,4 +15,9 @@ export default class MarketService {
     const transactions = await this.esiQuery.genxWalletTransactions(characterId);
     console.log(transactions);
   }
+
+  public async genMarketOrders(characterId: number): Promise<void> {
+    const orders = await this.esiQuery.genxMarketOrders(characterId);
+    console.log(orders);
+  }
 }

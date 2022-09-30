@@ -99,3 +99,17 @@ export interface EveWalletTransaction {
   type_id: number,
   unit_price: number,
 }
+
+export interface EveMarketOrder {
+  duration: number,
+  is_corporation: boolean,
+  issued: string,
+  location_id: number,
+  order_id: number,
+  price: number,
+  range: string,
+  region_id: number,
+  type_id: number,
+  volume_remain: number,
+  volume_total: number,
+}
