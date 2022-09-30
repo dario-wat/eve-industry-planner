@@ -121,6 +121,7 @@ export default class PlannedProductService {
       this.sdeData.bpManufactureProductsByProduct[typeId]?.quantity ?? 0;
     return plannedProducts.map(pp => ({
       name: this.sdeData.types[pp.get().type_id].name,
+      typeId: pp.get().type_id,
       quantity: pp.get().quantity,
       stock: assets.find(asset =>
         asset.type_id === pp.get().type_id,
@@ -128,5 +129,14 @@ export default class PlannedProductService {
       active:
         getActiveRuns(pp.get().type_id) * getBpProductQuantity(pp.get().type_id),
     }));
+  }
+
+  public async genDelete(characterId: number, typeId: number): Promise<void> {
+    await PlannedProduct.destroy({
+      where: {
+        character_id: characterId,
+        type_id: typeId,
+      },
+    });
   }
 }

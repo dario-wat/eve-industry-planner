@@ -4,10 +4,12 @@ import {
   CardContent,
   FormControlLabel,
   Grid,
+  IconButton,
   Switch,
   TextField,
   Typography,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { withStyles } from '@material-ui/styles';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -20,7 +22,7 @@ import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
 import { first } from 'underscore';
 
 export default function DashboardProductsCard() {
-  const [{ data, loading }] = useAxios<PlannedProductsRes>('/planned_products');
+  const [{ data, loading }, refetch] = useAxios<PlannedProductsRes>('/planned_products');
 
   const [plannedProducts, setPlannedProducts] =
     useState<PlannedProductsRes>([]);
@@ -54,7 +56,8 @@ export default function DashboardProductsCard() {
           ?
           <DashboardProductsDataGrid
             plannedProducts={plannedProducts}
-            loading={loading} />
+            loading={loading}
+            onItemDelete={_ => refetch()} />
           :
           <DashboardProductsTextArea
             plannedProducts={plannedProducts}
@@ -72,13 +75,21 @@ function DashboardProductsDataGrid(
   props: {
     plannedProducts: PlannedProductsRes,
     loading: boolean,
+    onItemDelete: (typeId: number) => void,
   }
 ) {
+  const onDeleteClick = async (typeId: number) => {
+    const { status } = await axios.delete(`/planned_product_delete/${typeId}`);
+    if (status === 200) {
+      props.onItemDelete(typeId);
+    }
+  };
+
   const columns: GridColDef[] = [
     {
       field: 'name',
       headerName: 'Product',
-      width: 300,
+      width: 280,
       sortable: false,
     },
     {
@@ -98,6 +109,19 @@ function DashboardProductsDataGrid(
             + ' / '
             + params.row.quantity}
         </div>
+    },
+    {
+      field: 'delete',
+      headerName: 'Delete',
+      width: 80,
+      sortable: false,
+      renderCell: params =>
+        <IconButton
+          color="error"
+          onClick={() => onDeleteClick(params.row.typeId)}
+        >
+          <DeleteIcon />
+        </IconButton>,
     },
   ];
 
@@ -142,6 +166,7 @@ function DashboardProductsTextArea(
       // Update only when no errors
       props.onUpdate(data.map(pp => ({
         name: pp.name,
+        typeId: pp.typeId!,
         quantity: pp.quantity!,
         stock: pp.stock!,
         active: pp.active!,

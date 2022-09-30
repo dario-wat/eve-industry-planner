@@ -39,6 +39,18 @@ const controller = (app: Router) => {
       res.json(products);
     },
   );
+
+  app.delete(
+    '/planned_product_delete/:type_id',
+    async (req: Request, res: Response) => {
+      const characterId = req.session.characterId!;
+      await plannedProductService.genDelete(
+        characterId,
+        Number(req.params.type_id),
+      );
+      res.status(200).end();
+    },
+  );
 };
 
 export default controller;
