@@ -8,6 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import { WalletTransactionsRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
+import { format } from 'date-fns';
 
 // TODO finish
 export default function MarketPage() {
@@ -69,10 +70,19 @@ export default function MarketPage() {
     {
       field: 'locationName',
       headerName: 'Location',
-      width: 500,
+      width: 350,
       sortable: false,
     },
-    // TODO add date
+    {
+      field: 'date',
+      headerName: 'Time',
+      width: 150,
+      sortable: false,
+      valueFormatter: params => format(
+        new Date(params.value),
+        'yyyy.MM.dd - HH:mm',
+      ),
+    },
   ];
 
   return (
