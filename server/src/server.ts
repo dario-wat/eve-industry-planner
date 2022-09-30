@@ -49,8 +49,7 @@ async function init() {
     store: sequelizeSessionStore,
     resave: false,
     saveUninitialized: true,
-    // TODO longer max age
-    cookie: { secure: false, maxAge: hoursToMilliseconds(24) },
+    cookie: { secure: false, maxAge: hoursToMilliseconds(7 * 24) },
   }))
 
   app.use(cookieParser());

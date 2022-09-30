@@ -91,8 +91,10 @@ export default class ProductionPlanService {
       case 334: return 'Construction Components';
       case 428: return 'Intermediate Materials';
       case 429: return 'Composite Materials';
+      case 873: return 'Capital Components';
       case 964: return 'Hybrid Tech Components';
-      case 974: return 'Hybrid Polymers';
+      case 974: return 'Hybrid Reactions';
+      case 4096: return 'Biochem Reactions';
       default: return 'Other';
     }
   }
