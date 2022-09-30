@@ -11,7 +11,8 @@ import EveIconAndName from 'components/util/EveIconAndName';
 import { format } from 'date-fns';
 
 // TODO finish
-export default function MarketPage() {
+// - add grouping by type ID
+export default function MarketTransactionsPage() {
   const [{ data }] = useAxios<WalletTransactionsRes>('/wallet_transactions');
 
   const [searchText, setSearchText] = useState('');
@@ -22,8 +23,6 @@ export default function MarketPage() {
     (d.name && isIncluded(d.name))
     || (d.locationName && isIncluded(d.locationName))
   );
-
-  // const moneyFormatter = new Intl.NumberFormat();
 
   const columns: GridColDef[] = [
     {

@@ -17,14 +17,14 @@ import DashboardPage from 'components/dashboard/DashboardPage';
 import { UserContext } from 'contexts/UserContext';
 import EveLoginButton from './EveLoginButton';
 import createAppTheme from 'theme/createAppTheme';
-import MarketPage from 'components/MarketPage';
+import MarketTransactionsPage from 'components/MarketTransactionsPage';
 
 enum Tab {
   DASHBOARD = 'dashboard',
   INDUSTRY_JOBS = 'industry_jobs',
   ASSETS = 'assets',
   CONTRACTS = 'contracts',
-  MARKET = 'market',
+  MARKET_TRANSACTIONS = 'market_transactions',
 };
 
 // TODO
@@ -51,7 +51,7 @@ export default function HomePage() {
                 { key: Tab.INDUSTRY_JOBS, label: 'Industry Jobs', icon: <ScienceIcon /> },
                 { key: Tab.ASSETS, label: 'Assets', icon: <TakeoutDiningIcon /> },
                 { key: Tab.CONTRACTS, label: 'Contracts', icon: <ReceiptLongIcon /> },
-                { key: Tab.MARKET, label: 'Market', icon: <LocalGroceryStoreIcon /> },
+                { key: Tab.MARKET_TRANSACTIONS, label: 'Transactions', icon: <LocalGroceryStoreIcon /> },
               ]}
               selectedTab={selectedTab}
               onTabClick={setSelectedTab}
@@ -62,7 +62,7 @@ export default function HomePage() {
               {selectedTab === Tab.INDUSTRY_JOBS && <IndustryJobsPage />}
               {selectedTab === Tab.ASSETS && <AssetsPage />}
               {selectedTab === Tab.CONTRACTS && <ContractsPage />}
-              {selectedTab === Tab.MARKET && <MarketPage />}
+              {selectedTab === Tab.MARKET_TRANSACTIONS && <MarketTransactionsPage />}
             </Box>
           </>
           :
