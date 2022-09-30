@@ -20,6 +20,7 @@ import { useAppDispatch } from 'redux/hooks';
 import axios from 'axios';
 import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
 import { first } from 'underscore';
+import EveIconAndName from 'components/util/EveIconAndName';
 
 export default function DashboardProductsCard() {
   const [{ data, loading }, refetch] = useAxios<PlannedProductsRes>('/planned_products');
@@ -91,6 +92,12 @@ function DashboardProductsDataGrid(
       headerName: 'Product',
       width: 280,
       sortable: false,
+      renderCell: params =>
+        <EveIconAndName
+          typeId={params.row.typeId}
+          categoryId={params.row.categoryId}
+          name={params.row.name}
+        />,
     },
     {
       field: 'quantity',
@@ -167,6 +174,7 @@ function DashboardProductsTextArea(
       props.onUpdate(data.map(pp => ({
         name: pp.name,
         typeId: pp.typeId!,
+        categoryId: pp.categoryId!,
         quantity: pp.quantity!,
         stock: pp.stock!,
         active: pp.active!,

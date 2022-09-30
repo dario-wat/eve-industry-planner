@@ -122,6 +122,7 @@ export default class PlannedProductService {
     return plannedProducts.map(pp => ({
       name: this.sdeData.types[pp.get().type_id].name,
       typeId: pp.get().type_id,
+      categoryId: this.sdeData.categoryIdFromTypeId(pp.get().type_id),
       quantity: pp.get().quantity,
       stock: assets.find(asset =>
         asset.type_id === pp.get().type_id,
