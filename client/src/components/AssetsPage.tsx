@@ -1,11 +1,9 @@
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
-import {
-  Box,
-  Card,
-  CardContent,
-  TextField
-} from '@mui/material';
+import TextField from '@mui/material/TextField';
 import { useState } from 'react';
 import useAxios from 'axios-hooks';
 import { EveAssetsRes } from '@internal/shared';

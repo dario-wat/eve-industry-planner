@@ -1,14 +1,12 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  CircularProgress,
-  Tab,
-  Tabs,
-  Typography,
-} from '@mui/material';
-import Snackbar from '@mui/material/Snackbar';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
+import Snackbar from '@mui/material/Snackbar';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useState, useEffect } from 'react';

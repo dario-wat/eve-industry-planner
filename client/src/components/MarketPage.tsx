@@ -1,13 +1,11 @@
 import useAxios from 'axios-hooks';
 import { useState } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
-import {
-  Box,
-  Card,
-  CardContent,
-  TextField
-} from '@mui/material';
+import TextField from '@mui/material/TextField';
 import { WalletTransactionsRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
 

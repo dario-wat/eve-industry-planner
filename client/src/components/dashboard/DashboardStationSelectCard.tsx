@@ -1,5 +1,8 @@
-import { Autocomplete, Card, CardContent, TextField } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
+import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import useAxios from 'axios-hooks';
 import React, { useEffect, useState } from 'react';

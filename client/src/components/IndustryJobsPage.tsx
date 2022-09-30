@@ -1,5 +1,8 @@
 import useAxios from 'axios-hooks';
-import { Box, Card, CardContent, CircularProgress } from '@mui/material';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { EveIndustryJobsRes } from '@internal/shared';

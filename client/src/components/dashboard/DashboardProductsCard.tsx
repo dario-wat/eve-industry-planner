@@ -1,14 +1,12 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  Switch,
-  TextField,
-  Typography,
-} from '@mui/material';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { withStyles } from '@material-ui/styles';
 import LoadingButton from '@mui/lab/LoadingButton';

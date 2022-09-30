@@ -1,4 +1,6 @@
-import { Card, CardContent, Grid } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Grid from '@mui/material/Grid';
 import DashboardProductionPlanCard from './DashboardProductionPlanCard';
 import DashboardProductsCard from './DashboardProductsCard';
 import DashboardStationSelectCard from './DashboardStationSelectCard';
