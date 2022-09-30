@@ -90,3 +90,15 @@ export type ProductionPlanRes = {
     quantity: number,
   }[],
 };
+
+export type WalletTransactionsRes = {
+  date: string,
+  isBuy: boolean,
+  locationName: string | null,
+  locationId: number,
+  quantity: number,
+  typeId: number,
+  name: string,
+  categoryId: number | undefined,
+  unitPrice: number,
+}[];

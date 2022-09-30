@@ -87,7 +87,6 @@ export default function AssetsPage() {
           </Box>
         </CardContent>
       </Card>
-
     </div >
   )
 }
