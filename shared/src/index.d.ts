@@ -102,3 +102,14 @@ export type WalletTransactionsRes = {
   categoryId: number | undefined,
   unitPrice: number,
 }[];
+
+export type MarketOrdersRes = {
+  typeId: number,
+  name: string,
+  categoryId: number | undefined,
+  locationName: string | null,
+  locationId: number,
+  price: number,
+  volumeRemain: number,
+  volumeTotal: number,
+}[];

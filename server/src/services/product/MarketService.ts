@@ -2,7 +2,7 @@ import { Service } from 'typedi';
 import EveSdeData from '../query/EveSdeData';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 import EveQueryService from '../query/EveQueryService';
-import { WalletTransactionsRes } from '@internal/shared';
+import { MarketOrdersRes, WalletTransactionsRes } from '@internal/shared';
 
 @Service()
 export default class MarketService {
@@ -37,9 +37,24 @@ export default class MarketService {
       }));
   }
 
-  // TODO finish
-  public async genMarketOrders(characterId: number): Promise<void> {
+  public async genMarketOrders(characterId: number): Promise<MarketOrdersRes> {
     const orders = await this.esiQuery.genxMarketOrders(characterId);
-    console.log(orders);
+    const stationNames = await this.eveQuery.genAllStationNames(
+      characterId,
+      orders.map(o => o.location_id),
+    );
+
+    return orders
+      .filter(o => !o.is_corporation)
+      .map(o => ({
+        typeId: o.type_id,
+        name: this.sdeData.types[o.type_id].name,
+        categoryId: this.sdeData.categoryIdFromTypeId(o.type_id),
+        locationName: stationNames[o.location_id] ?? null,
+        locationId: o.location_id,
+        price: o.price,
+        volumeRemain: o.volume_remain,
+        volumeTotal: o.volume_total,
+      }));
   }
 }

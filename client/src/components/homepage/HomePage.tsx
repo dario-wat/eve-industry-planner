@@ -5,6 +5,7 @@ import ScienceIcon from '@mui/icons-material/Science';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import TakeoutDiningIcon from '@mui/icons-material/TakeoutDining';
 import LocalGroceryStoreIcon from '@mui/icons-material/LocalGroceryStore';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import type { } from '@mui/x-data-grid/themeAugmentation';
 import { useContext, useState } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
@@ -18,6 +19,7 @@ import { UserContext } from 'contexts/UserContext';
 import EveLoginButton from './EveLoginButton';
 import createAppTheme from 'theme/createAppTheme';
 import MarketTransactionsPage from 'components/MarketTransactionsPage';
+import MarketOrdersPage from 'components/MarketOrdersPage';
 
 enum Tab {
   DASHBOARD = 'dashboard',
@@ -25,6 +27,7 @@ enum Tab {
   ASSETS = 'assets',
   CONTRACTS = 'contracts',
   MARKET_TRANSACTIONS = 'market_transactions',
+  MARKET_ORDERS = 'market_orders',
 };
 
 // TODO
@@ -52,6 +55,7 @@ export default function HomePage() {
                 { key: Tab.ASSETS, label: 'Assets', icon: <TakeoutDiningIcon /> },
                 { key: Tab.CONTRACTS, label: 'Contracts', icon: <ReceiptLongIcon /> },
                 { key: Tab.MARKET_TRANSACTIONS, label: 'Transactions', icon: <LocalGroceryStoreIcon /> },
+                { key: Tab.MARKET_ORDERS, label: 'Market Orders', icon: <StorefrontIcon /> },
               ]}
               selectedTab={selectedTab}
               onTabClick={setSelectedTab}
@@ -63,6 +67,7 @@ export default function HomePage() {
               {selectedTab === Tab.ASSETS && <AssetsPage />}
               {selectedTab === Tab.CONTRACTS && <ContractsPage />}
               {selectedTab === Tab.MARKET_TRANSACTIONS && <MarketTransactionsPage />}
+              {selectedTab === Tab.MARKET_ORDERS && <MarketOrdersPage />}
             </Box>
           </>
           :
