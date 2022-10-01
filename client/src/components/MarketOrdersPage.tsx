@@ -93,28 +93,6 @@ export default function MarketOrdersPage() {
         <CardContent>
           <Box sx={{ pb: 1 }}>
             <Typography variant="h6" gutterBottom>
-              Buy Orders
-            </Typography>
-          </Box>
-          <Box
-            sx={{ height: 'auto', width: '100%' }}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            {buyOrders ?
-              <DataGrid
-                rows={buyOrders}
-                columns={columns}
-                disableSelectionOnClick
-                disableColumnMenu
-                experimentalFeatures={{ newEditingApi: true }}
-              />
-              : <CircularProgress />
-            }
-          </Box>
-          <Box sx={{ pb: 1, pt: 2 }}>
-            <Typography variant="h6" gutterBottom>
               Sell Orders
             </Typography>
           </Box>
@@ -127,6 +105,28 @@ export default function MarketOrdersPage() {
             {sellOrders ?
               <DataGrid
                 rows={sellOrders}
+                columns={columns}
+                disableSelectionOnClick
+                disableColumnMenu
+                experimentalFeatures={{ newEditingApi: true }}
+              />
+              : <CircularProgress />
+            }
+          </Box>
+          <Box sx={{ pb: 1, pt: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              Buy Orders
+            </Typography>
+          </Box>
+          <Box
+            sx={{ height: 'auto', width: '100%' }}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            {buyOrders ?
+              <DataGrid
+                rows={buyOrders}
                 columns={columns}
                 disableSelectionOnClick
                 disableColumnMenu
