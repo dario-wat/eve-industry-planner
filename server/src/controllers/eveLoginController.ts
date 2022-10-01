@@ -4,6 +4,7 @@ import { SSO_STATE } from '../config/eveSsoConfig';
 import { requiredScopes } from '../const/EveScopes';
 import { DOMAIN } from '../const/ServerConst';
 import EsiProviderService from '../services/foundation/EsiProviderService';
+import { CharacterCluster } from '../models/CharacterCluster';
 
 const route = Router();
 
@@ -19,6 +20,11 @@ const controller = (app: Router) => {
   route.get('/sso_callback', async (req: Request, res: Response) => {
     const code = req.query.code as string;
     const { character } = await esi.register(code);
+
+    await CharacterCluster.genLink(
+      character.characterId,
+      req.session.characterId,
+    );
 
     req.session.characterId = character.characterId;
     req.session.characterName = character.characterName;

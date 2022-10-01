@@ -26,6 +26,7 @@ import { esiAccountModelDefine } from '../models/esi_provider/EsiAccount';
 import { esiCharacterModelDefine } from '../models/esi_provider/EsiCharacter';
 import { esiTokenModelDefine } from '../models/esi_provider/EsiToken';
 import esiAssocsDefine from '../models/esi_provider/EsiAssocs';
+import { characterClusterModelDefine } from '../models/CharacterCluster';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -74,6 +75,7 @@ export function initDatabase(): void {
   // App models (non-SDE)
   plannedProductModelDefine(sequelize);
   materialStationModelDefine(sequelize);
+  characterClusterModelDefine(sequelize);
 
   // Special
   esiCacheModelDefine(sequelize);
