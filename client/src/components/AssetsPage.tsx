@@ -9,8 +9,6 @@ import useAxios from 'axios-hooks';
 import { EveAssetsRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
 
-// TODO
-//  - group by location
 export default function AssetsPage() {
   const [{ data }] = useAxios<EveAssetsRes>('/assets');
 

@@ -30,9 +30,6 @@ enum Tab {
   MARKET_ORDERS = 'market_orders',
 };
 
-// TODO
-//  - render something default while it's loading, like a loding page
-//  - move stuff out of here
 export default function HomePage() {
   const userContext = useContext(UserContext);
   const [selectedTab, setSelectedTab] = useState<string>(Tab.DASHBOARD);
@@ -44,7 +41,6 @@ export default function HomePage() {
       <CssBaseline />
       <Box sx={{ display: 'flex' }}>
         <HomePageAppBar />
-        {/* TODO 100% definitely use loading to render */}
         {userContext && userContext.is_logged_in
           ?
           <>
