@@ -11,6 +11,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CachedIcon from '@mui/icons-material/Cached';
+import { withStyles } from '@material-ui/styles';
 import axios from 'axios';
 import { ReactNode, useContext } from 'react';
 import useAxios from 'axios-hooks';
@@ -18,6 +19,13 @@ import { EvePortraitRes } from '@internal/shared';
 import { UserContext } from 'contexts/UserContext';
 
 const drawerWidth = 220;
+
+const SmallerListItemIcon = withStyles({
+  root: {
+    minWidth: 0,
+    marginRight: 16,
+  },
+})(ListItemIcon);
 
 type Props = {
   tabs: { key: string, label: string, icon: ReactNode }[],
@@ -54,9 +62,9 @@ export default function NavigationDrawer(props: Props) {
                 disablePadding
                 onClick={_ => onTabClick(tab.key)}>
                 <ListItemButton selected={tab.key === selectedTab}>
-                  <ListItemIcon>
+                  <SmallerListItemIcon>
                     {tab.icon}
-                  </ListItemIcon>
+                  </SmallerListItemIcon>
                   <ListItemText primary={tab.label} />
                 </ListItemButton>
               </ListItem>
@@ -82,14 +90,12 @@ function LoggedInUserButtonListItem() {
   return (
     <ListItem key="loggedInUser" disablePadding>
       <ListItemButton>
-        <ListItemIcon>
-          <ListItemAvatar>
-            <Avatar
-              alt=""
-              src={portrait?.px64x64}
-              sx={{ width: 36, height: 36 }} />
-          </ListItemAvatar>
-        </ListItemIcon>
+        <ListItemAvatar>
+          <Avatar
+            alt=""
+            src={portrait?.px64x64}
+            sx={{ width: 36, height: 36 }} />
+        </ListItemAvatar>
         <ListItemText primary={userContext.character_name} />
       </ListItemButton>
     </ListItem>
@@ -106,9 +112,9 @@ function ClearCacheButtonListItem() {
   return (
     <ListItem key="clearCache" disablePadding>
       <ListItemButton onClick={onClearCacheClick}>
-        <ListItemIcon>
+        <SmallerListItemIcon>
           <CachedIcon />
-        </ListItemIcon>
+        </SmallerListItemIcon>
         <ListItemText primary="Clear Cache" />
       </ListItemButton>
     </ListItem>
