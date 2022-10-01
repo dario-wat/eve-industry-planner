@@ -7,6 +7,7 @@ import { DOMAIN } from '../const/ServerConst';
 import EsiProviderService from '../services/foundation/EsiProviderService';
 import LinkedCharactersService from '../services/product/LinkedCharactersService';
 import EsiTokenlessQueryService from '../services/query/EsiTokenlessQueryService';
+import { EsiCharacter } from '../models/esi_provider/EsiCharacter';
 
 const route = Router();
 
@@ -46,6 +47,13 @@ const controller = (app: Router) => {
       character_name: req.session.characterName ?? null,
       portrait: portrait?.px64x64,
     });
+  });
+
+  route.post('/change_character', async (req: Request, res: Response) => {
+    const character = await EsiCharacter.findByPk(req.body.characterId);
+    req.session.characterId = req.body.characterId;
+    req.session.characterName = character?.get().characterName;
+    res.status(200).end();
   });
 
   route.delete('/logout', (req: Request, res: Response) => {

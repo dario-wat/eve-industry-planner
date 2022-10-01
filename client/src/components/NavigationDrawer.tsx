@@ -93,21 +93,28 @@ function LoggedInUserButtonListItem() {
     '/linked_characters',
   );
   const userContext = useContext(UserContext);
-
-  // TODO add clicks
   const [openList, setOpenList] = useState(false);
+
+  const handleClick = async (characterId: number) => {
+    const { status } = await axios.post('/change_character', { characterId });
+    if (status === 200) {
+      window.location.reload();
+    }
+  };
   return (
     <>
       <Collapse in={openList} timeout="auto" unmountOnExit>
         {linkedCharacters && linkedCharacters.map(c =>
-          <ListItem key={uniqueId()}>
-            <ListItemAvatar>
-              <Avatar
-                alt=""
-                src={c.portrait}
-                sx={{ width: 36, height: 36 }} />
-            </ListItemAvatar>
-            <ListItemText primary={c.characterName} />
+          <ListItem key={uniqueId()} disablePadding>
+            <ListItemButton onClick={() => handleClick(c.characterId)}>
+              <ListItemAvatar>
+                <Avatar
+                  alt=""
+                  src={c.portrait}
+                  sx={{ width: 36, height: 36 }} />
+              </ListItemAvatar>
+              <ListItemText primary={c.characterName} />
+            </ListItemButton>
           </ListItem>
         )}
       </Collapse>
