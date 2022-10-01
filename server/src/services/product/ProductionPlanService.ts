@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { PlannedProduct } from '../../models/PlannedProduct';
-import { EveAssetsRes, ProductionPlanRes } from '@internal/shared';
+import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
 import { MetaGroup } from '../../const/MetaGroups';
 import AssetsService from './AssetsService';
@@ -107,7 +107,7 @@ export default class ProductionPlanService {
    */
   private traverseMaterialTree(
     products: { typeId: number, quantity: number }[],
-    assets: EveAssetsRes,
+    assets: { [typeId: number]: number },
   ): MaterialPlan {
     let materialPlan = new MaterialPlan(assets);
     while (products.length > 0) {
@@ -183,11 +183,11 @@ class MaterialPlan {
   public materials: MaterialsType;
 
   constructor(
-    assets: EveAssetsRes,
+    assets: { [typeId: number]: number },
   ) {
     this.materials = {};
     // Initialize leftover with existing assets
-    assets.forEach(a => this.addLeftover(a.type_id, a.quantity));
+    Object.entries(assets).forEach(a => this.addLeftover(Number(a[0]), a[1]));
   }
 
   public addQuantity(typeId: number, quantity: number): void {

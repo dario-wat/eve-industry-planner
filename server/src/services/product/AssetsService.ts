@@ -1,6 +1,7 @@
 import { Service } from 'typedi';
-import { uniq } from 'underscore';
+import { groupBy, uniq } from 'underscore';
 import { hoursToSeconds } from 'date-fns';
+import { sum } from 'mathjs';
 import { mapify } from '../../lib/util';
 import EveQueryService from '../query/EveQueryService';
 import EveSdeData from '../query/EveSdeData';
@@ -90,7 +91,7 @@ export default class AssetsService {
    */
   public async genAssetsForProductionPlan(
     characterId: number,
-  ): Promise<EveAssetsRes> {
+  ): Promise<{ [typeId: number]: number }> {
     const materialStations = await MaterialStation.findAll({
       attributes: ['station_id'],
       where: {
@@ -101,12 +102,19 @@ export default class AssetsService {
       materialStations.map(station => station.get().station_id);
 
     const allAssets = await this.genData(characterId);
-    return allAssets.filter(asset =>
+    const filteredAssets = allAssets.filter(asset =>
       // TODO ignoring ships for now since there are a lot of fitted
       // ships that I don't want to include as assets here.
       // Ideally I would modify the asset service to be modular
       // and filter stuff based on the inputs
       stationIds.includes(asset.location_id) && asset.category_id !== SHIP,
+    );
+    return Object.fromEntries(
+      Object.entries(groupBy(filteredAssets, 'type_id'))
+        .map(assetsEntry => ([
+          assetsEntry[0],
+          sum(assetsEntry[1].map(a => a.quantity)),
+        ]))
     );
   }
 

@@ -124,9 +124,7 @@ export default class PlannedProductService {
       typeId: pp.get().type_id,
       categoryId: this.sdeData.categoryIdFromTypeId(pp.get().type_id),
       quantity: pp.get().quantity,
-      stock: assets.find(asset =>
-        asset.type_id === pp.get().type_id,
-      )?.quantity ?? 0,
+      stock: assets[pp.get().type_id] ?? 0,
       active:
         getActiveRuns(pp.get().type_id) * getBpProductQuantity(pp.get().type_id),
     }));
