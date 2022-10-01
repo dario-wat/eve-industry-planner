@@ -1,59 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { random } from 'underscore';
 
-export class CharacterCluster extends Model {
-
-  /**
-   * If the newly logged in character ID is in a cluster, we won't do anything.
-   * Once a character is in a cluster, they stay there. Might change that
-   * in the future.
-   * If the newly logged in character is not in an existing cluster then a new
-   * cluster will be made for that user if there was no previously logged in
-   * user. If there was a previously logged in user, then we will assign the
-   * newly logged in user to the same cluster as previously logged in user.
-   * @param newCharacterId Newly logged in character ID
-   * @param prevCharacterId Previously logged in character ID
-   */
-  public static async genLink(
-    newCharacterId: number,
-    prevCharacterId: number | undefined,
-  ): Promise<void> {
-    const newCharacterCluster = await CharacterCluster.findByPk(newCharacterId);
-    if (newCharacterCluster === null) {
-      if (prevCharacterId) {
-        const prevCharacterCluster =
-          await CharacterCluster.findByPk(prevCharacterId);
-        await CharacterCluster.create({
-          character_id: newCharacterId,
-          cluster_id: prevCharacterCluster!.get().cluster_id,
-        });
-      } else {
-        await CharacterCluster.create({
-          character_id: newCharacterId,
-          cluster_id: random(1, 1000000),
-        });
-      }
-    }
-  }
-
-  public static async genLinkedCharacters(
-    characterId: number,
-  ): Promise<string[]> {
-    const cluster = await CharacterCluster.findByPk(characterId);
-    if (cluster === null) {
-      return [];
-    }
-
-    const clusters = await CharacterCluster.findAll({
-      where: {
-        cluster_id: cluster.get().cluster_id,
-      },
-    });
-    return clusters
-      .map(c => c.get().character_id)
-      .filter(cid => cid !== characterId);
-  }
-}
+export class CharacterCluster extends Model { }
 
 export const characterClusterModelDefine = (sequelize: Sequelize) =>
   CharacterCluster.init(

@@ -116,3 +116,9 @@ export type MarketOrdersRes = {
   issuedDate: string,
   duration: number,
 }[];
+
+export type LinkedCharacterRes = {
+  characterId: number,
+  characterName: string | undefined,
+  portrait: string,
+}[];
