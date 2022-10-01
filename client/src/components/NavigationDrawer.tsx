@@ -19,7 +19,7 @@ import axios from 'axios';
 import { ReactNode, useContext, useState } from 'react';
 import useAxios from 'axios-hooks';
 import { uniqueId } from 'underscore';
-import { EvePortraitRes, LinkedCharacterRes } from '@internal/shared';
+import { LinkedCharacterRes } from '@internal/shared';
 import { UserContext } from 'contexts/UserContext';
 
 const drawerWidth = 220;
@@ -89,12 +89,12 @@ export default function NavigationDrawer(props: Props) {
 }
 
 function LoggedInUserButtonListItem() {
-  const [{ data: portrait }] = useAxios<EvePortraitRes>('/portrait');
   const [{ data: linkedCharacters }] = useAxios<LinkedCharacterRes>(
     '/linked_characters',
   );
   const userContext = useContext(UserContext);
 
+  // TODO add clicks
   const [openList, setOpenList] = useState(false);
   return (
     <>
@@ -116,7 +116,7 @@ function LoggedInUserButtonListItem() {
           <ListItemAvatar>
             <Avatar
               alt=""
-              src={portrait?.px64x64}
+              src={userContext.portrait!}
               sx={{ width: 36, height: 36 }} />
           </ListItemAvatar>
           <ListItemText primary={userContext.character_name} />
