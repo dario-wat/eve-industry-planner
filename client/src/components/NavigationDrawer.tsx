@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import Toolbar from '@mui/material/Toolbar';
@@ -11,10 +12,13 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CachedIcon from '@mui/icons-material/Cached';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import { withStyles } from '@material-ui/styles';
 import axios from 'axios';
-import { ReactNode, useContext } from 'react';
+import { ReactNode, useContext, useState } from 'react';
 import useAxios from 'axios-hooks';
+import { uniqueId } from 'underscore';
 import { EvePortraitRes } from '@internal/shared';
 import { UserContext } from 'contexts/UserContext';
 
@@ -86,19 +90,32 @@ export default function NavigationDrawer(props: Props) {
 
 function LoggedInUserButtonListItem() {
   const [{ data: portrait }] = useAxios<EvePortraitRes>('/portrait');
+  const [{ data: linkedCharacters }] = useAxios<string[]>('/linked_characters');
   const userContext = useContext(UserContext);
+
+  const [openList, setOpenList] = useState(false);
   return (
-    <ListItem key="loggedInUser" disablePadding>
-      <ListItemButton>
-        <ListItemAvatar>
-          <Avatar
-            alt=""
-            src={portrait?.px64x64}
-            sx={{ width: 36, height: 36 }} />
-        </ListItemAvatar>
-        <ListItemText primary={userContext.character_name} />
-      </ListItemButton>
-    </ListItem>
+    <>
+      <Collapse in={openList} timeout="auto" unmountOnExit>
+        {linkedCharacters && linkedCharacters.map(c =>
+          <ListItem key={uniqueId()}>
+            <ListItemText primary={c} />
+          </ListItem>
+        )}
+      </Collapse>
+      <ListItem key="loggedInUser" disablePadding>
+        <ListItemButton onClick={() => setOpenList(!openList)}>
+          <ListItemAvatar>
+            <Avatar
+              alt=""
+              src={portrait?.px64x64}
+              sx={{ width: 36, height: 36 }} />
+          </ListItemAvatar>
+          <ListItemText primary={userContext.character_name} />
+          {openList ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+      </ListItem>
+    </>
   );
 }
 

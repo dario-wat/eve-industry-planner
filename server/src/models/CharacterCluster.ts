@@ -35,6 +35,24 @@ export class CharacterCluster extends Model {
       }
     }
   }
+
+  public static async genLinkedCharacters(
+    characterId: number,
+  ): Promise<string[]> {
+    const cluster = await CharacterCluster.findByPk(characterId);
+    if (cluster === null) {
+      return [];
+    }
+
+    const clusters = await CharacterCluster.findAll({
+      where: {
+        cluster_id: cluster.get().cluster_id,
+      },
+    });
+    return clusters
+      .map(c => c.get().character_id)
+      .filter(cid => cid !== characterId);
+  }
 }
 
 export const characterClusterModelDefine = (sequelize: Sequelize) =>

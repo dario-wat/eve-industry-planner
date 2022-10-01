@@ -5,6 +5,7 @@ import initPlannedProductController from '../controllers/plannedProductControlle
 import initMaterialStationController from '../controllers/materialStationController';
 import initProductionPlanController from '../controllers/productionPlanController';
 import initClearCacheController from '../controllers/clearCacheController';
+import initLinkedCharactersController from '../controllers/linkedCharactersController';
 import loggedOutMiddleware from '../controllers/loggedOutMiddleware';
 
 // NOTE: every new controller needs to be added here
@@ -20,4 +21,5 @@ export function initControllers(app: Express): void {
   initMaterialStationController(app);
   initProductionPlanController(app);
   initClearCacheController(app);
+  initLinkedCharactersController(app);
 }
