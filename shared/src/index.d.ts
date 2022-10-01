@@ -112,4 +112,7 @@ export type MarketOrdersRes = {
   price: number,
   volumeRemain: number,
   volumeTotal: number,
+  isBuy: boolean,
+  issuedDate: string,
+  duration: number,
 }[];

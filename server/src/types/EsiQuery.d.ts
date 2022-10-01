@@ -112,4 +112,5 @@ export interface EveMarketOrder {
   type_id: number,
   volume_remain: number,
   volume_total: number,
+  is_buy_order?: boolean,
 }

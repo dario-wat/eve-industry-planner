@@ -55,6 +55,9 @@ export default class MarketService {
         price: o.price,
         volumeRemain: o.volume_remain,
         volumeTotal: o.volume_total,
+        isBuy: o.is_buy_order ?? false,
+        issuedDate: o.issued,
+        duration: o.duration,
       }));
   }
 }

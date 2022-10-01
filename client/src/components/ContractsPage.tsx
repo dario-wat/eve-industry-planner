@@ -13,8 +13,6 @@ import { UserContext } from 'contexts/UserContext';
 
 const FINISHED_STATUS = 'finished';
 
-// TODO
-//  - Add location
 export default function ContractsPage() {
   const [{ data }] = useAxios<EveContractsRes>('/contracts');
 
@@ -153,6 +151,7 @@ export default function ContractsPage() {
                   sortModel: [{ field: 'date_expired', sort: 'asc' }],
                 },
               }}
+              hideFooter={true}
               rows={activeContracts}
               columns={columnsActive}
               disableSelectionOnClick
