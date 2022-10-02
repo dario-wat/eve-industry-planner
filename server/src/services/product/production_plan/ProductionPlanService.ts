@@ -5,9 +5,9 @@ import EveSdeData from '../../query/EveSdeData';
 import { MetaGroup } from '../../../const/MetaGroups';
 import AssetsService from '../AssetsService';
 import EsiTokenlessQueryService from '../../query/EsiTokenlessQueryService';
-import { MANUFACTURING } from '../../../const/IndustryActivity';
 import { secondsToHours } from 'date-fns';
 import { MaterialPlan } from './MaterialPlan';
+import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
 
 const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0; // For ME = 0
@@ -51,19 +51,16 @@ export default class ProductionPlanService {
       assets,
     );
 
+    const creationUtil = new ProductionPlanCreationUtil(industryJobs);
+
     const plannedProductIds = plannedProducts.map(pp => pp.get().type_id);
-    const manufacturingJobs = industryJobs.filter(
-      j => j.activity_id === MANUFACTURING,
-    );
 
     const blueprintExists = (typeId: number) => {
       const blueprintId = this.sdeData.productBlueprintFromTypeId(
         typeId,
       )?.blueprint_id;
-      return blueprintId !== undefined && blueprintId in assets
-        || industryJobs.filter(
-          job => job.blueprint_type_id === blueprintId,
-        ).length > 0;
+      return blueprintId !== undefined && (blueprintId in assets
+        || creationUtil.industryJobContainsBlueprint(blueprintId));
     };
     const blueprintTimeData = (typeId: number) => {
       const blueprintId = this.sdeData.productBlueprintFromTypeId(
@@ -86,9 +83,7 @@ export default class ProductionPlanService {
           name: this.sdeData.types[Number(e[0])]?.name,
           blueprintExists: blueprintExists(Number(e[0])),
           runs: e[1].runs,
-          activeRuns: manufacturingJobs.find(
-            j => j.product_type_id === Number(e[0]),
-          )?.runs,
+          activeRuns: creationUtil.activeManufacturingRuns(Number(e[0])),
           daysToRun: secondsToHours(
             MAX_TE * e[1].runs
             * (blueprintTimeData(Number(e[0]))?.manufacturing_time

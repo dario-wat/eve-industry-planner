@@ -83,7 +83,7 @@ export type ProductionPlanRes = {
     blueprintExists: boolean,
     name: string,
     runs: number,
-    activeRuns: number | undefined,
+    activeRuns: number,
     daysToRun: number,
   }[],
   materials: {
