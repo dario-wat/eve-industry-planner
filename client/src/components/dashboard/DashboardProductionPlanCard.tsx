@@ -156,11 +156,16 @@ function BlueprintRunsTab(props: {
       width: 300,
       sortable: false,
       renderCell: params =>
-        <EveIconAndName
-          typeId={params.row.typeId}
-          categoryId={params.row.categoryId}
-          name={params.row.name}
-        />,
+        <Box sx={{
+          color: params.row.blueprintExists ? 'default' : 'red',
+          display: 'contents',
+        }}>
+          <EveIconAndName
+            typeId={params.row.typeId}
+            categoryId={params.row.categoryId}
+            name={params.row.name}
+          />
+        </Box>,
     },
     {
       field: 'runs',

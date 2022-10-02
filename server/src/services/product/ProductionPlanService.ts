@@ -51,6 +51,16 @@ export default class ProductionPlanService {
     const manufacturingJobs = industryJobs.filter(
       j => j.activity_id === MANUFACTURING,
     );
+
+    const blueprintExists = (typeId: number) => {
+      const blueprintId = this.sdeData.productBlueprintFromTypeId(
+        typeId,
+      )?.blueprint_id;
+      return blueprintId !== undefined && blueprintId in assets
+        || industryJobs.filter(
+          job => job.blueprint_type_id === blueprintId,
+        ).length > 0;
+    };
     return {
       blueprintRuns: Object.entries(materialsPlan.materials)
         .filter(e => e[1].runs > 0)
@@ -62,6 +72,7 @@ export default class ProductionPlanService {
             plannedProductIds,
           ),
           name: this.sdeData.types[Number(e[0])]?.name,
+          blueprintExists: blueprintExists(Number(e[0])),
           runs: e[1].runs,
           activeRuns: manufacturingJobs.find(
             j => j.product_type_id === Number(e[0]),
@@ -133,8 +144,7 @@ export default class ProductionPlanService {
 
       // SECOND if there wasn't enough leftover then we go make more
       const productBlueprint =
-        this.sdeData.bpManufactureProductsByProduct[product.typeId]
-        || this.sdeData.bpReactionProductsByProduct[product.typeId];
+        this.sdeData.productBlueprintFromTypeId(product.typeId);
       if (productBlueprint === undefined) {
         // Leaf node (mineral, planetary commodity, ice, ...)
         continue;

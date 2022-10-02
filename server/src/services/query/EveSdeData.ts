@@ -48,6 +48,13 @@ export default class EveSdeData {
     return reactionFormulaGroupIds.includes(groupId);
   }
 
+  public productBlueprintFromTypeId(
+    typeId: number,
+  ): EveSdeBlueprintMaterial | undefined {
+    return this.bpManufactureProductsByProduct[typeId]
+      || this.bpReactionProductsByProduct[typeId];
+  }
+
   public static async init(): Promise<EveSdeData> {
     if (this.initialized) {
       throw new Error('EveSdeData is already initialized!');

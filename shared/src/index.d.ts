@@ -80,6 +80,7 @@ export type ProductionPlanRes = {
     typeId: number,
     categoryId: number | undefined,
     productionCategory: string,
+    blueprintExists: boolean,
     name: string,
     runs: number,
     activeRuns: number | undefined,
