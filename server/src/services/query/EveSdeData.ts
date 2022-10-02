@@ -5,12 +5,14 @@ import {
   EveSdeStation,
   EveSdeType,
   EveSdeBlueprintMaterial,
+  EveSdeBlueprint,
 } from '../../types/EveSde';
 import { mapify } from '../../lib/util';
 import { TypeID } from '../../models/sde/TypeID';
 import { GroupID } from '../../models/sde/GroupID';
 import { Station } from '../../models/sde/Station';
 import {
+  Blueprint,
   BpManufacturingMaterials,
   BpManufacturingProducts,
   BpReactionMaterials,
@@ -34,6 +36,7 @@ export default class EveSdeData {
       { [blueprint_id: number]: EveSdeBlueprintMaterial[] },
     public readonly bpReactionProductsByProduct:
       { [type_id: number]: EveSdeBlueprintMaterial },
+    public readonly blueprints: { [blueprint_id: number]: EveSdeBlueprint },
   ) { }
 
   public categoryIdFromTypeId(typeId: number): number | undefined {
@@ -68,6 +71,7 @@ export default class EveSdeData {
       bpManufactureProductsData,
       bpReactionMaterialsData,
       bpReactionProductsData,
+      blueprintData,
     ] =
       await Promise.all([
         TypeID.findAll(),
@@ -77,6 +81,7 @@ export default class EveSdeData {
         BpManufacturingProducts.findAll(),
         BpReactionMaterials.findAll(),
         BpReactionProducts.findAll(),
+        Blueprint.findAll(),
       ]);
 
     return new EveSdeData(
@@ -88,6 +93,7 @@ export default class EveSdeData {
       mapifySequelize(bpManufactureProductsData, 'type_id'),
       mapifyMultiSequelize(bpReactionMaterialsData, 'blueprint_id'),
       mapifySequelize(bpReactionProductsData, 'type_id'),
+      mapifySequelize(blueprintData, 'id'),
     );
   }
 }

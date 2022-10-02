@@ -21,3 +21,13 @@ export interface EveSdeBlueprintMaterial {
   type_id: number,
   quantity: number,
 }
+
+export interface EveSdeBlueprint {
+  id: number,
+  copying_time: number,
+  invention_time: number,
+  manufacturing_time: number,
+  research_material_time: number,
+  research_time_time: number,
+  reaction_time: number,
+}

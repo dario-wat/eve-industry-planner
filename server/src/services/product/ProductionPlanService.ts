@@ -6,9 +6,12 @@ import { MetaGroup } from '../../const/MetaGroups';
 import AssetsService from './AssetsService';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 import { MANUFACTURING } from '../../const/IndustryActivity';
+import { secondsToHours } from 'date-fns';
 
 const MAX_ME = 0.9; // For ME = 10
-const MIN_ME = 1.0  // For ME = 0
+const MIN_ME = 1.0; // For ME = 0
+const MAX_TE = 0.8; // For TE = 20
+const HOURS_IN_DAY = 24;
 
 @Service()
 export default class ProductionPlanService {
@@ -61,6 +64,14 @@ export default class ProductionPlanService {
           job => job.blueprint_type_id === blueprintId,
         ).length > 0;
     };
+    const blueprintTimeData = (typeId: number) => {
+      const blueprintId = this.sdeData.productBlueprintFromTypeId(
+        typeId,
+      )?.blueprint_id;
+      return blueprintId !== undefined
+        ? this.sdeData.blueprints[blueprintId]
+        : undefined;
+    };
     return {
       blueprintRuns: Object.entries(materialsPlan.materials)
         .filter(e => e[1].runs > 0)
@@ -77,6 +88,12 @@ export default class ProductionPlanService {
           activeRuns: manufacturingJobs.find(
             j => j.product_type_id === Number(e[0]),
           )?.runs,
+          daysToRun: secondsToHours(
+            MAX_TE * e[1].runs
+            * (blueprintTimeData(Number(e[0]))?.manufacturing_time
+              ?? blueprintTimeData(Number(e[0]))?.reaction_time
+              ?? 0)
+          ) / HOURS_IN_DAY,
         })),
       materials: Object.entries(materialsPlan.materials)
         .filter(e => e[1].runs === 0 && e[1].quantity !== 0)

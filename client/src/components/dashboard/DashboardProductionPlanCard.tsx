@@ -178,6 +178,14 @@ function BlueprintRunsTab(props: {
         </div>
         : params.row.runs,
     },
+    {
+      field: 'daysToRun',
+      headerName: 'Days',
+      width: 70,
+      align: 'right',
+      sortable: false,
+      valueFormatter: params => params.value.toFixed(1),
+    },
   ];
 
   return (
