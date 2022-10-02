@@ -1,12 +1,13 @@
 import { Service } from 'typedi';
-import { PlannedProduct } from '../../models/PlannedProduct';
+import { PlannedProduct } from '../../../models/PlannedProduct';
 import { ProductionPlanRes } from '@internal/shared';
-import EveSdeData from '../query/EveSdeData';
-import { MetaGroup } from '../../const/MetaGroups';
-import AssetsService from './AssetsService';
-import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
-import { MANUFACTURING } from '../../const/IndustryActivity';
+import EveSdeData from '../../query/EveSdeData';
+import { MetaGroup } from '../../../const/MetaGroups';
+import AssetsService from '../AssetsService';
+import EsiTokenlessQueryService from '../../query/EsiTokenlessQueryService';
+import { MANUFACTURING } from '../../../const/IndustryActivity';
 import { secondsToHours } from 'date-fns';
+import { MaterialPlan } from './MaterialPlan';
 
 const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0; // For ME = 0
@@ -194,66 +195,5 @@ export default class ProductionPlanService {
     }
 
     return materialPlan;
-  }
-}
-
-type MaterialsType = {
-  [typeId: number]: {
-    quantity: number,
-    runs: number,
-    leftover: number,
-  }
-};
-
-class MaterialPlan {
-
-  public materials: MaterialsType;
-
-  constructor(
-    assets: { [typeId: number]: number },
-  ) {
-    this.materials = {};
-    // Initialize leftover with existing assets
-    Object.entries(assets).forEach(a => this.addLeftover(Number(a[0]), a[1]));
-  }
-
-  public addQuantity(typeId: number, quantity: number): void {
-    if (typeId in this.materials) {
-      this.materials[typeId].quantity += quantity;
-    } else {
-      this.materials[typeId] = { quantity, runs: 0, leftover: 0 };
-    }
-  }
-
-  public addRuns(typeId: number, runs: number): void {
-    if (typeId in this.materials) {
-      this.materials[typeId].runs += runs;
-    } else {
-      this.materials[typeId] = { quantity: 0, runs, leftover: 0 };
-    }
-  }
-
-  public addLeftover(typeId: number, leftover: number): void {
-    if (typeId in this.materials) {
-      this.materials[typeId].leftover += leftover;
-    } else {
-      this.materials[typeId] = { quantity: 0, runs: 0, leftover };
-    }
-  }
-
-  /**
-   * Subtracts the quantity from leftover
-   * @returns the amount subtracted
-   */
-  public subtractLeftover(typeId: number, quantity: number): number {
-    if (typeId in this.materials) {
-      const stockQuantity = Math.min(
-        this.materials[typeId].leftover,
-        quantity,
-      );
-      this.materials[typeId].leftover -= stockQuantity;
-      return stockQuantity;
-    }
-    return 0;
   }
 }
