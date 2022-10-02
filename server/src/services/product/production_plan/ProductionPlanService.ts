@@ -51,43 +51,28 @@ export default class ProductionPlanService {
       assets,
     );
 
-    const creationUtil = new ProductionPlanCreationUtil(industryJobs);
+    const creationUtil = new ProductionPlanCreationUtil(
+      industryJobs,
+      assets,
+      plannedProducts.map(pp => pp.get().type_id),
+    );
 
-    const plannedProductIds = plannedProducts.map(pp => pp.get().type_id);
-
-    const blueprintExists = (typeId: number) => {
-      const blueprintId = this.sdeData.productBlueprintFromTypeId(
-        typeId,
-      )?.blueprint_id;
-      return blueprintId !== undefined && (blueprintId in assets
-        || creationUtil.industryJobContainsBlueprint(blueprintId));
-    };
-    const blueprintTimeData = (typeId: number) => {
-      const blueprintId = this.sdeData.productBlueprintFromTypeId(
-        typeId,
-      )?.blueprint_id;
-      return blueprintId !== undefined
-        ? this.sdeData.blueprints[blueprintId]
-        : undefined;
-    };
     return {
       blueprintRuns: Object.entries(materialsPlan.materials)
         .filter(e => e[1].runs > 0)
         .map(e => ({
           typeId: Number(e[0]),
           categoryId: this.sdeData.categoryIdFromTypeId(Number(e[0])),
-          productionCategory: this.getProductionCategory(
+          productionCategory: creationUtil.getProductionCategory(
             Number(e[0]),
-            plannedProductIds,
           ),
           name: this.sdeData.types[Number(e[0])]?.name,
-          blueprintExists: blueprintExists(Number(e[0])),
+          blueprintExists: creationUtil.blueprintExists(Number(e[0])),
           runs: e[1].runs,
           activeRuns: creationUtil.activeManufacturingRuns(Number(e[0])),
           daysToRun: secondsToHours(
             MAX_TE * e[1].runs
-            * (blueprintTimeData(Number(e[0]))?.manufacturing_time
-              ?? blueprintTimeData(Number(e[0]))?.reaction_time
+            * (creationUtil.blueprintManufactureTime(Number(e[0]))
               ?? 0)
           ) / HOURS_IN_DAY,
         })),
@@ -100,27 +85,6 @@ export default class ProductionPlanService {
           quantity: e[1].quantity,
         })),
     };
-  }
-
-  private getProductionCategory(
-    typeId: number,
-    plannedProductIds: number[],
-  ): string {
-    if (plannedProductIds.includes(typeId)) {
-      return 'End Product / Other';
-    }
-
-    const groupId = this.sdeData.types[typeId].group_id;
-    switch (groupId) {
-      case 334: return 'Construction Components';
-      case 428: return 'Intermediate Materials';
-      case 429: return 'Composite Materials';
-      case 873: return 'Capital Components';
-      case 964: return 'Hybrid Tech Components';
-      case 974: return 'Hybrid Reactions';
-      case 4096: return 'Biochem Reactions';
-      default: return 'Other';
-    }
   }
 
   /**

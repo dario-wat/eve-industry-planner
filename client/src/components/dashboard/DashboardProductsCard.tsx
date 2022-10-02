@@ -133,6 +133,7 @@ function DashboardProductsDataGrid(
   return (
     <DataGrid
       loading={props.loading}
+      hideFooter
       rows={props.plannedProducts}
       columns={columns}
       disableSelectionOnClick
