@@ -26,7 +26,17 @@ const controller = (app: Router) => {
     async (req: Request, res: Response) => {
       const characterId = req.session.characterId!;
       const assetService = Container.get(AssetsService);
-      const output = await assetService.genData(characterId);
+      const output = await assetService.genDataForAssetPage(characterId);
+      res.json(output);
+    },
+  );
+
+  app.get(
+    '/assets_locations',
+    async (req: Request, res: Response) => {
+      const characterId = req.session.characterId!;
+      const assetService = Container.get(AssetsService);
+      const output = await assetService.genAssetLocations(characterId);
       res.json(output);
     },
   );

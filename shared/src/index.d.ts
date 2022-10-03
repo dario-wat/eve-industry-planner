@@ -2,11 +2,15 @@ export * from './lib/util';
 
 export type EveAssetsRes = {
   name: string,
-  type_id: number,
-  category_id: number | undefined
+  typeId: number,
+  categoryId: number | undefined
   quantity: number,
-  location_id: number,
   location: string,
+}[];
+
+export type EveAssetsLocationsRes = {
+  locationId: number,
+  locationName: string,
 }[];
 
 type EveNameRes = {

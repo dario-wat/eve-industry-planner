@@ -28,8 +28,8 @@ export default function AssetsPage() {
       sortable: false,
       renderCell: params =>
         <EveIconAndName
-          typeId={params.row.type_id}
-          categoryId={params.row.category_id}
+          typeId={params.row.typeId}
+          categoryId={params.row.categoryId}
           name={params.row.name}
         />,
     },

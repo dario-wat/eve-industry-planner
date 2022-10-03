@@ -6,21 +6,21 @@ import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import useAxios from 'axios-hooks';
 import React, { useEffect, useState } from 'react';
-import { EveAssetsRes, MaterialStationsRes } from '@internal/shared';
+import { EveAssetsLocationsRes, MaterialStationsRes } from '@internal/shared';
 import { uniq } from 'underscore';
 
 export default function DashboardStationSelectCard() {
   // TODO(EIP-20) this is used in multiple places. That shouldn't be the case
   // I should somehow memoize this
   const [{
-    data: eveAssets,
+    data: assetLocations,
     loading: loadingAssets,
-  }] = useAxios<EveAssetsRes>('/assets');
+  }] = useAxios<EveAssetsLocationsRes>('/assets_locations');
 
-  const locations: MaterialStationsRes = eveAssets
-    ? uniq(eveAssets, d => d.location_id).map(a => ({
-      station_name: a.location,
-      station_id: a.location_id,
+  const locations: MaterialStationsRes = assetLocations
+    ? uniq(assetLocations, d => d.locationId).map(a => ({
+      station_name: a.locationName,
+      station_id: a.locationId,
     }))
     : [];
 
