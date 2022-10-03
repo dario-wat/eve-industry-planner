@@ -18,6 +18,7 @@ type AssetsData = {
   quantity: number,
   locationId: number,
   location: string,
+  isSingleton: boolean,
 }[];
 
 type AssetWithParent = {
@@ -36,7 +37,6 @@ export default class AssetsService {
   ) { }
 
   private async genFlatAssets(characterId: number): Promise<AssetsData> {
-    // TODO move to a separate file, maybe I should cache the esi query
     const assets = await EsiCacheAction.gen(
       characterId.toString(),
       EsiCacheItem.ASSETS,
@@ -113,6 +113,7 @@ export default class AssetsService {
         quantity: asset.self.quantity,
         locationId: rootLocationId(asset),
         location: locationName(asset),
+        isSingleton: asset.self.is_singleton,
       }));
   }
 
@@ -152,11 +153,9 @@ export default class AssetsService {
 
     const allAssets = await this.genFlatAssets(characterId);
     const filteredAssets = allAssets.filter(asset =>
-      // TODO ignoring ships for now since there are a lot of fitted
-      // ships that I don't want to include as assets here.
-      // Ideally I would modify the asset service to be modular
-      // and filter stuff based on the inputs
-      stationIds.includes(asset.locationId) && asset.categoryId !== SHIP,
+      // Removing singleton as well because they don't count
+      // (non-stackable items, e.g. Assembled ships)
+      stationIds.includes(asset.locationId) && !asset.isSingleton,
     );
     return Object.fromEntries(
       Object.entries(groupBy(filteredAssets, asset => asset.typeId))
@@ -166,8 +165,4 @@ export default class AssetsService {
         ]))
     );
   }
-
-  // public async genAssembledShips(): Promise<void> {
-
-  // }
 }
