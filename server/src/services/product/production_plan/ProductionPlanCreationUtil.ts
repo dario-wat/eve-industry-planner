@@ -6,17 +6,15 @@ import { MANUFACTURING } from '../../../const/IndustryActivity';
 import EveSdeData from '../../query/EveSdeData';
 import { EveSdeBlueprint } from 'types/EveSde';
 
+// This code is very ugly, but I don't care, it stays here
 export default class ProductionPlanCreationUtil {
-
-  private readonly sdeData: EveSdeData;
 
   constructor(
     private readonly industryJobs: EveIndustryJob[],
     private readonly assets: { [typeId: number]: number },
     private readonly plannedProductIds: number[],
-  ) {
-    this.sdeData = Container.get(typeof EveSdeData);
-  }
+    private readonly sdeData: EveSdeData,
+  ) { }
 
   public getProductionCategory(typeId: number): string {
     if (this.plannedProductIds.includes(typeId)) {

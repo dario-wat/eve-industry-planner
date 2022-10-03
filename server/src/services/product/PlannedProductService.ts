@@ -1,4 +1,6 @@
 import { Service } from 'typedi';
+import { sum } from 'mathjs';
+import { isEmpty } from 'underscore';
 import { PlannedProduct } from '../../models/PlannedProduct';
 import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
 import EveSdeData from '../query/EveSdeData';
@@ -136,6 +138,35 @@ export default class PlannedProductService {
         character_id: characterId,
         type_id: typeId,
       },
+    });
+  }
+
+  public async genAddPlannedProduct(
+    characterId: number,
+    typeName: string,
+    quantity: number,
+  ): Promise<void> {
+    const result = await PlannedProduct.findAll({
+      where: {
+        character_id: characterId,
+        type_id: this.sdeData.typeByName[typeName].id,
+      }
+    });
+
+    const totalQuantity = sum(result.map(pp => pp.get().quantity));
+    if (!isEmpty(result)) {
+      await PlannedProduct.destroy({
+        where: {
+          character_id: characterId,
+          type_id: this.sdeData.typeByName[typeName].id,
+        }
+      });
+    }
+
+    await PlannedProduct.create({
+      character_id: characterId,
+      type_id: this.sdeData.typeByName[typeName].id,
+      quantity: totalQuantity + quantity,
     });
   }
 }

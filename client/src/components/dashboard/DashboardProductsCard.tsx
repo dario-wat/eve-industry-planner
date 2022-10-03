@@ -1,3 +1,4 @@
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -19,15 +20,24 @@ import axios from 'axios';
 import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
 import { first } from 'underscore';
 import EveIconAndName from 'components/util/EveIconAndName';
+import { Button } from '@mui/material';
 
 export default function DashboardProductsCard() {
-  const [{ data, loading }, refetch] = useAxios<PlannedProductsRes>('/planned_products');
+  const [{ data, loading }, refetch] =
+    useAxios<PlannedProductsRes>('/planned_products');
+
+  const dispatch = useAppDispatch();
 
   const [plannedProducts, setPlannedProducts] =
     useState<PlannedProductsRes>([]);
   useEffect(() => setPlannedProducts(data ?? []), [data]);
 
   const [useGrid, setUseGrid] = useState(true);
+
+  const onChange = () => {
+    refetch();
+    dispatch(fetchProductionPlan());
+  };
 
   return (
     <Card sx={{ height: 500 }}>
@@ -56,7 +66,8 @@ export default function DashboardProductsCard() {
           <DashboardProductsDataGrid
             plannedProducts={plannedProducts}
             loading={loading}
-            onItemDelete={_ => refetch()} />
+            onItemDelete={onChange}
+            onItemAdd={onChange} />
           :
           <DashboardProductsTextArea
             plannedProducts={plannedProducts}
@@ -74,13 +85,33 @@ function DashboardProductsDataGrid(
   props: {
     plannedProducts: PlannedProductsRes,
     loading: boolean,
-    onItemDelete: (typeId: number) => void,
+    onItemDelete: () => void,
+    onItemAdd: () => void,
   }
 ) {
+  const [{ data }] = useAxios('/type_ids_items');
+  const autocompleteData = data && data.map((t: any) => ({
+    label: t.name,
+    id: t.id,
+  }));
+
+  const [itemTypeName, setItemTypeName] = useState('');
+  const [itemQuantity, setItemQuantity] = useState('');
+
   const onDeleteClick = async (typeId: number) => {
     const { status } = await axios.delete(`/planned_product_delete/${typeId}`);
     if (status === 200) {
-      props.onItemDelete(typeId);
+      props.onItemDelete();
+    }
+  };
+
+  const onAddItemClick = async (typeName: string, quantity: number) => {
+    const { status } = await axios.post(
+      '/planned_product_add',
+      { typeName, quantity },
+    );
+    if (status === 200) {
+      props.onItemAdd();
     }
   };
 
@@ -131,15 +162,70 @@ function DashboardProductsDataGrid(
   ];
 
   return (
-    <DataGrid
-      loading={props.loading}
-      hideFooter
-      rows={props.plannedProducts}
-      columns={columns}
-      disableSelectionOnClick
-      disableColumnMenu
-      experimentalFeatures={{ newEditingApi: true }}
-    />
+    <>
+      <Box sx={{ pb: 1 }}>
+        <DataGrid
+          loading={props.loading}
+          hideFooter
+          rows={props.plannedProducts}
+          columns={columns}
+          disableSelectionOnClick
+          disableColumnMenu
+          experimentalFeatures={{ newEditingApi: true }}
+        />
+      </Box>
+      <Box sx={{ pr: 2, display: 'inline-flex', }}>
+        <Autocomplete
+          sx={{ width: 280 }}
+          onInputChange={(_, value) => setItemTypeName(value)}
+          disablePortal
+          isOptionEqualToValue={(option: any, value: any) =>
+            option.id === value.id
+          }
+          filterOptions={createFilterOptions({
+            matchFrom: 'any',
+            limit: 10,
+          })}
+          options={autocompleteData ?? []}
+          renderOption={(props, option: any) =>
+            <li
+              {...props}
+              style={{
+                paddingLeft: '8px',
+                paddingTop: '2px',
+                paddingBottom: '2px',
+              }}
+            >
+              <Typography variant="subtitle2" gutterBottom>
+                {option.label}
+              </Typography>
+            </li>
+          }
+          renderInput={(params) =>
+            <TextField
+              {...params}
+              sx={{ verticalAlign: 'inherit' }}
+              label="Item"
+              variant="standard" />
+          }
+        />
+      </Box>
+      <Box sx={{ display: 'inline-flex', pr: 2 }}>
+        <TextField
+          sx={{ width: 100 }}
+          label="Quantity"
+          variant="standard"
+          onChange={event => setItemQuantity(event.target.value)} />
+      </Box>
+      <Box sx={{ display: 'inline-flex' }}>
+        <Button
+          variant="contained"
+          size="small"
+          onClick={() => onAddItemClick(itemTypeName, Number(itemQuantity))}>
+          Add
+        </Button>
+      </Box>
+    </>
   );
 }
 

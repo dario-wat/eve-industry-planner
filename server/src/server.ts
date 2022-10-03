@@ -40,6 +40,7 @@ async function init() {
   // Needs to be called after the database init
   const sdeData = await EveSdeData.init();
   Container.set(EveSdeData, sdeData);
+  Container.set(typeof EveSdeData, sdeData);
 
   const app = express();
 

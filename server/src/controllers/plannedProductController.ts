@@ -51,6 +51,19 @@ const controller = (app: Router) => {
       res.status(200).end();
     },
   );
+
+  app.post(
+    '/planned_product_add',
+    async (req: Request, res: Response) => {
+      const characterId = req.session.characterId!;
+      await plannedProductService.genAddPlannedProduct(
+        characterId,
+        req.body.typeName,
+        req.body.quantity,
+      );
+      res.status(200).end();
+    },
+  );
 };
 
 export default controller;

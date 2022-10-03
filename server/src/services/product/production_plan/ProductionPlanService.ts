@@ -55,6 +55,7 @@ export default class ProductionPlanService {
       industryJobs,
       assets,
       plannedProducts.map(pp => pp.get().type_id),
+      this.sdeData,
     );
 
     return {
