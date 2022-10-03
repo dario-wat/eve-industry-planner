@@ -21,7 +21,7 @@ type AssetsData = {
 }[];
 
 type AssetWithParent = {
-  asset: EveAsset;
+  self: EveAsset;
   parent: EveAsset | null
 };
 
@@ -45,8 +45,8 @@ export default class AssetsService {
     );
 
     const assetMap = mapify(assets, 'item_id');
-    const assetsWithParent = assets.map(asset => ({
-      asset,
+    const assetsWithParent: AssetWithParent[] = assets.map(asset => ({
+      self: asset,
       parent: assetMap[asset.location_id] === undefined
         ? null
         : assetMap[asset.location_id],
@@ -63,7 +63,7 @@ export default class AssetsService {
     // assets whose location must be station, structure or similar.
     const rootLocationIds = uniq(assetsWithParent
       .filter(o => o.parent === null)
-      .map(o => o.asset.location_id),
+      .map(o => o.self.location_id),
     );
     const stationNames = await this.eveQuery.genAllStationNames(
       characterId,
@@ -77,7 +77,7 @@ export default class AssetsService {
     const shouldIncludeAsset = (asset: AssetWithParent) => {
       // Root asset (no parent), but also not a station (e.g. POS, Customs Office)
       const nonStationRootAsset = asset.parent === null
-        && stationNames[asset.asset.location_id] === undefined;
+        && stationNames[asset.self.location_id] === undefined;
 
       // Has a parent, but parent is a ship (asset is inside a ship)
       const insideShipAsset = asset.parent
@@ -93,21 +93,26 @@ export default class AssetsService {
       )
     };
 
+    const rootLocationId = (asset: AssetWithParent) =>
+      (
+        rootLocationIds.includes(asset.self.location_id)
+        && asset.self.location_id
+      )
+      || asset.parent!.location_id
+
+    const locationName = (asset: AssetWithParent) =>
+      stationNames[asset.self.location_id]
+      || (asset.parent && stationNames[asset.parent!.location_id])!;
+
     return assetsWithParent
       .filter(shouldIncludeAsset)
-      .map(o => ({
-        name: this.sdeData.types[o.asset.type_id]
-          && this.sdeData.types[o.asset.type_id].name,
-        typeId: o.asset.type_id,
-        categoryId: this.sdeData.categoryIdFromTypeId(o.asset.type_id),
-        quantity: o.asset.quantity,
-        locationId:
-          (rootLocationIds.includes(o.asset.location_id) && o.asset.location_id)
-          || o.parent!.location_id,
-        location:
-          stationNames[o.asset.location_id]
-          // TODO parent should always be there
-          || (o.parent && stationNames[o.parent!.location_id])!,
+      .map(asset => ({
+        name: this.sdeData.types[asset.self.type_id]?.name,
+        typeId: asset.self.type_id,
+        categoryId: this.sdeData.categoryIdFromTypeId(asset.self.type_id),
+        quantity: asset.self.quantity,
+        locationId: rootLocationId(asset),
+        location: locationName(asset),
       }));
   }
 
