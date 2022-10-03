@@ -3,6 +3,7 @@ import EveSdeData from '../query/EveSdeData';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 import EveQueryService from '../query/EveQueryService';
 import { MarketOrdersRes, WalletTransactionsRes } from '@internal/shared';
+import { WalletTransaction } from '../../models/WalletTransaction';
 
 @Service()
 export default class MarketService {
@@ -16,7 +17,24 @@ export default class MarketService {
   public async genWalletTransactions(
     characterId: number,
   ): Promise<WalletTransactionsRes> {
-    const transactions = await this.esiQuery.genxWalletTransactions(characterId);
+    const esiTransactions =
+      await this.esiQuery.genxWalletTransactions(characterId);
+
+    // We are storing all transaction into the database for longer retention
+    await WalletTransaction.bulkCreate(
+      esiTransactions.map(t => ({
+        character_id: characterId,
+        ...t,
+      })),
+      { ignoreDuplicates: true },
+    );
+    const transactionsResult = await WalletTransaction.findAll({
+      where: {
+        character_id: characterId,
+      },
+    });
+    const transactions = transactionsResult.map(t => t.get());
+
     const stationNames = await this.eveQuery.genAllStationNames(
       characterId,
       transactions.map(t => t.location_id),

@@ -40,7 +40,7 @@ export default function DashboardProductsCard() {
   };
 
   return (
-    <Card sx={{ height: 500 }}>
+    <Card sx={{ height: 'auto' }}>
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography
@@ -119,7 +119,7 @@ function DashboardProductsDataGrid(
     {
       field: 'name',
       headerName: 'Product',
-      width: 280,
+      width: 300,
       sortable: false,
       renderCell: params =>
         <EveIconAndName
@@ -131,7 +131,7 @@ function DashboardProductsDataGrid(
     {
       field: 'quantity',
       headerName: 'Quantity',
-      width: 100,
+      width: 120,
       sortable: false,
       renderCell: params =>
         <div style={{

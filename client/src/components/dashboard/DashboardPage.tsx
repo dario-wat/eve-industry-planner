@@ -8,7 +8,7 @@ import DashboardStationSelectCard from './DashboardStationSelectCard';
 export default function DashboardPage() {
   return (
     <Grid container spacing={2}>
-      <Grid item xs={5}>
+      <Grid item xs={6}>
         <DashboardProductsCard />
       </Grid>
       <Grid item xs={6}>

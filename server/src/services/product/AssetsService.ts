@@ -40,7 +40,7 @@ export default class AssetsService {
     const assets = await EsiCacheAction.gen(
       characterId.toString(),
       EsiCacheItem.ASSETS,
-      hoursToSeconds(6),
+      hoursToSeconds(1),
       async () => await this.eveQuery.genAllAssets(characterId),
     );
 
@@ -153,9 +153,9 @@ export default class AssetsService {
 
     const allAssets = await this.genFlatAssets(characterId);
     const filteredAssets = allAssets.filter(asset =>
-      // Removing singleton as well because they don't count
-      // (non-stackable items, e.g. Assembled ships)
-      stationIds.includes(asset.locationId) && !asset.isSingleton,
+      // Removing outside material station and assembled ships
+      stationIds.includes(asset.locationId)
+      && !(asset.isSingleton && asset.categoryId === SHIP),
     );
     return Object.fromEntries(
       Object.entries(groupBy(filteredAssets, asset => asset.typeId))
