@@ -141,6 +141,11 @@ function FlatTransactionDataGrid(props: {
       {props.data
         ?
         <DataGrid
+          initialState={{
+            sorting: {
+              sortModel: [{ field: 'date', sort: 'desc' }],
+            },
+          }}
           rows={props.data}
           columns={columns}
           disableSelectionOnClick

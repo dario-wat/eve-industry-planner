@@ -146,6 +146,10 @@ export default class PlannedProductService {
     typeName: string,
     quantity: number,
   ): Promise<void> {
+    if (this.sdeData.typeByName[typeName] === undefined) {
+      return;
+    }
+
     const result = await PlannedProduct.findAll({
       where: {
         character_id: characterId,
