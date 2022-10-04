@@ -21,6 +21,7 @@ import useAxios from 'axios-hooks';
 import { uniqueId } from 'underscore';
 import { LinkedCharacterRes } from '@internal/shared';
 import { UserContext } from 'contexts/UserContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const drawerWidth = 220;
 
@@ -32,13 +33,18 @@ const SmallerListItemIcon = withStyles({
 })(ListItemIcon);
 
 type Props = {
-  tabs: { key: string, label: string, icon: ReactNode }[],
-  selectedTab: string,
-  onTabClick: (selectedTab: string) => void,
+  routes: {
+    path: string,
+    label: string,
+    icon: ReactNode,
+    component: React.FC,
+  }[],
 };
 
 export default function NavigationDrawer(props: Props) {
-  const { tabs, selectedTab, onTabClick } = props;
+  const { routes } = props;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <Drawer
@@ -60,16 +66,16 @@ export default function NavigationDrawer(props: Props) {
       }}>
         <Box sx={{ overflow: 'auto' }}>
           <List>
-            {tabs.map(tab => (
+            {routes.map(route => (
               <ListItem
-                key={tab.key}
+                key={route.path}
                 disablePadding
-                onClick={_ => onTabClick(tab.key)}>
-                <ListItemButton selected={tab.key === selectedTab}>
+                onClick={_ => navigate(route.path)}>
+                <ListItemButton selected={location.pathname === route.path}>
                   <SmallerListItemIcon>
-                    {tab.icon}
+                    {route.icon}
                   </SmallerListItemIcon>
-                  <ListItemText primary={tab.label} />
+                  <ListItemText primary={route.label} />
                 </ListItemButton>
               </ListItem>
             ))}
@@ -84,7 +90,7 @@ export default function NavigationDrawer(props: Props) {
           </List>
         </Box>
       </Box>
-    </Drawer>
+    </Drawer >
   );
 }
 

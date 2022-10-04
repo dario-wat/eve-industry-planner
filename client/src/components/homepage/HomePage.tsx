@@ -7,7 +7,7 @@ import TakeoutDiningIcon from '@mui/icons-material/TakeoutDining';
 import LocalGroceryStoreIcon from '@mui/icons-material/LocalGroceryStore';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import type { } from '@mui/x-data-grid/themeAugmentation';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
 import NavigationDrawer from 'components/NavigationDrawer';
 import AssetsPage from 'components/AssetsPage';
@@ -20,21 +20,51 @@ import EveLoginButton from './EveLoginButton';
 import createAppTheme from 'theme/createAppTheme';
 import MarketTransactionsPage from 'components/MarketTransactionsPage';
 import MarketOrdersPage from 'components/MarketOrdersPage';
-
-enum Tab {
-  DASHBOARD = 'dashboard',
-  INDUSTRY_JOBS = 'industry_jobs',
-  ASSETS = 'assets',
-  CONTRACTS = 'contracts',
-  MARKET_TRANSACTIONS = 'market_transactions',
-  MARKET_ORDERS = 'market_orders',
-};
+import { Route, Routes } from 'react-router-dom';
 
 export default function HomePage() {
   const userContext = useContext(UserContext);
-  const [selectedTab, setSelectedTab] = useState<string>(Tab.DASHBOARD);
 
   const theme = createAppTheme();
+
+  const routes = [
+    {
+      path: '/',
+      label: 'Dashboard',
+      icon: <DashboardIcon />,
+      component: DashboardPage,
+    },
+    {
+      path: '/industry_jobs',
+      label: 'Industry Jobs',
+      icon: <ScienceIcon />,
+      component: IndustryJobsPage,
+    },
+    {
+      path: '/assets',
+      label: 'Assets',
+      icon: <TakeoutDiningIcon />,
+      component: AssetsPage,
+    },
+    {
+      path: '/contracts',
+      label: 'Contracts',
+      icon: <ReceiptLongIcon />,
+      component: ContractsPage,
+    },
+    {
+      path: '/transactions',
+      label: 'Transactions',
+      icon: <LocalGroceryStoreIcon />,
+      component: MarketTransactionsPage,
+    },
+    {
+      path: '/market_orders',
+      label: 'Market Orders',
+      icon: <StorefrontIcon />,
+      component: MarketOrdersPage,
+    },
+  ];
 
   return (
     <ThemeProvider theme={theme}>
@@ -44,26 +74,17 @@ export default function HomePage() {
         {userContext && userContext.is_logged_in
           ?
           <>
-            <NavigationDrawer
-              tabs={[
-                { key: Tab.DASHBOARD, label: 'Dashboard', icon: <DashboardIcon /> },
-                { key: Tab.INDUSTRY_JOBS, label: 'Industry Jobs', icon: <ScienceIcon /> },
-                { key: Tab.ASSETS, label: 'Assets', icon: <TakeoutDiningIcon /> },
-                { key: Tab.CONTRACTS, label: 'Contracts', icon: <ReceiptLongIcon /> },
-                { key: Tab.MARKET_TRANSACTIONS, label: 'Transactions', icon: <LocalGroceryStoreIcon /> },
-                { key: Tab.MARKET_ORDERS, label: 'Market Orders', icon: <StorefrontIcon /> },
-              ]}
-              selectedTab={selectedTab}
-              onTabClick={setSelectedTab}
-            />
+            <NavigationDrawer routes={routes} />
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
               <Toolbar /> {/* need this to push the nav bar below the app bar */}
-              {selectedTab === Tab.DASHBOARD && <DashboardPage />}
-              {selectedTab === Tab.INDUSTRY_JOBS && <IndustryJobsPage />}
-              {selectedTab === Tab.ASSETS && <AssetsPage />}
-              {selectedTab === Tab.CONTRACTS && <ContractsPage />}
-              {selectedTab === Tab.MARKET_TRANSACTIONS && <MarketTransactionsPage />}
-              {selectedTab === Tab.MARKET_ORDERS && <MarketOrdersPage />}
+              <Routes>
+                {routes.map((route: any) =>
+                  <Route
+                    path={route.path}
+                    key={route.path}
+                    element={<route.component />} />
+                )}
+              </Routes>
             </Box>
           </>
           :

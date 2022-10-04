@@ -5,6 +5,7 @@ import { defaultUserContextValue, UserContext } from 'contexts/UserContext';
 import store from 'redux/store';
 import { EveLoggedInUserRes } from '@internal/shared';
 import { Box, CircularProgress, Toolbar } from '@mui/material';
+import { BrowserRouter } from 'react-router-dom';
 
 function App() {
   const [{ data, loading }] = useAxios<EveLoggedInUserRes>('/logged_in_user');
@@ -18,21 +19,23 @@ function App() {
   return (
     <Provider store={store}>
       <UserContext.Provider value={userContext}>
-        {loading
-          ?
-          <Box sx={{ height: 300, width: 1 }}>
-            <Toolbar /> {/* need this to push the nav bar below the app bar */}
-            <Box
-              sx={{ height: '100%', width: 1 }}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <CircularProgress />
+        <BrowserRouter>
+          {loading
+            ?
+            <Box sx={{ height: 300, width: 1 }}>
+              <Toolbar /> {/* need this to push the nav bar below the app bar */}
+              <Box
+                sx={{ height: '100%', width: 1 }}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <CircularProgress />
+              </Box>
             </Box>
-          </Box>
-          :
-          <HomePage />}
+            :
+            <HomePage />}
+        </BrowserRouter>
       </UserContext.Provider>
     </Provider>
   );
