@@ -2,14 +2,12 @@ import { Service } from 'typedi';
 import { MaterialStationsRes } from '@internal/shared';
 import { MaterialStation } from '../../models/MaterialStation';
 import EveQueryService from '../query/EveQueryService';
-import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 
 @Service()
 export default class MaterialStationUtil {
 
   constructor(
     private readonly eveQuery: EveQueryService,
-    private readonly esiSequelizeProvider: EsiSequelizeProvider,
   ) { }
 
   public async genQuery(

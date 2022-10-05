@@ -7,6 +7,7 @@ import initProductionPlanController from '../controllers/productionPlanControlle
 import initClearCacheController from '../controllers/clearCacheController';
 import initLinkedCharactersController from '../controllers/linkedCharactersController';
 import initSdeDataController from '../controllers/sdeDataController';
+import initScribbleController from '../controllers/scribbleController';
 import loggedOutMiddleware from '../controllers/loggedOutMiddleware';
 
 // NOTE: every new controller needs to be added here
@@ -24,4 +25,5 @@ export function initControllers(app: Express): void {
   initClearCacheController(app);
   initLinkedCharactersController(app);
   initSdeDataController(app);
+  initScribbleController(app);
 }

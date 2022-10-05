@@ -3,7 +3,6 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 export class EsiCache extends Model {
 }
 
-// TODO getter and setter for esi cache, maybe
 export const esiCacheModelDefine = (sequelize: Sequelize) => EsiCache.init(
   {
     key: {

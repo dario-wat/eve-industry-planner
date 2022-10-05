@@ -1,10 +1,10 @@
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid';
 import DashboardProductionPlanCard from './DashboardProductionPlanCard';
 import DashboardProductsCard from './DashboardProductsCard';
+import DashboardScribblesCard from './DashboardScribblesCard';
 import DashboardStationSelectCard from './DashboardStationSelectCard';
 
+// TODO make nicer
 export default function DashboardPage() {
   return (
     <Grid container spacing={2}>
@@ -18,11 +18,7 @@ export default function DashboardPage() {
         <DashboardStationSelectCard />
       </Grid>
       <Grid item xs={6}>
-        <Card>
-          <CardContent>
-            Something will go here
-          </CardContent>
-        </Card>
+        <DashboardScribblesCard />
       </Grid>
     </Grid>
   );
