@@ -14,6 +14,7 @@ const activityColors: { [key: string]: string } = {
   'ME Research': 'blue',
   'Invention': 'green',
   'Reactions': 'orange',
+  'Copying': 'red',
 };
 
 export default function IndustryJobsPage() {

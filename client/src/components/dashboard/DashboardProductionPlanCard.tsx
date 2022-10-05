@@ -9,11 +9,12 @@ import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { useState, useEffect } from 'react';
-import { ProductionPlanRes } from '@internal/shared';
-import EveIconAndName from 'components/util/EveIconAndName';
 import { LoadingButton } from '@mui/lab';
 import { groupBy, uniqueId } from 'underscore';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { ProductionPlanRes } from '@internal/shared';
+import EveIconAndName from 'components/util/EveIconAndName';
 import { fetchProductionPlan, selectProductionPlan } from 'redux/slices/productionPlanSlice';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 
@@ -32,10 +33,26 @@ export default function DashboardProductionPlanCard() {
 
   const [selectedTab, setSelectedTab] = useState(SelectedTab.RUNS);
 
+  const [refreshingAssets, setRefreshingAssets] = useState(false);
+  const onRefreshAssetsClick = async () => {
+    setRefreshingAssets(true);
+    const { status } = await axios.delete('/clear_assets_cache');
+    if (status === 200) {
+      dispatch(fetchProductionPlan());
+    }
+    setRefreshingAssets(false);
+  };
+
   return (
     <Card>
       <CardContent>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 1 }}>
+        <Box sx={{
+          borderBottom: 1,
+          borderColor: 'divider',
+          mb: 1,
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}>
           <Tabs
             value={selectedTab}
             onChange={(_, newValue) => setSelectedTab(newValue)}
@@ -43,6 +60,14 @@ export default function DashboardProductionPlanCard() {
             <Tab label="Runs" value={SelectedTab.RUNS} />
             <Tab label="Materials" value={SelectedTab.MATERIALS} />
           </Tabs>
+          <LoadingButton
+            sx={{ height: '40px' }}
+            loading={refreshingAssets}
+            variant="contained"
+            size="small"
+            onClick={onRefreshAssetsClick}>
+            Refresh Assets
+          </LoadingButton>
         </Box>
         {selectedTab === SelectedTab.MATERIALS
           ? <MaterialsTab data={data.value} loading={data.loading} />

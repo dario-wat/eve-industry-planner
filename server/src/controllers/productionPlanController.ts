@@ -18,7 +18,7 @@ const controller = (app: Router) => {
       );
       res.json(productionPlan);
     },
-  )
+  );
 };
 
 export default controller;

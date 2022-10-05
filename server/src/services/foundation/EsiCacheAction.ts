@@ -120,4 +120,16 @@ export namespace EsiCacheAction {
       truncate: true
     });
   }
+
+  export async function genClearCacheByKey(
+    key: string,
+    item: EsiCacheItem,
+  ): Promise<void> {
+    await EsiCache.destroy({
+      where: {
+        key,
+        item: item.toString(),
+      }
+    });
+  }
 }
