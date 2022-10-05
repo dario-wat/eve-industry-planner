@@ -38,7 +38,7 @@ export default function DashboardProductionPlanCard() {
     setRefreshingAssets(true);
     const { status } = await axios.delete('/clear_assets_cache');
     if (status === 200) {
-      dispatch(fetchProductionPlan());
+      await dispatch(fetchProductionPlan());
     }
     setRefreshingAssets(false);
   };
