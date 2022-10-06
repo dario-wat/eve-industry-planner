@@ -1,8 +1,10 @@
 import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import axios from 'axios';
 import useAxios from 'axios-hooks';
 import React, { useEffect, useState } from 'react';
@@ -10,8 +12,6 @@ import { EveAssetsLocationsRes, MaterialStationsRes } from '@internal/shared';
 import { uniq } from 'underscore';
 
 export default function DashboardStationSelectCard() {
-  // TODO(EIP-20) this is used in multiple places. That shouldn't be the case
-  // I should somehow memoize this
   const [{
     data: assetLocations,
     loading: loadingAssets,
@@ -45,8 +45,13 @@ export default function DashboardStationSelectCard() {
   };
 
   return (
-    <Card sx={{ height: 500 }}>
+    <Card>
       <CardContent>
+        <Box sx={{ pb: 2 }}>
+          <Typography variant="h6">
+            Configuration
+          </Typography>
+        </Box>
         <Autocomplete
           multiple
           loading={loadingStations}
