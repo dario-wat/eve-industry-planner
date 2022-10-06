@@ -1,6 +1,8 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
@@ -11,19 +13,21 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ScribbleRes, ScribblesRes } from '@internal/shared';
 import { CircularProgress } from '@material-ui/core';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 export default function DashboardScribblesCard() {
   const [{ data, loading }, refetch] = useAxios<ScribblesRes>('/scribbles');
   const [scribbles, setScribbles] = useState<ScribblesRes>([]);
+  useEffect(
+    () => setScribbles(data ?? []),
+    [data],
+  );
+
   const setScribblesFull = (newText: string, index: number) =>
     setScribbles(scribbles.map((s, i) => ({
       name: s.name,
       text: i === index ? newText : s.text,
     })));
-  useEffect(
-    () => setScribbles(data ?? []),
-    [data],
-  );
 
   const [selectedTab, setSelectedTab] = useState(0);
 
@@ -92,10 +96,21 @@ function Scribble(props: {
   onSave: () => void,
   onDelete: () => void,
 }) {
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  const columns: GridColDef[] = [
+    {
+      field: 'data',
+      headerName: 'Data',
+      sortable: false,
+    },
+  ];
+
   const [isSaving, setIsSaving] = useState(false);
   const onSaveClick = () => {
     setIsSaving(true);
     props.onSave();
+    setIsEditMode(false);
     setIsSaving(false);
   };
 
@@ -108,28 +123,20 @@ function Scribble(props: {
     }
     setIsDeleting(false);
   };
+
   return (
     <>
-      <Box sx={{ pb: 2 }}>
-        <TextField
-          fullWidth
-          multiline
-          rows={15}
-          placeholder="Scribble something"
-          value={props.text}
-          onChange={e => props.onChange(e.target.value)}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', pb: 2 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={isEditMode}
+              onChange={e => setIsEditMode(e.target.checked)}
+            />
+          }
+          label="Edit"
+          labelPlacement="start"
         />
-      </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Box sx={{ pr: 4 }}>
-          <LoadingButton
-            loading={isSaving}
-            variant="contained"
-            onClick={onSaveClick}
-          >
-            Save
-          </LoadingButton>
-        </Box>
         <LoadingButton
           loading={isDeleting}
           variant="contained"
@@ -139,6 +146,39 @@ function Scribble(props: {
           Delete
         </LoadingButton>
       </Box>
+      <Box sx={{ pb: 2 }}>
+        {isEditMode
+          ?
+          <TextField
+            fullWidth
+            multiline
+            rows={15}
+            placeholder="Scribble something"
+            value={props.text}
+            onChange={e => props.onChange(e.target.value)}
+          />
+          :
+          <DataGrid
+            hideFooter
+            rows={props.text.split(/\r?\n/).map(l => ({ data: l }))}
+            columns={columns}
+            disableSelectionOnClick
+            disableColumnMenu
+            experimentalFeatures={{ newEditingApi: true }}
+          />
+        }
+      </Box>
+      {isEditMode &&
+        <Box sx={{ pr: 4 }}>
+          <LoadingButton
+            loading={isSaving}
+            variant="contained"
+            onClick={onSaveClick}
+          >
+            Save
+          </LoadingButton>
+        </Box>
+      }
     </>
   );
 }
