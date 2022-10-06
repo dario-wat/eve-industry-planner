@@ -129,3 +129,10 @@ export type LinkedCharacterRes = {
   characterName: string | undefined,
   portrait: string,
 }[];
+
+export type ScribbleRes = {
+  name: string,
+  text: string,
+};
+
+export type ScribblesRes = ScribbleRes[];

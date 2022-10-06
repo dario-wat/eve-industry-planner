@@ -1,11 +1,11 @@
 import { Service } from 'typedi';
 import { Scribble } from '../models/Scribble';
+import { ScribbleRes, ScribblesRes } from '@internal/shared';
 
 @Service()
 export default class ScribbleService {
 
-  // TODO needs type
-  public static async genAll(characterId: number) {
+  public static async genAll(characterId: number): Promise<ScribblesRes> {
     const scribbles = await Scribble.findAll({
       where: {
         characterId,
@@ -18,7 +18,7 @@ export default class ScribbleService {
     characterId: number,
     name: string,
     text: string,
-  ) {
+  ): Promise<ScribbleRes> {
     await Scribble.destroy({
       where: {
         characterId,
