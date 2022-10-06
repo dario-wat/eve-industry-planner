@@ -65,7 +65,7 @@ export default function DashboardScribblesCard() {
             <Tab icon={<AddIcon />} value={scribbles.length} />
           </Tabs>
         </Box>
-        {selectedTab < scribbles.length &&   // TODO no scribbles nullstate
+        {selectedTab < scribbles.length &&
           <Scribble
             text={scribbles[selectedTab].text}
             onChange={(text) => setScribblesFull(text, selectedTab)}
@@ -73,7 +73,9 @@ export default function DashboardScribblesCard() {
           />
         }
         {selectedTab === scribbles.length &&
-          <div>TODO</div>
+          <AddScribble onAdded={addedScribble =>
+            setScribbles([...scribbles, addedScribble])}
+          />
         }
       </CardContent>
     </Card>
@@ -109,5 +111,40 @@ function Scribble(props: {
         Save
       </LoadingButton>
     </>
+  );
+}
+
+function AddScribble(props: {
+  onAdded: (name: ScribbleRes) => void,
+}) {
+  const [name, setName] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+
+  const onAddClick = async () => {
+    setIsAdding(true);
+    const { data } = await axios.post<ScribbleRes>(
+      '/create_scribble',
+      { name, text: '' },
+    );
+    props.onAdded(data)
+    setIsAdding(false);
+  };
+
+  return (
+    <Box>
+      <TextField
+        sx={{ display: 'block', pb: 2 }}
+        label="Scribble Name"
+        variant="outlined"
+        value={name}
+        onChange={e => setName(e.target.value)}
+      />
+      <LoadingButton
+        loading={isAdding}
+        variant="contained"
+        onClick={onAddClick}>
+        Add
+      </LoadingButton>
+    </Box>
   );
 }
