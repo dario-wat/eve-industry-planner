@@ -12,9 +12,8 @@ import axios from 'axios';
 import { ScribbleRes, ScribblesRes } from '@internal/shared';
 import { CircularProgress } from '@material-ui/core';
 
-// TODO delete a scribble
 export default function DashboardScribblesCard() {
-  const [{ data, loading }] = useAxios<ScribblesRes>('/scribbles');
+  const [{ data, loading }, refetch] = useAxios<ScribblesRes>('/scribbles');
   const [scribbles, setScribbles] = useState<ScribblesRes>([]);
   const setScribblesFull = (newText: string, index: number) =>
     setScribbles(scribbles.map((s, i) => ({
@@ -37,7 +36,6 @@ export default function DashboardScribblesCard() {
       </Card>
     );
   }
-  console.log(scribbles);
 
   const onSaveButtonClick = async (index: number) => {
     const { data } = await axios.post<ScribbleRes>(
@@ -67,9 +65,14 @@ export default function DashboardScribblesCard() {
         </Box>
         {selectedTab < scribbles.length &&
           <Scribble
+            name={scribbles[selectedTab].name}
             text={scribbles[selectedTab].text}
             onChange={(text) => setScribblesFull(text, selectedTab)}
             onSave={() => onSaveButtonClick(selectedTab)}
+            onDelete={() => {
+              refetch();
+              setSelectedTab(0);
+            }}
           />
         }
         {selectedTab === scribbles.length &&
@@ -83,9 +86,11 @@ export default function DashboardScribblesCard() {
 }
 
 function Scribble(props: {
+  name: string,
   text: string,
   onChange: (text: string) => void,
   onSave: () => void,
+  onDelete: () => void,
 }) {
   const [isSaving, setIsSaving] = useState(false);
   const onSaveClick = () => {
@@ -93,23 +98,47 @@ function Scribble(props: {
     props.onSave();
     setIsSaving(false);
   };
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const onDeleteClick = async () => {
+    setIsDeleting(true);
+    const { status } = await axios.delete(`/delete_scribble/${props.name}`);
+    if (status === 200) {
+      props.onDelete();
+    }
+    setIsDeleting(false);
+  };
   return (
     <>
-      <TextField
-        fullWidth
-        multiline
-        rows={15}
-        placeholder="Scribble something"
-        value={props.text}
-        onChange={e => props.onChange(e.target.value)}
-      />
-      <LoadingButton
-        loading={isSaving}
-        variant="contained"
-        onClick={onSaveClick}
-      >
-        Save
-      </LoadingButton>
+      <Box sx={{ pb: 2 }}>
+        <TextField
+          fullWidth
+          multiline
+          rows={15}
+          placeholder="Scribble something"
+          value={props.text}
+          onChange={e => props.onChange(e.target.value)}
+        />
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ pr: 4 }}>
+          <LoadingButton
+            loading={isSaving}
+            variant="contained"
+            onClick={onSaveClick}
+          >
+            Save
+          </LoadingButton>
+        </Box>
+        <LoadingButton
+          loading={isDeleting}
+          variant="contained"
+          color="error"
+          onClick={onDeleteClick}
+        >
+          Delete
+        </LoadingButton>
+      </Box>
     </>
   );
 }

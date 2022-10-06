@@ -32,4 +32,16 @@ export default class ScribbleService {
     });
     return scribble.get();
   }
+
+  public static async genDelete(
+    characterId: number,
+    name: string,
+  ): Promise<void> {
+    await Scribble.destroy({
+      where: {
+        characterId,
+        name,
+      },
+    });
+  }
 }

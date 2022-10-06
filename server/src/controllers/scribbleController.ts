@@ -27,6 +27,18 @@ const controller = (app: Router) => {
       res.json(output);
     },
   );
+
+  app.delete(
+    '/delete_scribble/:name',
+    async (req: Request, res: Response) => {
+      const characterId = req.session.characterId!;
+      await ScribbleService.genDelete(
+        characterId,
+        req.params.name,
+      );
+      res.status(200).end();
+    },
+  );
 };
 
 export default controller;
