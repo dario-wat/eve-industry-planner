@@ -102,6 +102,7 @@ function Scribble(props: {
     {
       field: 'data',
       headerName: 'Data',
+      flex: 1,
       sortable: false,
     },
   ];
