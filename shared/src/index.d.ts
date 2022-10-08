@@ -58,6 +58,7 @@ export type EveLoggedInUserRes = {
 export type PlannedProductsRes = {
   name: string,
   typeId: number,
+  group: string,
   categoryId: number | undefined,
   quantity: number,
   stock: number,
@@ -67,6 +68,7 @@ export type PlannedProductsRes = {
 export type PlannedProductsWithErrorRes = {
   name: string,
   typeId?: number,
+  group?: string,
   categoryId?: number | undefined,
   quantity?: number,
   stock?: number,

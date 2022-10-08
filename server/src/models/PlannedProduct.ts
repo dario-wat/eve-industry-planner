@@ -22,6 +22,10 @@ export const plannedProductModelDefine =
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      group: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
       sequelize,

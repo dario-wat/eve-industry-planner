@@ -1,13 +1,18 @@
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import Switch from '@mui/material/Switch';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { withStyles } from '@material-ui/styles';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -18,22 +23,28 @@ import { filterNullOrUndef, PlannedProductsRes, PlannedProductsWithErrorRes } fr
 import { useAppDispatch } from 'redux/hooks';
 import axios from 'axios';
 import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
-import { first } from 'underscore';
+import { first, groupBy } from 'underscore';
 import EveIconAndName from 'components/util/EveIconAndName';
-import { Button } from '@mui/material';
+
+const ADD_TAB = 'add_tab';
 
 export default function DashboardProductsCard() {
   const [{ data, loading }, refetch] =
     useAxios<PlannedProductsRes>('/planned_products');
 
-  const dispatch = useAppDispatch();
-
   const [plannedProducts, setPlannedProducts] =
     useState<PlannedProductsRes>([]);
   useEffect(() => setPlannedProducts(data ?? []), [data]);
 
-  const [useGrid, setUseGrid] = useState(true);
+  const groupedPlannedProducts = groupBy(plannedProducts, pp => pp.group);
 
+  const [selectedTab, setSelectedTab] = useState(ADD_TAB);
+  useEffect(
+    () => setSelectedTab(first(Object.keys(groupedPlannedProducts)) || ADD_TAB),
+    [groupedPlannedProducts],
+  );
+
+  const dispatch = useAppDispatch();
   const onChange = () => {
     refetch();
     dispatch(fetchProductionPlan());
@@ -42,49 +53,85 @@ export default function DashboardProductsCard() {
   return (
     <Card sx={{ height: 'auto' }}>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography
-            style={{ display: 'inline-block' }}
-            variant="h6"
-            gutterBottom
-          >
-            Products
-          </Typography>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={useGrid}
-                onChange={e => setUseGrid(e.target.checked)}
-              />
-            }
-            label="Use Grid"
-            labelPlacement="start"
-          />
-        </Box>
-        {useGrid
-          ?
-          <DashboardProductsDataGrid
-            plannedProducts={plannedProducts}
-            loading={loading}
-            onItemDelete={onChange}
-            onItemAdd={onChange} />
+        <Typography
+          style={{ display: 'inline-block' }}
+          variant="h6"
+          gutterBottom
+        >
+          Products
+        </Typography>
+        {loading
+          ? <CircularProgress />
           :
-          <DashboardProductsTextArea
-            plannedProducts={plannedProducts}
-            onUpdate={pps => {
-              setPlannedProducts(pps);
-              setUseGrid(true);
-            }} />
+          <>
+            <Box sx={{
+              borderBottom: 1,
+              borderColor: 'divider',
+              mb: 1,
+              display: 'flex',
+            }}>
+              <Tabs
+                value={selectedTab}
+                onChange={(_, newValue) => setSelectedTab(newValue)}>
+                {Object.keys(groupedPlannedProducts).map(group =>
+                  <Tab label={group} value={group} key={group} />
+                )}
+                <Tab icon={<AddIcon />} value={ADD_TAB} />
+              </Tabs>
+            </Box>
+            {selectedTab !== ADD_TAB
+              &&
+              <DashboardProducts
+                group={selectedTab}
+                plannedProducts={plannedProducts}
+                onChange={onChange} />
+            }
+          </>
         }
       </CardContent>
     </Card>
   );
 }
 
+function DashboardProducts(props: {
+  group: string,
+  plannedProducts: PlannedProductsRes,
+  onChange: () => void,
+}) {
+  const [useGrid, setUseGrid] = useState(true);
+  return (
+    <>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={useGrid}
+            onChange={e => setUseGrid(e.target.checked)}
+          />
+        }
+        label="Use Grid"
+        labelPlacement="start"
+      />
+      {useGrid
+        ?
+        <DashboardProductsDataGrid
+          plannedProducts={props.plannedProducts}
+          onItemDelete={props.onChange}
+          onItemAdd={props.onChange} />
+        :
+        <DashboardProductsTextArea
+          plannedProducts={props.plannedProducts}
+          onUpdate={pps => {
+            // setPlannedProducts(pps); // TODO
+            setUseGrid(true);
+          }} />
+      }
+    </>
+  );
+}
+
 function DashboardProductsDataGrid(
   props: {
     plannedProducts: PlannedProductsRes,
-    loading: boolean,
     onItemDelete: () => void,
     onItemAdd: () => void,
   }
@@ -106,6 +153,7 @@ function DashboardProductsDataGrid(
   };
 
   const onAddItemClick = async (typeName: string, quantity: number) => {
+    // TODO modify for group
     const { status } = await axios.post(
       '/planned_product_add',
       { typeName, quantity },
@@ -165,7 +213,6 @@ function DashboardProductsDataGrid(
     <>
       <Box sx={{ pb: 1 }}>
         <DataGrid
-          loading={props.loading}
           hideFooter
           rows={props.plannedProducts}
           columns={columns}
@@ -248,6 +295,7 @@ function DashboardProductsTextArea(
   const [errors, setErrors] = useState<string[]>([]);
   const onButtonClick = async () => {
     setIsSubmitting(true);
+    // TODO modify for group
     const { data } = await axios.post<PlannedProductsWithErrorRes>(
       '/planned_products_recreate',
       { text },
@@ -259,6 +307,7 @@ function DashboardProductsTextArea(
       props.onUpdate(data.map(pp => ({
         name: pp.name,
         typeId: pp.typeId!,
+        group: pp.group!,
         categoryId: pp.categoryId!,
         quantity: pp.quantity!,
         stock: pp.stock!,

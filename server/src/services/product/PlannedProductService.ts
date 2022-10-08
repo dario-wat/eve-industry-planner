@@ -21,7 +21,7 @@ export default class PlannedProductService {
 
   public async genData(characterId: number): Promise<PlannedProductsRes> {
     const plannedProducts = await PlannedProduct.findAll({
-      attributes: ['type_id', 'quantity'],
+      attributes: ['type_id', 'quantity', 'group'],
       where: {
         character_id: characterId,
       },
@@ -124,6 +124,7 @@ export default class PlannedProductService {
     return plannedProducts.map(pp => ({
       name: this.sdeData.types[pp.get().type_id].name,
       typeId: pp.get().type_id,
+      group: pp.get().group,
       categoryId: this.sdeData.categoryIdFromTypeId(pp.get().type_id),
       quantity: pp.get().quantity,
       stock: assets[pp.get().type_id] ?? 0,
