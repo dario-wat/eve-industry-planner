@@ -22,14 +22,11 @@ export default function DashboardProductsCard() {
   const [{ data, loading }, refetch] =
     useAxios<PlannedProductsRes>('/planned_products');
 
-  const [groupedPlannedProducts, setGroupedPlannedProducts] =
-    useState<{ [group: string]: PlannedProductsRes }>({});
-  useEffect(() =>
-    setGroupedPlannedProducts(groupBy(data ?? [], pp => pp.group)),
-    [data],
-  );
+  const groupedPlannedProducts = groupBy(data ?? [], pp => pp.group);
 
-  const [selectedTab, setSelectedTab] = useState(ADD_TAB);
+  const [selectedTab, setSelectedTab] = useState(
+    first(Object.keys(groupedPlannedProducts)) || ADD_TAB,
+  );
   useEffect(
     () => setSelectedTab(first(Object.keys(groupedPlannedProducts)) || ADD_TAB),
     [groupedPlannedProducts],
@@ -81,15 +78,9 @@ export default function DashboardProductsCard() {
               <DashboardProducts
                 group={selectedTab}
                 plannedProducts={groupedPlannedProducts[selectedTab]}
-                onItemChange={onChange}
-                onGroupDelete={onChange}
-                onUpdate={pps => setGroupedPlannedProducts(
-                  gpps => ({ ...gpps, [selectedTab]: pps }))
-                } />
+                onGroupDelete={onChange} />
               :
-              <NewGroupTab onUpdate={(pps, group) => setGroupedPlannedProducts(
-                gpps => ({ ...gpps, [group]: pps }))
-              } />
+              <NewGroupTab onUpdate={onChange} />
             }
           </>
         }

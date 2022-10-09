@@ -19,11 +19,27 @@ export default class PlannedProductService {
     private readonly esiQuery: EsiTokenlessQueryService,
   ) { }
 
-  public async genData(characterId: number): Promise<PlannedProductsRes> {
+  public async genAllPlannedProducts(
+    characterId: number,
+  ): Promise<PlannedProductsRes> {
     const plannedProducts = await PlannedProduct.findAll({
       attributes: ['type_id', 'quantity', 'group'],
       where: {
         character_id: characterId,
+      },
+    });
+    return await this.genProductsForResponse(characterId, plannedProducts);
+  }
+
+  public async genPlannedProductsForGroup(
+    characterId: number,
+    group: string,
+  ): Promise<PlannedProductsRes> {
+    const plannedProducts = await PlannedProduct.findAll({
+      attributes: ['type_id', 'quantity', 'group'],
+      where: {
+        character_id: characterId,
+        group,
       },
     });
     return await this.genProductsForResponse(characterId, plannedProducts);

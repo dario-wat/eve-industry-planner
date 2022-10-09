@@ -2,24 +2,30 @@ import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { PlannedProductsRes } from '@internal/shared';
+import { useAppDispatch } from 'redux/hooks';
+import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 import DashboardProductsDataGrid from './DashboardProductsDataGrid';
 
-// TODO this will need a rework
 export default function DashboardProducts(props: {
   group: string,
   plannedProducts: PlannedProductsRes,
-  onItemChange: () => void,
   onGroupDelete: () => void,
-  onUpdate: (plannedProducts: PlannedProductsRes) => void,
 }) {
+  const [plannedProducts, setPlannedProducts] =
+    useState<PlannedProductsRes>([]);
+  useEffect(
+    () => setPlannedProducts(props.plannedProducts),
+    [props.plannedProducts],
+  );
+
   const [useGrid, setUseGrid] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const onDeleteClick = async () => {
+  const onDeleteGroupClick = async () => {
     setIsDeleting(true);
     const { status } = await axios.delete(
       `/planned_product_group_delete/${props.group}`,
@@ -29,6 +35,16 @@ export default function DashboardProducts(props: {
     }
     setIsDeleting(false);
   };
+
+  const dispatch = useAppDispatch();
+  const onProductChange = async () => {
+    const { data } = await axios.get<PlannedProductsRes>(
+      `/planned_products_group/${props.group}`,
+    );
+    setPlannedProducts(data);
+    dispatch(fetchProductionPlan());
+  };
+
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', pb: 2 }}>
@@ -46,7 +62,7 @@ export default function DashboardProducts(props: {
           loading={isDeleting}
           variant="contained"
           color="error"
-          onClick={onDeleteClick}
+          onClick={onDeleteGroupClick}
         >
           Delete
         </LoadingButton>
@@ -55,15 +71,15 @@ export default function DashboardProducts(props: {
         ?
         <DashboardProductsDataGrid
           group={props.group}
-          plannedProducts={props.plannedProducts}
-          onItemDelete={props.onItemChange}
-          onItemAdd={props.onItemChange} />
+          plannedProducts={plannedProducts}
+          onItemDelete={onProductChange}
+          onItemAdd={onProductChange} />
         :
         <DashboardProductsTextArea
           group={props.group}
-          plannedProducts={props.plannedProducts}
+          plannedProducts={plannedProducts}
           onUpdate={pps => {
-            props.onUpdate(pps);
+            onProductChange();
             setUseGrid(true);
           }} />
       }

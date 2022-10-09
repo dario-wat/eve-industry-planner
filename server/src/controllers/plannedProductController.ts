@@ -13,7 +13,21 @@ const controller = (app: Router) => {
     '/planned_products',
     async (req: Request, res: Response) => {
       const characterId = req.session.characterId!;
-      const products = await plannedProductService.genData(characterId);
+      const products = await plannedProductService.genAllPlannedProducts(
+        characterId,
+      );
+      res.json(products);
+    },
+  );
+
+  app.get(
+    '/planned_products_group/:group',
+    async (req: Request, res: Response) => {
+      const characterId = req.session.characterId!;
+      const products = await plannedProductService.genPlannedProductsForGroup(
+        characterId,
+        req.params.group,
+      );
       res.json(products);
     },
   );
