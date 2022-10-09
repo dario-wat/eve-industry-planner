@@ -18,7 +18,7 @@ import {
 export default function DashboardProductsTextArea(props: {
   group: string,
   plannedProducts: PlannedProductsRes,
-  onUpdate: (plannedProducts: PlannedProductsRes) => void,
+  onUpdate: () => void,
 }) {
   const [text, setText] = useState('');
   useEffect(
@@ -41,15 +41,7 @@ export default function DashboardProductsTextArea(props: {
     const errors = filterNullOrUndef(data.map(pp => pp.error));
     if (errors.length === 0) {
       // Update only when no errors
-      props.onUpdate(data.map(pp => ({
-        name: pp.name,
-        typeId: pp.typeId!,
-        group: pp.group!,
-        categoryId: pp.categoryId!,
-        quantity: pp.quantity!,
-        stock: pp.stock!,
-        active: pp.active!,
-      })));
+      props.onUpdate();
 
       // Trigger new production plan
       dispatch(fetchProductionPlan());

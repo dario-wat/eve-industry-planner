@@ -78,7 +78,7 @@ export default function DashboardProducts(props: {
         <DashboardProductsTextArea
           group={props.group}
           plannedProducts={plannedProducts}
-          onUpdate={pps => {
+          onUpdate={() => {
             onProductChange();
             setUseGrid(true);
           }} />

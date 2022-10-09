@@ -90,7 +90,7 @@ export default function DashboardProductsCard() {
 }
 
 function NewGroupTab(props: {
-  onUpdate: (plannedProducts: PlannedProductsRes, group: string) => void,
+  onUpdate: () => void,
 }) {
   const [name, setName] = useState('');
   return (
@@ -106,7 +106,7 @@ function NewGroupTab(props: {
       <DashboardProductsTextArea
         group={name}
         plannedProducts={[]}
-        onUpdate={pps => props.onUpdate(pps, name)} />
+        onUpdate={() => props.onUpdate()} />
     </>
   );
 }
