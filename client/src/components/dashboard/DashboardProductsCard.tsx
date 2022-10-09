@@ -62,7 +62,13 @@ export default function DashboardProductsCard() {
           Products
         </Typography>
         {loading
-          ? <CircularProgress />
+          ?
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center">
+            <CircularProgress />
+          </Box>
           :
           <>
             <Box sx={{
