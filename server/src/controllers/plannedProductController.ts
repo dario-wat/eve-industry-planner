@@ -34,6 +34,7 @@ const controller = (app: Router) => {
       const characterId = req.session.characterId!;
       const products = await plannedProductService.genParseAndRecreate(
         characterId,
+        req.body.group,
         req.body.text,
       );
       res.json(products);
@@ -41,11 +42,12 @@ const controller = (app: Router) => {
   );
 
   app.delete(
-    '/planned_product_delete/:type_id',
+    '/planned_product_delete/:group/:type_id',
     async (req: Request, res: Response) => {
       const characterId = req.session.characterId!;
       await plannedProductService.genDelete(
         characterId,
+        req.params.group,
         Number(req.params.type_id),
       );
       res.status(200).end();
@@ -58,6 +60,7 @@ const controller = (app: Router) => {
       const characterId = req.session.characterId!;
       await plannedProductService.genAddPlannedProduct(
         characterId,
+        req.body.group,
         req.body.typeName,
         req.body.quantity,
       );

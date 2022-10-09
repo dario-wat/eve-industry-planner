@@ -37,6 +37,7 @@ export default class PlannedProductService {
   */
   public async genParseAndRecreate(
     characterId: number,
+    group: string,
     content: string,
   ): Promise<PlannedProductsWithErrorRes> {
     const lines = PlannedProductService.parseInput(content);
@@ -49,6 +50,7 @@ export default class PlannedProductService {
     await PlannedProduct.destroy({
       where: {
         character_id: characterId,
+        group,
       },
     });
 
@@ -56,6 +58,7 @@ export default class PlannedProductService {
     const result = await PlannedProduct.bulkCreate(
       lines.map(l => ({
         character_id: characterId,
+        group,
         type_id: this.sdeData.typeByName[l.name].id,
         quantity: l.quantity,
       }))
@@ -133,10 +136,15 @@ export default class PlannedProductService {
     }));
   }
 
-  public async genDelete(characterId: number, typeId: number): Promise<void> {
+  public async genDelete(
+    characterId: number,
+    group: string,
+    typeId: number,
+  ): Promise<void> {
     await PlannedProduct.destroy({
       where: {
         character_id: characterId,
+        group,
         type_id: typeId,
       },
     });
@@ -144,6 +152,7 @@ export default class PlannedProductService {
 
   public async genAddPlannedProduct(
     characterId: number,
+    group: string,
     typeName: string,
     quantity: number,
   ): Promise<void> {
@@ -154,6 +163,7 @@ export default class PlannedProductService {
     const result = await PlannedProduct.findAll({
       where: {
         character_id: characterId,
+        group,
         type_id: this.sdeData.typeByName[typeName].id,
       }
     });
@@ -163,6 +173,7 @@ export default class PlannedProductService {
       await PlannedProduct.destroy({
         where: {
           character_id: characterId,
+          group,
           type_id: this.sdeData.typeByName[typeName].id,
         }
       });
@@ -170,6 +181,7 @@ export default class PlannedProductService {
 
     await PlannedProduct.create({
       character_id: characterId,
+      group,
       type_id: this.sdeData.typeByName[typeName].id,
       quantity: totalQuantity + quantity,
     });

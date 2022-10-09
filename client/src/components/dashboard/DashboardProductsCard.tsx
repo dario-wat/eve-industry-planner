@@ -32,11 +32,12 @@ export default function DashboardProductsCard() {
   const [{ data, loading }, refetch] =
     useAxios<PlannedProductsRes>('/planned_products');
 
-  const [plannedProducts, setPlannedProducts] =
-    useState<PlannedProductsRes>([]);
-  useEffect(() => setPlannedProducts(data ?? []), [data]);
-
-  const groupedPlannedProducts = groupBy(plannedProducts, pp => pp.group);
+  const [groupedPlannedProducts, setGroupedPlannedProducts] =
+    useState<{ [group: string]: PlannedProductsRes }>({});
+  useEffect(() =>
+    setGroupedPlannedProducts(groupBy(data ?? [], pp => pp.group)),
+    [data],
+  );
 
   const [selectedTab, setSelectedTab] = useState(ADD_TAB);
   useEffect(
@@ -80,11 +81,18 @@ export default function DashboardProductsCard() {
               </Tabs>
             </Box>
             {selectedTab !== ADD_TAB
-              &&
+              ?
               <DashboardProducts
                 group={selectedTab}
-                plannedProducts={plannedProducts}
-                onChange={onChange} />
+                plannedProducts={groupedPlannedProducts[selectedTab]}
+                onChange={onChange}
+                onUpdate={pps => setGroupedPlannedProducts(
+                  gpps => ({ ...gpps, [selectedTab]: pps }))
+                } />
+              :
+              <NewGroupTab onUpdate={(pps, group) => setGroupedPlannedProducts(
+                gpps => ({ ...gpps, [group]: pps }))
+              } />
             }
           </>
         }
@@ -97,6 +105,7 @@ function DashboardProducts(props: {
   group: string,
   plannedProducts: PlannedProductsRes,
   onChange: () => void,
+  onUpdate: (plannedProducts: PlannedProductsRes) => void,
 }) {
   const [useGrid, setUseGrid] = useState(true);
   return (
@@ -114,14 +123,16 @@ function DashboardProducts(props: {
       {useGrid
         ?
         <DashboardProductsDataGrid
+          group={props.group}
           plannedProducts={props.plannedProducts}
           onItemDelete={props.onChange}
           onItemAdd={props.onChange} />
         :
         <DashboardProductsTextArea
+          group={props.group}
           plannedProducts={props.plannedProducts}
           onUpdate={pps => {
-            // setPlannedProducts(pps); // TODO
+            props.onUpdate(pps);
             setUseGrid(true);
           }} />
       }
@@ -129,8 +140,31 @@ function DashboardProducts(props: {
   );
 }
 
+function NewGroupTab(props: {
+  onUpdate: (plannedProducts: PlannedProductsRes, group: string) => void,
+}) {
+  const [name, setName] = useState('');
+  return (
+    <>
+      <Box sx={{ pb: 2 }}>
+        <TextField
+          label="Group Name"
+          variant="outlined"
+          value={name}
+          onChange={e => setName(e.target.value)}
+        />
+      </Box>
+      <DashboardProductsTextArea
+        group={name}
+        plannedProducts={[]}
+        onUpdate={pps => props.onUpdate(pps, name)} />
+    </>
+  );
+}
+
 function DashboardProductsDataGrid(
   props: {
+    group: string,
     plannedProducts: PlannedProductsRes,
     onItemDelete: () => void,
     onItemAdd: () => void,
@@ -146,17 +180,18 @@ function DashboardProductsDataGrid(
   const [itemQuantity, setItemQuantity] = useState('');
 
   const onDeleteClick = async (typeId: number) => {
-    const { status } = await axios.delete(`/planned_product_delete/${typeId}`);
+    const { status } = await axios.delete(
+      `/planned_product_delete/${props.group}/${typeId}`,
+    );
     if (status === 200) {
       props.onItemDelete();
     }
   };
 
   const onAddItemClick = async (typeName: string, quantity: number) => {
-    // TODO modify for group
     const { status } = await axios.post(
       '/planned_product_add',
-      { typeName, quantity },
+      { typeName, quantity, group: props.group },
     );
     if (status === 200) {
       props.onItemAdd();
@@ -278,6 +313,7 @@ function DashboardProductsDataGrid(
 
 function DashboardProductsTextArea(
   props: {
+    group: string,
     plannedProducts: PlannedProductsRes,
     onUpdate: (plannedProducts: PlannedProductsRes) => void,
   }
@@ -295,10 +331,9 @@ function DashboardProductsTextArea(
   const [errors, setErrors] = useState<string[]>([]);
   const onButtonClick = async () => {
     setIsSubmitting(true);
-    // TODO modify for group
     const { data } = await axios.post<PlannedProductsWithErrorRes>(
       '/planned_products_recreate',
-      { text },
+      { text, group: props.group },
     );
 
     const errors = filterNullOrUndef(data.map(pp => pp.error));
