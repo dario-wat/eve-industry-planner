@@ -1,31 +1,24 @@
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Grid from '@mui/material/Grid';
-import IconButton from '@mui/material/IconButton';
 import Switch from '@mui/material/Switch';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { withStyles } from '@material-ui/styles';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
 import { useEffect, useState } from 'react';
-import { filterNullOrUndef, PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
+import { PlannedProductsRes } from '@internal/shared';
 import { useAppDispatch } from 'redux/hooks';
 import axios from 'axios';
 import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
 import { first, groupBy } from 'underscore';
-import EveIconAndName from 'components/util/EveIconAndName';
 import DashboardProductsDataGrid from './products_card/DashboardProductsDataGrid';
+import DashboardProductsTextArea from './products_card/DashboardProductsTextArea';
 
 const ADD_TAB = 'add_tab';
 
@@ -195,93 +188,3 @@ function NewGroupTab(props: {
 
 
 
-function DashboardProductsTextArea(
-  props: {
-    group: string,
-    plannedProducts: PlannedProductsRes,
-    onUpdate: (plannedProducts: PlannedProductsRes) => void,
-  }
-) {
-  const [text, setText] = useState('');
-  useEffect(
-    () => setText(
-      props.plannedProducts.map(pp => pp.name + ' ' + pp.quantity).join('\n'),
-    ),
-    [props.plannedProducts],
-  );
-
-  const dispatch = useAppDispatch();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
-  const onButtonClick = async () => {
-    setIsSubmitting(true);
-    const { data } = await axios.post<PlannedProductsWithErrorRes>(
-      '/planned_products_recreate',
-      { text, group: props.group },
-    );
-
-    const errors = filterNullOrUndef(data.map(pp => pp.error));
-    if (errors.length === 0) {
-      // Update only when no errors
-      props.onUpdate(data.map(pp => ({
-        name: pp.name,
-        typeId: pp.typeId!,
-        group: pp.group!,
-        categoryId: pp.categoryId!,
-        quantity: pp.quantity!,
-        stock: pp.stock!,
-        active: pp.active!,
-      })));
-
-      // Trigger new production plan
-      dispatch(fetchProductionPlan());
-    }
-    setErrors(errors);
-    setIsSubmitting(false);
-  };
-
-  const RedTextTypography = withStyles({
-    root: {
-      color: 'red',
-    },
-  })(Typography);
-
-  return (
-    <Box>
-      <TextField
-        sx={{ pb: 2 }}
-        fullWidth
-        multiline
-        placeholder={
-          'Each line is a separate product.\n'
-          + 'Format: "product_name quantity" without quotes\n'
-          + 'E.g.\n'
-          + 'Nanofiber Internal Structure II 10\n'
-          + '1MN Afterburner II 5\n'
-          + 'Kikimora 1'
-        }
-        rows={15}
-        value={text}
-        onChange={e => setText(e.target.value)}
-      />
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <LoadingButton
-            loading={isSubmitting}
-            variant="contained"
-            onClick={onButtonClick}
-          >
-            Submit
-          </LoadingButton>
-        </Grid>
-        <Grid item xs={9} sx={{ display: 'flex' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <RedTextTypography variant='body2'>
-              {first(errors)}
-            </RedTextTypography>
-          </Box>
-        </Grid>
-      </Grid>
-    </Box>
-  );
-}
