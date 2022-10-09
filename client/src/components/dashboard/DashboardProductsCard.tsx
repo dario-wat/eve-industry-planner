@@ -85,7 +85,8 @@ export default function DashboardProductsCard() {
               <DashboardProducts
                 group={selectedTab}
                 plannedProducts={groupedPlannedProducts[selectedTab]}
-                onChange={onChange}
+                onItemChange={onChange}
+                onGroupDelete={onChange}
                 onUpdate={pps => setGroupedPlannedProducts(
                   gpps => ({ ...gpps, [selectedTab]: pps }))
                 } />
@@ -104,29 +105,52 @@ export default function DashboardProductsCard() {
 function DashboardProducts(props: {
   group: string,
   plannedProducts: PlannedProductsRes,
-  onChange: () => void,
+  onItemChange: () => void,
+  onGroupDelete: () => void,
   onUpdate: (plannedProducts: PlannedProductsRes) => void,
 }) {
   const [useGrid, setUseGrid] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const onDeleteClick = async () => {
+    setIsDeleting(true);
+    const { status } = await axios.delete(
+      `/planned_product_group_delete/${props.group}`,
+    );
+    if (status === 200) {
+      props.onGroupDelete();
+    }
+    setIsDeleting(false);
+  };
   return (
     <>
-      <FormControlLabel
-        control={
-          <Switch
-            checked={useGrid}
-            onChange={e => setUseGrid(e.target.checked)}
-          />
-        }
-        label="Use Grid"
-        labelPlacement="start"
-      />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', pb: 2 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={useGrid}
+              onChange={e => setUseGrid(e.target.checked)}
+            />
+          }
+          label="Use Grid"
+          labelPlacement="start"
+        />
+        <LoadingButton
+          loading={isDeleting}
+          variant="contained"
+          color="error"
+          onClick={onDeleteClick}
+        >
+          Delete
+        </LoadingButton>
+      </Box>
       {useGrid
         ?
         <DashboardProductsDataGrid
           group={props.group}
           plannedProducts={props.plannedProducts}
-          onItemDelete={props.onChange}
-          onItemAdd={props.onChange} />
+          onItemDelete={props.onItemChange}
+          onItemAdd={props.onItemChange} />
         :
         <DashboardProductsTextArea
           group={props.group}

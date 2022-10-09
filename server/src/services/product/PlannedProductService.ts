@@ -150,6 +150,18 @@ export default class PlannedProductService {
     });
   }
 
+  public async genDeleteGroup(
+    characterId: number,
+    group: string,
+  ): Promise<void> {
+    await PlannedProduct.destroy({
+      where: {
+        character_id: characterId,
+        group,
+      },
+    });
+  }
+
   public async genAddPlannedProduct(
     characterId: number,
     group: string,

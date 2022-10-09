@@ -54,6 +54,18 @@ const controller = (app: Router) => {
     },
   );
 
+  app.delete(
+    '/planned_product_group_delete/:group',
+    async (req: Request, res: Response) => {
+      const characterId = req.session.characterId!;
+      await plannedProductService.genDeleteGroup(
+        characterId,
+        req.params.group,
+      );
+      res.status(200).end();
+    },
+  );
+
   app.post(
     '/planned_product_add',
     async (req: Request, res: Response) => {
