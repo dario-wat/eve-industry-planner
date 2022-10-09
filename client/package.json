@@ -27,7 +27,8 @@
     "react-router-dom": "^6.4.1",
     "react-scripts": "^4.0.3",
     "redux": "^4.2.0",
-    "redux-thunk": "^2.4.1"
+    "redux-thunk": "^2.4.1",
+    "use-deep-compare-effect": "^1.8.1"
   },
   "scripts": {
     "start": "react-scripts start",

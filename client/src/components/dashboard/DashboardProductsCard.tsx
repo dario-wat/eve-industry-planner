@@ -7,12 +7,13 @@ import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
+import useDeepCompareEffect from 'use-deep-compare-effect'
+import { first, groupBy } from 'underscore';
 import useAxios from 'axios-hooks';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { PlannedProductsRes } from '@internal/shared';
 import { useAppDispatch } from 'redux/hooks';
 import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
-import { first, groupBy } from 'underscore';
 import DashboardProductsTextArea from './products_card/DashboardProductsTextArea';
 import DashboardProducts from './products_card/DashboardProducts';
 
@@ -23,13 +24,12 @@ export default function DashboardProductsCard() {
     useAxios<PlannedProductsRes>('/planned_products');
 
   const groupedPlannedProducts = groupBy(data ?? [], pp => pp.group);
+  const productGroups = Object.keys(groupedPlannedProducts);
 
-  const [selectedTab, setSelectedTab] = useState(
-    first(Object.keys(groupedPlannedProducts)) || ADD_TAB,
-  );
-  useEffect(
-    () => setSelectedTab(first(Object.keys(groupedPlannedProducts)) || ADD_TAB),
-    [groupedPlannedProducts],
+  const [selectedTab, setSelectedTab] = useState(ADD_TAB);
+  useDeepCompareEffect(
+    () => setSelectedTab(first(productGroups) || ADD_TAB),
+    [productGroups],
   );
 
   const dispatch = useAppDispatch();
@@ -67,7 +67,7 @@ export default function DashboardProductsCard() {
               <Tabs
                 value={selectedTab}
                 onChange={(_, newValue) => setSelectedTab(newValue)}>
-                {Object.keys(groupedPlannedProducts).map(group =>
+                {productGroups.map(group =>
                   <Tab label={group} value={group} key={group} />
                 )}
                 <Tab icon={<AddIcon />} value={ADD_TAB} />
