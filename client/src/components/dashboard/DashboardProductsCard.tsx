@@ -78,7 +78,10 @@ export default function DashboardProductsCard() {
               <DashboardProducts
                 group={selectedTab}
                 plannedProducts={groupedPlannedProducts[selectedTab]}
-                onGroupDelete={onChange} />
+                onGroupDelete={() => {
+                  onChange();
+                  setSelectedTab(ADD_TAB);  // Otherwise it will error
+                }} />
               :
               <NewGroupTab onUpdate={onChange} />
             }
