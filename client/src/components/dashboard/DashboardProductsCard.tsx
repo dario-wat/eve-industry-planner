@@ -66,7 +66,9 @@ export default function DashboardProductsCard() {
             }}>
               <Tabs
                 value={selectedTab}
-                onChange={(_, newValue) => setSelectedTab(newValue)}>
+                onChange={(_, newValue) => setSelectedTab(newValue)}
+                variant="scrollable"
+                scrollButtons="auto">
                 {productGroups.map(group =>
                   <Tab label={group} value={group} key={group} />
                 )}
