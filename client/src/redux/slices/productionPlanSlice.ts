@@ -27,10 +27,13 @@ export const productionPlanSlice = createSlice({
   },
 });
 
-export const fetchProductionPlan = () => async (dispatch: AppDispatch) => {
-  const { data } = await axios.get<ProductionPlanRes>('/production_plan');
-  dispatch(setProductionPlan(data));
-};
+export const fetchProductionPlan = (group?: string) =>
+  async (dispatch: AppDispatch) => {
+    const { data } = await axios.get<ProductionPlanRes>(
+      group ? `/production_plan/${group}` : '/production_plan',
+    );
+    dispatch(setProductionPlan(data));
+  };
 
 export const { setProductionPlan } = productionPlanSlice.actions;
 

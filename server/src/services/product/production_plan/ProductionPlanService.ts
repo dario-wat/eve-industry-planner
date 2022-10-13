@@ -31,13 +31,14 @@ export default class ProductionPlanService {
     */
   public async genProductionPlan(
     characterId: number,
+    group?: string,
   ): Promise<ProductionPlanRes> {
     const [plannedProducts, assets, industryJobs] = await Promise.all([
       PlannedProduct.findAll({
         attributes: ['type_id', 'quantity'],
-        where: {
-          character_id: characterId,
-        },
+        where: group
+          ? { character_id: characterId, group }
+          : { character_id: characterId },
       }),
       this.assetService.genAssetsForProductionPlan(characterId),
       this.esiQuery.genxIndustryJobs(characterId),

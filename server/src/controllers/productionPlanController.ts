@@ -10,11 +10,12 @@ const controller = (app: Router) => {
   const productionPlanService = Container.get(ProductionPlanService);
 
   app.get(
-    '/production_plan',
+    '/production_plan/:group?',
     async (req: Request, res: Response) => {
       const characterId = req.session.characterId!;
       const productionPlan = await productionPlanService.genProductionPlan(
         characterId,
+        req.params.group,
       );
       res.json(productionPlan);
     },

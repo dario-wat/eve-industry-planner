@@ -23,6 +23,7 @@ export default function DashboardProducts(props: {
   );
 
   const [useGrid, setUseGrid] = useState(true);
+  const [isIsolated, setIsIsolated] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const onDeleteGroupClick = async () => {
@@ -45,6 +46,15 @@ export default function DashboardProducts(props: {
     dispatch(fetchProductionPlan());
   };
 
+  useEffect(
+    () => {
+      isIsolated
+        ? dispatch(fetchProductionPlan(props.group))
+        : dispatch(fetchProductionPlan());
+    },
+    [isIsolated, dispatch, props.group],
+  );
+
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', pb: 2 }}>
@@ -56,6 +66,18 @@ export default function DashboardProducts(props: {
             />
           }
           label="Use Grid"
+          labelPlacement="start"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={isIsolated}
+              onChange={e => {
+                setIsIsolated(e.target.checked);
+              }}
+            />
+          }
+          label="Isolate"
           labelPlacement="start"
         />
         <LoadingButton
