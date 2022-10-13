@@ -1,4 +1,4 @@
-import Autocomplete from '@mui/material/Autocomplete';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import axios from 'axios';
 import useAxios from 'axios-hooks';
 import React, { useEffect, useState } from 'react';
-import { EveAssetsLocationsRes, MaterialStationsRes } from '@internal/shared';
+import { AlwaysBuyItemsRes, EveAssetsLocationsRes, EveSdeTypesRes, MaterialStationsRes } from '@internal/shared';
 import { uniq } from 'underscore';
 
 export default function DashboardConfigurationCard() {
@@ -20,7 +20,10 @@ export default function DashboardConfigurationCard() {
             Configuration
           </Typography>
         </Box>
-        <MaterialStationConfig />
+        <Box sx={{ pb: 2 }}>
+          <MaterialStationConfig />
+        </Box>
+        <AlwaysBuyConfig />
       </CardContent>
     </Card>
   );
@@ -63,14 +66,14 @@ function MaterialStationConfig() {
     <Autocomplete
       multiple
       loading={loadingStations}
+      options={locations}
+      getOptionLabel={(option: any) => option.station_name}
+      filterSelectedOptions
       isOptionEqualToValue={
         (option, value) => option.station_id === value.station_id
       }
       value={stations}
       onChange={(_, values) => { onChange(values); }}
-      options={locations}
-      getOptionLabel={(option: any) => option.station_name}
-      filterSelectedOptions
       renderInput={(params) => (
         <TextField
           {...params}
@@ -78,6 +81,79 @@ function MaterialStationConfig() {
           InputProps={{
             ...params.InputProps,
             endAdornment: ((loadingAssets || updatingStations) &&
+              <React.Fragment>
+                {<CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </React.Fragment>
+            ),
+          }}
+        />
+      )}
+    />
+  );
+}
+
+function AlwaysBuyConfig() {
+  const [{
+    data: typesData,
+    loading: loadingTypes,
+  }] = useAxios<EveSdeTypesRes>('/type_ids_items');
+  const autocompleteData: AlwaysBuyItemsRes = typesData?.map(d => ({
+    typeId: d.id,
+    typeName: d.name,
+  })) || [];
+
+  const [{
+    data: alwaysBuyData,
+    loading: loadingAlwaysBuy,
+  }] = useAxios<AlwaysBuyItemsRes>('/always_buy_items');
+
+  const [alwaysBuy, setAlwaysBuy] = useState<AlwaysBuyItemsRes>([]);
+  useEffect(() => setAlwaysBuy(alwaysBuyData ?? []), [alwaysBuyData]);
+
+  const [updatingAlwaysBuy, setUpdatingAlwaysBuy] = useState(false);
+  const onChange = async (values: AlwaysBuyItemsRes) => {
+    setUpdatingAlwaysBuy(true);
+    setAlwaysBuy(values);
+    const { data } = await axios.post<AlwaysBuyItemsRes>(
+      '/always_buy_items_update',
+      { typeIds: values.map(v => v.typeId) },
+    );
+    setAlwaysBuy(data);
+    setUpdatingAlwaysBuy(false);
+  };
+
+  return (
+    <Autocomplete
+      multiple
+      loading={loadingAlwaysBuy}
+      options={autocompleteData ?? []}
+      filterOptions={createFilterOptions({ matchFrom: 'any', limit: 10 })}
+      getOptionLabel={option => option.typeName}
+      isOptionEqualToValue={(option, value) => option.typeId === value.typeId}
+      value={alwaysBuy}
+      onChange={(_, values) => { onChange(values); }}
+      renderOption={(props, option: any) =>
+        <li
+          {...props}
+          style={{
+            paddingLeft: '8px',
+            paddingTop: '2px',
+            paddingBottom: '2px',
+          }}
+        >
+          <Typography variant="subtitle2" gutterBottom>
+            {option.typeName}
+          </Typography>
+        </li>
+      }
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Always Buy Item"
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: ((loadingTypes || updatingAlwaysBuy) &&
               <React.Fragment>
                 {<CircularProgress color="inherit" size={20} />}
                 {params.InputProps.endAdornment}

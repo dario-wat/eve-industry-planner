@@ -140,3 +140,5 @@ export type ScribbleRes = {
 export type ScribblesRes = ScribbleRes[];
 
 export type EveSdeTypesRes = { id: number, name: string }[];
+
+export type AlwaysBuyItemsRes = { typeId: number, typeName: string }[];

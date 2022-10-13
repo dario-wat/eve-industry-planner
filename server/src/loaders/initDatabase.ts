@@ -29,6 +29,7 @@ import esiAssocsDefine from '../models/esi_provider/EsiAssocs';
 import { characterClusterModelDefine } from '../models/CharacterCluster';
 import { walletTransactionModelDefine } from '../models/WalletTransaction';
 import { scribbleModelDefine } from '../models/Scribble';
+import { alwaysBuyItemModelDefine } from '../models/AlwaysBuyItem';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -80,6 +81,7 @@ export function initDatabase(): void {
   characterClusterModelDefine(sequelize);
   walletTransactionModelDefine(sequelize);
   scribbleModelDefine(sequelize);
+  alwaysBuyItemModelDefine(sequelize);
 
   // Special
   esiCacheModelDefine(sequelize);

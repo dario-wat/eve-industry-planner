@@ -1,32 +1,32 @@
 import { Request, Response, Router } from 'express';
 import Container from 'typedi';
-import MaterialStationService from '../services/product/MaterialStationService';
+import AlwaysBuyItemService from '../services/product/AlwaysBuyItemService';
 
 const route = Router();
 
 const controller = (app: Router) => {
   app.use('/', route);
 
-  const materialStationService = Container.get(MaterialStationService);
+  const alwaysBuyItemService = Container.get(AlwaysBuyItemService);
 
   app.get(
-    '/material_stations',
+    '/always_buy_items',
     async (req: Request, res: Response) => {
       const characterId = req.session.characterId!;
-      const stations = await materialStationService.genQuery(characterId);
-      res.json(stations);
+      const items = await alwaysBuyItemService.genQuery(characterId);
+      res.json(items);
     },
   );
 
   app.post(
-    '/material_stations_update',
+    '/always_buy_items_update',
     async (req: Request, res: Response) => {
       const characterId = req.session.characterId!;
-      const stations = await materialStationService.genUpdate(
+      const items = await alwaysBuyItemService.genUpdate(
         characterId,
-        req.body.stations.map((s: any) => s.station_id),
+        req.body.typeIds,
       );
-      res.json(stations);
+      res.json(items);
     },
   );
 };

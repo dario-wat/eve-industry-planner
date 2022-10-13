@@ -8,6 +8,7 @@ import initClearCacheController from '../controllers/clearCacheController';
 import initLinkedCharactersController from '../controllers/linkedCharactersController';
 import initSdeDataController from '../controllers/sdeDataController';
 import initScribbleController from '../controllers/scribbleController';
+import initAlwaysBuyItemController from '../controllers/alwaysBuyItemController';
 import loggedOutMiddleware from '../controllers/loggedOutMiddleware';
 
 // NOTE: every new controller needs to be added here
@@ -26,4 +27,5 @@ export function initControllers(app: Express): void {
   initLinkedCharactersController(app);
   initSdeDataController(app);
   initScribbleController(app);
+  initAlwaysBuyItemController(app);
 }
