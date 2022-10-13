@@ -2,6 +2,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
+import Grid from '@mui/material/Grid';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
@@ -58,39 +59,54 @@ export default function DashboardProductsCard() {
           </Box>
           :
           <>
-            <Box sx={{
-              borderBottom: 1,
-              borderColor: 'divider',
-              mb: 1,
-              display: 'flex',
-            }}>
-              <Tabs
-                value={selectedTab}
-                onChange={(_, newValue) => setSelectedTab(newValue)}
-                variant="scrollable"
-                scrollButtons="auto">
-                {productGroups.map(group =>
-                  <Tab label={group} value={group} key={group} />
-                )}
-                <Tab icon={<AddIcon />} value={ADD_TAB} />
-              </Tabs>
-            </Box>
-            {selectedTab !== ADD_TAB
-              ?
-              <DashboardProducts
-                group={selectedTab}
-                plannedProducts={groupedPlannedProducts[selectedTab]}
-                onGroupDelete={() => {
-                  onChange();
-                  setSelectedTab(ADD_TAB);  // Otherwise it will error
-                }} />
-              :
-              <NewGroupTab onUpdate={onChange} />
-            }
+            <Grid container>
+              <Grid item xs={2}>
+                <Box sx={{
+                  borderRight: 1,
+                  borderColor: 'divider',
+                  mr: 1,
+                  pt: 3,
+                  display: 'flex',
+                }}>
+                  <Tabs
+                    orientation="vertical"
+                    value={selectedTab}
+                    onChange={(_, newValue) => setSelectedTab(newValue)}
+                    variant="scrollable"
+                    scrollButtons="auto">
+                    {productGroups.map(group =>
+                      <Tab
+                        sx={{ p: 0, minHeight: '36px', alignItems: 'start' }}
+                        label={group}
+                        value={group}
+                        key={group} />
+                    )}
+                    <Tab
+                      sx={{ p: 0, minHeight: '36px' }}
+                      icon={<AddIcon />}
+                      value={ADD_TAB} />
+                  </Tabs>
+                </Box>
+              </Grid>
+              <Grid item xs={10}>
+                {selectedTab !== ADD_TAB
+                  ?
+                  <DashboardProducts
+                    group={selectedTab}
+                    plannedProducts={groupedPlannedProducts[selectedTab]}
+                    onGroupDelete={() => {
+                      onChange();
+                      setSelectedTab(ADD_TAB);  // Otherwise it will error
+                    }} />
+                  :
+                  <NewGroupTab onUpdate={onChange} />
+                }
+              </Grid>
+            </Grid>
           </>
         }
       </CardContent>
-    </Card>
+    </Card >
   );
 }
 
