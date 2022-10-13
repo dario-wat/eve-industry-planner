@@ -1,11 +1,13 @@
 import { Service } from 'typedi';
+import { groupBy } from 'underscore';
+import { secondsToHours } from 'date-fns';
 import { PlannedProduct } from '../../../models/PlannedProduct';
+import { AlwaysBuyItem } from '../../../models/AlwaysBuyItem';
 import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../query/EveSdeData';
 import { MetaGroup } from '../../../const/MetaGroups';
 import AssetsService from '../AssetsService';
 import EsiTokenlessQueryService from '../../query/EsiTokenlessQueryService';
-import { secondsToHours } from 'date-fns';
 import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
 
@@ -33,23 +35,36 @@ export default class ProductionPlanService {
     characterId: number,
     group?: string,
   ): Promise<ProductionPlanRes> {
-    const [plannedProducts, assets, industryJobs] = await Promise.all([
-      PlannedProduct.findAll({
-        attributes: ['type_id', 'quantity'],
-        where: group
-          ? { character_id: characterId, group }
-          : { character_id: characterId },
-      }),
-      this.assetService.genAssetsForProductionPlan(characterId),
-      this.esiQuery.genxIndustryJobs(characterId),
-    ]);
+    const [plannedProducts, assets, industryJobs, alwaysBuy] =
+      await Promise.all([
+        PlannedProduct.findAll({
+          attributes: ['type_id', 'quantity'],
+          where: group
+            ? { character_id: characterId, group }
+            : { character_id: characterId },
+        }),
+        this.assetService.genAssetsForProductionPlan(characterId),
+        this.esiQuery.genxIndustryJobs(characterId),
+        AlwaysBuyItem.findAll({
+          where: { characterId },
+        }),
+      ]);
+
+    const alwaysBuyTypeIds = alwaysBuy.map(ab => Number(ab.get().typeId));
+    const plannedProductData = groupBy(
+      plannedProducts.map(pp => ({
+        typeId: Number(pp.get().type_id),
+        quantity: Number(pp.get().quantity),
+      })),
+      pp => alwaysBuyTypeIds.includes(pp.typeId) ? 'buy' : 'build',
+    );
 
     const materialsPlan = this.traverseMaterialTree(
-      plannedProducts.map(pp => ({
-        typeId: pp.get().type_id,
-        quantity: pp.get().quantity,
-      })),
+      plannedProductData['build'] ?? [],
       assets,
+    );
+    plannedProductData['buy']?.forEach(pp =>
+      materialsPlan.addQuantity(pp.typeId, pp.quantity)
     );
 
     const creationUtil = new ProductionPlanCreationUtil(
