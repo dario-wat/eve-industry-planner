@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid';
 import DashboardProductionPlanCard from './DashboardProductionPlanCard';
 import DashboardProductsCard from './DashboardProductsCard';
 import DashboardScribblesCard from './DashboardScribblesCard';
-import DashboardStationSelectCard from './DashboardStationSelectCard';
+import DashboardConfigurationCard from './DashboardConfigurationCard';
 
 export default function DashboardPage() {
   return (
@@ -15,7 +15,7 @@ export default function DashboardPage() {
         <Box sx={{ pb: 4 }}>
           <DashboardScribblesCard />
         </Box>
-        <DashboardStationSelectCard />
+        <DashboardConfigurationCard />
       </Grid>
       <Grid item xs={5}>
         <DashboardProductionPlanCard />

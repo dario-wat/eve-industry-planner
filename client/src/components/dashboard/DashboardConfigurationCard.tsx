@@ -11,7 +11,22 @@ import React, { useEffect, useState } from 'react';
 import { EveAssetsLocationsRes, MaterialStationsRes } from '@internal/shared';
 import { uniq } from 'underscore';
 
-export default function DashboardStationSelectCard() {
+export default function DashboardConfigurationCard() {
+  return (
+    <Card>
+      <CardContent>
+        <Box sx={{ pb: 2 }}>
+          <Typography variant="h6">
+            Configuration
+          </Typography>
+        </Box>
+        <MaterialStationConfig />
+      </CardContent>
+    </Card>
+  );
+}
+
+function MaterialStationConfig() {
   const [{
     data: assetLocations,
     loading: loadingAssets,
@@ -45,41 +60,32 @@ export default function DashboardStationSelectCard() {
   };
 
   return (
-    <Card>
-      <CardContent>
-        <Box sx={{ pb: 2 }}>
-          <Typography variant="h6">
-            Configuration
-          </Typography>
-        </Box>
-        <Autocomplete
-          multiple
-          loading={loadingStations}
-          isOptionEqualToValue={
-            (option, value) => option.station_id === value.station_id
-          }
-          value={stations}
-          onChange={(_, values) => { onChange(values); }}
-          options={locations}
-          getOptionLabel={(option: any) => option.station_name}
-          filterSelectedOptions
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Stations"
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: ((loadingAssets || updatingStations) &&
-                  <React.Fragment>
-                    {<CircularProgress color="inherit" size={20} />}
-                    {params.InputProps.endAdornment}
-                  </React.Fragment>
-                ),
-              }}
-            />
-          )}
+    <Autocomplete
+      multiple
+      loading={loadingStations}
+      isOptionEqualToValue={
+        (option, value) => option.station_id === value.station_id
+      }
+      value={stations}
+      onChange={(_, values) => { onChange(values); }}
+      options={locations}
+      getOptionLabel={(option: any) => option.station_name}
+      filterSelectedOptions
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Stations"
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: ((loadingAssets || updatingStations) &&
+              <React.Fragment>
+                {<CircularProgress color="inherit" size={20} />}
+                {params.InputProps.endAdornment}
+              </React.Fragment>
+            ),
+          }}
         />
-      </CardContent>
-    </Card>
+      )}
+    />
   );
 }
