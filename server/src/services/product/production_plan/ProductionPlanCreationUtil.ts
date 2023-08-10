@@ -1,8 +1,7 @@
 import { isEmpty } from 'underscore';
 import { sum } from 'mathjs';
-import Container from 'typedi';
 import { EveIndustryJob } from '../../../types/EsiQuery';
-import { MANUFACTURING } from '../../../const/IndustryActivity';
+import { MANUFACTURING, REACTION } from '../../../const/IndustryActivity';
 import EveSdeData from '../../query/EveSdeData';
 import { EveSdeBlueprint } from 'types/EveSde';
 
@@ -37,6 +36,13 @@ export default class ProductionPlanCreationUtil {
   public activeManufacturingRuns(typeId: number): number {
     const qualifiedJobs = this.industryJobs.filter(j =>
       j.activity_id === MANUFACTURING && j.product_type_id === typeId
+    );
+    return sum(qualifiedJobs.map(job => job.runs));
+  }
+
+  public activeReactionRuns(typeId: number): number {
+    const qualifiedJobs = this.industryJobs.filter(j =>
+      j.activity_id === REACTION && j.product_type_id === typeId
     );
     return sum(qualifiedJobs.map(job => job.runs));
   }

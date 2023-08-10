@@ -3,13 +3,14 @@ import { groupBy } from 'underscore';
 import { secondsToHours } from 'date-fns';
 import { PlannedProduct } from '../../../models/PlannedProduct';
 import { AlwaysBuyItem } from '../../../models/AlwaysBuyItem';
-import { ProductionPlanRes } from '@internal/shared';
+import { ProductionPlanRes, filterNullOrUndef } from '@internal/shared';
 import EveSdeData from '../../query/EveSdeData';
 import { MetaGroup } from '../../../const/MetaGroups';
 import AssetsService from '../AssetsService';
 import EsiTokenlessQueryService from '../../query/EsiTokenlessQueryService';
 import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
+import mergeWith from 'lodash/mergeWith';
 
 const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0; // For ME = 0
@@ -59,9 +60,20 @@ export default class ProductionPlanService {
       pp => alwaysBuyTypeIds.includes(pp.typeId) ? 'buy' : 'build',
     );
 
+    const indyAssets = Object.fromEntries(
+      industryJobs.map(j => {
+        const bp = this.sdeData.productBlueprintFromTypeId(j.product_type_id);
+        return [j.product_type_id, (bp?.quantity ?? 0) * j.runs];
+      })
+    );
+
+    const fullAssets = mergeWith({}, indyAssets, assets, (prevVal, nextVal) =>
+      (prevVal || 0) + nextVal
+    );
+
     const materialsPlan = this.traverseMaterialTree(
       plannedProductData['build'] ?? [],
-      assets,
+      fullAssets,
     );
     plannedProductData['buy']?.forEach(pp =>
       materialsPlan.addQuantity(pp.typeId, pp.quantity)
@@ -69,7 +81,7 @@ export default class ProductionPlanService {
 
     const creationUtil = new ProductionPlanCreationUtil(
       industryJobs,
-      assets,
+      fullAssets,
       plannedProducts.map(pp => pp.get().type_id),
       this.sdeData,
     );
@@ -86,7 +98,8 @@ export default class ProductionPlanService {
           name: this.sdeData.types[Number(e[0])]?.name,
           blueprintExists: creationUtil.blueprintExists(Number(e[0])),
           runs: e[1].runs,
-          activeRuns: creationUtil.activeManufacturingRuns(Number(e[0])),
+          activeRuns: creationUtil.activeManufacturingRuns(Number(e[0]))
+            + creationUtil.activeReactionRuns(Number(e[0])),
           daysToRun: secondsToHours(
             MAX_TE * e[1].runs
             * (creationUtil.blueprintManufactureTime(Number(e[0]))

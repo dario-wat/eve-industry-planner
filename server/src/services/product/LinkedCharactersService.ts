@@ -45,6 +45,9 @@ export default class LinkedCharactersService {
     }
   }
 
+  // TODO there is a bug here, when multiple characters
+  // are in the same cluster, but one of them does not have
+  // an access token, this will throw
   public async genLinkedCharacters(
     characterId: number,
   ): Promise<LinkedCharacterRes> {

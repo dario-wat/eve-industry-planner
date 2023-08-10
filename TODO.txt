@@ -1,0 +1,4 @@
+- When something is running, remove those from the materials needs list
+- Include rections into active jobs
+- Add time range to transactions
+- Simplify planned product component and make columns of equal width
