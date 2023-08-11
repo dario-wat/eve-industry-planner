@@ -11,8 +11,11 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import { WalletTransactionsRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
-import { format } from 'date-fns';
+import { format, isAfter, isBefore, subDays } from 'date-fns';
 import { groupBy } from 'underscore';
+import { DesktopDatePicker, LocalizationProvider, enUS } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { Grid } from '@mui/material';
 
 export default function MarketTransactionsPage() {
   const [{ data }] = useAxios<WalletTransactionsRes>('/wallet_transactions');
@@ -20,40 +23,73 @@ export default function MarketTransactionsPage() {
   const [groupTransactions, setGroupTransactions] = useState(false);
 
   const [searchText, setSearchText] = useState('');
+  const [startDate, setStartDate] = useState(subDays(new Date(), 30));
+  const [endDate, setEndDate] = useState(new Date())
 
   const isIncluded = (s: string) =>
     s.toLowerCase().includes(searchText.toLowerCase());
   const filteredData = data && data.filter(d =>
-    (d.name && isIncluded(d.name))
-    || (d.locationName && isIncluded(d.locationName))
+    (
+      (d.name && isIncluded(d.name))
+      || (d.locationName && isIncluded(d.locationName))
+    )
+    && isBefore(new Date(d.date), endDate)
+    && isAfter(new Date(d.date), startDate)
   );
 
   return (
     <div>
-      <Box sx={{ pb: 2 }}>
-        <TextField
-          InputProps={{
-            sx: {
-              backgroundColor: 'white',
+      <Grid container spacing={2} alignItems="center" sx={{ pb: 2 }}>
+        <Grid item>
+          <TextField
+            InputProps={{
+              sx: {
+                backgroundColor: 'white',
+              }
+            }}
+            label="Search..."
+            variant="outlined"
+            value={searchText}
+            onChange={e => setSearchText(e.target.value)}
+          />
+        </Grid>
+        <Grid item>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={groupTransactions}
+                onChange={e => setGroupTransactions(e.target.checked)}
+              />
             }
-          }}
-          label="Search..."
-          variant="outlined"
-          value={searchText}
-          onChange={e => setSearchText(e.target.value)}
-        />
-        <FormControlLabel
-          sx={{ pl: 2 }}
-          control={
-            <Switch
-              checked={groupTransactions}
-              onChange={e => setGroupTransactions(e.target.checked)}
+            label="Aggregate Transactions"
+            labelPlacement="start"
+          />
+        </Grid>
+        <Grid item>
+          <LocalizationProvider
+            localeText={enUS.components.MuiLocalizationProvider.defaultProps.localeText}
+            dateAdapter={AdapterDateFns}>
+            <DesktopDatePicker
+              sx={{ backgroundColor: 'white' }}
+              label="Start Date"
+              value={startDate}
+              onChange={newValue => newValue && setStartDate(newValue)}
             />
-          }
-          label="Aggregate Transactions"
-          labelPlacement="start"
-        />
-      </Box>
+          </LocalizationProvider>
+        </Grid>
+        <Grid item>
+          <LocalizationProvider
+            localeText={enUS.components.MuiLocalizationProvider.defaultProps.localeText}
+            dateAdapter={AdapterDateFns}>
+            <DesktopDatePicker
+              sx={{ backgroundColor: 'white' }}
+              label="End Date"
+              value={endDate}
+              onChange={newValue => newValue && setEndDate(newValue)}
+            />
+          </LocalizationProvider>
+        </Grid>
+      </Grid>
       <Card>
         <CardContent>
           <Box
@@ -69,7 +105,7 @@ export default function MarketTransactionsPage() {
           </Box>
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 }
 
