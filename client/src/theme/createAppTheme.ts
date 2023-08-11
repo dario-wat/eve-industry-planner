@@ -9,6 +9,22 @@ export default function createAppTheme() {
       },
     },
     components: {
+      MuiToolbar: {
+        styleOverrides: {
+          root: {
+            '@media all': {
+              minHeight: 56,
+            }
+          }
+        }
+      },
+      MuiAppBar: {
+        styleOverrides: {
+          root: {
+            height: '56px',
+          }
+        }
+      },
       MuiDataGrid: {
         defaultProps: {
           autoHeight: true,
