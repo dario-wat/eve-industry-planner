@@ -59,50 +59,44 @@ export default function DashboardProductsCard() {
           </Box>
           :
           <>
-            <Grid container>
-              <Grid item xs={2}>
-                <Box sx={{
-                  borderRight: 1,
-                  borderColor: 'divider',
-                  mr: 1,
-                  pt: 3,
-                  display: 'flex',
-                }}>
-                  <Tabs
-                    orientation="vertical"
-                    value={selectedTab}
-                    onChange={(_, newValue) => setSelectedTab(newValue)}
-                    variant="scrollable"
-                    scrollButtons="auto">
-                    {productGroups.map(group =>
-                      <Tab
-                        sx={{ p: 0, minHeight: '36px', alignItems: 'start' }}
-                        label={group}
-                        value={group}
-                        key={group} />
-                    )}
-                    <Tab
-                      sx={{ p: 0, minHeight: '36px' }}
-                      icon={<AddIcon />}
-                      value={ADD_TAB} />
-                  </Tabs>
-                </Box>
-              </Grid>
-              <Grid item xs={10}>
-                {selectedTab !== ADD_TAB
-                  ?
-                  <DashboardProducts
-                    group={selectedTab}
-                    plannedProducts={groupedPlannedProducts[selectedTab]}
-                    onGroupDelete={() => {
-                      onChange();
-                      setSelectedTab(ADD_TAB);  // Otherwise it will error
-                    }} />
-                  :
-                  <NewGroupTab onUpdate={onChange} />
-                }
-              </Grid>
-            </Grid>
+            <Box sx={{
+              borderBottom: 1,
+              borderColor: 'divider',
+              pt: 1,
+              mb: 2,
+              display: 'flex',
+            }}>
+              <Tabs
+                orientation="horizontal"
+                value={selectedTab}
+                onChange={(_, newValue) => setSelectedTab(newValue)}
+                variant="scrollable"
+                scrollButtons="auto">
+                {productGroups.map(group =>
+                  <Tab
+                    sx={{ p: 0, minHeight: '36px', alignItems: 'center' }}
+                    label={group}
+                    value={group}
+                    key={group} />
+                )}
+                <Tab
+                  sx={{ p: 0, minHeight: '36px' }}
+                  icon={<AddIcon />}
+                  value={ADD_TAB} />
+              </Tabs>
+            </Box>
+            {selectedTab !== ADD_TAB
+              ?
+              <DashboardProducts
+                group={selectedTab}
+                plannedProducts={groupedPlannedProducts[selectedTab]}
+                onGroupDelete={() => {
+                  onChange();
+                  setSelectedTab(ADD_TAB);  // Otherwise it will error
+                }} />
+              :
+              <NewGroupTab onUpdate={onChange} />
+            }
           </>
         }
       </CardContent>

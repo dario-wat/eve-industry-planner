@@ -8,7 +8,7 @@ import DashboardConfigurationCard from './DashboardConfigurationCard';
 export default function DashboardPage() {
   return (
     <Grid container spacing={2}>
-      <Grid item xs={7}>
+      <Grid item xs={6}>
         <Box sx={{ pb: 4 }}>
           <DashboardProductsCard />
         </Box>
@@ -17,7 +17,7 @@ export default function DashboardPage() {
         </Box>
         <DashboardConfigurationCard />
       </Grid>
-      <Grid item xs={5}>
+      <Grid item xs={6}>
         <DashboardProductionPlanCard />
       </Grid>
     </Grid>
