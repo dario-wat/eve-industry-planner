@@ -21,6 +21,7 @@ import createAppTheme from 'theme/createAppTheme';
 import MarketTransactionsPage from 'components/MarketTransactionsPage';
 import MarketOrdersPage from 'components/MarketOrdersPage';
 import { Route, Routes } from 'react-router-dom';
+import MarketComparisonPage from 'components/MarketComparisonPage';
 
 export default function HomePage() {
   const userContext = useContext(UserContext);
@@ -63,6 +64,12 @@ export default function HomePage() {
       label: 'Market Orders',
       icon: <StorefrontIcon />,
       component: MarketOrdersPage,
+    },
+    {
+      path: '/market_comparison',
+      label: 'Marker Comparison',
+      icon: <StorefrontIcon />,
+      component: MarketComparisonPage,
     },
   ];
 
