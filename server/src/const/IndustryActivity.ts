@@ -8,13 +8,11 @@ export const industryActivity = Object.freeze({
     "activityID": 3,
     "description": "Researching time efficiency",
     "activityName": "TE Research",
-    // "activityName": "Time Efficiency Research"
   },
   "4": {
     "activityID": 4,
     "description": "Researching material efficiency",
     "activityName": "ME Research",
-    // "activityName": "Material Efficiency Research"
   },
   "5": {
     "activityID": 5,
@@ -33,7 +31,11 @@ export const industryActivity = Object.freeze({
   }
 });
 
-export type IndustryActivity = typeof industryActivity;
+// TODO what is this ?
+export const industryActivityNameToId = Object.fromEntries(
+  Object.entries(industryActivity).map(([id, data]) => ([data.activityName, id]))
+);
+
 export type IndustryActivityKey = keyof typeof industryActivity;
 
 export const MANUFACTURING = 1;

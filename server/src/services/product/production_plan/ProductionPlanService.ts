@@ -26,12 +26,12 @@ export default class ProductionPlanService {
     private readonly esiQuery: EsiTokenlessQueryService,
   ) { }
 
-  /*
-    * Takes all planned products and finds the required materials to build those.
-    * Then for each material recursively keeps finding the next list of materials
-    * until it reaches leaves (minerals, planetary commodities, 
-    * moon minerals, ...).
-    */
+  /**
+   * Takes all planned products and finds the required materials to build those.
+   * Then for each material recursively keeps finding the next list of materials
+   * until it reaches leaves(minerals, planetary commodities, 
+   * moon minerals, ...).
+   */
   public async genProductionPlan(
     characterId: number,
     group?: string,

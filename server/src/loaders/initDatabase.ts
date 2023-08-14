@@ -30,6 +30,8 @@ import { characterClusterModelDefine } from '../models/CharacterCluster';
 import { walletTransactionModelDefine } from '../models/WalletTransaction';
 import { scribbleModelDefine } from '../models/Scribble';
 import { alwaysBuyItemModelDefine } from '../models/AlwaysBuyItem';
+import { accountModelDefine } from '../core/account/Account';
+import { accountAssocsDefine } from '../core/account/AccountAssocs';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -76,6 +78,7 @@ export function initDatabase(): void {
   bpReactionProductsDefine(sequelize);
 
   // App models (non-SDE)
+  accountModelDefine(sequelize);
   plannedProductModelDefine(sequelize);
   materialStationModelDefine(sequelize);
   characterClusterModelDefine(sequelize);
@@ -91,7 +94,10 @@ export function initDatabase(): void {
   esiAccountModelDefine(sequelize);
   esiCharacterModelDefine(sequelize);
   esiTokenModelDefine(sequelize);
+
+  // Assocs
   esiAssocsDefine();
+  accountAssocsDefine();
 }
 
 // This should define ONLY SDE models

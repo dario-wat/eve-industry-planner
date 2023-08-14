@@ -11,6 +11,7 @@ import {
 } from 'sequelize';
 import { EsiAccount } from './EsiAccount';
 import { EsiToken } from './EsiToken';
+import { Account } from 'core/account/Account';
 
 export class EsiCharacter
   extends Model<
@@ -22,6 +23,7 @@ export class EsiCharacter
   declare characterId: number;
   declare characterName: string;
   declare ownerId: ForeignKey<EsiAccount['owner']>;
+  // declare accountId: ForeignKey<Account['']
 
   declare getEsiTokens: HasManyGetAssociationsMixin<EsiToken>;
 

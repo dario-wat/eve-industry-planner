@@ -3,17 +3,12 @@ import {
   Sequelize,
   DataTypes,
   Model,
-  InferAttributes,
-  InferCreationAttributes,
   HasManyGetAssociationsMixin,
 } from 'sequelize';
 import { EsiCharacter } from './EsiCharacter';
 
 export class EsiAccount
-  extends Model<
-    InferAttributes<EsiAccount>,
-    InferCreationAttributes<EsiAccount>
-  >
+  extends Model
   implements Account {
 
   declare owner: string;
@@ -30,17 +25,18 @@ export class EsiAccount
   }
 }
 
-export const esiAccountModelDefine = (sequelize: Sequelize) => EsiAccount.init(
-  {
-    owner: {
-      type: DataTypes.STRING,
-      primaryKey: true,
+export const esiAccountModelDefine = (sequelize: Sequelize) =>
+  EsiAccount.init(
+    {
+      owner: {
+        type: DataTypes.STRING,
+        primaryKey: true,
+      },
     },
-  },
-  {
-    sequelize,
-    modelName: EsiAccount.name,
-    tableName: 'esi_accounts',
-    timestamps: false,
-  },
-);
+    {
+      sequelize,
+      modelName: EsiAccount.name,
+      tableName: 'esi_accounts',
+      timestamps: false,
+    },
+  );

@@ -44,6 +44,10 @@ export const EXPERT_SYSTEMS = 2100;
 export const MINING = 2107;
 export const INFANTRY = 350001;
 
+/**
+ * List of category IDs that are related to items that can be built by the
+ * player. These are the only ones we care about when planning industry.
+ */
 export const ITEM_CATEGORY_IDS = [
   SHIP,
   MODULE,
