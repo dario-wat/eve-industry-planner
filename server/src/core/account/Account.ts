@@ -7,7 +7,9 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
  * This also goes beyond just EsiAccount which are the Eve accounts (with
  * up to 3 characters).
  */
-export class Account extends Model { }
+export class Account extends Model {
+  declare id: number;
+}
 
 export const accountModelDefine = (sequelize: Sequelize) => {
   Account.init(

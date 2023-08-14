@@ -3,45 +3,41 @@ import {
   Sequelize,
   DataTypes,
   Model,
-  InferAttributes,
-  InferCreationAttributes,
   HasManyGetAssociationsMixin,
   ForeignKey,
-  NonAttribute,
 } from 'sequelize';
 import { EsiAccount } from './EsiAccount';
 import { EsiToken } from './EsiToken';
-import { Account } from 'core/account/Account';
+import { Account } from '../../core/account/Account';
 
-export class EsiCharacter
-  extends Model<
-    InferAttributes<EsiCharacter, { omit: 'owner' }>,
-    InferCreationAttributes<EsiCharacter, { omit: 'owner' }>
-  >
-  implements Character {
+/**
+ * EsiCharacter represents an EVE character. Up to 3 EsiCharacters are a part
+ * of an EveAccount. But for the purposes of this app we can group as many
+ * EsiCharacters from as many EsiAccounts into a single Account.
+ */
+export class EsiCharacter extends Model implements Character {
 
   declare characterId: number;
   declare characterName: string;
-  declare ownerId: ForeignKey<EsiAccount['owner']>;
-  // declare accountId: ForeignKey<Account['']
+  declare owner: ForeignKey<EsiAccount['owner']>;
+  declare accountId: ForeignKey<Account['id']>;
 
   declare getEsiTokens: HasManyGetAssociationsMixin<EsiToken>;
 
-  public get owner(): string {  // Omitted
-    return this.ownerId;
-  }
-
+  /** Updates this EsiCharacter in the DB. */
   public async updateCharacter(
     owner: string,
     characterName: string
   ): Promise<void> {
-    await this.update({ characterName, ownerId: owner });
+    await this.update({ characterName, owner });
   }
 
+  /** Deletes this EsiCharacter from the DB. */
   public async deleteCharacter(): Promise<void> {
     await this.destroy();
   }
 
+  /** Deletes tokens associated with this EsiCharacter from the DB. */
   public async deleteTokens(): Promise<void> {
     const tokens = await this.getEsiTokens();
     await Promise.all(tokens.map(async t => await t.destroy()));

@@ -3,9 +3,9 @@ import { Service } from 'typedi';
 import { difference } from 'underscore';
 import memoize from 'memoizee';
 import { requiredScopes } from '../../const/EveScopes';
-import { EsiAccount } from '../../models/esi_provider/EsiAccount';
-import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
-import { EsiToken } from '../../models/esi_provider/EsiToken';
+import { EsiAccount } from '../../core/esi/EsiAccount';
+import { EsiCharacter } from '../../core/esi/EsiCharacter';
+import { EsiToken } from '../../core/esi/EsiToken';
 
 @Service()
 export default class EsiSequelizeProvider

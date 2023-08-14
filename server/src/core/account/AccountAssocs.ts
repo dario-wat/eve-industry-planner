@@ -1,4 +1,4 @@
-import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
+import { EsiCharacter } from '../esi/EsiCharacter';
 import { Account } from './Account';
 
 export function accountAssocsDefine(): void {
@@ -9,9 +9,15 @@ export function accountAssocsDefine(): void {
   Account.hasMany(
     EsiCharacter,
     {
-      onDelete: 'SET NULL',
       foreignKey: 'accountId',
+      onDelete: 'CASCADE',
     },
   );
-  EsiCharacter.belongsTo(Account, { foreignKey: 'accountId' });
+  EsiCharacter.belongsTo(
+    Account,
+    {
+      foreignKey: 'accountId',
+      onDelete: 'SET NULL',
+    },
+  );
 }

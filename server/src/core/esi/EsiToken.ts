@@ -3,19 +3,17 @@ import {
   Sequelize,
   DataTypes,
   Model,
-  InferAttributes,
-  InferCreationAttributes,
   ForeignKey,
   CreationOptional,
 } from 'sequelize';
 import { EsiCharacter } from './EsiCharacter';
 
-export class EsiToken
-  extends Model<
-    InferAttributes<EsiToken>,
-    InferCreationAttributes<EsiToken>
-  >
-  implements Token {
+/**
+ * This is the model representation of an ESI Token. This is stored in the
+ * DB and used to fetch data from ESI.
+ * It needs to implement Token to work with EVE ESI SSO service.
+ */
+export class EsiToken extends Model implements Token {
 
   declare accessToken: string;
   declare refreshToken: string;
@@ -23,6 +21,7 @@ export class EsiToken
   declare scopes: CreationOptional<string[]>;
   declare characterId: ForeignKey<EsiCharacter['characterId']>;
 
+  /** Updates token in the DB. */
   public async updateToken(
     accessToken: string,
     refreshToken: string,
@@ -40,6 +39,7 @@ export class EsiToken
     await this.update({ accessToken, refreshToken, expires, scopes });
   }
 
+  /** Deletes token from the DB. */
   public async deleteToken(): Promise<void> {
     await this.destroy();
   }

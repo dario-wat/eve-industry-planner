@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import { random } from 'underscore';
 import { CharacterCluster } from '../../models/CharacterCluster';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
-import { EsiCharacter } from '../../models/esi_provider/EsiCharacter';
+import { EsiCharacter } from '../../core/esi/EsiCharacter';
 
 @Service()
 export default class LinkedCharactersService {
