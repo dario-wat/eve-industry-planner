@@ -31,6 +31,13 @@ const controller = (app: Router) => {
       req.session.characterId,
     );
 
+    const c = (await EsiCharacter.findByPk(character.characterId))!;
+    // TODO this should be some kind of actor context
+    const c2 = await EsiCharacter.findByPk(req.session.characterId);
+    await linkedCharactersService.genLinkAccount(
+      c, c2
+    );
+
     req.session.characterId = character.characterId;
     req.session.characterName = character.characterName;
 

@@ -1,4 +1,5 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
+import { EsiCharacter } from 'core/esi/EsiCharacter';
+import { DataTypes, HasManyAddAssociationMixin, Model, Sequelize } from 'sequelize';
 
 /**
  * This is the Account model. Since each user can have multiple characters
@@ -9,6 +10,8 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
  */
 export class Account extends Model {
   declare id: number;
+
+  declare addEsiCharacter: HasManyAddAssociationMixin<EsiCharacter, 'characterId'>;
 }
 
 export const accountModelDefine = (sequelize: Sequelize) => {

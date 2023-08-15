@@ -5,6 +5,7 @@ import {
   Model,
   HasManyGetAssociationsMixin,
   ForeignKey,
+  BelongsToGetAssociationMixin,
 } from 'sequelize';
 import { EsiAccount } from './EsiAccount';
 import { EsiToken } from './EsiToken';
@@ -23,6 +24,7 @@ export class EsiCharacter extends Model implements Character {
   declare accountId: ForeignKey<Account['id']>;
 
   declare getEsiTokens: HasManyGetAssociationsMixin<EsiToken>;
+  declare getAccount: BelongsToGetAssociationMixin<Account | null>;
 
   /** Updates this EsiCharacter in the DB. */
   public async updateCharacter(

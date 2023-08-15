@@ -4,6 +4,7 @@ import { random } from 'underscore';
 import { CharacterCluster } from '../../models/CharacterCluster';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 import { EsiCharacter } from '../../core/esi/EsiCharacter';
+import { Account } from '../../core/account/Account';
 
 @Service()
 export default class LinkedCharactersService {
@@ -42,6 +43,25 @@ export default class LinkedCharactersService {
           cluster_id: random(1, 1000000),
         });
       }
+    }
+  }
+
+  public async genLinkAccount(
+    newCharacter: EsiCharacter,
+    existingCharacter: EsiCharacter | null,
+  ): Promise<void> {
+    const newCharacterAccount = await newCharacter.getAccount();
+    if (newCharacterAccount !== null) {
+      return;
+    }
+
+    if (existingCharacter !== null) {
+      // TODO account must exist, how to handle required nll
+      // const existingAccount = (await existingCharacter.getAccount())!;
+      // existingAccount.addEsiCharacter(newCharacter);
+    } else {
+      // TODO finish this
+      // Account.create();
     }
   }
 
