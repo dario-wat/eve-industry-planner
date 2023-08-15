@@ -2,7 +2,7 @@ import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
 import { hoursToSeconds } from 'date-fns';
 import { mapify } from '../../lib/util';
-import { EveAsset, EveAssetName, EveName } from '../../types/EsiQuery';
+import { EveAsset, EveName } from '../../types/EsiQuery';
 import EveSdeData from './EveSdeData';
 import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
 import { filterNullOrUndef } from '@internal/shared';

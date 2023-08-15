@@ -269,7 +269,7 @@ export default class EsiQueryService {
   */
   public async genxNames(token: Token, ids: number[]): Promise<EveName[]> {
     const response = await this.esi.request(
-      `/universe/names/`,
+      '/universe/names/',
       undefined,
       ids,
       { token, method: 'POST' }

@@ -2,7 +2,7 @@ export enum MetaGroup {
   TECH_I = 1,
   TECH_II = 2,
   TECH_III = 14,
-};
+}
 
 export const metaGroups = Object.freeze({
   1: {

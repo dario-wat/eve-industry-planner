@@ -11,7 +11,7 @@ declare module 'express-session' {
 export default async function initSessionStore(
   sequelize: Sequelize,
 ): Promise<any> {
-  const SequelizeStore = require("connect-session-sequelize")(session.Store);
+  const SequelizeStore = require('connect-session-sequelize')(session.Store);
   const sequelizeSessionStore = new SequelizeStore({
     db: sequelize,
   });

@@ -25,14 +25,14 @@ export default class EsiSequelizeProvider
 
   public async getAccount(
     owner: string,
-    onLogin?: boolean,
+    _onLogin?: boolean,
   ): Promise<EsiAccount | null> {
     return await EsiAccount.findByPk(owner);
   }
 
   public async getCharacter(
     characterId: number,
-    onLogin?: boolean,
+    _onLogin?: boolean,
   ): Promise<EsiCharacter | null> {
     return await EsiCharacter.findByPk(characterId);
   }
@@ -95,15 +95,15 @@ export default class EsiSequelizeProvider
     });
   }
 
-  public async deleteAccount(owner: string): Promise<void> {
+  public async deleteAccount(_owner: string): Promise<void> {
     throw new Error('Unused');
   }
 
-  public async deleteCharacter(characterId: number): Promise<void> {
+  public async deleteCharacter(_characterId: number): Promise<void> {
     throw new Error('Unused');
   }
 
-  public async deleteToken(accessToken: string): Promise<void> {
+  public async deleteToken(_accessToken: string): Promise<void> {
     throw new Error('Unused');
   }
 

@@ -3,7 +3,7 @@ import { groupBy } from 'underscore';
 import { secondsToHours } from 'date-fns';
 import { PlannedProduct } from '../../../models/PlannedProduct';
 import { AlwaysBuyItem } from '../../../models/AlwaysBuyItem';
-import { ProductionPlanRes, filterNullOrUndef } from '@internal/shared';
+import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../query/EveSdeData';
 import { MetaGroup } from '../../../const/MetaGroups';
 import AssetsService from '../AssetsService';
@@ -127,7 +127,7 @@ export default class ProductionPlanService {
     products: { typeId: number, quantity: number }[],
     assets: { [typeId: number]: number },
   ): MaterialPlan {
-    let materialPlan = new MaterialPlan(assets);
+    const materialPlan = new MaterialPlan(assets);
     while (products.length > 0) {
       const product = products.pop()!;
 

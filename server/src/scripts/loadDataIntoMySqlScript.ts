@@ -157,8 +157,8 @@ async function run() {
     {
       cleanupInputFn: (inString: string) =>
         inString
-          .replaceAll("\r\n'\r\n", "\r\n            '\r\n")
-          .replaceAll("\n'\n", "\n            '\n"),
+          .replaceAll('\r\n\'\r\n', '\r\n            \'\r\n')
+          .replaceAll('\n\'\n', '\n            \'\n'),
     },
   );
 

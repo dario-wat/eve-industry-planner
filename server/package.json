@@ -33,6 +33,9 @@
     "@types/lodash": "^4.14.197",
     "@types/memoizee": "^0.4.8",
     "@types/mysql": "^2.15.21",
+    "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "@typescript-eslint/parser": "^6.4.0",
+    "eslint": "^8.47.0",
     "nodemon": "^2.0.19",
     "patch-package": "^6.4.7"
   },
@@ -43,6 +46,7 @@
   },
   "scripts": {
     "test": "jest",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "lint": "eslint ."
   }
 }

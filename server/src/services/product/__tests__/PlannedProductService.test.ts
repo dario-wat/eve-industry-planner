@@ -1,4 +1,4 @@
-import PlannedProductService from "../PlannedProductService";
+import PlannedProductService from '../PlannedProductService';
 
 describe('Test planned product parser', () => {
 

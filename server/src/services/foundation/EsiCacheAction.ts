@@ -4,7 +4,7 @@ import { EsiCache } from '../../models/EsiCache';
 export enum EsiCacheItem {
   ASSETS,
   STRUCTURE,
-};
+}
 
 // TODO maybe I should move use cases into a file so they can be reused
 
