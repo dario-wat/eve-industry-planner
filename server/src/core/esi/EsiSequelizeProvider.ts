@@ -3,10 +3,15 @@ import { Service } from 'typedi';
 import { difference } from 'underscore';
 import memoize from 'memoizee';
 import { requiredScopes } from '../../const/EveScopes';
-import { EsiAccount } from '../../core/esi/EsiAccount';
-import { EsiCharacter } from '../../core/esi/EsiCharacter';
-import { EsiToken } from '../../core/esi/EsiToken';
+import { EsiAccount } from './EsiAccount';
+import { EsiCharacter } from './EsiCharacter';
+import { EsiToken } from './EsiToken';
 
+/**
+ * This is the core ESI service that handles EsiAccounts, EsiCharacters
+ * and EsiToken. It is responsible for creating, updating and deleting
+ * Esi entities using sequelize.
+ */
 @Service()
 export default class EsiSequelizeProvider
   implements Provider<EsiAccount, EsiCharacter, EsiToken> {

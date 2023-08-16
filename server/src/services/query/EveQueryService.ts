@@ -6,7 +6,7 @@ import { EveAsset, EveName } from '../../types/EsiQuery';
 import EveSdeData from './EveSdeData';
 import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { filterNullOrUndef } from '@internal/shared';
-import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
+import EsiSequelizeProvider from '../../core/esi/EsiSequelizeProvider';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
 
 // TODO(EIP-16) swallowing exceptions here

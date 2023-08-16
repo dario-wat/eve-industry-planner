@@ -11,7 +11,7 @@ import {
   EveStructure,
   EveWalletTransaction,
 } from '../../types/EsiQuery';
-import EsiProviderService from '../foundation/EsiProviderService';
+import EsiProviderService from '../../core/esi/EsiProviderService';
 import { AppLog } from '../../models/AppLog';
 
 /*

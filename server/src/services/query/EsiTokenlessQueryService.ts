@@ -9,7 +9,7 @@ import {
   EveStructure,
   EveWalletTransaction,
 } from '../../types/EsiQuery';
-import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
+import EsiSequelizeProvider from '../../core/esi/EsiSequelizeProvider';
 import EsiQueryService from './EsiQueryService';
 
 @Service()

@@ -4,7 +4,7 @@ import { EvePortrait } from '../types/EsiQuery';
 import { SSO_STATE } from '../config/eveSsoConfig';
 import { requiredScopes } from '../const/EveScopes';
 import { DOMAIN } from '../const/ServerConst';
-import EsiProviderService from '../services/foundation/EsiProviderService';
+import EsiProviderService from '../core/esi/EsiProviderService';
 import LinkedCharactersService from '../services/product/LinkedCharactersService';
 import EsiTokenlessQueryService from '../services/query/EsiTokenlessQueryService';
 import { EsiCharacter } from '../core/esi/EsiCharacter';

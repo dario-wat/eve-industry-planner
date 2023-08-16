@@ -3,6 +3,9 @@ import ESI from 'eve-esi-client';
 import { CLIENT_ID, SECRET, CALLBACK_URI } from '../../config/eveSsoConfig';
 import EsiSequelizeProvider from './EsiSequelizeProvider';
 
+/**
+ * Provides an ESI (connection) that is used for querying EVE data.
+ */
 @Service()
 export default class EsiProviderService {
   private esi: ESI;
