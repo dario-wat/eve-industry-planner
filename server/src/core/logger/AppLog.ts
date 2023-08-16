@@ -5,6 +5,11 @@ export enum ErrorSeverity {
   ERROR = 'error',
 }
 
+/**
+ * Model for App logs. There is no really real-time logging service or anything
+ * like that, after all this is not a real app. So all logs go directly
+ * into MySQL.
+ */
 export class AppLog extends Model {
 
   public static async warn(event: string, data: unknown): Promise<void> {

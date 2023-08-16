@@ -3,9 +3,9 @@ import { Service } from 'typedi';
 import { difference } from 'underscore';
 import memoize from 'memoizee';
 import { requiredScopes } from '../../const/EveScopes';
-import { EsiAccount } from './EsiAccount';
-import { EsiCharacter } from './EsiCharacter';
-import { EsiToken } from './EsiToken';
+import { EsiAccount } from './models/EsiAccount';
+import { EsiCharacter } from './models/EsiCharacter';
+import { EsiToken } from './models/EsiToken';
 
 /**
  * This is the core ESI service that handles EsiAccounts, EsiCharacters

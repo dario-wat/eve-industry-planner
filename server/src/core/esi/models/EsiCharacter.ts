@@ -9,7 +9,7 @@ import {
 } from 'sequelize';
 import { EsiAccount } from './EsiAccount';
 import { EsiToken } from './EsiToken';
-import { Account } from '../../core/account/Account';
+import { Account } from '../../account/Account';
 
 /**
  * EsiCharacter represents an EVE character. Up to 3 EsiCharacters are a part

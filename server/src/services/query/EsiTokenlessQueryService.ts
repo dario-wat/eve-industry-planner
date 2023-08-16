@@ -10,8 +10,10 @@ import {
   EveWalletTransaction,
 } from '../../types/EsiQuery';
 import EsiSequelizeProvider from '../../core/esi/EsiSequelizeProvider';
-import EsiQueryService from './EsiQueryService';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 
+// TODO this should not exist, or maybe it should idk
+// either way we should be using some kind of ActorContext
 @Service()
 export default class EsiTokenlessQueryService {
 

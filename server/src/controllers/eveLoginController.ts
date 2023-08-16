@@ -7,7 +7,7 @@ import { DOMAIN } from '../const/ServerConst';
 import EsiProviderService from '../core/esi/EsiProviderService';
 import LinkedCharactersService from '../services/product/LinkedCharactersService';
 import EsiTokenlessQueryService from '../services/query/EsiTokenlessQueryService';
-import { EsiCharacter } from '../core/esi/EsiCharacter';
+import { EsiCharacter } from '../core/esi/models/EsiCharacter';
 
 const route = Router();
 

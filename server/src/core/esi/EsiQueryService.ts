@@ -11,8 +11,8 @@ import {
   EveStructure,
   EveWalletTransaction,
 } from '../../types/EsiQuery';
-import EsiProviderService from '../../core/esi/EsiProviderService';
-import { AppLog } from '../../models/AppLog';
+import EsiProviderService from './EsiProviderService';
+import { AppLog } from '../logger/AppLog';
 
 /*
 * This is a library of ESI (EVE Swagger Interface) queries.
@@ -388,6 +388,9 @@ export default class EsiQueryService {
   }
 }
 
+/**
+ * Helper functions to log an error and return null.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function logEsiErrorAndReturnNull(e: any): Promise<null> {
   const errorJson = await e.json();

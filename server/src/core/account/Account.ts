@@ -1,4 +1,4 @@
-import { EsiCharacter } from 'core/esi/EsiCharacter';
+import { EsiCharacter } from 'core/esi/models/EsiCharacter';
 import { DataTypes, HasManyAddAssociationMixin, Model, Sequelize } from 'sequelize';
 
 /**

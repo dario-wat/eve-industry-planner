@@ -1,4 +1,4 @@
-import { EsiCharacter } from '../esi/EsiCharacter';
+import { EsiCharacter } from '../esi/models/EsiCharacter';
 import { Account } from './Account';
 
 export function accountAssocsDefine(): void {
