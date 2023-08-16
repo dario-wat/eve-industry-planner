@@ -12,12 +12,12 @@ import {
   bpManufacturingProductsDefine,
   bpReactionMaterialsDefine,
   bpReactionProductsDefine,
-} from '../models/sde/Blueprint';
-import { groupIdModelDefine } from '../models/sde/GroupID';
-import { iconIdModelDefine } from '../models/sde/IconID';
-import { typeIdModelDefine } from '../models/sde/TypeID';
-import { categoryIdModelDefine } from '../models/sde/CategoryID';
-import { stationModelDefine } from '../models/sde/Station';
+} from '../core/sde/models/Blueprint';
+import { groupIdModelDefine } from '../core/sde/models/GroupID';
+import { iconIdModelDefine } from '../core/sde/models/IconID';
+import { typeIdModelDefine } from '../core/sde/models/TypeID';
+import { categoryIdModelDefine } from '../core/sde/models/CategoryID';
+import { stationModelDefine } from '../core/sde/models/Station';
 import { plannedProductModelDefine } from '../models/PlannedProduct';
 import { esiCacheModelDefine } from '../core/esi_cache/EsiCache';
 import { materialStationModelDefine } from '../models/MaterialStation';

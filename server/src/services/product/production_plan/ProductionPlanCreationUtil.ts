@@ -2,8 +2,7 @@ import { isEmpty } from 'underscore';
 import { sum } from 'mathjs';
 import { EveIndustryJob } from '../../../types/EsiQuery';
 import { MANUFACTURING, REACTION } from '../../../const/IndustryActivity';
-import EveSdeData from '../../query/EveSdeData';
-import { EveSdeBlueprint } from 'types/EveSde';
+import EveSdeData, { EveSdeBlueprint } from '../../../core/sde/EveSdeData';
 
 // This code is very ugly, but I don't care, it stays here
 export default class ProductionPlanCreationUtil {

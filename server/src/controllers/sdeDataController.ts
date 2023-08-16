@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import Container from 'typedi';
-import EveSdeData from '../services/query/EveSdeData';
+import EveSdeData from '../core/sde/EveSdeData';
 import { ITEM_CATEGORY_IDS } from '../const/Categories';
 
 const route = Router();

@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { AlwaysBuyItemsRes } from '@internal/shared';
 import { AlwaysBuyItem } from '../../models/AlwaysBuyItem';
-import EveSdeData from '../query/EveSdeData';
+import EveSdeData from '../../core/sde/EveSdeData';
 
 @Service()
 export default class AlwaysBuyItemService {

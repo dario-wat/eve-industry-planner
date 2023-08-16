@@ -3,7 +3,7 @@ import { differenceInSeconds } from 'date-fns';
 import { industryActivity, IndustryActivityKey } from '../../const/IndustryActivity';
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { EveIndustryJobsRes } from '@internal/shared';
-import EveSdeData from '../query/EveSdeData';
+import EveSdeData from '../../core/sde/EveSdeData';
 import EveQueryService from '../query/EveQueryService';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 

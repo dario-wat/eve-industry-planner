@@ -3,7 +3,7 @@ import { sum } from 'mathjs';
 import { isEmpty } from 'underscore';
 import { PlannedProduct } from '../../models/PlannedProduct';
 import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
-import EveSdeData from '../query/EveSdeData';
+import EveSdeData from '../../core/sde/EveSdeData';
 import AssetsService from './AssetsService';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 import { MANUFACTURING } from '../../const/IndustryActivity';

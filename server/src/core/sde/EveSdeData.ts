@@ -1,24 +1,62 @@
 import { Model } from 'sequelize-typescript';
 import { groupBy } from 'underscore';
-import {
-  EveSdeGroup,
-  EveSdeStation,
-  EveSdeType,
-  EveSdeBlueprintMaterial,
-  EveSdeBlueprint,
-} from '../../types/EveSde';
 import { mapify } from '../../lib/util';
-import { TypeID } from '../../models/sde/TypeID';
-import { GroupID } from '../../models/sde/GroupID';
-import { Station } from '../../models/sde/Station';
+import { TypeID } from './models/TypeID';
+import { GroupID } from './models/GroupID';
+import { Station } from './models/Station';
 import {
   Blueprint,
   BpManufacturingMaterials,
   BpManufacturingProducts,
   BpReactionMaterials,
   BpReactionProducts,
-} from '../../models/sde/Blueprint';
+} from './models/Blueprint';
 
+export type EveSdeType = {
+  id: number,
+  name: string,
+  group_id: number,
+  meta_group_id: number,
+}
+
+export type EveSdeGroup = {
+  id: number,
+  name: string,
+  category_id: number,
+}
+
+export type EveSdeStation = {
+  id: number,
+  name: string,
+}
+
+export type EveSdeBlueprintMaterial = {
+  blueprint_id: number,
+  type_id: number,
+  quantity: number,
+}
+
+export type EveSdeBlueprint = {
+  id: number,
+  copying_time: number,
+  invention_time: number,
+  manufacturing_time: number,
+  research_material_time: number,
+  research_time_time: number,
+  reaction_time: number,
+}
+
+/**
+ * SDE (Static Data Export) is a collection of data that is static in the
+ * EVE universe (e.g. blueprints, stations, types, ...). This data is not
+ * queries through ESI, but rather downloaded as a set of YAML files.
+ * 
+ * We use `loadDataIntoMySqlScript` script to load all YAML files into MySQL.
+ * 
+ * All the SDE data is loaded into memory when the server starts. This data
+ * is used very commonly, and the memory is not big so it's better to preload
+ * everything rather than making a lot of queries into MySQL.
+ */
 export default class EveSdeData {
 
   private static initialized: boolean = false;
@@ -58,6 +96,7 @@ export default class EveSdeData {
       || this.bpReactionProductsByProduct[typeId];
   }
 
+  /** Loads SDE from MySQL into memory. */
   public static async init(): Promise<EveSdeData> {
     if (this.initialized) {
       throw new Error('EveSdeData is already initialized!');
@@ -98,6 +137,7 @@ export default class EveSdeData {
   }
 }
 
+/** Helper function to create mapping from ID to data. */
 function mapifySequelize<TOut>(
   ds: Pick<Model, 'get'>[],
   key: string,
@@ -105,6 +145,7 @@ function mapifySequelize<TOut>(
   return mapify(ds.map(d => d.get()), key);
 }
 
+/** Similar as mapifySequelize, but the returned result is an array. */
 function mapifyMultiSequelize<TOut>(
   ds: Pick<Model, 'get'>[],
   key: string,

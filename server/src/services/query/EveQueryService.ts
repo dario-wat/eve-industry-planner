@@ -3,7 +3,7 @@ import { chunk, range, uniq, zip } from 'underscore'
 import { hoursToSeconds } from 'date-fns';
 import { mapify } from '../../lib/util';
 import { EveAsset, EveName } from '../../types/EsiQuery';
-import EveSdeData from './EveSdeData';
+import EveSdeData from '../../core/sde/EveSdeData';
 import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { filterNullOrUndef } from '@internal/shared';
 import EsiSequelizeProvider from '../../core/esi/EsiSequelizeProvider';

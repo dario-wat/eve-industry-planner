@@ -16,11 +16,11 @@ import fs from 'fs';
 import Container from 'typedi';
 import { Sequelize } from 'sequelize';
 import { Model, ModelStatic } from 'sequelize/types';
-import { GroupID } from '../models/sde/GroupID';
-import { IconID } from '../models/sde/IconID';
-import { TypeID } from '../models/sde/TypeID';
-import { CategoryID } from '../models/sde/CategoryID';
-import { Station } from '../models/sde/Station';
+import { GroupID } from '../core/sde/models/GroupID';
+import { IconID } from '../core/sde/models/IconID';
+import { TypeID } from '../core/sde/models/TypeID';
+import { CategoryID } from '../core/sde/models/CategoryID';
+import { Station } from '../core/sde/models/Station';
 import {
   Blueprint,
   BpCopyingMaterials,
@@ -32,7 +32,7 @@ import {
   BpManufacturingProducts,
   BpReactionMaterials,
   BpReactionProducts,
-} from '../models/sde/Blueprint';
+} from '../core/sde/models/Blueprint';
 import { initDatabaseForSdeScript } from '../loaders/initDatabase';
 
 // Either console.log or false

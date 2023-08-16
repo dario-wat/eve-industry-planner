@@ -8,7 +8,7 @@ import { Sequelize } from 'sequelize';
 import Container from 'typedi';
 import { initDatabase } from './loaders/initDatabase';
 import { initControllers } from './loaders/initControllers';
-import EveSdeData from './services/query/EveSdeData';
+import EveSdeData from './core/sde/EveSdeData';
 import { hoursToMilliseconds } from 'date-fns';
 import initSessionStore from './loaders/initSessionStore';
 import { DOMAIN } from './const/ServerConst';
