@@ -15,10 +15,17 @@
       '12041': { id: 12041, name: 'Purifier Blueprint', group_id: 105 }
     }
 */
-export function mapify<Type>(
-  objs: Type[],
-  key: (string | number),   // No clue how to make this more generic
-): { [key: string | number]: Type } {
-  const mapOne = (obj: any) => ({ [obj[key]]: obj });
-  return Object.assign({}, ...objs.map(mapOne));
+export function mapify<T, K extends keyof T>(
+  objs: T[],
+  key: K,
+): Record<string | number, T> {
+  const result: Record<string, T> = {};
+
+  for (const item of objs) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const keyValue = item[key] as any;
+    result[keyValue] = item;
+  }
+
+  return result;
 }

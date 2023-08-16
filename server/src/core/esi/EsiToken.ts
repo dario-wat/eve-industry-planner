@@ -62,11 +62,9 @@ export const esiTokenModelDefine = (sequelize: Sequelize) => EsiToken.init(
     scopes: {
       type: DataTypes.TEXT,
       get() {
-        // @ts-ignore field declaration wants this to be an array
         return JSON.parse(this.getDataValue('scopes'));
       },
       set(scopes: string[]) {
-        // @ts-ignore field declaration wants this to be an array
         this.setDataValue('scopes', JSON.stringify(scopes));
       },
     }

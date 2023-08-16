@@ -5,7 +5,7 @@ import { sum } from 'mathjs';
 import { mapify } from '../../lib/util';
 import EveQueryService from '../query/EveQueryService';
 import EveSdeData from '../query/EveSdeData';
-import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
+import { EsiCacheItem, genQueryEsiCache } from '../foundation/EsiCacheAction';
 import { EveAssetsLocationsRes, EveAssetsRes } from '@internal/shared';
 import { SHIP } from '../../const/Categories';
 import { MaterialStation } from '../../models/MaterialStation';
@@ -37,7 +37,7 @@ export default class AssetsService {
   ) { }
 
   private async genFlatAssets(characterId: number): Promise<AssetsData> {
-    const assets = await EsiCacheAction.gen(
+    const assets = await genQueryEsiCache(
       characterId.toString(),
       EsiCacheItem.ASSETS,
       hoursToSeconds(1),

@@ -4,7 +4,7 @@ import { hoursToSeconds } from 'date-fns';
 import { mapify } from '../../lib/util';
 import { EveAsset, EveName } from '../../types/EsiQuery';
 import EveSdeData from './EveSdeData';
-import { EsiCacheItem, EsiCacheAction } from '../foundation/EsiCacheAction';
+import { EsiCacheItem, genQueryEsiCache } from '../foundation/EsiCacheAction';
 import { filterNullOrUndef } from '@internal/shared';
 import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
@@ -28,7 +28,7 @@ export default class EveQueryService {
       return sdeStation.name;
     }
 
-    return await EsiCacheAction.gen(
+    return await genQueryEsiCache(
       stationId.toString(),
       EsiCacheItem.STRUCTURE,
       hoursToSeconds(24),

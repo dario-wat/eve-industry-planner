@@ -98,10 +98,16 @@ export default class EveSdeData {
   }
 }
 
-function mapifySequelize(ds: any, key: string): any {
-  return mapify(ds.map((d: Model) => d.get()), key);
+function mapifySequelize<TOut>(
+  ds: Pick<Model, 'get'>[],
+  key: string,
+): Record<string, TOut> {
+  return mapify(ds.map(d => d.get()), key);
 }
 
-function mapifyMultiSequelize(ds: any, key: string): any {
-  return groupBy(ds.map((d: Model) => d.get()), (elem: any) => elem[key]);
+function mapifyMultiSequelize<TOut>(
+  ds: Pick<Model, 'get'>[],
+  key: string,
+): Record<string, TOut[]> {
+  return groupBy(ds.map(d => d.get()), elem => elem[key]);
 }

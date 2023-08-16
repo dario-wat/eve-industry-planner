@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /*
 * This script will read yaml files from SDE (not all, but only the ones
 * specified in this script) and store them into the database. Only some

@@ -7,7 +7,7 @@ export enum ErrorSeverity {
 
 export class AppLog extends Model {
 
-  public static async warn(event: string, data: any): Promise<void> {
+  public static async warn(event: string, data: unknown): Promise<void> {
     await AppLog.create({
       event,
       severity: ErrorSeverity.WARN,

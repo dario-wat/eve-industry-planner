@@ -388,6 +388,7 @@ export default class EsiQueryService {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function logEsiErrorAndReturnNull(e: any): Promise<null> {
   const errorJson = await e.json();
   await AppLog.warn('esi_query', errorJson);
