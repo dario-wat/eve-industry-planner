@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { EsiCacheItem, genClearEsiCache, genClearEsiCacheByKey } from '../services/foundation/EsiCacheAction';
+import { EsiCacheItem, genClearEsiCache, genClearEsiCacheByKey } from '../core/esi_cache/EsiCacheAction';
 
 const route = Router();
 

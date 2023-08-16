@@ -5,7 +5,7 @@ import { sum } from 'mathjs';
 import { mapify } from '../../lib/util';
 import EveQueryService from '../query/EveQueryService';
 import EveSdeData from '../query/EveSdeData';
-import { EsiCacheItem, genQueryEsiCache } from '../foundation/EsiCacheAction';
+import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { EveAssetsLocationsRes, EveAssetsRes } from '@internal/shared';
 import { SHIP } from '../../const/Categories';
 import { MaterialStation } from '../../models/MaterialStation';

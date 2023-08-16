@@ -4,7 +4,7 @@ import { hoursToSeconds } from 'date-fns';
 import { mapify } from '../../lib/util';
 import { EveAsset, EveName } from '../../types/EsiQuery';
 import EveSdeData from './EveSdeData';
-import { EsiCacheItem, genQueryEsiCache } from '../foundation/EsiCacheAction';
+import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { filterNullOrUndef } from '@internal/shared';
 import EsiSequelizeProvider from '../foundation/EsiSequelizeProvider';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';

@@ -1,5 +1,5 @@
 import { addSeconds } from 'date-fns';
-import { EsiCache } from '../../models/EsiCache';
+import { EsiCache } from './EsiCache';
 
 export enum EsiCacheItem {
   ASSETS,

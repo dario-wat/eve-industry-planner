@@ -3,9 +3,9 @@
 * Run like this:
 * ts-node ./server/src/scripts/clearCache.ts
 */
-import { EsiCacheAction } from '../services/foundation/EsiCacheAction';
+import { EsiCacheAction } from '../core/esi_cache/EsiCacheAction';
 import { initDatabaseSequelize } from '../loaders/initDatabase';
-import { esiCacheModelDefine } from '../models/EsiCache';
+import { esiCacheModelDefine } from '../core/esi_cache/EsiCache';
 
 
 async function run() {

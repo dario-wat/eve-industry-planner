@@ -19,7 +19,7 @@ import { typeIdModelDefine } from '../models/sde/TypeID';
 import { categoryIdModelDefine } from '../models/sde/CategoryID';
 import { stationModelDefine } from '../models/sde/Station';
 import { plannedProductModelDefine } from '../models/PlannedProduct';
-import { esiCacheModelDefine } from '../models/EsiCache';
+import { esiCacheModelDefine } from '../core/esi_cache/EsiCache';
 import { materialStationModelDefine } from '../models/MaterialStation';
 import { appLogModelDefine } from '../models/AppLog';
 import { esiAccountModelDefine } from '../core/esi/EsiAccount';
