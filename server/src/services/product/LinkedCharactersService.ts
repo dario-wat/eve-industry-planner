@@ -50,6 +50,8 @@ export default class LinkedCharactersService {
     newCharacter: EsiCharacter,
     existingCharacter: EsiCharacter | null,
   ): Promise<void> {
+    console.log(newCharacter)
+    console.log(existingCharacter)
     const newCharacterAccount = await newCharacter.getAccount();
     if (newCharacterAccount !== null) {
       return;
@@ -57,11 +59,13 @@ export default class LinkedCharactersService {
 
     if (existingCharacter !== null) {
       // TODO account must exist, how to handle required nll
-      // const existingAccount = (await existingCharacter.getAccount())!;
-      // existingAccount.addEsiCharacter(newCharacter);
+      const existingAccount = (await existingCharacter.getAccount())!;
+      console.log(existingAccount)
+      existingAccount.addEsiCharacter(newCharacter);
     } else {
-      // TODO finish this
-      // Account.create();
+      // TODO finish this 
+      const account = await Account.create();
+      account.addEsiCharacter(newCharacter);
     }
   }
 

@@ -7,6 +7,7 @@ export enum EsiCacheItem {
 }
 
 // TODO maybe I should move use cases into a file so they can be reused
+// TODO I don't like that these functions are in global scope
 
 /*
 * Service to manage MySql caching. The purpose of this is to query

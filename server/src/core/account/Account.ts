@@ -20,6 +20,7 @@ export const accountModelDefine = (sequelize: Sequelize) => {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
       },
     },
     {

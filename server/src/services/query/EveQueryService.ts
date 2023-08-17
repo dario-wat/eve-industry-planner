@@ -9,7 +9,6 @@ import { filterNullOrUndef } from '@internal/shared';
 import EsiSequelizeProvider from '../../core/esi/EsiSequelizeProvider';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
 
-// TODO(EIP-16) swallowing exceptions here
 @Service()
 export default class EveQueryService {
 
