@@ -49,12 +49,10 @@ export default class LinkedCharactersService {
   public async genLinkAccount(
     newCharacter: EsiCharacter,
     existingCharacter: EsiCharacter | null,
-  ): Promise<void> {
-    console.log(newCharacter)
-    console.log(existingCharacter)
+  ): Promise<Account> {
     const newCharacterAccount = await newCharacter.getAccount();
     if (newCharacterAccount !== null) {
-      return;
+      return newCharacterAccount;
     }
 
     if (existingCharacter !== null) {
@@ -62,10 +60,12 @@ export default class LinkedCharactersService {
       const existingAccount = (await existingCharacter.getAccount())!;
       console.log(existingAccount)
       existingAccount.addEsiCharacter(newCharacter);
+      return existingAccount;
     } else {
       // TODO finish this 
       const account = await Account.create();
       account.addEsiCharacter(newCharacter);
+      return account;
     }
   }
 

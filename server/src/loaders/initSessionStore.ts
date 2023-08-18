@@ -8,6 +8,9 @@ declare module 'express-session' {
   interface SessionData {
     characterId: number;
     characterName: string;
+    accountId: number;
+    // TODO
+    // esiCharacterIds: number[];
   }
 }
 

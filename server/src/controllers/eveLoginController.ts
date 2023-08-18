@@ -34,12 +34,15 @@ const controller = (app: Router) => {
     const c = (await EsiCharacter.findByPk(character.characterId))!;
     // TODO this should be some kind of actor context
     const c2 = await EsiCharacter.findByPk(req.session.characterId);
-    await linkedCharactersService.genLinkAccount(
+    const account = await linkedCharactersService.genLinkAccount(
       c, c2
     );
 
     req.session.characterId = character.characterId;
     req.session.characterName = character.characterName;
+
+    // TODO add selected esiCharacterIds
+    req.session.accountId = account.id;
 
     res.redirect(DOMAIN);
   });
