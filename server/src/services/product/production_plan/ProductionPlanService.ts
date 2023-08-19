@@ -5,14 +5,13 @@ import { PlannedProduct } from '../../../models/PlannedProduct';
 import { AlwaysBuyItem } from '../../../models/AlwaysBuyItem';
 import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../../core/sde/EveSdeData';
-import { MetaGroup } from '../../../const/MetaGroups';
 import AssetsService from '../AssetsService';
 import EsiTokenlessQueryService from '../../query/EsiTokenlessQueryService';
 import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
 import mergeWith from 'lodash/mergeWith';
 
-const MAX_ME = 0.9; // For ME = 10
+// const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0; // For ME = 0
 const MAX_TE = 0.8; // For TE = 20
 const HOURS_IN_DAY = 24;
@@ -162,10 +161,12 @@ export default class ProductionPlanService {
         this.sdeData.bpManufactureMaterialsByBlueprint[blueprintId]
         || this.sdeData.bpReactionMaterialsByBlueprint[blueprintId];
 
-      const meLevel = this.sdeData.typeIdIsReactionFormula(blueprintId)
-        || this.sdeData.types[product.typeId]?.meta_group_id === MetaGroup.TECH_I
-        ? MIN_ME :
-        MAX_ME;
+      // TODO fix this
+      // const meLevel = this.sdeData.typeIdIsReactionFormula(blueprintId)
+      //   || this.sdeData.types[product.typeId]?.meta_group_id === MetaGroup.TECH_I
+      //   ? MIN_ME :
+      //   MAX_ME;
+      const meLevel = MIN_ME;
 
       const runs = Math.ceil(product.quantity / productBlueprint.quantity);
       materialPlan.addRuns(product.typeId, runs);

@@ -44,6 +44,14 @@ export class EsiCharacter extends Model implements Character {
     const tokens = await this.getEsiTokens();
     await Promise.all(tokens.map(async t => await t.destroy()));
   }
+
+  /** 
+   * Returns related account or throws if not attached
+   * (it should alwasy be thought). 
+   */
+  public async genxAccount(): Promise<Account> {
+    return (await this.getAccount())!;
+  }
 }
 
 export const esiCharacterModelDefine =

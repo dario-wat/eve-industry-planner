@@ -8,6 +8,7 @@ import EsiProviderService from '../core/esi/EsiProviderService';
 import LinkedCharactersService from '../services/product/LinkedCharactersService';
 import EsiTokenlessQueryService from '../services/query/EsiTokenlessQueryService';
 import { EsiCharacter } from '../core/esi/models/EsiCharacter';
+import ActorContext from 'core/actor_context/ActorContext';
 
 const route = Router();
 
@@ -21,6 +22,7 @@ const controller = (app: Router) => {
     res.send(esi.getRedirectUrl(SSO_STATE, requiredScopes));
   });
 
+  // TODO ugly and needs to be cleaned up
   route.get('/sso_callback', async (req: Request, res: Response) => {
     const code = req.query.code as string;
     const { character } = await esi.register(code);
@@ -32,16 +34,15 @@ const controller = (app: Router) => {
     );
 
     const c = (await EsiCharacter.findByPk(character.characterId))!;
-    // TODO this should be some kind of actor context
-    const c2 = await EsiCharacter.findByPk(req.session.characterId);
+    const ac: ActorContext = res.locals.actorContext;
     const account = await linkedCharactersService.genLinkAccount(
-      c, c2
+      ac, c
     );
 
+    // TODO these two should be deleted
     req.session.characterId = character.characterId;
     req.session.characterName = character.characterName;
 
-    // TODO add selected esiCharacterIds
     req.session.accountId = account.id;
 
     res.redirect(DOMAIN);

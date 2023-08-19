@@ -4,13 +4,12 @@
 import session from 'express-session';
 import { Sequelize } from 'sequelize';
 
+// TODO clean up after migrating to ActorContext
 declare module 'express-session' {
   interface SessionData {
     characterId: number;
     characterName: string;
     accountId: number;
-    // TODO
-    // esiCharacterIds: number[];
   }
 }
 

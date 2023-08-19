@@ -5,6 +5,7 @@ import { CharacterCluster } from '../../models/CharacterCluster';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { Account } from '../../core/account/Account';
+import ActorContext from 'core/actor_context/ActorContext';
 
 @Service()
 export default class LinkedCharactersService {
@@ -47,22 +48,20 @@ export default class LinkedCharactersService {
   }
 
   public async genLinkAccount(
+    actorContext: ActorContext,
     newCharacter: EsiCharacter,
-    existingCharacter: EsiCharacter | null,
   ): Promise<Account> {
     const newCharacterAccount = await newCharacter.getAccount();
     if (newCharacterAccount !== null) {
       return newCharacterAccount;
     }
 
-    if (existingCharacter !== null) {
-      // TODO account must exist, how to handle required nll
-      const existingAccount = (await existingCharacter.getAccount())!;
-      console.log(existingAccount)
+    // TODO clean this up
+    const existingAccount = await actorContext.genAccount();
+    if (existingAccount !== null) {
       existingAccount.addEsiCharacter(newCharacter);
       return existingAccount;
     } else {
-      // TODO finish this 
       const account = await Account.create();
       account.addEsiCharacter(newCharacter);
       return account;
