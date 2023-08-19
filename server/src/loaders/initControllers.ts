@@ -10,7 +10,7 @@ import initSdeDataController from '../controllers/sdeDataController';
 import initScribbleController from '../controllers/scribbleController';
 import initAlwaysBuyItemController from '../controllers/alwaysBuyItemController';
 import loggedOutMiddleware from '../controllers/loggedOutMiddleware';
-import { actorContextMiddleware } from '../controllers/actorContextMiddleware';
+import actorContextMiddleware from '../controllers/actorContextMiddleware';
 
 // NOTE: every new controller needs to be added here
 export function initControllers(app: Express): void {
