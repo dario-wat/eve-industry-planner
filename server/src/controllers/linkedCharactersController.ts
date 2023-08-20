@@ -1,19 +1,19 @@
 import { Router, Request, Response } from 'express';
 import Container from 'typedi';
-import LinkedCharactersService from '../services/product/LinkedCharactersService';
+import AccountService from '../core/account/AccountService';
 
 const route = Router();
 
 const controller = (app: Router) => {
   app.use('/', route);
 
-  const linkedCharactersService = Container.get(LinkedCharactersService);
+  const accountService = Container.get(AccountService);
 
   app.get(
     '/linked_characters',
     async (req: Request, res: Response) => {
       // const characterId = req.session.characterId!;
-      const output = await linkedCharactersService.genLinkedCharactersAccount(
+      const output = await accountService.genLinkedCharacters(
         res.locals.actorContext,
       );
       res.json(output);

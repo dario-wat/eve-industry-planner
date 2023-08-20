@@ -26,7 +26,6 @@ import { esiAccountModelDefine } from '../core/esi/models/EsiAccount';
 import { esiCharacterModelDefine } from '../core/esi/models/EsiCharacter';
 import { esiTokenModelDefine } from '../core/esi/models/EsiToken';
 import esiAssocsDefine from '../core/esi/models/EsiAssocs';
-import { characterClusterModelDefine } from '../models/CharacterCluster';
 import { walletTransactionModelDefine } from '../models/WalletTransaction';
 import { scribbleModelDefine } from '../models/Scribble';
 import { alwaysBuyItemModelDefine } from '../models/AlwaysBuyItem';
@@ -81,7 +80,6 @@ export function initDatabase(): void {
   accountModelDefine(sequelize);
   plannedProductModelDefine(sequelize);
   materialStationModelDefine(sequelize);
-  characterClusterModelDefine(sequelize);
   walletTransactionModelDefine(sequelize);
   scribbleModelDefine(sequelize);
   alwaysBuyItemModelDefine(sequelize);

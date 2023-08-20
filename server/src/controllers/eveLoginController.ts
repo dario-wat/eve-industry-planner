@@ -5,10 +5,10 @@ import { SSO_STATE } from '../config/eveSsoConfig';
 import { requiredScopes } from '../const/EveScopes';
 import { DOMAIN } from '../const/ServerConst';
 import EsiProviderService from '../core/esi/EsiProviderService';
-import LinkedCharactersService from '../services/product/LinkedCharactersService';
 import EsiTokenlessQueryService from '../services/query/EsiTokenlessQueryService';
 import { EsiCharacter } from '../core/esi/models/EsiCharacter';
-import ActorContext from 'core/actor_context/ActorContext';
+import ActorContext from '../core/actor_context/ActorContext';
+import AccountService from '../core/account/AccountService';
 
 const route = Router();
 
@@ -27,15 +27,11 @@ const controller = (app: Router) => {
     const code = req.query.code as string;
     const { character } = await esi.register(code);
 
-    const linkedCharactersService = Container.get(LinkedCharactersService);
-    await linkedCharactersService.genLink(
-      character.characterId,
-      req.session.characterId,
-    );
+    const accountService = Container.get(AccountService);
 
     const c = (await EsiCharacter.findByPk(character.characterId))!;
     const ac: ActorContext = res.locals.actorContext;
-    const account = await linkedCharactersService.genLinkAccount(
+    const account = await accountService.genLink(
       ac, c
     );
 
