@@ -48,6 +48,7 @@ const controller = (app: Router) => {
     res.redirect(DOMAIN);
   });
 
+  // TODO should I be having this like this ?
   route.get('/logged_in_user', async (req: Request, res: Response) => {
     let portrait: EvePortrait | null = null;
     if (req.session.characterId) {

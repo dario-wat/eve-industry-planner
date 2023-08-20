@@ -12,9 +12,9 @@ const controller = (app: Router) => {
   app.get(
     '/linked_characters',
     async (req: Request, res: Response) => {
-      const characterId = req.session.characterId!;
-      const output = await linkedCharactersService.genLinkedCharacters(
-        characterId,
+      // const characterId = req.session.characterId!;
+      const output = await linkedCharactersService.genLinkedCharactersAccount(
+        res.locals.actorContext,
       );
       res.json(output);
     },

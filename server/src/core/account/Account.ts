@@ -1,5 +1,5 @@
 import { EsiCharacter } from 'core/esi/models/EsiCharacter';
-import { DataTypes, HasManyAddAssociationMixin, Model, Sequelize } from 'sequelize';
+import { DataTypes, HasManyAddAssociationMixin, HasManyGetAssociationsMixin, Model, Sequelize } from 'sequelize';
 
 /**
  * This is the Account model. Since each user can have multiple characters
@@ -10,6 +10,8 @@ import { DataTypes, HasManyAddAssociationMixin, Model, Sequelize } from 'sequeli
  */
 export class Account extends Model {
   declare id: number;
+
+  declare getEsiCharacters: HasManyGetAssociationsMixin<EsiCharacter>;
 
   declare addEsiCharacter: HasManyAddAssociationMixin<EsiCharacter, 'characterId'>;
 }

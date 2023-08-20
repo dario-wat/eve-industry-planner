@@ -1,5 +1,6 @@
 import React from 'react';
 
+// TODO redesign to work with actor context ?
 type UserContextType = {
   character_id: number | null,
   character_name: string | null,

@@ -107,22 +107,25 @@ function LoggedInUserButtonListItem() {
       window.location.reload();
     }
   };
+
   return (
     <>
       <Collapse in={openList} timeout="auto" unmountOnExit>
-        {linkedCharacters && linkedCharacters.map(c =>
-          <ListItem key={uniqueId()} disablePadding>
-            <ListItemButton onClick={() => handleClick(c.characterId)}>
-              <ListItemAvatar>
-                <Avatar
-                  alt=""
-                  src={c.portrait}
-                  sx={{ width: 36, height: 36 }} />
-              </ListItemAvatar>
-              <ListItemText primary={c.characterName} />
-            </ListItemButton>
-          </ListItem>
-        )}
+        {linkedCharacters && linkedCharacters
+          .filter(c => c.characterId !== userContext.character_id)
+          .map(c =>
+            <ListItem key={uniqueId()} disablePadding>
+              <ListItemButton onClick={() => handleClick(c.characterId)}>
+                <ListItemAvatar>
+                  <Avatar
+                    alt=""
+                    src={c.portrait}
+                    sx={{ width: 36, height: 36 }} />
+                </ListItemAvatar>
+                <ListItemText primary={c.characterName} />
+              </ListItemButton>
+            </ListItem>
+          )}
       </Collapse>
       <ListItem key="loggedInUser" disablePadding>
         <ListItemButton onClick={() => setOpenList(!openList)}>

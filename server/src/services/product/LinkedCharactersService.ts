@@ -68,6 +68,32 @@ export default class LinkedCharactersService {
     }
   }
 
+  public async genLinkedCharactersAccount(
+    actorContext: ActorContext,
+  ): Promise<LinkedCharacterRes> {
+    const account = await actorContext.genAccount();
+    if (account === null) {
+      return [];
+    }
+
+    const characters = await account.getEsiCharacters();
+    const characterIds = characters.map(c => c.characterId);
+    // TODO this should be cleaned up
+    const genData = async (characterId: number) => {
+      const [portrait, character] = await Promise.all([
+        this.esiQuery.genxPortrait(characterId),
+        EsiCharacter.findByPk(characterId),
+      ]);
+      return {
+        characterId,
+        characterName: character?.get().characterName,
+        portrait: portrait.px64x64,
+      };
+    };
+
+    return await Promise.all(characterIds.map(genData));
+  }
+
   // TODO there is a bug here, when multiple characters
   // are in the same cluster, but one of them does not have
   // an access token, this will throw
