@@ -1,16 +1,12 @@
 import ActorContext from '../actor_context/ActorContext';
 import { EsiCharacter } from '../esi/models/EsiCharacter';
-import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
 import { Service } from 'typedi';
 import { Account } from './Account';
-import { LinkedCharacterRes } from '@internal/shared';
 
 @Service()
 export default class AccountService {
 
-  constructor(
-    private readonly esiQuery: EsiTokenlessQueryService,
-  ) { }
+  constructor() { }
 
   /**
    * If the newly logged in character is already linked to an account, 
@@ -38,32 +34,5 @@ export default class AccountService {
     const newAccount = await Account.create();
     newAccount.addEsiCharacter(newCharacter);
     return newAccount;
-  }
-
-  // TODO make this better and add comments
-  public async genLinkedCharacters(
-    actorContext: ActorContext,
-  ): Promise<LinkedCharacterRes> {
-    const account = await actorContext.genAccount();
-    if (account === null) {
-      return [];
-    }
-
-    const characters = await account.getEsiCharacters();
-    const characterIds = characters.map(c => c.characterId);
-    // TODO this should be cleaned up
-    const genData = async (characterId: number) => {
-      const [portrait, character] = await Promise.all([
-        this.esiQuery.genxPortrait(characterId),
-        EsiCharacter.findByPk(characterId),
-      ]);
-      return {
-        characterId,
-        characterName: character?.get().characterName,
-        portrait: portrait.px64x64,
-      };
-    };
-
-    return await Promise.all(characterIds.map(genData));
   }
 }

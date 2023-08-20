@@ -11,7 +11,8 @@ import initAlwaysBuyItemController from '../controllers/alwaysBuyItemController'
 import loggedOutMiddleware from '../controllers/loggedOutMiddleware';
 import actorContextMiddleware from '../controllers/actorContextMiddleware';
 import Container from 'typedi';
-import LinkedCharactersController from '../controllers/linkedCharactersController';
+import AccountController from '../core/account/AccountController';
+
 
 // TODO replace Container typedi with a class service
 
@@ -31,7 +32,7 @@ export function initControllers(app: Express): void {
   initProductionPlanController(app);
   initClearCacheController(app);
 
-  Container.get(LinkedCharactersController).init(app);
+  Container.get(AccountController).init(app);
 
   initSdeDataController(app);
   initScribbleController(app);

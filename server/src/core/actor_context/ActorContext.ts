@@ -1,3 +1,4 @@
+import { EsiCharacter } from '../esi/models/EsiCharacter';
 import { Account } from '../account/Account';
 
 /**
@@ -21,5 +22,17 @@ export default class ActorContext {
 
   public async genxAccount(): Promise<Account> {
     return (await Account.findByPk(this.accountId!))!;
+  }
+
+  /** 
+   * Fetches a list of EsiCharacters related to this ActorContext. If logged
+   * out, returns an empty list.
+   */
+  public async genLinkedCharacters(): Promise<EsiCharacter[]> {
+    const account = await this.genAccount();
+    if (account === null) {
+      return [];
+    }
+    return await account.getEsiCharacters();
   }
 }
