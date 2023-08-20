@@ -4,14 +4,14 @@ import initEveFetchDataController from '../controllers/eveFetchDataController';
 import initPlannedProductController from '../controllers/plannedProductController';
 import initMaterialStationController from '../controllers/materialStationController';
 import initProductionPlanController from '../controllers/productionPlanController';
-import initClearCacheController from '../controllers/clearCacheController';
 import initSdeDataController from '../controllers/sdeDataController';
 import initScribbleController from '../controllers/scribbleController';
 import initAlwaysBuyItemController from '../controllers/alwaysBuyItemController';
-import loggedOutMiddleware from '../controllers/loggedOutMiddleware';
-import actorContextMiddleware from '../controllers/actorContextMiddleware';
+import loggedOutMiddleware from '../core/controller/loggedOutMiddleware';
+import actorContextMiddleware from '../core/controller/actorContextMiddleware';
 import Container from 'typedi';
 import AccountController from '../core/account/AccountController';
+import EsiCacheController from '../core/esi_cache/EsiCacheController';
 
 
 // TODO replace Container typedi with a class service
@@ -30,8 +30,8 @@ export function initControllers(app: Express): void {
   initPlannedProductController(app);
   initMaterialStationController(app);
   initProductionPlanController(app);
-  initClearCacheController(app);
 
+  Container.get(EsiCacheController).init(app);
   Container.get(AccountController).init(app);
 
   initSdeDataController(app);

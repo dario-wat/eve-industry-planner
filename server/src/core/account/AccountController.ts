@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Service } from 'typedi';
 import ActorContext from '../actor_context/ActorContext';
-import Controller from '../Controller';
+import Controller from '../controller/Controller';
 import { EsiCharacter } from '../esi/models/EsiCharacter';
 import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
 

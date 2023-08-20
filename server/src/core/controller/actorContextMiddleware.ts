@@ -1,6 +1,7 @@
-import ActorContext from '../core/actor_context/ActorContext';
+import ActorContext from '../actor_context/ActorContext';
 import { Request, Response, NextFunction } from 'express';
 
+/** Adds ActorContext to res.locals.actorContext. */
 export default function actorContextMiddleware(
   req: Request,
   res: Response,

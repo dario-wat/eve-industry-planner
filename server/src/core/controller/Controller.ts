@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import ActorContext from './actor_context/ActorContext';
+import ActorContext from '../actor_context/ActorContext';
 
 /** Helper type for the improved controller handler. */
 type RouterHandlerFn = (
@@ -35,6 +35,13 @@ export default abstract class Controller {
   /** Helper function to define a `get` endpoint. */
   protected appGet(route: string, handler: RouterHandlerFn): void {
     this.router.get(route, async (req: Request, res: Response) => {
+      await handler(req, res, res.locals.actorContext);
+    });
+  }
+
+  /** Helper function to define 'delete' endpoint. */
+  protected appDelete(route: string, handler: RouterHandlerFn): void {
+    this.router.delete(route, async (req: Request, res: Response) => {
       await handler(req, res, res.locals.actorContext);
     });
   }
