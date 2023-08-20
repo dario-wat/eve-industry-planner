@@ -5,12 +5,15 @@ import initPlannedProductController from '../controllers/plannedProductControlle
 import initMaterialStationController from '../controllers/materialStationController';
 import initProductionPlanController from '../controllers/productionPlanController';
 import initClearCacheController from '../controllers/clearCacheController';
-import initLinkedCharactersController from '../controllers/linkedCharactersController';
 import initSdeDataController from '../controllers/sdeDataController';
 import initScribbleController from '../controllers/scribbleController';
 import initAlwaysBuyItemController from '../controllers/alwaysBuyItemController';
 import loggedOutMiddleware from '../controllers/loggedOutMiddleware';
 import actorContextMiddleware from '../controllers/actorContextMiddleware';
+import Container from 'typedi';
+import LinkedCharactersController from '../controllers/linkedCharactersController';
+
+// TODO replace Container typedi with a class service
 
 // NOTE: every new controller needs to be added here
 export function initControllers(app: Express): void {
@@ -27,7 +30,9 @@ export function initControllers(app: Express): void {
   initMaterialStationController(app);
   initProductionPlanController(app);
   initClearCacheController(app);
-  initLinkedCharactersController(app);
+
+  Container.get(LinkedCharactersController).init(app);
+
   initSdeDataController(app);
   initScribbleController(app);
   initAlwaysBuyItemController(app);
