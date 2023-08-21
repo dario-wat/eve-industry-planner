@@ -39,6 +39,13 @@ export default abstract class Controller {
     });
   }
 
+  /** Helper function to define `post` endpoint. */
+  protected appPost(route: string, handler: RouterHandlerFn): void {
+    this.router.post(route, async (req: Request, res: Response) => {
+      await handler(req, res, res.locals.actorContext);
+    });
+  }
+
   /** Helper function to define 'delete' endpoint. */
   protected appDelete(route: string, handler: RouterHandlerFn): void {
     this.router.delete(route, async (req: Request, res: Response) => {
