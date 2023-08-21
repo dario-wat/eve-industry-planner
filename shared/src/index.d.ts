@@ -134,6 +134,7 @@ export type LinkedCharacterRes = {
 }[];
 
 export type ScribbleRes = {
+  id: number,
   name: string,
   text: string,
 };

@@ -27,10 +27,11 @@ import { esiCharacterModelDefine } from '../core/esi/models/EsiCharacter';
 import { esiTokenModelDefine } from '../core/esi/models/EsiToken';
 import esiAssocsDefine from '../core/esi/models/EsiAssocs';
 import { walletTransactionModelDefine } from '../models/WalletTransaction';
-import { scribbleModelDefine } from '../models/Scribble';
+import { scribbleModelDefine } from '../features/scribble/Scribble';
 import { alwaysBuyItemModelDefine } from '../models/AlwaysBuyItem';
 import { accountModelDefine } from '../core/account/Account';
 import { accountAssocsDefine } from '../core/account/AccountAssocs';
+import { scribbleAssocsDefine } from '../features/scribble/ScribbleAssocs';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -96,6 +97,7 @@ export function initDatabase(): void {
   // Assocs
   esiAssocsDefine();
   accountAssocsDefine();
+  scribbleAssocsDefine();
 }
 
 // This should define ONLY SDE models

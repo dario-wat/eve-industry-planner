@@ -1,4 +1,5 @@
 import { EsiCharacter } from 'core/esi/models/EsiCharacter';
+import { Scribble } from 'features/scribble/Scribble';
 import { DataTypes, HasManyAddAssociationMixin, HasManyGetAssociationsMixin, Model, Sequelize } from 'sequelize';
 
 /**
@@ -12,8 +13,10 @@ export class Account extends Model {
   declare id: number;
 
   declare getEsiCharacters: HasManyGetAssociationsMixin<EsiCharacter>;
+  declare getScribbles: HasManyGetAssociationsMixin<Scribble>;
 
   declare addEsiCharacter: HasManyAddAssociationMixin<EsiCharacter, 'characterId'>;
+  declare addScribble: HasManyAddAssociationMixin<Scribble, 'id'>;
 }
 
 export const accountModelDefine = (sequelize: Sequelize) => {

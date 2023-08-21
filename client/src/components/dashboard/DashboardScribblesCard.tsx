@@ -25,6 +25,7 @@ export default function DashboardScribblesCard() {
 
   const setScribblesFull = (newText: string, index: number) =>
     setScribbles(scribbles.map((s, i) => ({
+      id: s.id,
       name: s.name,
       text: i === index ? newText : s.text,
     })));
@@ -43,8 +44,8 @@ export default function DashboardScribblesCard() {
 
   const onSaveButtonClick = async (index: number) => {
     const { data } = await axios.post<ScribbleRes>(
-      '/create_scribble',
-      { name: scribbles[index].name, text: scribbles[index].text },
+      `/edit_scribble/${scribbles[index].id}`,
+      { text: scribbles[index].text },
     );
     setScribblesFull(data.text, index);
   };
@@ -69,7 +70,7 @@ export default function DashboardScribblesCard() {
         </Box>
         {selectedTab < scribbles.length &&
           <Scribble
-            name={scribbles[selectedTab].name}
+            id={scribbles[selectedTab].id}
             text={scribbles[selectedTab].text}
             onChange={(text) => setScribblesFull(text, selectedTab)}
             onSave={() => onSaveButtonClick(selectedTab)}
@@ -90,7 +91,7 @@ export default function DashboardScribblesCard() {
 }
 
 function Scribble(props: {
-  name: string,
+  id: number,
   text: string,
   onChange: (text: string) => void,
   onSave: () => void,
@@ -118,7 +119,7 @@ function Scribble(props: {
   const [isDeleting, setIsDeleting] = useState(false);
   const onDeleteClick = async () => {
     setIsDeleting(true);
-    const { status } = await axios.delete(`/delete_scribble/${props.name}`);
+    const { status } = await axios.delete(`/delete_scribble/${props.id}`);
     if (status === 200) {
       props.onDelete();
     }

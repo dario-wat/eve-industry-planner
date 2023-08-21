@@ -4,7 +4,7 @@ import initEveFetchDataController from '../controllers/eveFetchDataController';
 import initPlannedProductController from '../controllers/plannedProductController';
 import initMaterialStationController from '../controllers/materialStationController';
 import initProductionPlanController from '../controllers/productionPlanController';
-import initScribbleController from '../controllers/scribbleController';
+import initScribbleController from '../features/scribble/scribbleController';
 import initAlwaysBuyItemController from '../controllers/alwaysBuyItemController';
 import loggedOutMiddleware from '../core/controller/loggedOutMiddleware';
 import actorContextMiddleware from '../core/controller/actorContextMiddleware';
