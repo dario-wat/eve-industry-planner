@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import Container from 'typedi';
-import AlwaysBuyItemService from '../services/product/AlwaysBuyItemService';
+import AlwaysBuyItemService from './AlwaysBuyItemService';
 
 const route = Router();
 

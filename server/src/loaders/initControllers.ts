@@ -4,7 +4,7 @@ import initEveFetchDataController from '../controllers/eveFetchDataController';
 import initPlannedProductController from '../controllers/plannedProductController';
 import initMaterialStationController from '../controllers/materialStationController';
 import initProductionPlanController from '../controllers/productionPlanController';
-import initAlwaysBuyItemController from '../controllers/alwaysBuyItemController';
+import initAlwaysBuyItemController from '../features/always_buy/alwaysBuyItemController';
 import loggedOutMiddleware from '../core/controller/loggedOutMiddleware';
 import actorContextMiddleware from '../core/controller/actorContextMiddleware';
 import Container from 'typedi';

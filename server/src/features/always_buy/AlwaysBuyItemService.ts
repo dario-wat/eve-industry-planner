@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { AlwaysBuyItemsRes } from '@internal/shared';
-import { AlwaysBuyItem } from '../../models/AlwaysBuyItem';
+import { AlwaysBuyItem } from './AlwaysBuyItem';
 import EveSdeData from '../../core/sde/EveSdeData';
 
 @Service()

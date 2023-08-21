@@ -2,7 +2,7 @@ import { Service } from 'typedi';
 import { groupBy } from 'underscore';
 import { secondsToHours } from 'date-fns';
 import { PlannedProduct } from '../../../models/PlannedProduct';
-import { AlwaysBuyItem } from '../../../models/AlwaysBuyItem';
+import { AlwaysBuyItem } from '../../../features/always_buy/AlwaysBuyItem';
 import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../../core/sde/EveSdeData';
 import AssetsService from '../AssetsService';

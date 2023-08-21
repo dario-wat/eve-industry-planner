@@ -28,7 +28,7 @@ import { esiTokenModelDefine } from '../core/esi/models/EsiToken';
 import esiAssocsDefine from '../core/esi/models/EsiAssocs';
 import { walletTransactionModelDefine } from '../models/WalletTransaction';
 import { scribbleModelDefine } from '../features/scribble/Scribble';
-import { alwaysBuyItemModelDefine } from '../models/AlwaysBuyItem';
+import { alwaysBuyItemModelDefine } from '../features/always_buy/AlwaysBuyItem';
 import { accountModelDefine } from '../core/account/Account';
 import { accountAssocsDefine } from '../core/account/AccountAssocs';
 import { scribbleAssocsDefine } from '../features/scribble/ScribbleAssocs';
