@@ -11,7 +11,7 @@ import EsiCacheController from '../core/esi_cache/EsiCacheController';
 import EveSdeDataController from '../core/sde/EveSdeDataController';
 import ScribbleController from '../features/scribble/ScribbleController';
 import AlwaysBuyItemController from '../features/always_buy/AlwaysBuyItemController';
-import MaterialStationController from '../features/material_station/materialStationController';
+import MaterialStationController from '../features/material_station/MaterialStationController';
 
 
 // TODO replace Container typedi with a class service
