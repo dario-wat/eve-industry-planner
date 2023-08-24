@@ -11,15 +11,14 @@ export default class MaterialStationUtil {
     private readonly eveQuery: EveQueryService,
   ) { }
 
-  /** Queries all material stationc related to logged in account. */
+  /** Queries all material stations related to logged in account. */
   public async genQuery(
     actorContext: ActorContext,
   ): Promise<MaterialStationsRes> {
     const account = await actorContext.genxAccount();
     const materialStations = await account.getMaterialStations();
-    const character = await actorContext.genxMainCharacter();
     return await this.genStationsForResponse(
-      character.characterId,
+      actorContext,
       materialStations,
     );
   }
@@ -30,6 +29,7 @@ export default class MaterialStationUtil {
     stationIds: number[],
   ): Promise<MaterialStationsRes> {
     const account = await actorContext.genxAccount();
+
     // Delete current data
     await MaterialStation.destroy({
       where: {
@@ -41,19 +41,19 @@ export default class MaterialStationUtil {
     const result = await MaterialStation.bulkCreate(
       stationIds.map(sid => ({ accountId: account.id, station_id: sid })),
     );
-    const character = await actorContext.genxMainCharacter();
-    return await this.genStationsForResponse(character.characterId, result);
+    return await this.genStationsForResponse(actorContext, result);
   }
 
   /*
   * Helper function to format Stations for response.
   */
   private async genStationsForResponse(
-    characterId: number,  // TODO pass in EsiCharacter ? or actor context ?
+    actorContext: ActorContext,
     materialStations: MaterialStation[],
   ): Promise<MaterialStationsRes> {
+    const character = await actorContext.genxMainCharacter();
     const stations = await this.eveQuery.genAllStationNames(
-      characterId,
+      character.characterId,
       materialStations.map(station => station.get().station_id),
     );
     return Object.entries(stations).map(station => ({
