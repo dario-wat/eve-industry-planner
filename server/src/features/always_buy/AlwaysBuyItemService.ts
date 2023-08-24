@@ -2,6 +2,7 @@ import { Service } from 'typedi';
 import { AlwaysBuyItemsRes } from '@internal/shared';
 import { AlwaysBuyItem } from './AlwaysBuyItem';
 import EveSdeData from '../../core/sde/EveSdeData';
+import ActorContext from '../../core/actor_context/ActorContext';
 
 @Service()
 export default class AlwaysBuyItemService {
@@ -10,33 +11,35 @@ export default class AlwaysBuyItemService {
     private readonly sdeData: EveSdeData,
   ) { }
 
-  public async genQuery(characterId: number): Promise<AlwaysBuyItemsRes> {
-    const result = await AlwaysBuyItem.findAll({
-      where: {
-        characterId,
-      },
-    });
-    return result.map(i => ({
-      typeId: i.get().typeId,
-      typeName: this.sdeData.types[i.get().typeId].name,
+  /** Queries all AlwaysBuyItem TypeIDs from SDE. */
+  public async genQuery(actorContext: ActorContext): Promise<AlwaysBuyItemsRes> {
+    const account = await actorContext.genxAccount();
+    const result = await account.getAlwaysBuyItems();
+    return result.map(item => ({
+      typeId: item.get().typeId,
+      typeName: this.sdeData.types[item.get().typeId].name,
     }));
   }
 
+  /** Updates Always-Buy items of the account. */
   public async genUpdate(
-    characterId: number,
+    actorContext: ActorContext,
     typeIds: number[],
   ): Promise<AlwaysBuyItemsRes> {
+    const account = await actorContext.genxAccount();
+
     // Delete current data
     await AlwaysBuyItem.destroy({
       where: {
-        characterId,
+        accountId: account.id,
       },
     });
 
     // Recreate new data
     const result = await AlwaysBuyItem.bulkCreate(
-      typeIds.map(typeId => ({ characterId, typeId })),
+      typeIds.map(typeId => ({ accountId: account.id, typeId })),
     );
+
     return result.map(i => ({
       typeId: i.get().typeId,
       typeName: this.sdeData.types[i.get().typeId].name,

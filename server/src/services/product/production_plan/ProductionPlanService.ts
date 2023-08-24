@@ -2,7 +2,6 @@ import { Service } from 'typedi';
 import { groupBy } from 'underscore';
 import { secondsToHours } from 'date-fns';
 import { PlannedProduct } from '../../../models/PlannedProduct';
-import { AlwaysBuyItem } from '../../../features/always_buy/AlwaysBuyItem';
 import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../../core/sde/EveSdeData';
 import AssetsService from '../AssetsService';
@@ -10,6 +9,7 @@ import EsiTokenlessQueryService from '../../query/EsiTokenlessQueryService';
 import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
 import mergeWith from 'lodash/mergeWith';
+import { EsiCharacter } from '../../../core/esi/models/EsiCharacter';
 
 // const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0; // For ME = 0
@@ -35,6 +35,9 @@ export default class ProductionPlanService {
     characterId: number,
     group?: string,
   ): Promise<ProductionPlanRes> {
+    // TODO replace with actor context
+    const character = (await EsiCharacter.findByPk(characterId))!;
+    const account = await character.genxAccount();
     const [plannedProducts, assets, industryJobs, alwaysBuy] =
       await Promise.all([
         PlannedProduct.findAll({
@@ -45,9 +48,7 @@ export default class ProductionPlanService {
         }),
         this.assetService.genAssetsForProductionPlan(characterId),
         this.esiQuery.genxIndustryJobs(characterId),
-        AlwaysBuyItem.findAll({
-          where: { characterId },
-        }),
+        account.getAlwaysBuyItems(),
       ]);
 
     const alwaysBuyTypeIds = alwaysBuy.map(ab => Number(ab.get().typeId));

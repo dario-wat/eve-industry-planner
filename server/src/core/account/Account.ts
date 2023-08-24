@@ -1,6 +1,14 @@
 import { EsiCharacter } from 'core/esi/models/EsiCharacter';
+import { AlwaysBuyItem } from 'features/always_buy/AlwaysBuyItem';
 import { Scribble } from 'features/scribble/Scribble';
-import { DataTypes, HasManyAddAssociationMixin, HasManyGetAssociationsMixin, Model, Sequelize } from 'sequelize';
+import {
+  DataTypes,
+  HasManyAddAssociationMixin,
+  HasManyGetAssociationsMixin,
+  HasManySetAssociationsMixin,
+  Model,
+  Sequelize,
+} from 'sequelize';
 
 /**
  * This is the Account model. Since each user can have multiple characters
@@ -14,9 +22,13 @@ export class Account extends Model {
 
   declare getEsiCharacters: HasManyGetAssociationsMixin<EsiCharacter>;
   declare getScribbles: HasManyGetAssociationsMixin<Scribble>;
+  declare getAlwaysBuyItems: HasManyGetAssociationsMixin<AlwaysBuyItem>;
 
   declare addEsiCharacter: HasManyAddAssociationMixin<EsiCharacter, 'characterId'>;
   declare addScribble: HasManyAddAssociationMixin<Scribble, 'id'>;
+  declare addAlwaysBuyItem: HasManyAddAssociationMixin<AlwaysBuyItem, 'id'>;
+
+  declare setAlwaysBuyItems: HasManySetAssociationsMixin<AlwaysBuyItem, 'id'>;
 }
 
 export const accountModelDefine = (sequelize: Sequelize) => {

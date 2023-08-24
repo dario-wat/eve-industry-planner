@@ -32,6 +32,9 @@ import { alwaysBuyItemModelDefine } from '../features/always_buy/AlwaysBuyItem';
 import { accountModelDefine } from '../core/account/Account';
 import { accountAssocsDefine } from '../core/account/AccountAssocs';
 import { scribbleAssocsDefine } from '../features/scribble/ScribbleAssocs';
+import { alwaysBuyItemAssocsDefine } from '../features/always_buy/AlwaysBuyItemAssocs';
+
+// TODO make assoc defines default exports ?
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -98,6 +101,7 @@ export function initDatabase(): void {
   esiAssocsDefine();
   accountAssocsDefine();
   scribbleAssocsDefine();
+  alwaysBuyItemAssocsDefine();
 }
 
 // This should define ONLY SDE models
