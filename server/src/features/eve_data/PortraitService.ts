@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { EvePortraitRes } from '@internal/shared';
-import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
+import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
 
 @Service()
 export default class PortraitService {

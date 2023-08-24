@@ -4,7 +4,7 @@ import { isEmpty } from 'underscore';
 import { PlannedProduct } from '../../models/PlannedProduct';
 import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
-import AssetsService from './AssetsService';
+import AssetsService from '../../features/eve_data/AssetsService';
 import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 import { MANUFACTURING } from '../../const/IndustryActivity';
 

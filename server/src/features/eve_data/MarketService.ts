@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import EveSdeData from '../../core/sde/EveSdeData';
-import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
-import EveQueryService from '../query/EveQueryService';
+import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
+import EveQueryService from '../../services/query/EveQueryService';
 import { MarketOrdersRes, WalletTransactionsRes } from '@internal/shared';
 import { WalletTransaction } from '../../models/WalletTransaction';
 

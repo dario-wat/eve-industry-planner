@@ -4,8 +4,8 @@ import { industryActivity, IndustryActivityKey } from '../../const/IndustryActiv
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { EveIndustryJobsRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
-import EveQueryService from '../query/EveQueryService';
-import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
+import EveQueryService from '../../services/query/EveQueryService';
+import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
 
 @Service()
 export default class IndustryJobService {
@@ -16,7 +16,8 @@ export default class IndustryJobService {
     private readonly sdeData: EveSdeData,
   ) { }
 
-  public async genData(characterId: number): Promise<EveIndustryJobsRes> {
+  /** Data for the Industry Jobs page. */
+  public async genDataForPage(characterId: number): Promise<EveIndustryJobsRes> {
     const industryJobs = await this.esiQuery.genxIndustryJobs(characterId);
     return await Promise.all(industryJobs.map(
       job => this.genSingle(characterId, job),

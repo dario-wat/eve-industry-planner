@@ -4,7 +4,7 @@ import { secondsToHours } from 'date-fns';
 import { PlannedProduct } from '../../../models/PlannedProduct';
 import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../../core/sde/EveSdeData';
-import AssetsService from '../AssetsService';
+import AssetsService from '../../../features/eve_data/AssetsService';
 import EsiTokenlessQueryService from '../../query/EsiTokenlessQueryService';
 import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';

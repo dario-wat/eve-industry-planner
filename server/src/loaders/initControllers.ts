@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import initEveLoginController from '../controllers/eveLoginController';
-import initEveFetchDataController from '../controllers/eveFetchDataController';
+import initEveFetchDataController from '../features/eve_data/eveFetchDataController';
 import initPlannedProductController from '../controllers/plannedProductController';
 import initProductionPlanController from '../controllers/productionPlanController';
 import loggedOutMiddleware from '../core/controller/loggedOutMiddleware';

@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { EveContractsRes } from '@internal/shared';
-import EveQueryService from '../query/EveQueryService';
-import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
+import EveQueryService from '../../services/query/EveQueryService';
+import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
 
 @Service()
 export default class ContractsService {

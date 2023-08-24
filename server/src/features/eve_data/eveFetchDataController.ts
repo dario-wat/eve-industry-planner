@@ -1,10 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { Container } from 'typedi';
-import IndustryJobService from '../services/product/IndustryJobService';
-import AssetsService from '../services/product/AssetsService';
-import ContractsService from '../services/product/ContractsService';
-import PortraitService from '../services/product/PortraitService';
-import MarketService from '../services/product/MarketService';
+import IndustryJobService from './IndustryJobService';
+import AssetsService from './AssetsService';
+import ContractsService from './ContractsService';
+import PortraitService from './PortraitService';
+import MarketService from './MarketService';
 
 const route = Router();
 
@@ -16,7 +16,7 @@ const controller = (app: Router) => {
     async (req: Request, res: Response) => {
       const characterId = req.session.characterId!;
       const industryJobService = Container.get(IndustryJobService);
-      const output = await industryJobService.genData(characterId);
+      const output = await industryJobService.genDataForPage(characterId);
       res.json(output);
     },
   );
