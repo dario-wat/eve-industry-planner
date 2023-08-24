@@ -1,5 +1,6 @@
 import { EsiCharacter } from '../esi/models/EsiCharacter';
 import { Account } from '../account/Account';
+import memoize from 'memoizee';
 
 /**
  * This class represents the currently logged in user/account/actor.
@@ -10,9 +11,28 @@ export default class ActorContext {
 
   constructor(
     public readonly accountId: number | null,
-  ) { }
+  ) {
+    this.genAccount = memoize(
+      this.genAccount.bind(this),
+      {
+        primitive: true,
+        async: true,
+        preFetch: true,
+        maxAge: 2000,   // 2 seconds
+      },
+    );
 
-  // TODO memoize
+    this.genxMainCharacter = memoize(
+      this.genxMainCharacter.bind(this),
+      {
+        primitive: true,
+        async: true,
+        preFetch: true,
+        maxAge: 2000,   // 2 seconds
+      },
+    );
+  }
+
   public async genAccount(): Promise<Account | null> {
     if (this.accountId === null) {
       return null;
@@ -22,10 +42,9 @@ export default class ActorContext {
   }
 
   public async genxAccount(): Promise<Account> {
-    return (await Account.findByPk(this.accountId!))!;
+    return (await this.genAccount())!;
   }
 
-  // TODO memoize this call?
   /** Currently returns one character of all linked ones. */
   public async genxMainCharacter(): Promise<EsiCharacter> {
     const characters = await this.genLinkedCharacters();

@@ -18,7 +18,7 @@ export default class EsiSequelizeProvider
 
   constructor() {
     this.getToken = memoize(
-      this.getToken,
+      this.getToken.bind(this),
       {
         primitive: true,
         async: true,
