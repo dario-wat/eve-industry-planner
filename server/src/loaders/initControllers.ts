@@ -11,7 +11,7 @@ import AccountController from '../core/account/AccountController';
 import EsiCacheController from '../core/esi_cache/EsiCacheController';
 import EveSdeDataController from '../core/sde/EveSdeDataController';
 import ScribbleController from '../features/scribble/ScribbleController';
-import AlwaysBuyItemController from '../features/always_buy/alwaysBuyItemController';
+import AlwaysBuyItemController from '../features/always_buy/AlwaysBuyItemController';
 
 
 // TODO replace Container typedi with a class service
