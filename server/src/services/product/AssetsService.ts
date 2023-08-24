@@ -8,8 +8,9 @@ import EveSdeData from '../../core/sde/EveSdeData';
 import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { EveAssetsLocationsRes, EveAssetsRes } from '@internal/shared';
 import { SHIP } from '../../const/Categories';
-import { MaterialStation } from '../../models/MaterialStation';
+import { MaterialStation } from '../../features/material_station/MaterialStation';
 import { EveAsset } from '../../types/EsiQuery';
+import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 
 type AssetsData = {
   name: string,
@@ -140,12 +141,13 @@ export default class AssetsService {
    * stations stored in MaterialStation.
    */
   public async genAssetsForProductionPlan(
-    characterId: number,
+    characterId: number,  // TODO use actor context?
   ): Promise<{ [typeId: number]: number }> {
+    const character = (await EsiCharacter.findByPk(characterId))!;
+    const account = await character?.genxAccount();
     const materialStations = await MaterialStation.findAll({
-      attributes: ['station_id'],
       where: {
-        character_id: characterId,
+        accountId: account.id,
       },
     });
     const stationIds =

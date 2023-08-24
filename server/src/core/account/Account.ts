@@ -1,11 +1,11 @@
 import { EsiCharacter } from 'core/esi/models/EsiCharacter';
 import { AlwaysBuyItem } from 'features/always_buy/AlwaysBuyItem';
+import { MaterialStation } from 'features/material_station/MaterialStation';
 import { Scribble } from 'features/scribble/Scribble';
 import {
   DataTypes,
   HasManyAddAssociationMixin,
   HasManyGetAssociationsMixin,
-  HasManySetAssociationsMixin,
   Model,
   Sequelize,
 } from 'sequelize';
@@ -23,12 +23,12 @@ export class Account extends Model {
   declare getEsiCharacters: HasManyGetAssociationsMixin<EsiCharacter>;
   declare getScribbles: HasManyGetAssociationsMixin<Scribble>;
   declare getAlwaysBuyItems: HasManyGetAssociationsMixin<AlwaysBuyItem>;
+  declare getMaterialStations: HasManyGetAssociationsMixin<MaterialStation>;
 
   declare addEsiCharacter: HasManyAddAssociationMixin<EsiCharacter, 'characterId'>;
   declare addScribble: HasManyAddAssociationMixin<Scribble, 'id'>;
   declare addAlwaysBuyItem: HasManyAddAssociationMixin<AlwaysBuyItem, 'id'>;
-
-  declare setAlwaysBuyItems: HasManySetAssociationsMixin<AlwaysBuyItem, 'id'>;
+  declare addMaterialsStations: HasManyAddAssociationMixin<MaterialStation, 'id'>;
 }
 
 export const accountModelDefine = (sequelize: Sequelize) => {

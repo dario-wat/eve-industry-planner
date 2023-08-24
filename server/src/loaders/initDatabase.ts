@@ -20,7 +20,7 @@ import { categoryIdModelDefine } from '../core/sde/models/CategoryID';
 import { stationModelDefine } from '../core/sde/models/Station';
 import { plannedProductModelDefine } from '../models/PlannedProduct';
 import { esiCacheModelDefine } from '../core/esi_cache/EsiCache';
-import { materialStationModelDefine } from '../models/MaterialStation';
+import { materialStationModelDefine } from '../features/material_station/MaterialStation';
 import { appLogModelDefine } from '../core/logger/AppLog';
 import { esiAccountModelDefine } from '../core/esi/models/EsiAccount';
 import { esiCharacterModelDefine } from '../core/esi/models/EsiCharacter';
@@ -33,6 +33,7 @@ import { accountModelDefine } from '../core/account/Account';
 import { accountAssocsDefine } from '../core/account/AccountAssocs';
 import { scribbleAssocsDefine } from '../features/scribble/ScribbleAssocs';
 import { alwaysBuyItemAssocsDefine } from '../features/always_buy/AlwaysBuyItemAssocs';
+import { materialStationAssocsDefine } from '../features/material_station/MaterialStationAssocs';
 
 // TODO make assoc defines default exports ?
 
@@ -102,6 +103,7 @@ export function initDatabase(): void {
   accountAssocsDefine();
   scribbleAssocsDefine();
   alwaysBuyItemAssocsDefine();
+  materialStationAssocsDefine();
 }
 
 // This should define ONLY SDE models

@@ -12,6 +12,7 @@ export default class ActorContext {
     public readonly accountId: number | null,
   ) { }
 
+  // TODO memoize
   public async genAccount(): Promise<Account | null> {
     if (this.accountId === null) {
       return null;
@@ -22,6 +23,13 @@ export default class ActorContext {
 
   public async genxAccount(): Promise<Account> {
     return (await Account.findByPk(this.accountId!))!;
+  }
+
+  // TODO memoize this call?
+  /** Currently returns one character of all linked ones. */
+  public async genxMainCharacter(): Promise<EsiCharacter> {
+    const characters = await this.genLinkedCharacters();
+    return characters[0];
   }
 
   /** 

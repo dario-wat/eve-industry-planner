@@ -1,18 +1,21 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
-/*
-* List of stations that will be used to check available resources
-* (materials).
-*/
+/**
+ * List of stations that will be used to check available resources
+ * (materials).
+ * We cannot use foreign key because it's possible for the station
+ * table to be dropped occasionally since it's part of SDE.
+ */
 export class MaterialStation extends Model {
 }
 
 export const materialStationModelDefine =
   (sequelize: Sequelize) => MaterialStation.init(
     {
-      character_id: {
+      id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true,
       },
       station_id: {
         type: DataTypes.BIGINT,
