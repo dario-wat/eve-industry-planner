@@ -34,6 +34,7 @@ export type EveContractsRes = {
 }[];
 
 export type EveIndustryJobsRes = {
+  character_name: string,
   activity: string,
   blueprint_name: string,
   progress: number,

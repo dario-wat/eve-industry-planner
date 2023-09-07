@@ -6,6 +6,8 @@ import { EveIndustryJobsRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EveQueryService from '../../services/query/EveQueryService';
 import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
+import ActorContext from '../../core/actor_context/ActorContext';
+import { EsiCharacter } from 'core/esi/models/EsiCharacter';
 
 @Service()
 export default class IndustryJobService {
@@ -17,14 +19,38 @@ export default class IndustryJobService {
   ) { }
 
   /** Data for the Industry Jobs page. */
-  public async genDataForPage(characterId: number): Promise<EveIndustryJobsRes> {
-    const industryJobs = await this.esiQuery.genxIndustryJobs(characterId);
+  public async genDataForPage(
+    actorContext: ActorContext,
+  ): Promise<EveIndustryJobsRes> {
+    const characters = await actorContext.genLinkedCharacters();
+
+    const characterJobs = await Promise.all(characters.map(async character =>
+      await this.genSingleCharacterJobDataForPage(character)
+    ));
+
+    return characterJobs.flat();
+  }
+
+  /**
+   * Queries all industry jobs for the given character and returns data
+   * for the Industry Jobs page.
+   */
+  private async genSingleCharacterJobDataForPage(
+    character: EsiCharacter,
+  ): Promise<EveIndustryJobsRes> {
+    const industryJobs = await this.esiQuery.genxIndustryJobs(
+      character.characterId,
+    );
     return await Promise.all(industryJobs.map(
-      job => this.genSingle(characterId, job),
+      job => this.genSingleJobDataForPage(character, job),
     ));
   }
 
-  private async genSingle(characterId: number, industryJob: EveIndustryJob) {
+  /** Returns data for a single industry job for the Industry Jobs page. */
+  private async genSingleJobDataForPage(
+    character: EsiCharacter,
+    industryJob: EveIndustryJob,
+  ): Promise<EveIndustryJobsRes[number]> {
     const remainingSeconds = Math.max(
       0,  // this is to eliminate negative time
       differenceInSeconds(
@@ -34,11 +60,12 @@ export default class IndustryJobService {
     );
 
     const stationName = await this.eveQuery.genStationName(
-      characterId,
+      character.characterId,
       industryJob.station_id,
     );
 
     return {
+      character_name: character.characterName,
       activity:
         industryActivity[industryJob.activity_id as IndustryActivityKey]
           .activityName,

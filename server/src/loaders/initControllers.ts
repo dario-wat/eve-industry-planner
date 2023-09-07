@@ -1,6 +1,5 @@
 import { Express } from 'express';
 import initEveLoginController from '../controllers/eveLoginController';
-import initEveFetchDataController from '../features/eve_data/eveFetchDataController';
 import initPlannedProductController from '../controllers/plannedProductController';
 import initProductionPlanController from '../controllers/productionPlanController';
 import loggedOutMiddleware from '../core/controller/loggedOutMiddleware';
@@ -12,6 +11,7 @@ import EveSdeDataController from '../core/sde/EveSdeDataController';
 import ScribbleController from '../features/scribble/ScribbleController';
 import AlwaysBuyItemController from '../features/always_buy/AlwaysBuyItemController';
 import MaterialStationController from '../features/material_station/MaterialStationController';
+import EvePagesDataController from '../features/eve_data/eveFetchDataController';
 
 
 // TODO replace Container typedi with a class service
@@ -26,7 +26,7 @@ export function initControllers(app: Express): void {
   // all other controllers will go through this middleware first
   app.use(loggedOutMiddleware);
 
-  initEveFetchDataController(app);
+  Container.get(EvePagesDataController).init(app);
   initPlannedProductController(app);
   Container.get(MaterialStationController).init(app);
   initProductionPlanController(app);

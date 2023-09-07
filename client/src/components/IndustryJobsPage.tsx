@@ -64,12 +64,18 @@ export default function IndustryJobsPage() {
     {
       field: 'runs',
       headerName: 'Runs',
-      width: 80,
+      width: 70,
       sortable: false,
     },
     {
       field: 'location',
       headerName: 'Location',
+      width: 200,
+      sortable: false,
+    },
+    {
+      field: 'character_name',
+      headerName: 'Character',
       width: 200,
       sortable: false,
     },
