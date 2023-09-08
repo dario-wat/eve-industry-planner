@@ -2,6 +2,7 @@
 export * from './lib/util';
 
 export type EveAssetsRes = {
+  character_name: string,
   name: string,
   typeId: number,
   categoryId: number | undefined

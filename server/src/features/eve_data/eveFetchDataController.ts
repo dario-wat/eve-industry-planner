@@ -13,6 +13,7 @@ export default class EvePagesDataController extends Controller {
 
   constructor(
     private readonly industryJobService: IndustryJobService,
+    private readonly assetsService: AssetsService,
     private readonly contractsService: ContractsService,
   ) {
     super();
@@ -32,20 +33,16 @@ export default class EvePagesDataController extends Controller {
 
     this.appGet(
       '/assets',
-      async (req: Request, res: Response) => {
-        const characterId = req.session.characterId!;
-        const assetService = Container.get(AssetsService);
-        const output = await assetService.genDataForAssetPage(characterId);
+      async (_req: Request, res: Response, actorContext: ActorContext) => {
+        const output = await this.assetsService.genDataForAssetPage(actorContext);
         res.json(output);
       },
     );
 
     this.appGet(
       '/assets_locations',
-      async (req: Request, res: Response) => {
-        const characterId = req.session.characterId!;
-        const assetService = Container.get(AssetsService);
-        const output = await assetService.genAssetLocations(characterId);
+      async (_req: Request, res: Response, actorContext: ActorContext) => {
+        const output = await this.assetsService.genAssetLocations(actorContext);
         res.json(output);
       },
     );

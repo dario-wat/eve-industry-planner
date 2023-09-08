@@ -45,6 +45,12 @@ export default function AssetsPage() {
       width: 500,
       sortable: false,
     },
+    {
+      field: 'character_name',
+      headerName: 'Character',
+      width: 200,
+      sortable: false,
+    },
   ];
 
   return (

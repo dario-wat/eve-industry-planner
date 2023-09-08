@@ -11,8 +11,10 @@ import { SHIP } from '../../const/Categories';
 import { MaterialStation } from '../material_station/MaterialStation';
 import { EveAsset } from '../../types/EsiQuery';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
+import ActorContext from '../../core/actor_context/ActorContext';
 
 type AssetsData = {
+  character_name: string,
   name: string,
   typeId: number,
   categoryId: number | undefined
@@ -37,7 +39,18 @@ export default class AssetsService {
     private readonly sdeData: EveSdeData,
   ) { }
 
-  private async genFlatAssets(characterId: number): Promise<AssetsData> {
+  /**
+   * Finds all assets that are not inside ships. We usually don't care about
+   * the stuff inside ships because it's usually ammo or stuff needed for that
+   * specific fit.
+   * The function will flatten all the assets. I.e. everything that is inside
+   * containers will appear as if it is on top level.
+   */
+  private async genFlatAssets(
+    // TODO replace with EsiCharacter
+    characterId: number,
+    characterName: string,
+  ): Promise<AssetsData> {
     const assets = await genQueryEsiCache(
       characterId.toString(),
       EsiCacheItem.ASSETS,
@@ -108,6 +121,7 @@ export default class AssetsService {
     return assetsWithParent
       .filter(shouldIncludeAsset)
       .map(asset => ({
+        character_name: characterName,
         name: this.sdeData.types[asset.self.type_id]?.name,
         typeId: asset.self.type_id,
         categoryId: this.sdeData.categoryIdFromTypeId(asset.self.type_id),
@@ -118,21 +132,35 @@ export default class AssetsService {
       }));
   }
 
+  /** Data for the Assets page. */
   public async genDataForAssetPage(
-    characterId: number,
+    actorContext: ActorContext,
   ): Promise<EveAssetsRes> {
-    const assetsData = await this.genFlatAssets(characterId);
+    const characters = await actorContext.genLinkedCharacters();
+    const characterAssetsData = await Promise.all(characters.map(character =>
+      this.genFlatAssets(character.characterId, character.characterName),
+    ));
+    const assetsData = characterAssetsData.flat();
     return assetsData.map(assetData => ({ ...assetData }));
   }
 
+  /** Returns the list of unique locations of all assets. */
   public async genAssetLocations(
-    characterId: number,
+    actorContext: ActorContext,
   ): Promise<EveAssetsLocationsRes> {
-    const assetsData = await this.genFlatAssets(characterId);
-    return assetsData.map(assetData => ({
-      locationId: assetData.locationId,
-      locationName: assetData.location,
-    }));
+    const characters = await actorContext.genLinkedCharacters();
+    const characterAssetsData = await Promise.all(characters.map(character =>
+      this.genFlatAssets(character.characterId, character.characterName),
+    ));
+    const assetsData = characterAssetsData.flat();
+    return uniq(
+      assetsData.map(assetData => ({
+        locationId: assetData.locationId,
+        locationName: assetData.location ?? assetData.locationId,
+      })),
+      false,
+      assetData => assetData.locationId,
+    );
   }
 
   /**
@@ -153,7 +181,7 @@ export default class AssetsService {
     const stationIds =
       materialStations.map(station => station.get().station_id);
 
-    const allAssets = await this.genFlatAssets(characterId);
+    const allAssets = await this.genFlatAssets(characterId, ''); // TODO
     const filteredAssets = allAssets.filter(asset =>
       // Removing outside material station and assembled ships
       stationIds.includes(asset.locationId)
