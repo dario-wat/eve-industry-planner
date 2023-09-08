@@ -13,6 +13,7 @@ export default class EvePagesDataController extends Controller {
 
   constructor(
     private readonly industryJobService: IndustryJobService,
+    private readonly contractsService: ContractsService,
   ) {
     super();
   }
@@ -51,10 +52,8 @@ export default class EvePagesDataController extends Controller {
 
     this.appGet(
       '/contracts',
-      async (req: Request, res: Response) => {
-        const characterId = req.session.characterId!;
-        const contractsService = Container.get(ContractsService);
-        const output = await contractsService.genData(characterId);
+      async (_req: Request, res: Response, actorContext: ActorContext) => {
+        const output = await this.contractsService.genDataForPage(actorContext);
         res.json(output);
       },
     );

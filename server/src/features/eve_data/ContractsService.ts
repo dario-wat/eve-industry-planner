@@ -2,6 +2,7 @@ import { Service } from 'typedi';
 import { EveContractsRes } from '@internal/shared';
 import EveQueryService from '../../services/query/EveQueryService';
 import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
+import ActorContext from '../../core/actor_context/ActorContext';
 
 @Service()
 export default class ContractsService {
@@ -11,10 +12,19 @@ export default class ContractsService {
     private readonly esiQuery: EsiTokenlessQueryService,
   ) { }
 
-  public async genData(characterId: number): Promise<EveContractsRes> {
-    const contracts = await this.esiQuery.genxContracts(characterId);
+  /** Data for the Contracts page. */
+  public async genDataForPage(
+    actorContext: ActorContext,
+  ): Promise<EveContractsRes> {
+    const characters = await actorContext.genLinkedCharacters();
+    const mainCharacter = await actorContext.genxMainCharacter();
+    const characterContracts = await Promise.all(characters.map(async character =>
+      this.esiQuery.genxContracts(character.characterId)
+    ));
+    const contracts = characterContracts.flat();
+
     const names = await this.eveQuery.genAllNames(
-      characterId,
+      mainCharacter.characterId,
       contracts.map(
         c => [c.assignee_id, c.acceptor_id, c.issuer_id],
       ).flat(),
