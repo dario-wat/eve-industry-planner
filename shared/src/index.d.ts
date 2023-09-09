@@ -104,6 +104,7 @@ export type ProductionPlanRes = {
 };
 
 export type WalletTransactionsRes = {
+  characterName: string,
   date: string,
   isBuy: boolean,
   locationName: string | null,
@@ -116,6 +117,7 @@ export type WalletTransactionsRes = {
 }[];
 
 export type MarketOrdersRes = {
+  characterName: string,
   typeId: number,
   name: string,
   categoryId: number | undefined,

@@ -22,7 +22,6 @@ export default class MarketService {
   ): Promise<WalletTransactionsRes> {
     await this.genSyncWalletTransactions(actorContext);
 
-    // TODO add character name, same for the function above
     const characters = await actorContext.genLinkedCharacters();
 
     const transactionsResult = await WalletTransaction.findAll({
@@ -42,6 +41,11 @@ export default class MarketService {
     return transactions
       .filter(t => t.is_personal)
       .map(t => ({
+        // TODO ugly fix it
+        characterName:
+          characters.find(character =>
+            character.characterId === t.character_id,
+          )?.characterName || '',
         date: t.date,
         isBuy: t.is_buy,
         locationName: stationNames[t.location_id] ?? null,
@@ -91,19 +95,28 @@ export default class MarketService {
   ): Promise<MarketOrdersRes> {
     const characters = await actorContext.genLinkedCharacters();
 
-    const characterOrders = await Promise.all(characters.map(async character =>
-      await this.esiQuery.genxMarketOrders(character.characterId),
+    const characterOrders = await Promise.all(characters.map(
+      async character => ([
+        character,
+        await this.esiQuery.genxMarketOrders(character.characterId)
+      ] as const),
     ));
-    const orders = characterOrders.flat();
 
+    // TODO move to util? there is another one laying around here
+    const orders = characterOrders.flatMap(([character, orders]) =>
+      orders.map(order => ([character, order] as const))
+    );
+
+    // TODO this is ugly, make it better
     const stationNames = await this.eveQuery.genAllStationNamesMultiCharacter(
       characters.map(character => character.characterId),
-      orders.map(o => o.location_id),
+      orders.map(([_, o]) => o.location_id),
     );
 
     return orders
-      .filter(o => !o.is_corporation)
-      .map(o => ({
+      .filter(([_, o]) => !o.is_corporation)
+      .map(([character, o]) => ({
+        characterName: character.characterName,
         typeId: o.type_id,
         name: this.sdeData.types[o.type_id].name,
         categoryId: this.sdeData.categoryIdFromTypeId(o.type_id),

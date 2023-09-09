@@ -116,7 +116,7 @@ function FlatTransactionDataGrid(props: {
     {
       field: 'name',
       headerName: 'Name',
-      width: 350,
+      width: 280,
       sortable: false,
       renderCell: params =>
         <EveIconAndName
@@ -128,7 +128,7 @@ function FlatTransactionDataGrid(props: {
     {
       field: 'quantity',
       headerName: 'Quantity',
-      width: 100,
+      width: 80,
       align: 'right',
       sortable: false,
     },
@@ -169,6 +169,12 @@ function FlatTransactionDataGrid(props: {
         new Date(params.value),
         'yyyy.MM.dd - HH:mm',
       ),
+    },
+    {
+      field: 'characterName',
+      headerName: 'Character',
+      width: 150,
+      sortable: false,
     },
   ];
 

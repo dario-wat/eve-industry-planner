@@ -30,7 +30,7 @@ export default function MarketOrdersPage() {
     {
       field: 'name',
       headerName: 'Name',
-      width: 350,
+      width: 300,
       sortable: false,
       renderCell: params =>
         <EveIconAndName
@@ -42,7 +42,7 @@ export default function MarketOrdersPage() {
     {
       field: 'volume',
       headerName: 'Volume',
-      width: 180,
+      width: 150,
       align: 'right',
       sortable: false,
       valueGetter: params =>
@@ -65,12 +65,18 @@ export default function MarketOrdersPage() {
     {
       field: 'expires',
       headerName: 'Expires',
-      width: 150,
+      width: 100,
       sortable: false,
       valueGetter: params => formatDistanceToNowStrict(
         addDays(new Date(params.row.issuedDate), params.row.duration),
         { addSuffix: true, unit: 'day' }
       ),
+    },
+    {
+      field: 'characterName',
+      headerName: 'Character',
+      width: 150,
+      sortable: false,
     },
   ];
 
