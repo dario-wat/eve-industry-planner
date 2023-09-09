@@ -11,7 +11,7 @@ import EveSdeDataController from '../core/sde/EveSdeDataController';
 import ScribbleController from '../features/scribble/ScribbleController';
 import AlwaysBuyItemController from '../features/always_buy/AlwaysBuyItemController';
 import MaterialStationController from '../features/material_station/MaterialStationController';
-import EvePagesDataController from '../features/eve_data/eveFetchDataController';
+import EvePagesDataController from '../features/eve_data/EvePagesDataController';
 
 
 // TODO replace Container typedi with a class service

@@ -22,6 +22,7 @@ export default class MarketService {
   ): Promise<WalletTransactionsRes> {
     await this.genSyncWalletTransactions(actorContext);
 
+    // TODO add character name, same for the function above
     const characters = await actorContext.genLinkedCharacters();
 
     const transactionsResult = await WalletTransaction.findAll({
