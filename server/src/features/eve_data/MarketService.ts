@@ -4,6 +4,8 @@ import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryServ
 import EveQueryService from '../../services/query/EveQueryService';
 import { MarketOrdersRes, WalletTransactionsRes } from '@internal/shared';
 import { WalletTransaction } from '../../models/WalletTransaction';
+import ActorContext from '../../core/actor_context/ActorContext';
+import { Op } from 'sequelize';
 
 @Service()
 export default class MarketService {
@@ -14,29 +16,25 @@ export default class MarketService {
     private readonly esiQuery: EsiTokenlessQueryService,
   ) { }
 
-  public async genWalletTransactions(
-    characterId: number,
+  /** Wallet transactions data for Market page. */
+  public async genWalletTransactionsForPage(
+    actorContext: ActorContext,
   ): Promise<WalletTransactionsRes> {
-    const esiTransactions =
-      await this.esiQuery.genxWalletTransactions(characterId);
+    await this.genSyncWalletTransactions(actorContext);
 
-    // We are storing all transaction into the database for longer retention
-    await WalletTransaction.bulkCreate(
-      esiTransactions.map(t => ({
-        character_id: characterId,
-        ...t,
-      })),
-      { ignoreDuplicates: true },
-    );
+    const characters = await actorContext.genLinkedCharacters();
+
     const transactionsResult = await WalletTransaction.findAll({
       where: {
-        character_id: characterId,
+        character_id: {
+          [Op.in]: characters.map(character => character.characterId),
+        },
       },
     });
     const transactions = transactionsResult.map(t => t.get());
 
-    const stationNames = await this.eveQuery.genAllStationNames(
-      characterId,
+    const stationNames = await this.eveQuery.genAllStationNamesMultiCharacter(
+      characters.map(character => character.characterId),
       transactions.map(t => t.location_id),
     );
 
@@ -55,10 +53,50 @@ export default class MarketService {
       }));
   }
 
-  public async genMarketOrders(characterId: number): Promise<MarketOrdersRes> {
-    const orders = await this.esiQuery.genxMarketOrders(characterId);
-    const stationNames = await this.eveQuery.genAllStationNames(
-      characterId,
+  /**
+   * Queries wallet transactions from ESI for all characters linked to the
+   * given actor context. Stores the transactions into the DB.
+   * This is used for longer wallet transaction retention.
+   */
+  private async genSyncWalletTransactions(
+    actorContext: ActorContext,
+  ): Promise<void> {
+    const characters = await actorContext.genLinkedCharacters();
+
+    const characterEsiTransactions = await Promise.all(characters.map(
+      async character => ([
+        character.characterId,
+        await this.esiQuery.genxWalletTransactions(character.characterId)
+      ] as const),
+    ));
+    const esiTransactions = characterEsiTransactions.flatMap(
+      ([characterId, transactions]) =>
+        transactions.map(transaction => ([characterId, transaction] as const))
+    );
+
+    // We are storing all transaction into the database for longer retention
+    await WalletTransaction.bulkCreate(
+      esiTransactions.map(([characterId, transaction]) => ({
+        character_id: characterId,
+        ...transaction,
+      })),
+      { ignoreDuplicates: true },
+    );
+  }
+
+  /** Returns all data needed for the Market Orders page. */
+  public async genMarketOrdersForPage(
+    actorContext: ActorContext,
+  ): Promise<MarketOrdersRes> {
+    const characters = await actorContext.genLinkedCharacters();
+
+    const characterOrders = await Promise.all(characters.map(async character =>
+      await this.esiQuery.genxMarketOrders(character.characterId),
+    ));
+    const orders = characterOrders.flat();
+
+    const stationNames = await this.eveQuery.genAllStationNamesMultiCharacter(
+      characters.map(character => character.characterId),
       orders.map(o => o.location_id),
     );
 

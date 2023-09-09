@@ -15,6 +15,7 @@ export default class EvePagesDataController extends Controller {
     private readonly industryJobService: IndustryJobService,
     private readonly assetsService: AssetsService,
     private readonly contractsService: ContractsService,
+    private readonly marketService: MarketService,
   ) {
     super();
   }
@@ -28,8 +29,6 @@ export default class EvePagesDataController extends Controller {
         res.json(output);
       },
     );
-
-    // TODO do the rest
 
     this.appGet(
       '/assets',
@@ -55,6 +54,7 @@ export default class EvePagesDataController extends Controller {
       },
     );
 
+    // TODO do I need this ? should it fetch with character param
     this.appGet(
       '/portrait',
       async (req: Request, res: Response) => {
@@ -67,20 +67,20 @@ export default class EvePagesDataController extends Controller {
 
     this.appGet(
       '/wallet_transactions',
-      async (req: Request, res: Response) => {
-        const characterId = req.session.characterId!;
-        const marketService = Container.get(MarketService);
-        const output = await marketService.genWalletTransactions(characterId);
+      async (_req: Request, res: Response, actorContext: ActorContext) => {
+        const output = await this.marketService.genWalletTransactionsForPage(
+          actorContext,
+        );
         res.json(output);
       },
     );
 
     this.appGet(
       '/market_orders',
-      async (req: Request, res: Response) => {
-        const characterId = req.session.characterId!;
-        const marketService = Container.get(MarketService);
-        const output = await marketService.genMarketOrders(characterId);
+      async (_req: Request, res: Response, actorContext: ActorContext) => {
+        const output = await this.marketService.genMarketOrdersForPage(
+          actorContext,
+        );
         res.json(output);
       },
     );

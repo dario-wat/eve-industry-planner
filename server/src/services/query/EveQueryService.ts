@@ -52,6 +52,31 @@ export default class EveQueryService {
     return Object.fromEntries(zip(uniqueStationIds, stationNames));
   }
 
+  public async genAllStationNamesMultiCharacter(
+    characterIds: number[],
+    stationIds: number[],
+  ): Promise<{ [key: number]: string | null }> {
+    const stationNamesList = await Promise.all(characterIds.map(async characterId =>
+      await this.genAllStationNames(characterId, stationIds),
+    ));
+
+    // TODO extract into utils?
+    return stationNamesList.reduce(
+      (acc, stationNames) => {
+        for (const stationId in stationNames) {
+          if (
+            stationNames[stationId] === undefined
+            || stationNames[stationId] !== null
+          ) {
+            acc[stationId] = stationNames[stationId];
+          }
+        }
+        return acc;
+      },
+      {},
+    );
+  }
+
   /* 
     TODO(EIP-16) this can throw exceptions
     
