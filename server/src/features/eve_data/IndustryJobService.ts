@@ -60,7 +60,7 @@ export default class IndustryJobService {
     );
 
     const stationName = await this.eveQuery.genStationName(
-      character.characterId,
+      character,
       industryJob.station_id,
     );
 

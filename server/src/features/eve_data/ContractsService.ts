@@ -24,7 +24,7 @@ export default class ContractsService {
     const contracts = characterContracts.flat();
 
     const names = await this.eveQuery.genAllNames(
-      mainCharacter.characterId,
+      mainCharacter,
       contracts.map(
         c => [c.assignee_id, c.acceptor_id, c.issuer_id],
       ).flat(),

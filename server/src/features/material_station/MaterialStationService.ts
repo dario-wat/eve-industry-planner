@@ -53,7 +53,7 @@ export default class MaterialStationUtil {
   ): Promise<MaterialStationsRes> {
     const character = await actorContext.genxMainCharacter();
     const stations = await this.eveQuery.genAllStationNames(
-      character.characterId,
+      character,
       materialStations.map(station => station.get().station_id),
     );
     return Object.entries(stations).map(station => ({

@@ -33,8 +33,8 @@ export default class MarketService {
     });
     const transactions = transactionsResult.map(t => t.get());
 
-    const stationNames = await this.eveQuery.genAllStationNamesMultiCharacter(
-      characters.map(character => character.characterId),
+    const stationNames = await this.eveQuery.genAllStationNamesForActor(
+      actorContext,
       transactions.map(t => t.location_id),
     );
 
@@ -108,8 +108,8 @@ export default class MarketService {
     );
 
     // TODO this is ugly, make it better
-    const stationNames = await this.eveQuery.genAllStationNamesMultiCharacter(
-      characters.map(character => character.characterId),
+    const stationNames = await this.eveQuery.genAllStationNamesForActor(
+      actorContext,
       orders.map(([_, o]) => o.location_id),
     );
 

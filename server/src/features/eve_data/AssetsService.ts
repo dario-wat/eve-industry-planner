@@ -47,15 +47,13 @@ export default class AssetsService {
    * containers will appear as if it is on top level.
    */
   private async genFlatAssets(
-    // TODO replace with EsiCharacter
-    characterId: number,
-    characterName: string,
+    character: EsiCharacter,
   ): Promise<AssetsData> {
     const assets = await genQueryEsiCache(
-      characterId.toString(),
+      character.characterId.toString(),
       EsiCacheItem.ASSETS,
       hoursToSeconds(1),
-      async () => await this.eveQuery.genAllAssets(characterId),
+      async () => await this.eveQuery.genAllAssets(character),
     );
 
     const assetMap = mapify(assets, 'item_id');
@@ -80,7 +78,7 @@ export default class AssetsService {
       .map(o => o.self.location_id),
     );
     const stationNames = await this.eveQuery.genAllStationNames(
-      characterId,
+      character,
       rootLocationIds,
     );
 
@@ -121,7 +119,7 @@ export default class AssetsService {
     return assetsWithParent
       .filter(shouldIncludeAsset)
       .map(asset => ({
-        character_name: characterName,
+        character_name: character.characterName,
         name: this.sdeData.types[asset.self.type_id]?.name,
         typeId: asset.self.type_id,
         categoryId: this.sdeData.categoryIdFromTypeId(asset.self.type_id),
@@ -138,7 +136,7 @@ export default class AssetsService {
   ): Promise<EveAssetsRes> {
     const characters = await actorContext.genLinkedCharacters();
     const characterAssetsData = await Promise.all(characters.map(character =>
-      this.genFlatAssets(character.characterId, character.characterName),
+      this.genFlatAssets(character),
     ));
     const assetsData = characterAssetsData.flat();
     return assetsData.map(assetData => ({ ...assetData }));
@@ -150,7 +148,7 @@ export default class AssetsService {
   ): Promise<EveAssetsLocationsRes> {
     const characters = await actorContext.genLinkedCharacters();
     const characterAssetsData = await Promise.all(characters.map(character =>
-      this.genFlatAssets(character.characterId, character.characterName),
+      this.genFlatAssets(character),
     ));
     const assetsData = characterAssetsData.flat();
     return uniq(
@@ -181,7 +179,7 @@ export default class AssetsService {
     const stationIds =
       materialStations.map(station => station.get().station_id);
 
-    const allAssets = await this.genFlatAssets(characterId, ''); // TODO
+    const allAssets = await this.genFlatAssets(character);
     const filteredAssets = allAssets.filter(asset =>
       // Removing outside material station and assembled ships
       stationIds.includes(asset.locationId)
