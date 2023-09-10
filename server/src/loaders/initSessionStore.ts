@@ -5,6 +5,7 @@ import session from 'express-session';
 import { Sequelize } from 'sequelize';
 
 // TODO clean up after migrating to ActorContext
+// TODO move elsewhere
 declare module 'express-session' {
   interface SessionData {
     characterId: number;

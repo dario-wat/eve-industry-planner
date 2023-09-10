@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { Container, Service } from 'typedi';
+import { Service } from 'typedi';
 import IndustryJobService from './IndustryJobService';
 import AssetsService from './AssetsService';
 import ContractsService from './ContractsService';
-import PortraitService from './PortraitService';
 import MarketService from './MarketService';
 import Controller from '../../core/controller/Controller';
 import ActorContext from '../../core/actor_context/ActorContext';
@@ -50,17 +49,6 @@ export default class EvePagesDataController extends Controller {
       '/contracts',
       async (_req: Request, res: Response, actorContext: ActorContext) => {
         const output = await this.contractsService.genDataForPage(actorContext);
-        res.json(output);
-      },
-    );
-
-    // TODO do I need this ? should it fetch with character param
-    this.appGet(
-      '/portrait',
-      async (req: Request, res: Response) => {
-        const characterId = req.session.characterId!;
-        const portraitService = Container.get(PortraitService);
-        const output = await portraitService.genData(characterId);
         res.json(output);
       },
     );
