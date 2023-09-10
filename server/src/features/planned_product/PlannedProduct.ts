@@ -1,18 +1,24 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
 
-/*
-* Will store all products that the user is currently planning to build.
-* This is later used to plan all manufacturing jobs.
-*/
+/**
+ * Will store all products that the user is currently planning to build.
+ * This is later used to plan all manufacturing jobs.
+ * The products can be put into groups for easier managing. The groups
+ * are not separate models, but rather just the string indicator, which
+ * is the name of the group. This is done for simplicity.
+ */
 export class PlannedProduct extends Model {
+
+  declare group: string;
 }
 
 export const plannedProductModelDefine =
   (sequelize: Sequelize) => PlannedProduct.init(
     {
-      character_id: {
+      id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        primaryKey: true,
+        autoIncrement: true,
       },
       type_id: {
         type: DataTypes.INTEGER,

@@ -1,13 +1,17 @@
 import { Service } from 'typedi';
 import { sum } from 'mathjs';
 import { isEmpty } from 'underscore';
-import { PlannedProduct } from '../../models/PlannedProduct';
+import { PlannedProduct } from './PlannedProduct';
 import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
-import AssetsService from '../../features/eve_data/AssetsService';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import AssetsService from '../eve_data/AssetsService';
 import { MANUFACTURING } from '../../const/IndustryActivity';
+import ActorContext from '../../core/actor_context/ActorContext';
+import { genQueryEsiResultPerCharacter } from '../../lib/eveUtil';
+import { mergeWith } from 'lodash';
 
+/** Single parsed line in the planned product text. */
 type ParsedLine = { name: string, quantity: number | null };
 
 @Service()
@@ -19,30 +23,24 @@ export default class PlannedProductService {
     private readonly esiQuery: EsiTokenlessQueryService,
   ) { }
 
+  /** Queries all planned products for the given ActorContext. */
   public async genAllPlannedProducts(
-    characterId: number,
+    actorContext: ActorContext,
   ): Promise<PlannedProductsRes> {
-    const plannedProducts = await PlannedProduct.findAll({
-      attributes: ['type_id', 'quantity', 'group'],
-      where: {
-        character_id: characterId,
-      },
-    });
-    return await this.genProductsForResponse(characterId, plannedProducts);
+    const account = await actorContext.genxAccount();
+    const plannedProducts = await account.getPlannedProducts();
+    return await this.genProductsForResponse(actorContext, plannedProducts);
   }
 
+  /** Queries planned products for the specific group. */
   public async genPlannedProductsForGroup(
-    characterId: number,
+    actorContext: ActorContext,
     group: string,
   ): Promise<PlannedProductsRes> {
-    const plannedProducts = await PlannedProduct.findAll({
-      attributes: ['type_id', 'quantity', 'group'],
-      where: {
-        character_id: characterId,
-        group,
-      },
-    });
-    return await this.genProductsForResponse(characterId, plannedProducts);
+    const account = await actorContext.genxAccount();
+    const allPlannedProducts = await account.getPlannedProducts();
+    const plannedProducts = allPlannedProducts.filter(pp => pp.group === group);
+    return await this.genProductsForResponse(actorContext, plannedProducts);
   }
 
   /*
@@ -52,7 +50,7 @@ export default class PlannedProductService {
   * what has changed.
   */
   public async genParseAndRecreate(
-    characterId: number,
+    actorContext: ActorContext,
     group: string,
     content: string,
   ): Promise<PlannedProductsWithErrorRes> {
@@ -62,10 +60,12 @@ export default class PlannedProductService {
       return errors;
     }
 
+    const account = await actorContext.genxAccount();
+
     // Delete current data
     await PlannedProduct.destroy({
       where: {
-        character_id: characterId,
+        accountId: account.id,
         group,
       },
     });
@@ -73,13 +73,13 @@ export default class PlannedProductService {
     // Recreate new data
     const result = await PlannedProduct.bulkCreate(
       lines.map(l => ({
-        character_id: characterId,
+        accountId: account.id,
         group,
         type_id: this.sdeData.typeByName[l.name].id,
         quantity: l.quantity,
       }))
     );
-    return await this.genProductsForResponse(characterId, result);
+    return await this.genProductsForResponse(actorContext, result);
   }
 
   private validateParsedInput(
@@ -124,13 +124,26 @@ export default class PlannedProductService {
   * This function will also format the result for output.
   */
   private async genProductsForResponse(
-    characterId: number,
+    actorContext: ActorContext,
     plannedProducts: PlannedProduct[],
   ): Promise<PlannedProductsRes> {
-    const [assets, industryJobs] = await Promise.all([
-      this.assetService.genAssetsForProductionPlan(characterId),
-      this.esiQuery.genxIndustryJobs(characterId),
-    ]);
+    const characters = await actorContext.genLinkedCharacters();
+
+    const assetsAll = await Promise.all(characters.map(async character =>
+      await this.assetService.genAssetsForProductionPlan(character.characterId),
+    ));
+    // TODO this is done in two places, how to make it better?
+    const assets = mergeWith(
+      {},
+      ...assetsAll,
+      (prevVal: number | undefined, nextVal: number) => (prevVal || 0) + nextVal
+    );
+
+    const industryJobsAll = await genQueryEsiResultPerCharacter(
+      actorContext,
+      characterId => this.esiQuery.genxIndustryJobs(characterId),
+    );
+    const industryJobs = industryJobsAll.flat();
 
     const manufacturingJobs = industryJobs.filter(
       j => j.activity_id === MANUFACTURING,
@@ -140,6 +153,7 @@ export default class PlannedProductService {
       manufacturingJobs.find(j => j.product_type_id === typeId)?.runs ?? 0;
     const getBpProductQuantity = (typeId: number) =>
       this.sdeData.bpManufactureProductsByProduct[typeId]?.quantity ?? 0;
+
     return plannedProducts.map(pp => ({
       name: this.sdeData.types[pp.get().type_id].name,
       typeId: pp.get().type_id,
@@ -152,34 +166,39 @@ export default class PlannedProductService {
     }));
   }
 
+  /** Deletes a single row from the group. */
   public async genDelete(
-    characterId: number,
+    actorContext: ActorContext,
     group: string,
     typeId: number,
   ): Promise<void> {
+    const account = await actorContext.genxAccount();
     await PlannedProduct.destroy({
       where: {
-        character_id: characterId,
+        accountId: account.id,
         group,
         type_id: typeId,
       },
     });
   }
 
+  /** Deletes the entire group */
   public async genDeleteGroup(
-    characterId: number,
+    actorContext: ActorContext,
     group: string,
   ): Promise<void> {
+    const account = await actorContext.genxAccount();
     await PlannedProduct.destroy({
       where: {
-        character_id: characterId,
+        accountId: account.id,
         group,
       },
     });
   }
 
+  /** Adds a single item to the specific group. */
   public async genAddPlannedProduct(
-    characterId: number,
+    actorContext: ActorContext,
     group: string,
     typeName: string,
     quantity: number,
@@ -188,9 +207,11 @@ export default class PlannedProductService {
       return;
     }
 
+    const account = await actorContext.genxAccount();
+
     const result = await PlannedProduct.findAll({
       where: {
-        character_id: characterId,
+        accountId: account.id,
         group,
         type_id: this.sdeData.typeByName[typeName].id,
       }
@@ -200,7 +221,7 @@ export default class PlannedProductService {
     if (!isEmpty(result)) {
       await PlannedProduct.destroy({
         where: {
-          character_id: characterId,
+          accountId: account.id,
           group,
           type_id: this.sdeData.typeByName[typeName].id,
         }
@@ -208,7 +229,7 @@ export default class PlannedProductService {
     }
 
     await PlannedProduct.create({
-      character_id: characterId,
+      accountId: account.id,
       group,
       type_id: this.sdeData.typeByName[typeName].id,
       quantity: totalQuantity + quantity,

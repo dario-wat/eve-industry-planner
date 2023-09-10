@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { groupBy } from 'underscore';
 import { secondsToHours } from 'date-fns';
-import { PlannedProduct } from '../../../models/PlannedProduct';
+import { PlannedProduct } from '../../../features/planned_product/PlannedProduct';
 import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../../core/sde/EveSdeData';
 import AssetsService from '../../../features/eve_data/AssetsService';
@@ -43,8 +43,8 @@ export default class ProductionPlanService {
         PlannedProduct.findAll({
           attributes: ['type_id', 'quantity'],
           where: group
-            ? { character_id: characterId, group }
-            : { character_id: characterId },
+            ? { accountId: account.id, group }
+            : { accountId: account.id },
         }),
         this.assetService.genAssetsForProductionPlan(characterId),
         this.esiQuery.genxIndustryJobs(characterId),

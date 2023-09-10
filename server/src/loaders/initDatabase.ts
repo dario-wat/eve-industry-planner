@@ -18,7 +18,7 @@ import { iconIdModelDefine } from '../core/sde/models/IconID';
 import { typeIdModelDefine } from '../core/sde/models/TypeID';
 import { categoryIdModelDefine } from '../core/sde/models/CategoryID';
 import { stationModelDefine } from '../core/sde/models/Station';
-import { plannedProductModelDefine } from '../models/PlannedProduct';
+import { plannedProductModelDefine } from '../features/planned_product/PlannedProduct';
 import { esiCacheModelDefine } from '../core/esi_cache/EsiCache';
 import { materialStationModelDefine } from '../features/material_station/MaterialStation';
 import { appLogModelDefine } from '../core/logger/AppLog';
@@ -34,6 +34,7 @@ import { accountAssocsDefine } from '../core/account/AccountAssocs';
 import { scribbleAssocsDefine } from '../features/scribble/ScribbleAssocs';
 import { alwaysBuyItemAssocsDefine } from '../features/always_buy/AlwaysBuyItemAssocs';
 import { materialStationAssocsDefine } from '../features/material_station/MaterialStationAssocs';
+import { plannedProductAssocsDefine } from '../features/planned_product/PlannedProductAssocs';
 
 // TODO make assoc defines default exports ?
 
@@ -104,6 +105,7 @@ export function initDatabase(): void {
   scribbleAssocsDefine();
   alwaysBuyItemAssocsDefine();
   materialStationAssocsDefine();
+  plannedProductAssocsDefine();
 }
 
 // This should define ONLY SDE models
