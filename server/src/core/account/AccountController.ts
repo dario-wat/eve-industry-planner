@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import ActorContext from '../actor_context/ActorContext';
 import Controller from '../controller/Controller';
 import { EsiCharacter } from '../esi/models/EsiCharacter';
-import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
+import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 
 @Service()
 export default class AccountController extends Controller {

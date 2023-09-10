@@ -4,8 +4,8 @@ import { industryActivity, IndustryActivityKey } from '../../const/IndustryActiv
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { EveIndustryJobsRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
-import EveQueryService from '../../services/query/EveQueryService';
-import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
+import EveQueryService from '../../core/query/EveQueryService';
+import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { EsiCharacter } from 'core/esi/models/EsiCharacter';
 

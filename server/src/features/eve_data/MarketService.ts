@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import EveSdeData from '../../core/sde/EveSdeData';
-import EsiTokenlessQueryService from '../../services/query/EsiTokenlessQueryService';
-import EveQueryService from '../../services/query/EveQueryService';
+import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import EveQueryService from '../../core/query/EveQueryService';
 import { MarketOrdersRes, WalletTransactionsRes } from '@internal/shared';
 import { WalletTransaction } from '../../models/WalletTransaction';
 import ActorContext from '../../core/actor_context/ActorContext';

@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { MaterialStationsRes } from '@internal/shared';
 import { MaterialStation } from './MaterialStation';
-import EveQueryService from '../../services/query/EveQueryService';
+import EveQueryService from '../../core/query/EveQueryService';
 import ActorContext from '../../core/actor_context/ActorContext';
 
 @Service()

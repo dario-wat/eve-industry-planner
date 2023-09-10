@@ -3,19 +3,18 @@ import { chunk, range, uniq, zip } from 'underscore'
 import { hoursToSeconds } from 'date-fns';
 import { mapify } from '../../lib/util';
 import { EveAsset, EveName } from '../../types/EsiQuery';
-import EveSdeData from '../../core/sde/EveSdeData';
-import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
+import EveSdeData from '../sde/EveSdeData';
+import { EsiCacheItem, genQueryEsiCache } from '../esi_cache/EsiCacheAction';
 import { filterNullOrUndef } from '@internal/shared';
-import EsiSequelizeProvider from '../../core/esi/EsiSequelizeProvider';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
 
+/** More complex EVE queries built on top of the ESI query services. */
 @Service()
 export default class EveQueryService {
 
   constructor(
     private readonly esiQuery: EsiTokenlessQueryService,
     private readonly sdeData: EveSdeData,
-    private readonly esiSequelizeProvider: EsiSequelizeProvider,
   ) { }
 
   public async genStationName(

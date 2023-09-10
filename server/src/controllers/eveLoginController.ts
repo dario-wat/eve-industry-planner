@@ -5,7 +5,7 @@ import { SSO_STATE } from '../config/eveSsoConfig';
 import { requiredScopes } from '../const/EveScopes';
 import { DOMAIN } from '../const/ServerConst';
 import EsiProviderService from '../core/esi/EsiProviderService';
-import EsiTokenlessQueryService from '../services/query/EsiTokenlessQueryService';
+import EsiTokenlessQueryService from '../core/query/EsiTokenlessQueryService';
 import { EsiCharacter } from '../core/esi/models/EsiCharacter';
 import ActorContext from '../core/actor_context/ActorContext';
 import AccountService from '../core/account/AccountService';

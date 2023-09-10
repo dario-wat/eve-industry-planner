@@ -9,11 +9,14 @@ import {
   EveStructure,
   EveWalletTransaction,
 } from '../../types/EsiQuery';
-import EsiSequelizeProvider from '../../core/esi/EsiSequelizeProvider';
-import EsiQueryService from '../../core/esi/EsiQueryService';
+import EsiSequelizeProvider from '../esi/EsiSequelizeProvider';
+import EsiQueryService from '../esi/EsiQueryService';
 
-// TODO this should not exist, or maybe it should idk
-// either way we should be using some kind of ActorContext
+/**
+ * This is a token-agnostic version of ESI queries. Instead of fetching
+ * ESI token each time we perform queries, instead we use these helper
+ * functions that will query the token themselves.
+ */
 @Service()
 export default class EsiTokenlessQueryService {
 

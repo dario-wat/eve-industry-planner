@@ -3,7 +3,7 @@ import { groupBy, uniq } from 'underscore';
 import { hoursToSeconds } from 'date-fns';
 import { sum } from 'mathjs';
 import { mapify } from '../../lib/util';
-import EveQueryService from '../../services/query/EveQueryService';
+import EveQueryService from '../../core/query/EveQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
 import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { EveAssetsLocationsRes, EveAssetsRes } from '@internal/shared';
