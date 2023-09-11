@@ -11,7 +11,7 @@ import ScribbleController from '../features/scribble/ScribbleController';
 import AlwaysBuyItemController from '../features/always_buy/AlwaysBuyItemController';
 import MaterialStationController from '../features/material_station/MaterialStationController';
 import EvePagesDataController from '../features/eve_data/EvePagesDataController';
-import PlannedProductController from '../features/planned_product/plannedProductController';
+import PlannedProductController from '../features/planned_product/PlannedProductController';
 
 
 // TODO replace Container typedi with a class service

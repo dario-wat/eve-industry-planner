@@ -4,7 +4,6 @@ import PlannedProductService from './PlannedProductService';
 import Controller from '../../core/controller/Controller';
 import ActorContext from '../../core/actor_context/ActorContext';
 
-// TODO rename file
 @Service()
 export default class PlannedProductController extends Controller {
 
