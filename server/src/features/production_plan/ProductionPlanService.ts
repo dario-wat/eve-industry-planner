@@ -8,7 +8,7 @@ import AssetsService, { mergeAssetQuantities } from '../eve_data/AssetsService';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
-import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
+import ActorContext from '../../core/actor_context/ActorContext';
 
 // const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0; // For ME = 0
@@ -31,13 +31,11 @@ export default class ProductionPlanService {
    * moon minerals, ...).
    */
   public async genProductionPlan(
-    characterId: number,
+    actorContext: ActorContext,
     group?: string,
   ): Promise<ProductionPlanRes> {
-    // TODO replace with actor context
-    const character = (await EsiCharacter.findByPk(characterId))!;
-    const account = await character.genxAccount();
-    const [plannedProducts, assets, industryJobs, alwaysBuy] =
+    const account = await actorContext.genxAccount();
+    const [plannedProducts, assets, alwaysBuy] =
       await Promise.all([
         PlannedProduct.findAll({
           attributes: ['type_id', 'quantity'],
@@ -45,10 +43,15 @@ export default class ProductionPlanService {
             ? { accountId: account.id, group }
             : { accountId: account.id },
         }),
-        this.assetService.genAssetsForProductionPlan(characterId),
-        this.esiQuery.genxIndustryJobs(characterId),
+        this.assetService.genAssetsForProductionPlan(actorContext),
         account.getAlwaysBuyItems(),
       ]);
+
+    const characters = await actorContext.genLinkedCharacters();
+    const industryJobsAll = await Promise.all(characters.map(character =>
+      this.esiQuery.genxIndustryJobs(character.characterId),
+    ));
+    const industryJobs = industryJobsAll.flat();
 
     const alwaysBuyTypeIds = alwaysBuy.map(ab => Number(ab.get().typeId));
     const plannedProductData = groupBy(

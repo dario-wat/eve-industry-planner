@@ -1,6 +1,5 @@
 import { Express } from 'express';
 import initEveLoginController from '../controllers/eveLoginController';
-import initProductionPlanController from '../features/production_plan/productionPlanController';
 import loggedOutMiddleware from '../core/controller/loggedOutMiddleware';
 import actorContextMiddleware from '../core/controller/actorContextMiddleware';
 import Container from 'typedi';
@@ -12,6 +11,7 @@ import AlwaysBuyItemController from '../features/always_buy/AlwaysBuyItemControl
 import MaterialStationController from '../features/material_station/MaterialStationController';
 import EvePagesDataController from '../features/eve_data/EvePagesDataController';
 import PlannedProductController from '../features/planned_product/PlannedProductController';
+import ProductionPlanController from '../features/production_plan/productionPlanController';
 
 
 // TODO replace Container typedi with a class service
@@ -29,7 +29,7 @@ export function initControllers(app: Express): void {
   Container.get(EvePagesDataController).init(app);
   Container.get(PlannedProductController).init(app);
   Container.get(MaterialStationController).init(app);
-  initProductionPlanController(app);
+  Container.get(ProductionPlanController).init(app);
 
   Container.get(EsiCacheController).init(app);
   Container.get(AccountController).init(app);

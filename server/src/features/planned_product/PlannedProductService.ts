@@ -9,7 +9,8 @@ import AssetsService from '../eve_data/AssetsService';
 import { MANUFACTURING } from '../../const/IndustryActivity';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryEsiResultPerCharacter } from '../../lib/eveUtil';
-import { mergeWith } from 'lodash';
+
+// TODO make it more sequelize, use assoc functions instead of model
 
 /** Single parsed line in the planned product text. */
 type ParsedLine = { name: string, quantity: number | null };
@@ -127,16 +128,8 @@ export default class PlannedProductService {
     actorContext: ActorContext,
     plannedProducts: PlannedProduct[],
   ): Promise<PlannedProductsRes> {
-    const characters = await actorContext.genLinkedCharacters();
-
-    const assetsAll = await Promise.all(characters.map(async character =>
-      await this.assetService.genAssetsForProductionPlan(character.characterId),
-    ));
-    // TODO this is done in two places, how to make it better?
-    const assets = mergeWith(
-      {},
-      ...assetsAll,
-      (prevVal: number | undefined, nextVal: number) => (prevVal || 0) + nextVal
+    const assets = await this.assetService.genAssetsForProductionPlan(
+      actorContext,
     );
 
     const industryJobsAll = await genQueryEsiResultPerCharacter(

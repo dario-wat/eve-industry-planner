@@ -1,25 +1,34 @@
-import { Request, Response, Router } from 'express';
-import Container from 'typedi';
+import { Request, Response } from 'express';
+import { Service } from 'typedi';
 import ProductionPlanService from './ProductionPlanService';
+import Controller from '../../core/controller/Controller';
+import ActorContext from '../../core/actor_context/ActorContext';
 
-const route = Router();
+@Service()
+export default class ProductionPlanController extends Controller {
 
-const controller = (app: Router) => {
-  app.use('/', route);
+  constructor(
+    private readonly productionPlanService: ProductionPlanService,
+  ) {
+    super();
+  }
 
-  const productionPlanService = Container.get(ProductionPlanService);
-
-  app.get(
-    '/production_plan/:group?',
-    async (req: Request, res: Response) => {
-      const characterId = req.session.characterId!;
-      const productionPlan = await productionPlanService.genProductionPlan(
-        characterId,
-        req.params.group,
-      );
-      res.json(productionPlan);
-    },
-  );
-};
-
-export default controller;
+  protected initController(): void {
+    /**
+     * Calculates a production plan for the given planned product group, if
+     * any is selected. Otherwise it computes for all planned products.
+     * Production plan consists of many things including blueprint runs,
+     * required materials, ...
+     */
+    this.appGet(
+      '/production_plan/:group?',
+      async (req: Request, res: Response, actorContext: ActorContext) => {
+        const productionPlan = await this.productionPlanService.genProductionPlan(
+          actorContext,
+          req.params.group,
+        );
+        res.json(productionPlan);
+      },
+    );
+  }
+}

@@ -167,16 +167,20 @@ export default class AssetsService {
    * stations stored in MaterialStation.
    */
   public async genAssetsForProductionPlan(
-    characterId: number,  // TODO use actor context?
+    actorContext: ActorContext,
   ): Promise<Record<number, number>> {
-    const character = (await EsiCharacter.findByPk(characterId))!;
-    const account = await character?.genxAccount();
+    const account = await actorContext.genxAccount();
 
     const materialStations = await account.getMaterialStations();
     const stationIds = materialStations.map(station => station.station_id);
 
-    const allAssets = await this.genFlatAssets(character);
-    const filteredAssets = allAssets.filter(asset =>
+    const characters = await actorContext.genLinkedCharacters();
+    // TODO replace this common pattern
+    const allAssets = await Promise.all(characters.map(async character =>
+      await this.genFlatAssets(character)
+    ));
+    const allAssetsFlat = allAssets.flat();
+    const filteredAssets = allAssetsFlat.filter(asset =>
       // Removing outside material station and assembled ships
       stationIds.includes(asset.locationId) && !isAssembledShip(asset),
     );
