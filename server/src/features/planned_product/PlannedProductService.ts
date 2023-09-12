@@ -10,8 +10,6 @@ import { MANUFACTURING } from '../../const/IndustryActivity';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 
-// TODO make it more sequelize, use assoc functions instead of model
-
 /** Single parsed line in the planned product text. */
 type ParsedLine = { name: string, quantity: number | null };
 
@@ -80,9 +78,14 @@ export default class PlannedProductService {
         quantity: l.quantity,
       }))
     );
+
     return await this.genProductsForResponse(actorContext, result);
   }
 
+  /** 
+   * Takes in an array of parsed lines and validates each line. Checks for
+   * errors and returns an array of errors if there are any.
+   */
   private validateParsedInput(
     lines: ParsedLine[],
   ): { name: string, error: string }[] {
@@ -97,6 +100,11 @@ export default class PlannedProductService {
       .map(l => ({ name: l.name, error: l.error! })); // typescript happy
   }
 
+  /**
+   * Parses the input that the user puts into the text area. Each line should
+   * be a separate item with the name and quantity.
+   * Ignores empty lines and trims excess whitespace.
+   */
   private static parseInput(content: string): ParsedLine[] {
     return content
       .split(/\r?\n/)
@@ -147,14 +155,13 @@ export default class PlannedProductService {
       this.sdeData.bpManufactureProductsByProduct[typeId]?.quantity ?? 0;
 
     return plannedProducts.map(pp => ({
-      name: this.sdeData.types[pp.get().type_id].name,
-      typeId: pp.get().type_id,
-      group: pp.get().group,
-      categoryId: this.sdeData.categoryIdFromTypeId(pp.get().type_id),
-      quantity: pp.get().quantity,
-      stock: assets[pp.get().type_id] ?? 0,
-      active:
-        getActiveRuns(pp.get().type_id) * getBpProductQuantity(pp.get().type_id),
+      name: this.sdeData.types[pp.type_id].name,
+      typeId: pp.type_id,
+      group: pp.group,
+      categoryId: this.sdeData.categoryIdFromTypeId(pp.type_id),
+      quantity: pp.quantity,
+      stock: assets[pp.type_id] ?? 0,
+      active: getActiveRuns(pp.type_id) * getBpProductQuantity(pp.type_id),
     }));
   }
 
@@ -200,16 +207,13 @@ export default class PlannedProductService {
     }
 
     const account = await actorContext.genxAccount();
-
-    const result = await PlannedProduct.findAll({
+    const result = await account.getPlannedProducts({
       where: {
-        accountId: account.id,
         group,
         type_id: this.sdeData.typeByName[typeName].id,
       }
-    });
+    })
 
-    const totalQuantity = sum(result.map(pp => pp.get().quantity));
     if (!isEmpty(result)) {
       await PlannedProduct.destroy({
         where: {
@@ -220,6 +224,7 @@ export default class PlannedProductService {
       });
     }
 
+    const totalQuantity = sum(result.map(pp => pp.quantity));
     await PlannedProduct.create({
       accountId: account.id,
       group,

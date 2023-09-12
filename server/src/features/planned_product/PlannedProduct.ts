@@ -9,6 +9,8 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
  */
 export class PlannedProduct extends Model {
 
+  declare type_id: number;
+  declare quantity: number;
   declare group: string;
 }
 
