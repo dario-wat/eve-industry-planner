@@ -7,6 +7,7 @@ import MarketService from './MarketService';
 import Controller from '../../core/controller/Controller';
 import ActorContext from '../../core/actor_context/ActorContext';
 
+/** Contains endpoins for fetching data for various pages. */
 @Service()
 export default class EvePagesDataController extends Controller {
 

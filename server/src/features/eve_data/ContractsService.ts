@@ -3,6 +3,7 @@ import { EveContractsRes } from '@internal/shared';
 import EveQueryService from '../../core/query/EveQueryService';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import ActorContext from '../../core/actor_context/ActorContext';
+import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 
 @Service()
 export default class ContractsService {
@@ -16,18 +17,16 @@ export default class ContractsService {
   public async genDataForPage(
     actorContext: ActorContext,
   ): Promise<EveContractsRes> {
-    const characters = await actorContext.genLinkedCharacters();
     const mainCharacter = await actorContext.genxMainCharacter();
-    const characterContracts = await Promise.all(characters.map(async character =>
-      this.esiQuery.genxContracts(character.characterId)
-    ));
-    const contracts = characterContracts.flat();
+
+    const contracts = await genQueryFlatResultPerCharacter(
+      actorContext,
+      character => this.esiQuery.genxContracts(character.characterId),
+    );
 
     const names = await this.eveQuery.genAllNames(
       mainCharacter,
-      contracts.map(
-        c => [c.assignee_id, c.acceptor_id, c.issuer_id],
-      ).flat(),
+      contracts.map(c => [c.assignee_id, c.acceptor_id, c.issuer_id]).flat(),
     )
 
     return contracts.map(contract => ({

@@ -7,7 +7,8 @@ import EveSdeData from '../../core/sde/EveSdeData';
 import EveQueryService from '../../core/query/EveQueryService';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import ActorContext from '../../core/actor_context/ActorContext';
-import { EsiCharacter } from 'core/esi/models/EsiCharacter';
+import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
+import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 
 @Service()
 export default class IndustryJobService {
@@ -22,13 +23,10 @@ export default class IndustryJobService {
   public async genDataForPage(
     actorContext: ActorContext,
   ): Promise<EveIndustryJobsRes> {
-    const characters = await actorContext.genLinkedCharacters();
-
-    const characterJobs = await Promise.all(characters.map(async character =>
-      await this.genSingleCharacterJobDataForPage(character)
-    ));
-
-    return characterJobs.flat();
+    return await genQueryFlatResultPerCharacter(
+      actorContext,
+      character => this.genSingleCharacterJobDataForPage(character),
+    );
   }
 
   /**

@@ -142,7 +142,7 @@ export default class PlannedProductService {
 
     const industryJobs = await genQueryFlatResultPerCharacter(
       actorContext,
-      characterId => this.esiQuery.genxIndustryJobs(characterId),
+      character => this.esiQuery.genxIndustryJobs(character.characterId),
     );
 
     const manufacturingJobs = industryJobs.filter(

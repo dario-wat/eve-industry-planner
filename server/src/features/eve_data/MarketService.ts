@@ -24,6 +24,8 @@ export default class MarketService {
 
     const characters = await actorContext.genLinkedCharacters();
 
+    // TODO this needs to be replaced with the new model
+    // make sure to store data
     const transactionsResult = await WalletTransaction.findAll({
       where: {
         character_id: {
@@ -66,6 +68,7 @@ export default class MarketService {
   private async genSyncWalletTransactions(
     actorContext: ActorContext,
   ): Promise<void> {
+    // TODO convert wallet transactions model
     const characters = await actorContext.genLinkedCharacters();
 
     const characterEsiTransactions = await Promise.all(characters.map(
