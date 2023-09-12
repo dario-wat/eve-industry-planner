@@ -85,11 +85,61 @@ export default function NavigationDrawer(props: Props) {
         </Box>
         <Box>
           <List>
+            <LoggedInUserButtonListItem />
             <LogoutButtonListItem />
           </List>
         </Box>
       </Box>
     </Drawer >
+  );
+}
+
+function LoggedInUserButtonListItem() {
+  const [{ data: linkedCharacters }] = useAxios<LinkedCharacterRes>(
+    '/linked_characters',
+  );
+  const userContext = useContext(UserContext);
+  const [openList, setOpenList] = useState(false);
+
+  const handleClick = async (characterId: number) => {
+    const { status } = await axios.post('/change_character', { characterId });
+    if (status === 200) {
+      window.location.reload();
+    }
+  };
+
+  return (
+    <>
+      <Collapse in={openList} timeout="auto" unmountOnExit>
+        {linkedCharacters && linkedCharacters
+          .filter(c => c.characterId !== userContext.character_id)
+          .map(c =>
+            <ListItem key={uniqueId()} disablePadding>
+              <ListItemButton onClick={() => handleClick(c.characterId)}>
+                <ListItemAvatar>
+                  <Avatar
+                    alt=""
+                    src={c.portrait}
+                    sx={{ width: 36, height: 36 }} />
+                </ListItemAvatar>
+                <ListItemText primary={c.characterName} />
+              </ListItemButton>
+            </ListItem>
+          )}
+      </Collapse>
+      <ListItem key="loggedInUser" disablePadding>
+        <ListItemButton onClick={() => setOpenList(!openList)}>
+          <ListItemAvatar>
+            <Avatar
+              alt=""
+              src={userContext.portrait!}
+              sx={{ width: 36, height: 36 }} />
+          </ListItemAvatar>
+          <ListItemText primary={userContext.character_name} />
+          {openList ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+      </ListItem>
+    </>
   );
 }
 
