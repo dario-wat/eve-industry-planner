@@ -2,7 +2,7 @@ import { EsiAccount } from './EsiAccount';
 import { EsiCharacter } from './EsiCharacter';
 import { EsiToken } from './EsiToken';
 
-export default function esiAssocsDefine() {
+export function esiAssocsDefine() {
   /** Each EsiAccount can have multiple (up to 3) characters. */
   EsiAccount.hasMany(
     EsiCharacter,

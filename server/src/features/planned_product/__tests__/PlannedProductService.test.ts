@@ -59,5 +59,3 @@ describe('Test planned product parser', () => {
     ]);
   });
 });
-
-export { };

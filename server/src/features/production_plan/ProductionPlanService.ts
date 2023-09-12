@@ -10,6 +10,8 @@ import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
 import ActorContext from '../../core/actor_context/ActorContext';
 
+// TODO this whole thing needs a big refactor
+
 // const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0; // For ME = 0
 const MAX_TE = 0.8; // For TE = 20

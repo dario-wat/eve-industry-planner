@@ -10,6 +10,8 @@ import { EsiCharacter } from '../core/esi/models/EsiCharacter';
 import ActorContext from '../core/actor_context/ActorContext';
 import AccountService from '../core/account/AccountService';
 
+// TODO needs to be refactored and moved away
+
 const route = Router();
 
 const controller = (app: Router) => {

@@ -12,6 +12,8 @@ import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { groupBy, mapValues, mergeWith, sum } from 'lodash';
 
+// TODO refactor that giant function, and maybe other stuff
+
 /** Data returned by the flatAsset function. */
 type AssetsData = {
   character_name: string,

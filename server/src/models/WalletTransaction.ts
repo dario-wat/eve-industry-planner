@@ -1,5 +1,7 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
+// TODO refactor so that it attaches to the esi character
+
 export class WalletTransaction extends Model { }
 
 export const walletTransactionModelDefine =
