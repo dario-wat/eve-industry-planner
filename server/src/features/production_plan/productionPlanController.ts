@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import Container from 'typedi';
-import ProductionPlanService from '../services/product/production_plan/ProductionPlanService';
+import ProductionPlanService from './ProductionPlanService';
 
 const route = Router();
 

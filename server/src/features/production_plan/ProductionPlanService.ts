@@ -1,15 +1,15 @@
 import { Service } from 'typedi';
 import { groupBy } from 'underscore';
 import { secondsToHours } from 'date-fns';
-import { PlannedProduct } from '../../../features/planned_product/PlannedProduct';
+import { PlannedProduct } from '../planned_product/PlannedProduct';
 import { ProductionPlanRes } from '@internal/shared';
-import EveSdeData from '../../../core/sde/EveSdeData';
-import AssetsService from '../../../features/eve_data/AssetsService';
-import EsiTokenlessQueryService from '../../../core/query/EsiTokenlessQueryService';
+import EveSdeData from '../../core/sde/EveSdeData';
+import AssetsService from '../eve_data/AssetsService';
+import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
 import mergeWith from 'lodash/mergeWith';
-import { EsiCharacter } from '../../../core/esi/models/EsiCharacter';
+import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 
 // const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0; // For ME = 0

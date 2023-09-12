@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import initEveLoginController from '../controllers/eveLoginController';
-import initProductionPlanController from '../controllers/productionPlanController';
+import initProductionPlanController from '../features/production_plan/productionPlanController';
 import loggedOutMiddleware from '../core/controller/loggedOutMiddleware';
 import actorContextMiddleware from '../core/controller/actorContextMiddleware';
 import Container from 'typedi';
