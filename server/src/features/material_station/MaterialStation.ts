@@ -7,6 +7,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
  * table to be dropped occasionally since it's part of SDE.
  */
 export class MaterialStation extends Model {
+  declare station_id: number;
 }
 
 export const materialStationModelDefine =

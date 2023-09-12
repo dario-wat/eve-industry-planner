@@ -1,18 +1,18 @@
 import { Service } from 'typedi';
-import { groupBy, uniq } from 'underscore';
+import { uniq } from 'underscore';
 import { hoursToSeconds } from 'date-fns';
-import { sum } from 'mathjs';
 import { mapify } from '../../lib/util';
 import EveQueryService from '../../core/query/EveQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
 import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { EveAssetsLocationsRes, EveAssetsRes } from '@internal/shared';
 import { SHIP } from '../../const/Categories';
-import { MaterialStation } from '../material_station/MaterialStation';
 import { EveAsset } from '../../types/EsiQuery';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import ActorContext from '../../core/actor_context/ActorContext';
+import { groupBy, mapValues, mergeWith, sum } from 'lodash';
 
+/** Data returned by the flatAsset function. */
 type AssetsData = {
   character_name: string,
   name: string,
@@ -24,6 +24,7 @@ type AssetsData = {
   isSingleton: boolean,
 }[];
 
+/** Assets can have parents (e.g. ammo in a ship). */
 type AssetWithParent = {
   self: EveAsset;
   parent: EveAsset | null
@@ -46,9 +47,7 @@ export default class AssetsService {
    * The function will flatten all the assets. I.e. everything that is inside
    * containers will appear as if it is on top level.
    */
-  private async genFlatAssets(
-    character: EsiCharacter,
-  ): Promise<AssetsData> {
+  private async genFlatAssets(character: EsiCharacter): Promise<AssetsData> {
     const assets = await genQueryEsiCache(
       character.characterId.toString(),
       EsiCacheItem.ASSETS,
@@ -135,6 +134,7 @@ export default class AssetsService {
     actorContext: ActorContext,
   ): Promise<EveAssetsRes> {
     const characters = await actorContext.genLinkedCharacters();
+    // TODO replace this common pattern
     const characterAssetsData = await Promise.all(characters.map(character =>
       this.genFlatAssets(character),
     ));
@@ -168,29 +168,44 @@ export default class AssetsService {
    */
   public async genAssetsForProductionPlan(
     characterId: number,  // TODO use actor context?
-  ): Promise<{ [typeId: number]: number }> {
+  ): Promise<Record<number, number>> {
     const character = (await EsiCharacter.findByPk(characterId))!;
     const account = await character?.genxAccount();
-    const materialStations = await MaterialStation.findAll({
-      where: {
-        accountId: account.id,
-      },
-    });
-    const stationIds =
-      materialStations.map(station => station.get().station_id);
+
+    const materialStations = await account.getMaterialStations();
+    const stationIds = materialStations.map(station => station.station_id);
 
     const allAssets = await this.genFlatAssets(character);
     const filteredAssets = allAssets.filter(asset =>
       // Removing outside material station and assembled ships
-      stationIds.includes(asset.locationId)
-      && !(asset.isSingleton && asset.categoryId === SHIP),
+      stationIds.includes(asset.locationId) && !isAssembledShip(asset),
     );
-    return Object.fromEntries(
-      Object.entries(groupBy(filteredAssets, asset => asset.typeId))
-        .map(assetsEntry => ([
-          assetsEntry[0],
-          sum(assetsEntry[1].map(a => a.quantity)),
-        ]))
-    );
+
+    return assetsDataToAssetQuantities(filteredAssets);
   }
+}
+
+/** 
+ * Takes AssetsData which is an array of assets with a bunch of extra data
+ * and reduces it into a single object where typeId is the key and the
+ * quantity of that typeId is the value.
+ */
+function assetsDataToAssetQuantities(assets: AssetsData): Record<number, number> {
+  const groups = groupBy(assets, asset => asset.typeId);
+  return mapValues(groups, v => sum(v.map(asset => asset.quantity)));
+}
+
+/** Checks whether a single asset is an assembled ship. */
+function isAssembledShip(asset: AssetsData[number]): boolean {
+  return asset.isSingleton && asset.categoryId === SHIP;
+}
+
+/** Takes two objects of assets quantities and merges them together. */
+export function mergeAssetQuantities(
+  assets1: Record<number, number>,
+  assets2: Record<number, number>,
+): Record<number, number> {
+  return mergeWith({}, assets1, assets2, (objVal, srcVal) =>
+    (objVal || 0) + srcVal
+  );
 }

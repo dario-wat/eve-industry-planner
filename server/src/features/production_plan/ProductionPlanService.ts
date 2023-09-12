@@ -4,11 +4,10 @@ import { secondsToHours } from 'date-fns';
 import { PlannedProduct } from '../planned_product/PlannedProduct';
 import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
-import AssetsService from '../eve_data/AssetsService';
+import AssetsService, { mergeAssetQuantities } from '../eve_data/AssetsService';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
-import mergeWith from 'lodash/mergeWith';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 
 // const MAX_ME = 0.9; // For ME = 10
@@ -65,11 +64,9 @@ export default class ProductionPlanService {
         const bp = this.sdeData.productBlueprintFromTypeId(j.product_type_id);
         return [j.product_type_id, (bp?.quantity ?? 0) * j.runs];
       })
-    );
+    ) as Record<number, number>;
 
-    const fullAssets = mergeWith({}, indyAssets, assets, (prevVal, nextVal) =>
-      (prevVal || 0) + nextVal
-    );
+    const fullAssets = mergeAssetQuantities(indyAssets, assets);
 
     const materialsPlan = this.traverseMaterialTree(
       plannedProductData['build'] ?? [],
