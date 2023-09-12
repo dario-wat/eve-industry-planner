@@ -8,7 +8,7 @@ import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService'
 import AssetsService from '../eve_data/AssetsService';
 import { MANUFACTURING } from '../../const/IndustryActivity';
 import ActorContext from '../../core/actor_context/ActorContext';
-import { genQueryEsiResultPerCharacter } from '../../lib/eveUtil';
+import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 
 // TODO make it more sequelize, use assoc functions instead of model
 
@@ -132,11 +132,10 @@ export default class PlannedProductService {
       actorContext,
     );
 
-    const industryJobsAll = await genQueryEsiResultPerCharacter(
+    const industryJobs = await genQueryFlatResultPerCharacter(
       actorContext,
       characterId => this.esiQuery.genxIndustryJobs(characterId),
     );
-    const industryJobs = industryJobsAll.flat();
 
     const manufacturingJobs = industryJobs.filter(
       j => j.activity_id === MANUFACTURING,

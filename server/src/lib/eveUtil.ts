@@ -9,12 +9,12 @@ export function isStation(id: number) {
   return id >= 60000000 && id <= 64000000;
 }
 
-// TODO I dont know if I like this function
+// TODO I dont know if I like this function, maybe move out of here
 /**
  * Helper function to perform ESI queries for the whole ActorContext
  * instead of just for an individual character.
  */
-export async function genQueryEsiPerCharacter<T>(
+export async function genQueryPerCharacter<T>(
   actorContext: ActorContext,
   fn: (characterId: number) => Promise<T>,
 ): Promise<[EsiCharacter, T][]> {
@@ -25,10 +25,23 @@ export async function genQueryEsiPerCharacter<T>(
 }
 
 /** Similar as above, but returns just result. */
-export async function genQueryEsiResultPerCharacter<T>(
+export async function genQueryResultPerCharacter<T>(
   actorContext: ActorContext,
   fn: (characterId: number) => Promise<T>,
 ): Promise<T[]> {
-  const esiDataPerCharacter = await genQueryEsiPerCharacter(actorContext, fn);
-  return esiDataPerCharacter.map(d => d[1]);
+  const dataPerCharacter = await genQueryPerCharacter(actorContext, fn);
+  return dataPerCharacter.map(d => d[1]);
+}
+
+/** 
+ * Similar to genQueryPerCharacter, but it will flatten the result array.
+ * Works only for functions where fn returns an array.
+ */
+export async function genQueryFlatResultPerCharacter<T>(
+  actorContext: ActorContext,
+  fn: (characterId: number) => Promise<T[]>,
+): Promise<T[]> {
+  const dataPerCharacter = await genQueryPerCharacter(actorContext, fn);
+  const results = dataPerCharacter.map(d => d[1]);
+  return results.flat();
 }
