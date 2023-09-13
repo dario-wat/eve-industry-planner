@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
 import { Container, Service } from 'typedi';
-import { EvePortrait } from '../types/EsiQuery';
-import { SSO_STATE } from '../config/eveSsoConfig';
-import { requiredScopes } from '../const/EveScopes';
-import { DOMAIN } from '../const/ServerConst';
-import EsiProviderService from '../core/esi/EsiProviderService';
-import EsiTokenlessQueryService from '../core/query/EsiTokenlessQueryService';
-import { EsiCharacter } from '../core/esi/models/EsiCharacter';
-import ActorContext from '../core/actor_context/ActorContext';
-import AccountService from '../core/account/AccountService';
-import Controller from '../core/controller/Controller';
+import { EvePortrait } from '../../types/EsiQuery';
+import { SSO_STATE } from '../../config/eveSsoConfig';
+import { requiredScopes } from '../../const/EveScopes';
+import { DOMAIN } from '../../const/ServerConst';
+import EsiProviderService from '../esi/EsiProviderService';
+import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
+import { EsiCharacter } from '../esi/models/EsiCharacter';
+import ActorContext from '../actor_context/ActorContext';
+import AccountService from '../account/AccountService';
+import Controller from './Controller';
 
 // TODO needs to be refactored and moved away
 
