@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Container, Service } from 'typedi';
+import { Service } from 'typedi';
 import { EvePortrait } from '../../types/EsiQuery';
 import { SSO_STATE } from '../../config/eveSsoConfig';
 import { requiredScopes } from '../../const/EveScopes';
@@ -11,37 +11,39 @@ import ActorContext from '../actor_context/ActorContext';
 import AccountService from '../account/AccountService';
 import Controller from './Controller';
 
-// TODO needs to be refactored and moved away
-
 @Service()
 export default class EveLoginController extends Controller {
 
   constructor(
     private readonly esi: EsiProviderService,
     private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly accountService: AccountService,
   ) {
     super();
   }
 
   protected initController(): void {
-
+    /** Fetches the login URL for ESI SSO. */
     this.appGet(
       '/login_url',
       async (_req: Request, res: Response, _actorContext: ActorContext) => {
         res.send(this.esi.get().getRedirectUrl(SSO_STATE, requiredScopes));
-      });
+      },
+    );
 
+    /** 
+     * Gets called by ESI SSO after login is successful.
+     * This will create a session with accountId and link the character
+     * to the existing account if there is one.
+     */
     this.appGet(
       '/sso_callback',
-      async (req: Request, res: Response, _actorContext: ActorContext) => {
+      async (req: Request, res: Response, actorContext: ActorContext) => {
         const code = req.query.code as string;
         const { character } = await this.esi.get().register(code);
 
-        const accountService = Container.get(AccountService);
-
         const esiCharacter = (await EsiCharacter.findByPk(character.characterId))!;
-        const actorContext: ActorContext = res.locals.actorContext;
-        const account = await accountService.genLink(
+        const account = await this.accountService.genLink(
           actorContext,
           esiCharacter,
         );
@@ -49,12 +51,13 @@ export default class EveLoginController extends Controller {
         req.session.accountId = account.id;
 
         res.redirect(DOMAIN);
-      });
+      },
+    );
 
     // TODO should I be having this like this ?
     this.appGet(
       '/logged_in_user',
-      async (req: Request, res: Response, actorContext: ActorContext) => {
+      async (_req: Request, res: Response, actorContext: ActorContext) => {
         const main = await actorContext.genMainCharacter();
         let portrait: EvePortrait | null = null;
         if (main) {
@@ -65,8 +68,10 @@ export default class EveLoginController extends Controller {
           character_name: main?.characterName,
           portrait: portrait?.px64x64,
         });
-      });
+      },
+    );
 
+    /** Logs out the user by deleting its active session. */
     this.appDelete(
       '/logout',
       async (req: Request, res: Response, _actorContext: ActorContext) => {
@@ -81,6 +86,7 @@ export default class EveLoginController extends Controller {
         } else {
           res.end();
         }
-      });
+      },
+    );
   }
 }
