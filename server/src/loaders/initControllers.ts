@@ -1,8 +1,7 @@
 import { Express } from 'express';
-import initEveLoginController from '../controllers/eveLoginController';
+import Container from 'typedi';
 import loggedOutMiddleware from '../core/controller/loggedOutMiddleware';
 import actorContextMiddleware from '../core/controller/actorContextMiddleware';
-import Container from 'typedi';
 import AccountController from '../core/account/AccountController';
 import EsiCacheController from '../core/esi_cache/EsiCacheController';
 import EveSdeDataController from '../core/sde/EveSdeDataController';
@@ -12,6 +11,7 @@ import MaterialStationController from '../features/material_station/MaterialStat
 import EvePagesDataController from '../features/eve_data/EvePagesDataController';
 import PlannedProductController from '../features/planned_product/PlannedProductController';
 import ProductionPlanController from '../features/production_plan/ProductionPlanController';
+import EveLoginController from '../controllers/eveLoginController';
 
 
 // TODO replace Container typedi with a class service
@@ -20,7 +20,7 @@ import ProductionPlanController from '../features/production_plan/ProductionPlan
 export function initControllers(app: Express): void {
   app.use(actorContextMiddleware);
 
-  initEveLoginController(app);
+  Container.get(EveLoginController).init(app);
 
   // Only login controller does not require a logged in user,
   // all other controllers will go through this middleware first

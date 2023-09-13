@@ -22,8 +22,8 @@ export default class ActorContext {
       },
     );
 
-    this.genxMainCharacter = memoize(
-      this.genxMainCharacter.bind(this),
+    this.genMainCharacter = memoize(
+      this.genMainCharacter.bind(this),
       {
         primitive: true,
         async: true,
@@ -46,9 +46,16 @@ export default class ActorContext {
   }
 
   /** Currently returns one character of all linked ones. */
-  public async genxMainCharacter(): Promise<EsiCharacter> {
+  public async genMainCharacter(): Promise<EsiCharacter | null> {
     const characters = await this.genLinkedCharacters();
+    if (characters.length === 0) {
+      return null;
+    }
     return characters[0];
+  }
+
+  public async genxMainCharacter(): Promise<EsiCharacter> {
+    return (await this.genMainCharacter())!;
   }
 
   /** 

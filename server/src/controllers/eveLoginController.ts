@@ -1,5 +1,5 @@
-import { Router, Request, Response } from 'express';
-import { Container } from 'typedi';
+import { Request, Response } from 'express';
+import { Container, Service } from 'typedi';
 import { EvePortrait } from '../types/EsiQuery';
 import { SSO_STATE } from '../config/eveSsoConfig';
 import { requiredScopes } from '../const/EveScopes';
@@ -9,66 +9,78 @@ import EsiTokenlessQueryService from '../core/query/EsiTokenlessQueryService';
 import { EsiCharacter } from '../core/esi/models/EsiCharacter';
 import ActorContext from '../core/actor_context/ActorContext';
 import AccountService from '../core/account/AccountService';
+import Controller from '../core/controller/Controller';
 
 // TODO needs to be refactored and moved away
 
-const route = Router();
+@Service()
+export default class EveLoginController extends Controller {
 
-const controller = (app: Router) => {
-  app.use('/', route);
+  constructor(
+    private readonly esi: EsiProviderService,
+    private readonly esiQuery: EsiTokenlessQueryService,
+  ) {
+    super();
+  }
 
-  const esi = Container.get(EsiProviderService).get();
-  const esiQuery = Container.get(EsiTokenlessQueryService);
+  protected initController(): void {
 
-  route.get('/login_url', (_req: Request, res: Response) => {
-    res.send(esi.getRedirectUrl(SSO_STATE, requiredScopes));
-  });
+    this.appGet(
+      '/login_url',
+      async (_req: Request, res: Response, _actorContext: ActorContext) => {
+        res.send(this.esi.get().getRedirectUrl(SSO_STATE, requiredScopes));
+      });
 
-  route.get('/sso_callback', async (req: Request, res: Response) => {
-    const code = req.query.code as string;
-    const { character } = await esi.register(code);
+    this.appGet(
+      '/sso_callback',
+      async (req: Request, res: Response, _actorContext: ActorContext) => {
+        const code = req.query.code as string;
+        const { character } = await this.esi.get().register(code);
 
-    const accountService = Container.get(AccountService);
+        const accountService = Container.get(AccountService);
 
-    const esiCharacter = (await EsiCharacter.findByPk(character.characterId))!;
-    const actorContext: ActorContext = res.locals.actorContext;
-    const account = await accountService.genLink(
-      actorContext,
-      esiCharacter,
-    );
+        const esiCharacter = (await EsiCharacter.findByPk(character.characterId))!;
+        const actorContext: ActorContext = res.locals.actorContext;
+        const account = await accountService.genLink(
+          actorContext,
+          esiCharacter,
+        );
 
-    req.session.accountId = account.id;
+        req.session.accountId = account.id;
 
-    res.redirect(DOMAIN);
-  });
+        res.redirect(DOMAIN);
+      });
 
-  // TODO should I be having this like this ?
-  // this should return the main character
-  route.get('/logged_in_user', async (req: Request, res: Response) => {
-    let portrait: EvePortrait | null = null;
-    if (req.session.characterId) {
-      portrait = await esiQuery.genxPortrait(req.session.characterId);
-    }
-    res.json({
-      character_id: req.session.characterId ?? null,
-      character_name: req.session.characterName ?? null,
-      portrait: portrait?.px64x64,
-    });
-  });
+    // TODO should I be having this like this ?
+    this.appGet(
+      '/logged_in_user',
+      async (req: Request, res: Response, actorContext: ActorContext) => {
+        const main = await actorContext.genMainCharacter();
+        let portrait: EvePortrait | null = null;
+        if (main) {
+          portrait = await this.esiQuery.genxPortrait(main.characterId);
+        }
+        res.json({
+          character_id: main?.characterId,
+          character_name: main?.characterName,
+          portrait: portrait?.px64x64,
+        });
+      });
 
-  route.delete('/logout', (req: Request, res: Response) => {
-    if (req.session) {
-      req.session.destroy(err => {
-        if (err) {
-          res.status(400).end();
+    this.appDelete(
+      '/logout',
+      async (req: Request, res: Response, _actorContext: ActorContext) => {
+        if (req.session) {
+          req.session.destroy(err => {
+            if (err) {
+              res.status(400).end();
+            } else {
+              res.status(200).end();
+            }
+          });
         } else {
-          res.status(200).end();
+          res.end();
         }
       });
-    } else {
-      res.end();
-    }
-  });
-};
-
-export default controller;
+  }
+}
