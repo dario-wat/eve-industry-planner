@@ -11,7 +11,7 @@ import MaterialStationController from '../features/material_station/MaterialStat
 import EvePagesDataController from '../features/eve_data/EvePagesDataController';
 import PlannedProductController from '../features/planned_product/PlannedProductController';
 import ProductionPlanController from '../features/production_plan/ProductionPlanController';
-import EveLoginController from '../core/controller/eveLoginController';
+import EveLoginController from '../core/controller/EveLoginController';
 
 
 // TODO replace Container typedi with a class service
