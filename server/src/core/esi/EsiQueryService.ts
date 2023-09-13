@@ -64,7 +64,7 @@ export default class EsiQueryService {
   ): Promise<EveIndustryJob[]> {
     const response = await this.esi.request(
       `/characters/${characterId}/industry/jobs/`,
-      undefined,
+      { include_completed: true },
       undefined,
       { token },
     );
