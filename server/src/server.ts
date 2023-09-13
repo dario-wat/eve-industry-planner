@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import { Sequelize } from 'sequelize';
 import Container from 'typedi';
 import { initDatabase } from './loaders/initDatabase';
-import { initControllers } from './loaders/initControllers';
+import Controllers from './loaders/Controllers';
 import EveSdeData from './core/sde/EveSdeData';
 import { hoursToMilliseconds } from 'date-fns';
 import initSessionStore from './loaders/initSessionStore';
@@ -61,7 +61,7 @@ async function init() {
   app.use(express.json());
 
   // Initialize all controllers. 
-  initControllers(app);
+  Container.get(Controllers).init(app);
 
   app.listen(port, () => {
     console.log(`API server listening on port ${port}`);
