@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import Toolbar from '@mui/material/Toolbar';
@@ -8,19 +7,11 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Avatar from '@mui/material/Avatar';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CachedIcon from '@mui/icons-material/Cached';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
 import { withStyles } from '@material-ui/styles';
 import axios from 'axios';
-import { ReactNode, useContext, useState } from 'react';
-import useAxios from 'axios-hooks';
-import { uniqueId } from 'underscore';
-import { LinkedCharacterRes } from '@internal/shared';
-import { UserContext } from 'contexts/UserContext';
+import { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const drawerWidth = 220;

@@ -20,26 +20,22 @@ const controller = (app: Router) => {
   const esi = Container.get(EsiProviderService).get();
   const esiQuery = Container.get(EsiTokenlessQueryService);
 
-  route.get('/login_url', (req: Request, res: Response) => {
+  route.get('/login_url', (_req: Request, res: Response) => {
     res.send(esi.getRedirectUrl(SSO_STATE, requiredScopes));
   });
 
-  // TODO ugly and needs to be cleaned up
   route.get('/sso_callback', async (req: Request, res: Response) => {
     const code = req.query.code as string;
     const { character } = await esi.register(code);
 
     const accountService = Container.get(AccountService);
 
-    const c = (await EsiCharacter.findByPk(character.characterId))!;
-    const ac: ActorContext = res.locals.actorContext;
+    const esiCharacter = (await EsiCharacter.findByPk(character.characterId))!;
+    const actorContext: ActorContext = res.locals.actorContext;
     const account = await accountService.genLink(
-      ac, c
+      actorContext,
+      esiCharacter,
     );
-
-    // TODO these two should be deleted
-    req.session.characterId = character.characterId;
-    req.session.characterName = character.characterName;
 
     req.session.accountId = account.id;
 
@@ -47,6 +43,7 @@ const controller = (app: Router) => {
   });
 
   // TODO should I be having this like this ?
+  // this should return the main character
   route.get('/logged_in_user', async (req: Request, res: Response) => {
     let portrait: EvePortrait | null = null;
     if (req.session.characterId) {
@@ -57,13 +54,6 @@ const controller = (app: Router) => {
       character_name: req.session.characterName ?? null,
       portrait: portrait?.px64x64,
     });
-  });
-
-  route.post('/change_character', async (req: Request, res: Response) => {
-    const character = await EsiCharacter.findByPk(req.body.characterId);
-    req.session.characterId = req.body.characterId;
-    req.session.characterName = character?.get().characterName;
-    res.status(200).end();
   });
 
   route.delete('/logout', (req: Request, res: Response) => {
