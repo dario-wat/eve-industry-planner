@@ -113,9 +113,9 @@ function LogoutButtonListItem() {
   return (
     <ListItem key="logout" disablePadding>
       <ListItemButton onClick={onLogoutClick}>
-        <ListItemIcon>
+        <SmallerListItemIcon>
           <LogoutIcon />
-        </ListItemIcon>
+        </SmallerListItemIcon>
         <ListItemText primary="Logout" />
       </ListItemButton>
     </ListItem>

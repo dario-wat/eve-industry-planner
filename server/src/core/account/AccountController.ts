@@ -29,7 +29,7 @@ export default class AccountController extends Controller {
           return {
             characterId: character.characterId,
             characterName: character.characterName,
-            portrait: portrait.px64x64,
+            portrait: portrait.px128x128,
           };
         };
 

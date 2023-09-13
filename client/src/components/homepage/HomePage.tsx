@@ -6,6 +6,7 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import TakeoutDiningIcon from '@mui/icons-material/TakeoutDining';
 import LocalGroceryStoreIcon from '@mui/icons-material/LocalGroceryStore';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import SleddingIcon from '@mui/icons-material/Sledding';
 import type { } from '@mui/x-data-grid/themeAugmentation';
 import { useContext } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
@@ -22,6 +23,7 @@ import MarketTransactionsPage from 'components/MarketTransactionsPage';
 import MarketOrdersPage from 'components/MarketOrdersPage';
 import { Route, Routes } from 'react-router-dom';
 import MarketComparisonPage from 'components/MarketComparisonPage';
+import CharactersPage from 'components/CharactersPage';
 
 export default function HomePage() {
   const userContext = useContext(UserContext);
@@ -70,6 +72,12 @@ export default function HomePage() {
       label: 'Marker Comparison',
       icon: <StorefrontIcon />,
       component: MarketComparisonPage,
+    },
+    {
+      path: '/character_settings',
+      label: 'Characters',
+      icon: <SleddingIcon />,
+      component: CharactersPage,
     },
   ];
 
