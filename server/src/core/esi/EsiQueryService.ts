@@ -61,10 +61,11 @@ export default class EsiQueryService {
   public async genxIndustryJobs(
     token: Token,
     characterId: number,
+    includeCompleted: boolean = false,
   ): Promise<EveIndustryJob[]> {
     const response = await this.esi.request(
       `/characters/${characterId}/industry/jobs/`,
-      { include_completed: true },
+      { include_completed: includeCompleted },
       undefined,
       { token },
     );
@@ -74,8 +75,9 @@ export default class EsiQueryService {
   public async genIndustryJobs(
     token: Token,
     characterId: number,
+    includeCompleted: boolean = false,
   ): Promise<EveIndustryJob[] | null> {
-    return await this.genxIndustryJobs(token, characterId)
+    return await this.genxIndustryJobs(token, characterId, includeCompleted)
       .catch(logEsiErrorAndReturnNull);
   }
 

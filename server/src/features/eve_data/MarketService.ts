@@ -71,6 +71,7 @@ export default class MarketService {
     // TODO convert wallet transactions model
     const characters = await actorContext.genLinkedCharacters();
 
+    // TODO use helper function
     const characterEsiTransactions = await Promise.all(characters.map(
       async character => ([
         character.characterId,

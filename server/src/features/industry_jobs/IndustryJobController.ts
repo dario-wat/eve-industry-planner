@@ -14,10 +14,13 @@ export default class IndustryJobController extends Controller {
   }
 
   protected initController(): void {
+    /** Returns data for the Industry Jobs page. */
     this.appGet(
       '/industry_jobs',
       async (_req: Request, res: Response, actorContext: ActorContext) => {
-        const output = await this.industryJobService.genDataForPage(actorContext);
+        const output = await this.industryJobService.genActiveJobsData(
+          actorContext,
+        );
         res.json(output);
       },
     );

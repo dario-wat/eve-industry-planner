@@ -25,14 +25,15 @@ export default class EsiTokenlessQueryService {
     private readonly esiSequelizeProvider: EsiSequelizeProvider,
   ) { }
 
-  // TODO convert to use esi character
   public async genxIndustryJobs(
     characterId: number,
+    includeCompleted: boolean = false,
   ): Promise<EveIndustryJob[]> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxIndustryJobs(
       token,
       characterId,
+      includeCompleted,
     );
   }
 
