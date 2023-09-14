@@ -12,6 +12,7 @@ import EvePagesDataController from '../features/eve_data/EvePagesDataController'
 import PlannedProductController from '../features/planned_product/PlannedProductController';
 import ProductionPlanController from '../features/production_plan/ProductionPlanController';
 import EveLoginController from '../core/controller/EveLoginController';
+import IndustryJobController from '../features/industry_jobs/IndustryJobController';
 
 // NOTE: every new controller needs to be added here
 @Service()
@@ -28,6 +29,7 @@ export default class Controllers {
     private readonly eveSdeDataController: EveSdeDataController,
     private readonly scribbleController: ScribbleController,
     private readonly alwaysBuyItemController: AlwaysBuyItemController,
+    private readonly industryJobController: IndustryJobController,
   ) { }
 
   public init(app: Express): void {
@@ -43,11 +45,11 @@ export default class Controllers {
     this.plannedProductController.init(app);
     this.materialStationController.init(app);
     this.productionPlanController.init(app);
-
     this.esiCacheController.init(app);
     this.accountController.init(app);
     this.eveSdeDataController.init(app);
     this.scribbleController.init(app);
     this.alwaysBuyItemController.init(app);
+    this.industryJobController.init(app);
   }
 }

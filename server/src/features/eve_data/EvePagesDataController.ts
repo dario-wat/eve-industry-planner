@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { Service } from 'typedi';
-import IndustryJobService from './IndustryJobService';
 import AssetsService from './AssetsService';
 import ContractsService from './ContractsService';
 import MarketService from './MarketService';
@@ -12,7 +11,6 @@ import ActorContext from '../../core/actor_context/ActorContext';
 export default class EvePagesDataController extends Controller {
 
   constructor(
-    private readonly industryJobService: IndustryJobService,
     private readonly assetsService: AssetsService,
     private readonly contractsService: ContractsService,
     private readonly marketService: MarketService,
@@ -21,14 +19,6 @@ export default class EvePagesDataController extends Controller {
   }
 
   protected initController(): void {
-
-    this.appGet(
-      '/industry_jobs',
-      async (_req: Request, res: Response, actorContext: ActorContext) => {
-        const output = await this.industryJobService.genDataForPage(actorContext);
-        res.json(output);
-      },
-    );
 
     this.appGet(
       '/assets',

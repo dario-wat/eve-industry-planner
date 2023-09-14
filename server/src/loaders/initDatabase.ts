@@ -35,8 +35,8 @@ import { scribbleAssocsDefine } from '../features/scribble/ScribbleAssocs';
 import { alwaysBuyItemAssocsDefine } from '../features/always_buy/AlwaysBuyItemAssocs';
 import { materialStationAssocsDefine } from '../features/material_station/MaterialStationAssocs';
 import { plannedProductAssocsDefine } from '../features/planned_product/PlannedProductAssocs';
-
-// TODO make assoc defines default exports ?
+import { industryJobAssocsDefine } from '../features/industry_jobs/IndustryJobAssocs';
+import { industryJobModelDefine } from '../features/industry_jobs/IndustryJob';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -89,6 +89,7 @@ export function initDatabase(): void {
   walletTransactionModelDefine(sequelize);
   scribbleModelDefine(sequelize);
   alwaysBuyItemModelDefine(sequelize);
+  industryJobModelDefine(sequelize);
 
   // Special
   esiCacheModelDefine(sequelize);
@@ -106,6 +107,7 @@ export function initDatabase(): void {
   alwaysBuyItemAssocsDefine();
   materialStationAssocsDefine();
   plannedProductAssocsDefine();
+  industryJobAssocsDefine();
 }
 
 // This should define ONLY SDE models

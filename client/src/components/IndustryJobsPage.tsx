@@ -95,6 +95,11 @@ export default function IndustryJobsPage() {
     <Card>
       <CardContent>
         <Tabs
+          sx={{
+            mb: 2,
+            borderBottom: 1,
+            borderColor: 'divider',
+          }}
           value={selectedTab}
           onChange={(_, newValue) => setSelectedTab(newValue)}
         >
@@ -144,14 +149,15 @@ function ActiveJobs(
 function JobHistory(
   { finishedJobs }: { finishedJobs: EveIndustryJobsRes | undefined }
 ) {
-  return finishedJobs ?
+  const jobs = finishedJobs?.filter(job => job.activity === 'Manufacturing');
+  return jobs ?
     <DataGrid
       initialState={{
         sorting: {
           sortModel: [{ field: 'end_date', sort: 'asc' }],
         },
       }}
-      rows={finishedJobs}
+      rows={jobs}
       columns={columns}
       disableSelectionOnClick
       disableColumnMenu
