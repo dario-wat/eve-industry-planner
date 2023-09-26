@@ -2,7 +2,7 @@ import { Service } from 'typedi';
 import { differenceInSeconds } from 'date-fns';
 import { industryActivity, IndustryActivityKey } from '../../const/IndustryActivity';
 import { EveIndustryJob } from '../../types/EsiQuery';
-import { EveIndustryJobsRes } from '@internal/shared';
+import { EveIndustryJobHistoryRes, EveIndustryJobsRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EveQueryService from '../../core/query/EveQueryService';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
@@ -10,6 +10,7 @@ import ActorContext from '../../core/actor_context/ActorContext';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 import { IndustryJob } from './IndustryJob';
+import { groupBy } from 'underscore';
 
 // TODO separate endpoint for history
 
@@ -83,6 +84,27 @@ export default class IndustryJobService {
       category_id:
         this.sdeData.categoryIdFromTypeId(industryJob.product_type_id),
     };
+  }
+
+  public async genJobHistory(
+    actorContext: ActorContext,
+  ): Promise<EveIndustryJobHistoryRes> {
+    await this.genSyncIndustryJobs(actorContext);
+
+    const industryJobs = await genQueryFlatResultPerCharacter(
+      actorContext,
+      async character => this.esiQuery.genxIndustryJobs(
+        character.characterId,
+        true, // include completed
+      ),
+    );
+    const completedJobs = industryJobs.filter(job =>
+      job.status === 'delivered' && job.activity_id === '1' // manufacture
+    );
+
+    const groupedJobs = groupBy(completedJobs, 'product_type_id');
+    // TODO finish this
+    return [];
   }
 
   /**

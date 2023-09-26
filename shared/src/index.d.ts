@@ -48,6 +48,10 @@ export type EveIndustryJobsRes = {
   category_id: number | undefined,
 }[];
 
+export type EveIndustryJobHistoryRes = {
+
+}[];
+
 export type EvePortraitRes = {
   px64x64: string,
 };
