@@ -12,7 +12,7 @@ function App() {
   const userContext = data
     ? {
       ...data,
-      is_logged_in: data.character_id !== null,
+      is_logged_in: data.character_ids.length > 0,
     }
     : defaultUserContextValue;
 

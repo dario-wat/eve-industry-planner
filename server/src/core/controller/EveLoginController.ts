@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { Service } from 'typedi';
-import { EvePortrait } from '../../types/EsiQuery';
 import { SSO_STATE } from '../../config/eveSsoConfig';
 import { requiredScopes } from '../../const/EveScopes';
 import { DOMAIN } from '../../const/ServerConst';
@@ -54,19 +53,13 @@ export default class EveLoginController extends Controller {
       },
     );
 
-    // TODO should I be having this like this ?
     this.appGet(
       '/logged_in_user',
       async (_req: Request, res: Response, actorContext: ActorContext) => {
-        const main = await actorContext.genMainCharacter();
-        let portrait: EvePortrait | null = null;
-        if (main) {
-          portrait = await this.esiQuery.genxPortrait(main.characterId);
-        }
+        const characters = await actorContext.genLinkedCharacters();
         res.json({
-          character_id: main?.characterId,
-          character_name: main?.characterName,
-          portrait: portrait?.px64x64,
+          character_ids: characters.map(character => character.characterId),
+          character_names: characters.map(character => character.characterName),
         });
       },
     );

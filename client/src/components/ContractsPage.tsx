@@ -35,7 +35,9 @@ export default function ContractsPage() {
     filteredData.filter((c: any) => c.status !== FINISHED_STATUS);
 
   const emphasizeSelf = (characterId: number | null, text: string) =>
-    userContext.is_logged_in && userContext.character_id === characterId
+    userContext.is_logged_in
+      && characterId
+      && userContext.character_ids.includes(characterId)
       ?
       <div style={{ color: 'orange' }}>
         {text}

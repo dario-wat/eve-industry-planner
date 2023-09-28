@@ -62,9 +62,8 @@ export type EvePortraitRes = {
 };
 
 export type EveLoggedInUserRes = {
-  character_id: number | null,
-  character_name: string | null,
-  portrait: string | null,
+  character_ids: number[],
+  character_names: string[],
 };
 
 export type PlannedProductsRes = {

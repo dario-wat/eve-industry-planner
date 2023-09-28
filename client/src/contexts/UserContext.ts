@@ -1,17 +1,14 @@
 import React from 'react';
 
-// TODO redesign to work with actor context ?
 type UserContextType = {
-  character_id: number | null,
-  character_name: string | null,
-  portrait: string | null,
+  character_ids: number[],
+  character_names: string[],
   is_logged_in: boolean,
 };
 
 export const defaultUserContextValue: UserContextType = {
-  character_id: null,
-  character_name: null,
-  portrait: null,
+  character_ids: [],
+  character_names: [],
   is_logged_in: false,
 };
 
