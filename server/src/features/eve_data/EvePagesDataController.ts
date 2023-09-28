@@ -45,16 +45,6 @@ export default class EvePagesDataController extends Controller {
     );
 
     this.appGet(
-      '/wallet_transactions',
-      async (_req: Request, res: Response, actorContext: ActorContext) => {
-        const output = await this.marketService.genWalletTransactionsForPage(
-          actorContext,
-        );
-        res.json(output);
-      },
-    );
-
-    this.appGet(
       '/market_orders',
       async (_req: Request, res: Response, actorContext: ActorContext) => {
         const output = await this.marketService.genMarketOrdersForPage(

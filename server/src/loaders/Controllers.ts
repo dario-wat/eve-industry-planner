@@ -13,6 +13,7 @@ import PlannedProductController from '../features/planned_product/PlannedProduct
 import ProductionPlanController from '../features/production_plan/ProductionPlanController';
 import EveLoginController from '../core/controller/EveLoginController';
 import IndustryJobController from '../features/industry_jobs/IndustryJobController';
+import WalletController from '../features/wallet/WalletController';
 
 // NOTE: every new controller needs to be added here
 @Service()
@@ -30,6 +31,7 @@ export default class Controllers {
     private readonly scribbleController: ScribbleController,
     private readonly alwaysBuyItemController: AlwaysBuyItemController,
     private readonly industryJobController: IndustryJobController,
+    private readonly walletController: WalletController,
   ) { }
 
   public init(app: Express): void {
@@ -51,5 +53,6 @@ export default class Controllers {
     this.scribbleController.init(app);
     this.alwaysBuyItemController.init(app);
     this.industryJobController.init(app);
+    this.walletController.init(app);
   }
 }
