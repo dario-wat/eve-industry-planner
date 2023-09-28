@@ -11,8 +11,7 @@ import { EveAsset } from '../../types/EsiQuery';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { groupBy, mapValues, mergeWith, sum } from 'lodash';
-
-// TODO refactor that giant function, and maybe other stuff
+import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 
 /** Data returned by the flatAsset function. */
 type AssetsData = {
@@ -135,12 +134,10 @@ export default class AssetsService {
   public async genDataForAssetPage(
     actorContext: ActorContext,
   ): Promise<EveAssetsRes> {
-    const characters = await actorContext.genLinkedCharacters();
-    // TODO replace this common pattern
-    const characterAssetsData = await Promise.all(characters.map(character =>
-      this.genFlatAssets(character),
-    ));
-    const assetsData = characterAssetsData.flat();
+    const assetsData = await genQueryFlatResultPerCharacter(
+      actorContext,
+      character => this.genFlatAssets(character),
+    );
     return assetsData.map(assetData => ({ ...assetData }));
   }
 
@@ -176,12 +173,10 @@ export default class AssetsService {
     const materialStations = await account.getMaterialStations();
     const stationIds = materialStations.map(station => station.station_id);
 
-    const characters = await actorContext.genLinkedCharacters();
-    // TODO replace this common pattern
-    const allAssets = await Promise.all(characters.map(async character =>
-      await this.genFlatAssets(character)
-    ));
-    const allAssetsFlat = allAssets.flat();
+    const allAssetsFlat = await genQueryFlatResultPerCharacter(
+      actorContext,
+      character => this.genFlatAssets(character),
+    );
     const filteredAssets = allAssetsFlat.filter(asset =>
       // Removing outside material station and assembled ships
       stationIds.includes(asset.locationId) && !isAssembledShip(asset),
