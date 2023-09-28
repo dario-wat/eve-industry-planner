@@ -24,5 +24,16 @@ export default class IndustryJobController extends Controller {
         res.json(output);
       },
     );
+
+    /** Returns data for all finished jobs. */
+    this.appGet(
+      '/industry_job_history',
+      async (_req: Request, res: Response, actorContext: ActorContext) => {
+        const output = await this.industryJobService.genJobHistory(
+          actorContext,
+        );
+        res.json(output);
+      },
+    );
   }
 }

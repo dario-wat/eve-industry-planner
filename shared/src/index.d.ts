@@ -49,7 +49,12 @@ export type EveIndustryJobsRes = {
 }[];
 
 export type EveIndustryJobHistoryRes = {
-
+  product_name: string,
+  product_type_id: number,
+  category_id: number | undefined,
+  category_name: string | undefined,
+  meta: number | null | undefined,
+  count: number,
 }[];
 
 export type EvePortraitRes = {

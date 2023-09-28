@@ -5,7 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { formatDistanceToNowStrict } from 'date-fns';
-import { EveIndustryJobsRes } from '@internal/shared';
+import { EveIndustryJobHistoryRes, EveIndustryJobsRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
 import { Tab, Tabs } from '@mui/material';
 import { useState } from 'react';
@@ -24,7 +24,7 @@ enum SelectedTab {
   HISTORY = 'HISTORY',
 };
 
-const columns: GridColDef[] = [
+const activeJobsColumns: GridColDef[] = [
   {
     field: 'activity',
     headerName: 'Activity',
@@ -85,11 +85,40 @@ const columns: GridColDef[] = [
   },
 ];
 
-export default function IndustryJobsPage() {
-  const [{ data }] = useAxios<EveIndustryJobsRes>('/industry_jobs');
-  const activeJobs = data?.filter(job => job.status === 'active');
-  const finishedJobs = data?.filter(job => job.status === 'delivered');
+const jobHistoryColumns: GridColDef[] = [
+  {
+    field: 'product',
+    headerName: 'Product',
+    width: 320,
+    sortable: false,
+    renderCell: params =>
+      <EveIconAndName
+        typeId={params.row.product_type_id}
+        categoryId={params.row.category_id}
+        name={params.row.product_name}
+      />,
+  },
+  {
+    field: 'category_name',
+    headerName: 'Category',
+    width: 150,
+    sortable: true,
+  },
+  {
+    field: 'meta',
+    headerName: 'Tech Level',
+    width: 100,
+    sortable: true,
+  },
+  {
+    field: 'count',
+    headerName: 'Count',
+    width: 70,
+    sortable: true,
+  },
+];
 
+export default function IndustryJobsPage() {
   const [selectedTab, setSelectedTab] = useState(SelectedTab.ACTIVE);
   return (
     <Card>
@@ -113,10 +142,10 @@ export default function IndustryJobsPage() {
           alignItems="center"
         >
           {selectedTab === SelectedTab.ACTIVE &&
-            <ActiveJobs activeJobs={activeJobs} />
+            <ActiveJobs />
           }
           {selectedTab === SelectedTab.HISTORY &&
-            <JobHistory finishedJobs={finishedJobs} />
+            <JobHistory />
           }
         </Box>
       </CardContent>
@@ -124,9 +153,9 @@ export default function IndustryJobsPage() {
   );
 }
 
-function ActiveJobs(
-  { activeJobs }: { activeJobs: EveIndustryJobsRes | undefined }
-) {
+function ActiveJobs() {
+  const [{ data }] = useAxios<EveIndustryJobsRes>('/industry_jobs');
+  const activeJobs = data?.filter(job => job.status === 'active');
   return activeJobs ?
     <DataGrid
       initialState={{
@@ -135,7 +164,7 @@ function ActiveJobs(
         },
       }}
       rows={activeJobs}
-      columns={columns}
+      columns={activeJobsColumns}
       disableSelectionOnClick
       disableColumnMenu
       experimentalFeatures={{ newEditingApi: true }}
@@ -143,22 +172,17 @@ function ActiveJobs(
     : <CircularProgress />
 }
 
-// TODO this should be sum of all manufacture jobs
-// maybe other job types as well
-// also should store this similar to wallet transactions
-function JobHistory(
-  { finishedJobs }: { finishedJobs: EveIndustryJobsRes | undefined }
-) {
-  const jobs = finishedJobs?.filter(job => job.activity === 'Manufacturing');
-  return jobs ?
+function JobHistory() {
+  const [{ data }] = useAxios<EveIndustryJobHistoryRes>('/industry_job_history');
+  return data ?
     <DataGrid
       initialState={{
         sorting: {
           sortModel: [{ field: 'end_date', sort: 'asc' }],
         },
       }}
-      rows={jobs}
-      columns={columns}
+      rows={data}
+      columns={jobHistoryColumns}
       disableSelectionOnClick
       disableColumnMenu
       experimentalFeatures={{ newEditingApi: true }}

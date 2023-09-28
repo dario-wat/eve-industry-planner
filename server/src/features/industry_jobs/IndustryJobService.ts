@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { differenceInSeconds } from 'date-fns';
-import { industryActivity, IndustryActivityKey } from '../../const/IndustryActivity';
+import { industryActivity, IndustryActivityKey, MANUFACTURING } from '../../const/IndustryActivity';
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { EveIndustryJobHistoryRes, EveIndustryJobsRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
@@ -11,6 +11,7 @@ import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 import { IndustryJob } from './IndustryJob';
 import { groupBy } from 'underscore';
+import { entries, mapValues, sum } from 'lodash';
 
 // TODO separate endpoint for history
 
@@ -86,6 +87,10 @@ export default class IndustryJobService {
     };
   }
 
+  /**
+   * Queries all delivered manufacturing jobs and counts the number
+   * of products built for each unique product type ID.
+   */
   public async genJobHistory(
     actorContext: ActorContext,
   ): Promise<EveIndustryJobHistoryRes> {
@@ -99,12 +104,26 @@ export default class IndustryJobService {
       ),
     );
     const completedJobs = industryJobs.filter(job =>
-      job.status === 'delivered' && job.activity_id === '1' // manufacture
+      job.status === 'delivered' && job.activity_id === MANUFACTURING
     );
 
-    const groupedJobs = groupBy(completedJobs, 'product_type_id');
-    // TODO finish this
-    return [];
+    const productCounts = mapValues(
+      groupBy(completedJobs, 'product_type_id'),
+      jobs => sum(jobs.map(job => job.runs))
+    );
+
+    return entries(productCounts).map(([typeIdStr, count]) => {
+      const productTypeId = Number(typeIdStr);
+      const bp = this.sdeData.productBlueprintFromTypeId(productTypeId);
+      return {
+        product_name: this.sdeData.types[productTypeId].name,
+        product_type_id: productTypeId,
+        category_id: this.sdeData.categoryIdFromTypeId(productTypeId),
+        category_name: this.sdeData.categoryNameFromTypeId(productTypeId),
+        meta: this.sdeData.types[productTypeId]?.meta_group_id,
+        count: (bp?.quantity ?? 1) * count,
+      }
+    });
   }
 
   /**

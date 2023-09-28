@@ -11,6 +11,7 @@ import {
   BpReactionMaterials,
   BpReactionProducts,
 } from './models/Blueprint';
+import { CategoryID } from './models/CategoryID';
 
 export type EveSdeType = {
   id: number,
@@ -23,6 +24,11 @@ export type EveSdeGroup = {
   id: number,
   name: string,
   category_id: number,
+}
+
+export type EveSdeCategory = {
+  id: number,
+  name: string,
 }
 
 export type EveSdeStation = {
@@ -65,6 +71,7 @@ export default class EveSdeData {
     public readonly types: { [type_id: number]: EveSdeType },
     public readonly typeByName: { [name: string]: EveSdeType },
     public readonly groups: { [group_id: number]: EveSdeGroup },
+    public readonly categories: { [category_id: number]: EveSdeCategory },
     public readonly stations: { [station_id: number]: EveSdeStation },
     public readonly bpManufactureMaterialsByBlueprint:
       { [blueprint_id: number]: EveSdeBlueprintMaterial[] },
@@ -81,6 +88,13 @@ export default class EveSdeData {
     const type = this.types[typeId];
     const group = type && this.groups[type.group_id];
     return group?.category_id;
+  }
+
+  public categoryNameFromTypeId(typeId: number): string | undefined {
+    const type = this.types[typeId];
+    const group = type && this.groups[type.group_id];
+    const category = group && this.categories[group.category_id];
+    return category?.name;
   }
 
   public typeIdIsReactionFormula(typeId: number): boolean {
@@ -105,6 +119,7 @@ export default class EveSdeData {
     const [
       typesData,
       groupsData,
+      categoriesData,
       stationsData,
       bpManufactureMaterialsData,
       bpManufactureProductsData,
@@ -115,6 +130,7 @@ export default class EveSdeData {
       await Promise.all([
         TypeID.findAll(),
         GroupID.findAll(),
+        CategoryID.findAll(),
         Station.findAll(),
         BpManufacturingMaterials.findAll(),
         BpManufacturingProducts.findAll(),
@@ -127,6 +143,7 @@ export default class EveSdeData {
       mapifySequelize(typesData, 'id'),
       mapifySequelize(typesData, 'name'),
       mapifySequelize(groupsData, 'id'),
+      mapifySequelize(categoriesData, 'id'),
       mapifySequelize(stationsData, 'id'),
       mapifyMultiSequelize(bpManufactureMaterialsData, 'blueprint_id'),
       mapifySequelize(bpManufactureProductsData, 'type_id'),

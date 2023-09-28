@@ -15,6 +15,7 @@ export const typeIdModelDefine = (sequelize: Sequelize) => TypeID.init(
     },
     group_id: DataTypes.INTEGER,
     name: DataTypes.STRING,
+    meta_group_id: DataTypes.INTEGER,
   },
   {
     sequelize,
