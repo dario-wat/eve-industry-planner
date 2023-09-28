@@ -4,8 +4,6 @@ import Typography from '@mui/material/Typography';
 import ExtensionIcon from '@mui/icons-material/Extension';
 import EveLoginButton from 'components/homepage/EveLoginButton';
 
-// TODO
-// - figure out placement of buttons
 export default function HomePageAppBar() {
   return (
     <AppBar

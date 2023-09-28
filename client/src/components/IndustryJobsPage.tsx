@@ -113,7 +113,7 @@ const jobHistoryColumns: GridColDef[] = [
   {
     field: 'count',
     headerName: 'Count',
-    width: 70,
+    width: 100,
     sortable: true,
   },
 ];

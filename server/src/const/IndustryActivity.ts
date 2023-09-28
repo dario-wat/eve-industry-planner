@@ -31,11 +31,6 @@ export const industryActivity = Object.freeze({
   }
 });
 
-// TODO what is this ?
-export const industryActivityNameToId = Object.fromEntries(
-  Object.entries(industryActivity).map(([id, data]) => ([data.activityName, id]))
-);
-
 export type IndustryActivityKey = keyof typeof industryActivity;
 
 export const MANUFACTURING = 1;

@@ -37,7 +37,6 @@ export default class ScribbleController extends Controller {
       '/create_scribble',
       async (req: Request, res: Response, actorContext: ActorContext) => {
         const account = await actorContext.genxAccount();
-        // TODO use add scribble?
         const scribble = await Scribble.create({
           accountId: account.id,
           name: req.body.name,

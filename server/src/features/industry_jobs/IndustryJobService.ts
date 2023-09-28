@@ -13,8 +13,6 @@ import { IndustryJob } from './IndustryJob';
 import { groupBy } from 'underscore';
 import { entries, mapValues, sum } from 'lodash';
 
-// TODO separate endpoint for history
-
 @Service()
 export default class IndustryJobService {
 
