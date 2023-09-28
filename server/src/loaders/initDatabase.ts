@@ -37,6 +37,7 @@ import { materialStationAssocsDefine } from '../features/material_station/Materi
 import { plannedProductAssocsDefine } from '../features/planned_product/PlannedProductAssocs';
 import { industryJobAssocsDefine } from '../features/industry_jobs/IndustryJobAssocs';
 import { industryJobModelDefine } from '../features/industry_jobs/IndustryJob';
+import { walletTransactionAssocsDefine } from '../features/wallet/WalletTransactionAssocs';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -108,6 +109,7 @@ export function initDatabase(): void {
   materialStationAssocsDefine();
   plannedProductAssocsDefine();
   industryJobAssocsDefine();
+  walletTransactionAssocsDefine();
 }
 
 // This should define ONLY SDE models

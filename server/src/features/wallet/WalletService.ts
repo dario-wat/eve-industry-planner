@@ -4,8 +4,8 @@ import { Service } from 'typedi';
 import { WalletTransaction } from './WalletTransaction';
 import EveQueryService from '../../core/query/EveQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
-import { Op } from 'sequelize';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 
 @Service()
 export default class WalletService {
@@ -24,15 +24,11 @@ export default class WalletService {
 
     const characters = await actorContext.genLinkedCharacters();
 
-    // TODO this needs to be replaced with the new model
-    // make sure to store data
-    const transactionsResult = await WalletTransaction.findAll({
-      where: {
-        character_id: {
-          [Op.in]: characters.map(character => character.characterId),
-        },
-      },
-    });
+    const transactionsResult = await genQueryFlatResultPerCharacter(
+      actorContext,
+      character => character.getWalletTransactions(),
+    );
+
     const transactions = transactionsResult.map(t => t.get());
 
     const stationNames = await this.eveQuery.genAllStationNamesForActor(
@@ -68,7 +64,6 @@ export default class WalletService {
   private async genSyncWalletTransactions(
     actorContext: ActorContext,
   ): Promise<void> {
-    // TODO convert wallet transactions model
     const characters = await actorContext.genLinkedCharacters();
 
     // TODO use helper function

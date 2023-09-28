@@ -25,11 +25,13 @@ export function esiAssocsDefine() {
     {
       foreignKey: 'characterId',
       onDelete: 'CASCADE',
-    });
+    },
+  );
   EsiToken.belongsTo(
     EsiCharacter,
     {
       foreignKey: 'characterId',
       onDelete: 'SET NULL',
-    });
+    },
+  );
 }

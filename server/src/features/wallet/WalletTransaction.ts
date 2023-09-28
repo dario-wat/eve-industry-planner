@@ -1,8 +1,18 @@
-import { DataTypes, Model, Sequelize } from 'sequelize';
+import { EsiCharacter } from 'core/esi/models/EsiCharacter';
+import {
+  BelongsToGetAssociationMixin,
+  DataTypes,
+  ForeignKey,
+  Model,
+  Sequelize,
+} from 'sequelize';
 
-// TODO refactor so that it attaches to the esi character
+export class WalletTransaction extends Model {
 
-export class WalletTransaction extends Model { }
+  declare characterId: ForeignKey<EsiCharacter['characterId']>;
+
+  declare getEsiCharacter: BelongsToGetAssociationMixin<EsiCharacter | null>;
+}
 
 export const walletTransactionModelDefine =
   (sequelize: Sequelize) => WalletTransaction.init(
@@ -20,7 +30,6 @@ export const walletTransactionModelDefine =
       quantity: DataTypes.BIGINT,
       type_id: DataTypes.BIGINT,
       unit_price: DataTypes.BIGINT,
-      character_id: DataTypes.BIGINT,
     },
     {
       sequelize,
