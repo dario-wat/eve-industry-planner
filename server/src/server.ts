@@ -20,7 +20,6 @@ const sessionSecret = 'mcqbjEBpLRT0FgUBMI8d7qOHVfhM8WkYm0sKpHrO';
 async function connectToDatabase(
   sequelize: Sequelize,
 ): Promise<void> {
-  // TODO maybe put this into database init
   await sequelize.authenticate().then(() => {
     console.log('Connected to MySQL.');
   }).catch((error) => {
@@ -29,10 +28,10 @@ async function connectToDatabase(
   await sequelize.sync({ alter: true });
 }
 
-// TODO figure out how to properly organize Container sets at the beginning
 async function init() {
   initDatabase();
-  // TODO do I need this
+
+  // Needs to be called after database init
   const sequelize = Container.get(Sequelize);
 
   await connectToDatabase(sequelize);

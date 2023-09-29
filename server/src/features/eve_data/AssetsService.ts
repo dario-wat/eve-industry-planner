@@ -54,7 +54,7 @@ export default class AssetsService {
       EsiCacheItem.ASSETS,
       hoursToSeconds(1),
       async () => await this.eveQuery.genAllAssets(character),
-    );
+    ) ?? [];
 
     const assetMap = mapify(assets, 'item_id');
     const assetsWithParent: AssetWithParent[] = assets.map(asset => ({

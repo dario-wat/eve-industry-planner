@@ -6,9 +6,6 @@ export enum EsiCacheItem {
   STRUCTURE,
 }
 
-// TODO maybe I should move use cases into a file so they can be reused
-// TODO I don't like that these functions are in global scope
-
 /*
 * Service to manage MySql caching. The purpose of this is to query
 * ESI and store the result in MySql.
@@ -93,8 +90,8 @@ export async function genQueryEsiCache<T>(
   key: string,
   item: EsiCacheItem,
   intervalInSec: number,
-  fetchData: () => Promise<T>,
-): Promise<T> {
+  fetchData: () => Promise<T | null>,
+): Promise<T | null> {
   const cachedData = await genQuery(
     key,
     item,
@@ -104,6 +101,11 @@ export async function genQueryEsiCache<T>(
   }
 
   const data = await fetchData();
+
+  if (data === null) {
+    return null;
+  }
+
   await genAdd(
     key,
     item,

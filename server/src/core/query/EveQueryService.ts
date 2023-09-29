@@ -34,7 +34,6 @@ export default class EveQueryService {
       return sdeStation.name;
     }
 
-    // TODO prevent caching nulls
     return await genQueryEsiCache(
       stationId.toString(),
       EsiCacheItem.STRUCTURE,
