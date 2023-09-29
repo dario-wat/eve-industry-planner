@@ -64,7 +64,7 @@ export default class WalletService {
     // We are storing all transaction into the database for longer retention
     await WalletTransaction.bulkCreate(
       transactions.map(([character, transaction]) => ({
-        character_id: character.characterId,
+        characterId: character.characterId,
         ...transaction,
       })),
       { ignoreDuplicates: true },
