@@ -5,7 +5,7 @@ import { WalletTransaction } from './WalletTransaction';
 import EveQueryService from '../../core/query/EveQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
-import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
+import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
 
 @Service()
 export default class WalletService {
@@ -22,28 +22,20 @@ export default class WalletService {
   ): Promise<WalletTransactionsRes> {
     await this.genSyncWalletTransactions(actorContext);
 
-    const characters = await actorContext.genLinkedCharacters();
-
-    const transactionsResult = await genQueryFlatResultPerCharacter(
+    const transactions = await genQueryFlatPerCharacter(
       actorContext,
       character => character.getWalletTransactions(),
     );
 
-    const transactions = transactionsResult.map(t => t.get());
-
     const stationNames = await this.eveQuery.genAllStationNamesForActor(
       actorContext,
-      transactions.map(t => t.location_id),
+      transactions.map(([_, t]) => t.location_id),
     );
 
     return transactions
-      .filter(t => t.is_personal)
-      .map(t => ({
-        // TODO ugly fix it
-        characterName:
-          characters.find(character =>
-            character.characterId === t.character_id,
-          )?.characterName || '',
+      .filter(([_, t]) => t.is_personal)
+      .map(([character, t]) => ({
+        characterName: character.characterName,
         date: t.date,
         isBuy: t.is_buy,
         locationName: stationNames[t.location_id] ?? null,
@@ -64,24 +56,15 @@ export default class WalletService {
   private async genSyncWalletTransactions(
     actorContext: ActorContext,
   ): Promise<void> {
-    const characters = await actorContext.genLinkedCharacters();
-
-    // TODO use helper function
-    const characterEsiTransactions = await Promise.all(characters.map(
-      async character => ([
-        character.characterId,
-        await this.esiQuery.genxWalletTransactions(character.characterId)
-      ] as const),
-    ));
-    const esiTransactions = characterEsiTransactions.flatMap(
-      ([characterId, transactions]) =>
-        transactions.map(transaction => ([characterId, transaction] as const))
+    const transactions = await genQueryFlatPerCharacter(
+      actorContext,
+      character => this.esiQuery.genxWalletTransactions(character.characterId),
     );
 
     // We are storing all transaction into the database for longer retention
     await WalletTransaction.bulkCreate(
-      esiTransactions.map(([characterId, transaction]) => ({
-        character_id: characterId,
+      transactions.map(([character, transaction]) => ({
+        character_id: character.characterId,
         ...transaction,
       })),
       { ignoreDuplicates: true },

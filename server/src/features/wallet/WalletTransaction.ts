@@ -9,6 +9,14 @@ import {
 
 export class WalletTransaction extends Model {
 
+  declare location_id: number;
+  declare is_personal: boolean;
+  declare date: string;
+  declare is_buy: boolean;
+  declare quantity: number;
+  declare type_id: number;
+  declare unit_price: number;
+
   declare characterId: ForeignKey<EsiCharacter['characterId']>;
 
   declare getEsiCharacter: BelongsToGetAssociationMixin<EsiCharacter | null>;

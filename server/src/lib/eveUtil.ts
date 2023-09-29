@@ -32,6 +32,23 @@ export async function genQueryResultPerCharacter<T>(
   return dataPerCharacter.map(d => d[1]);
 }
 
+/**
+ * Similar to genQueryPerCharacter and genQueryFlatResultPerCharacter,
+ * but it will combine the character with flattened results.
+ */
+export async function genQueryFlatPerCharacter<T>(
+  actorContext: ActorContext,
+  fn: (character: EsiCharacter) => Promise<T[]>,
+): Promise<[EsiCharacter, T][]> {
+  const dataPerCharacter = await genQueryPerCharacter(actorContext, fn);
+  return dataPerCharacter.reduce((result, [character, ts]) => {
+    ts.forEach(t => {
+      result.push([character, t]);
+    });
+    return result;
+  }, [] as [EsiCharacter, T][]);
+}
+
 /** 
  * Similar to genQueryPerCharacter, but it will flatten the result array.
  * Works only for functions where fn returns an array.
