@@ -1,3 +1,5 @@
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
@@ -32,6 +34,15 @@ export default function DashboardProductsTextArea(props: {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const onButtonClick = async () => {
+    if (props.group === '') {
+      console.log('boefre');
+      toast.error('Group name cannot be empty!', {
+        position: 'bottom-center',
+        autoClose: 3000,
+      });
+      console.log('bafter');
+      return;
+    }
     setIsSubmitting(true);
     const { data } = await axios.post<PlannedProductsWithErrorRes>(
       '/planned_products_recreate',
@@ -92,6 +103,7 @@ export default function DashboardProductsTextArea(props: {
           </Box>
         </Grid>
       </Grid>
+      <ToastContainer />
     </Box>
   );
 }

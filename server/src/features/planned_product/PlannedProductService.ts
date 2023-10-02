@@ -53,6 +53,9 @@ export default class PlannedProductService {
     group: string,
     content: string,
   ): Promise<PlannedProductsWithErrorRes> {
+    if (group === '') {
+      throw Error('Planned product group name cannot be empty');
+    }
     const lines = PlannedProductService.parseInput(content);
     const errors = this.validateParsedInput(lines);
     if (errors.length !== 0) {

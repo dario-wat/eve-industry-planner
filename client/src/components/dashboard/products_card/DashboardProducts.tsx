@@ -31,10 +31,10 @@ export default function DashboardProducts(props: {
     const { status } = await axios.delete(
       `/planned_product_group_delete/${props.group}`,
     );
+    setIsDeleting(false);
     if (status === 200) {
       props.onGroupDelete();
     }
-    setIsDeleting(false);
   };
 
   const dispatch = useAppDispatch();
