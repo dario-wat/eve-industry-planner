@@ -77,7 +77,7 @@ export default class AssetsService {
       .filter(o => o.parent === null)
       .map(o => o.self.location_id),
     );
-    const stationNames = await this.eveQuery.genAllStationNames(
+    const stationNames = await this.eveQuery.genAllStationNamesForCharacter(
       character,
       rootLocationIds,
     );

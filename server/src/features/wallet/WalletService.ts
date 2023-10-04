@@ -27,7 +27,7 @@ export default class WalletService {
       character => character.getWalletTransactions(),
     );
 
-    const stationNames = await this.eveQuery.genAllStationNamesForActor(
+    const stationNames = await this.eveQuery.genAllStationNames(
       actorContext,
       transactions.map(([_, t]) => t.location_id),
     );

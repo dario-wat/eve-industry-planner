@@ -49,7 +49,7 @@ export default class EveQueryService {
   }
 
   /** Fetches the names for a list of station IDs. */
-  public async genAllStationNames(
+  public async genAllStationNamesForCharacter(
     character: EsiCharacter,
     stationIds: number[],
   ): Promise<Record<number, string | null>> {
@@ -60,16 +60,14 @@ export default class EveQueryService {
     return Object.fromEntries(zip(uniqueStationIds, stationNames));
   }
 
-  // TODO maybe use this exclusively, maybe remove all versions
-  // with only the character
   /** Fetches the names for a list of stations IDs given ActorContext. */
-  public async genAllStationNamesForActor(
+  public async genAllStationNames(
     actorContext: ActorContext,
     stationIds: number[],
   ): Promise<Record<number, string | null>> {
     const characters = await actorContext.genLinkedCharacters();
     const stationNamesList = await Promise.all(characters.map(async character =>
-      await this.genAllStationNames(character, stationIds),
+      await this.genAllStationNamesForCharacter(character, stationIds),
     ));
 
     // TODO extract into utils?

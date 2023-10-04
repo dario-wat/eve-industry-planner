@@ -34,7 +34,7 @@ export default class MarketService {
     );
 
     // TODO this is ugly, make it better
-    const stationNames = await this.eveQuery.genAllStationNamesForActor(
+    const stationNames = await this.eveQuery.genAllStationNames(
       actorContext,
       orders.map(([_, o]) => o.location_id),
     );
