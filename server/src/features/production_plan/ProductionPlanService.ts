@@ -9,6 +9,7 @@ import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService'
 import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
 import ActorContext from '../../core/actor_context/ActorContext';
+import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 
 // TODO this whole thing needs a big refactor
 
@@ -37,7 +38,7 @@ export default class ProductionPlanService {
     group?: string,
   ): Promise<ProductionPlanRes> {
     const account = await actorContext.genxAccount();
-    const [plannedProducts, assets, alwaysBuy] =
+    const [plannedProducts, assets, alwaysBuy, industryJobs] =
       await Promise.all([
         PlannedProduct.findAll({
           attributes: ['type_id', 'quantity'],
@@ -47,19 +48,17 @@ export default class ProductionPlanService {
         }),
         this.assetService.genAssetsForProductionPlan(actorContext),
         account.getAlwaysBuyItems(),
+        genQueryFlatResultPerCharacter(
+          actorContext,
+          async character => await this.esiQuery.genxIndustryJobs(character.characterId),
+        ),
       ]);
 
-    const characters = await actorContext.genLinkedCharacters();
-    const industryJobsAll = await Promise.all(characters.map(character =>
-      this.esiQuery.genxIndustryJobs(character.characterId),
-    ));
-    const industryJobs = industryJobsAll.flat();
-
-    const alwaysBuyTypeIds = alwaysBuy.map(ab => Number(ab.get().typeId));
+    const alwaysBuyTypeIds = alwaysBuy.map(ab => ab.typeId);
     const plannedProductData = groupBy(
       plannedProducts.map(pp => ({
-        typeId: Number(pp.get().type_id),
-        quantity: Number(pp.get().quantity),
+        typeId: pp.type_id,
+        quantity: pp.quantity,
       })),
       pp => alwaysBuyTypeIds.includes(pp.typeId) ? 'buy' : 'build',
     );
@@ -84,7 +83,7 @@ export default class ProductionPlanService {
     const creationUtil = new ProductionPlanCreationUtil(
       industryJobs,
       fullAssets,
-      plannedProducts.map(pp => pp.get().type_id),
+      plannedProducts.map(pp => pp.type_id),
       this.sdeData,
     );
 

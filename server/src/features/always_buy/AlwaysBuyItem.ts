@@ -9,7 +9,9 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
  * So for that reason we use this AlwaysBuyItem model that contains the
  * type ID.
  */
-export class AlwaysBuyItem extends Model { }
+export class AlwaysBuyItem extends Model {
+  declare typeId: number;
+}
 
 export const alwaysBuyItemModelDefine =
   (sequelize: Sequelize) => AlwaysBuyItem.init(
