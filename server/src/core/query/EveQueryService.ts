@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
 import { hoursToSeconds } from 'date-fns';
-import { mapify } from '../../lib/util';
+import { combineMapsWithNulls, mapify } from '../../lib/util';
 import { EveAsset, EveName } from '../../types/EsiQuery';
 import EveSdeData from '../sde/EveSdeData';
 import { EsiCacheItem, genQueryEsiCache } from '../esi_cache/EsiCacheAction';
@@ -48,7 +48,12 @@ export default class EveQueryService {
     );
   }
 
-  /** Fetches the names for a list of station IDs. */
+  /** 
+   * Fetches the names for a list of station IDs.
+   * The result is a map where key is the station ID and the value
+   * is the station name or null if the name cannot be fetched (e.g. if the
+   * character has no ACL access to the station).
+   */
   public async genAllStationNamesForCharacter(
     character: EsiCharacter,
     stationIds: number[],
@@ -70,26 +75,11 @@ export default class EveQueryService {
       await this.genAllStationNamesForCharacter(character, stationIds),
     ));
 
-    // TODO extract into utils?
-    return stationNamesList.reduce(
-      (acc, stationNames) => {
-        for (const stationId in stationNames) {
-          if (
-            stationNames[stationId] === undefined
-            || stationNames[stationId] !== null
-          ) {
-            acc[stationId] = stationNames[stationId];
-          }
-        }
-        return acc;
-      },
-      {},
-    );
+    return combineMapsWithNulls(stationNamesList);
   }
 
+  // TODO this can throw exceptions
   /* 
-    TODO this can throw exceptions
-    
     Similar to genxAssets and genAssets, but instead it will look for multiple
     pages (page count is hardcoded for now) and combine all the results.
     This function does multiple requests.

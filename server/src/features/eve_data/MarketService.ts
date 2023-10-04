@@ -33,7 +33,6 @@ export default class MarketService {
       orders.map(order => ([character, order] as const))
     );
 
-    // TODO this is ugly, make it better
     const stationNames = await this.eveQuery.genAllStationNames(
       actorContext,
       orders.map(([_, o]) => o.location_id),
