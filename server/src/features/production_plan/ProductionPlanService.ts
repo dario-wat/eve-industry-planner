@@ -10,6 +10,9 @@ import { MaterialPlan } from './MaterialPlan';
 import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
+import { EveIndustryJob } from '../../types/EsiQuery';
+import { MANUFACTURING, REACTION } from '../../const/IndustryActivity';
+import { sum } from 'lodash';
 
 // TODO this whole thing needs a big refactor
 
@@ -99,8 +102,8 @@ export default class ProductionPlanService {
           name: this.sdeData.types[Number(e[0])]?.name,
           blueprintExists: creationUtil.blueprintExists(Number(e[0])),
           runs: e[1].runs,
-          activeRuns: creationUtil.activeManufacturingRuns(Number(e[0]))
-            + creationUtil.activeReactionRuns(Number(e[0])),
+          activeRuns: activeManufacturingRuns(Number(e[0]), industryJobs)
+            + activeReactionRuns(Number(e[0]), industryJobs),
           daysToRun: secondsToHours(
             MAX_TE * e[1].runs
             * (creationUtil.blueprintManufactureTime(Number(e[0]))
@@ -188,4 +191,25 @@ export default class ProductionPlanService {
 
     return materialPlan;
   }
+}
+
+
+function activeManufacturingRuns(
+  typeId: number,
+  industryJobs: EveIndustryJob[]
+): number {
+  const qualifiedJobs = industryJobs.filter(j =>
+    j.activity_id === MANUFACTURING && j.product_type_id === typeId
+  );
+  return sum(qualifiedJobs.map(job => job.runs));
+}
+
+function activeReactionRuns(
+  typeId: number,
+  industryJobs: EveIndustryJob[]
+): number {
+  const qualifiedJobs = industryJobs.filter(j =>
+    j.activity_id === REACTION && j.product_type_id === typeId
+  );
+  return sum(qualifiedJobs.map(job => job.runs));
 }

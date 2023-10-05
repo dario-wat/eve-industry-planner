@@ -1,8 +1,6 @@
 import { isEmpty } from 'underscore';
-import { sum } from 'mathjs';
 import { EveIndustryJob } from '../../types/EsiQuery';
-import { MANUFACTURING, REACTION } from '../../const/IndustryActivity';
-import EveSdeData, { EveSdeBlueprint } from '../../core/sde/EveSdeData';
+import EveSdeData from '../../core/sde/EveSdeData';
 
 // This code is very ugly, but I don't care, it stays here
 export default class ProductionPlanCreationUtil {
@@ -32,20 +30,6 @@ export default class ProductionPlanCreationUtil {
     }
   }
 
-  public activeManufacturingRuns(typeId: number): number {
-    const qualifiedJobs = this.industryJobs.filter(j =>
-      j.activity_id === MANUFACTURING && j.product_type_id === typeId
-    );
-    return sum(qualifiedJobs.map(job => job.runs));
-  }
-
-  public activeReactionRuns(typeId: number): number {
-    const qualifiedJobs = this.industryJobs.filter(j =>
-      j.activity_id === REACTION && j.product_type_id === typeId
-    );
-    return sum(qualifiedJobs.map(job => job.runs));
-  }
-
   public blueprintExists(typeId: number): boolean {
     const blueprintId = this.sdeData.productBlueprintFromTypeId(typeId)
       ?.blueprint_id;
@@ -63,16 +47,7 @@ export default class ProductionPlanCreationUtil {
   }
 
   public blueprintManufactureTime(typeId: number): number | undefined {
-    return this.blueprintTimeData(typeId)?.manufacturing_time
-      ?? this.blueprintTimeData(typeId)?.reaction_time;
-  }
-
-  private blueprintTimeData(typeId: number): EveSdeBlueprint | undefined {
-    const blueprintId = this.sdeData.productBlueprintFromTypeId(
-      typeId,
-    )?.blueprint_id;
-    return blueprintId !== undefined
-      ? this.sdeData.blueprints[blueprintId]
-      : undefined;
+    return this.sdeData.productBlueprintTimeDataFromTypeId(typeId)?.manufacturing_time
+      ?? this.sdeData.productBlueprintTimeDataFromTypeId(typeId)?.reaction_time;
   }
 }

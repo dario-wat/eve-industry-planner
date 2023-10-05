@@ -110,6 +110,15 @@ export default class EveSdeData {
       || this.bpReactionProductsByProduct[typeId];
   }
 
+  public productBlueprintTimeDataFromTypeId(
+    typeId: number,
+  ): EveSdeBlueprint | undefined {
+    const blueprintId = this.productBlueprintFromTypeId(typeId)?.blueprint_id;
+    return blueprintId !== undefined
+      ? this.blueprints[blueprintId]
+      : undefined;
+  }
+
   /** Loads SDE from MySQL into memory. */
   public static async init(): Promise<EveSdeData> {
     if (this.initialized) {
