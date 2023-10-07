@@ -16,8 +16,8 @@ export default class AlwaysBuyItemService {
     const account = await actorContext.genxAccount();
     const result = await account.getAlwaysBuyItems();
     return result.map(item => ({
-      typeId: item.get().typeId,
-      typeName: this.sdeData.types[item.get().typeId].name,
+      typeId: item.typeId,
+      typeName: this.sdeData.types[item.typeId].name,
     }));
   }
 
@@ -41,8 +41,8 @@ export default class AlwaysBuyItemService {
     );
 
     return result.map(i => ({
-      typeId: i.get().typeId,
-      typeName: this.sdeData.types[i.get().typeId].name,
+      typeId: i.typeId,
+      typeName: this.sdeData.types[i.typeId].name,
     }));
   }
 }
