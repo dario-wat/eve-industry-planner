@@ -1,10 +1,17 @@
-export type MaterialsType = {
-  [typeId: number]: {
-    quantity: number,
-    runs: number,
-    leftover: number,
-  }
-};
+/** 
+ * Represents data for a single material. This can be either a product
+ * that can be built (e.g. Caracal) or a raw materials (e.g. Tritanium).
+ */
+type MaterialsData = {
+  /** Quantity needed to buy. */
+  quantity: number,
+  /** Blueprint runs. */
+  runs: number,
+  /** Leftover after the production. */
+  leftover: number,
+}
+
+export type MaterialsList = ({ typeId: number } & MaterialsData)[];
 
 /**
  * Class for maintaining the number of runs, used materials and leftover
@@ -12,10 +19,11 @@ export type MaterialsType = {
  */
 export class MaterialPlan {
 
-  public materials: MaterialsType;
+  /** typeId -> MaterialsData */
+  private materials: Record<number, MaterialsData>;
 
   constructor(
-    assets: { [typeId: number]: number },   // typeId -> quantity
+    assets: Record<number, number>,   // typeId -> quantity
   ) {
     this.materials = {};
     // Initialize leftover with existing assets
@@ -60,5 +68,12 @@ export class MaterialPlan {
       return stockQuantity;
     }
     return 0;
+  }
+
+  public getMaterialsList(): MaterialsList {
+    return Object.entries(this.materials).map(([typeIdStr, materialsData]) => ({
+      typeId: Number(typeIdStr),
+      ...materialsData,
+    }));
   }
 }

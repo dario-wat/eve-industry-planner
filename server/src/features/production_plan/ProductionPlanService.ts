@@ -91,32 +91,30 @@ export default class ProductionPlanService {
     );
 
     return {
-      blueprintRuns: Object.entries(materialsPlan.materials)
-        .filter(e => e[1].runs > 0)
-        .map(e => ({
-          typeId: Number(e[0]),
-          categoryId: this.sdeData.categoryIdFromTypeId(Number(e[0])),
-          productionCategory: creationUtil.getProductionCategory(
-            Number(e[0]),
-          ),
-          name: this.sdeData.types[Number(e[0])]?.name,
-          blueprintExists: creationUtil.blueprintExists(Number(e[0])),
-          runs: e[1].runs,
-          activeRuns: activeManufacturingRuns(Number(e[0]), industryJobs)
-            + activeReactionRuns(Number(e[0]), industryJobs),
+      blueprintRuns: materialsPlan.getMaterialsList()
+        .filter(material => material.runs > 0)
+        .map(({ typeId, runs }) => ({
+          typeId: typeId,
+          categoryId: this.sdeData.categoryIdFromTypeId(typeId),
+          productionCategory: creationUtil.getProductionCategory(typeId),
+          name: this.sdeData.types[typeId]?.name,
+          blueprintExists: creationUtil.blueprintExists(typeId),
+          runs: runs,
+          activeRuns: activeManufacturingRuns(typeId, industryJobs)
+            + activeReactionRuns(typeId, industryJobs),
           daysToRun: secondsToHours(
-            MAX_TE * e[1].runs
-            * (creationUtil.blueprintManufactureTime(Number(e[0]))
+            MAX_TE * runs
+            * (creationUtil.blueprintManufactureTime(typeId)
               ?? 0)
           ) / HOURS_IN_DAY,
         })),
-      materials: Object.entries(materialsPlan.materials)
-        .filter(e => e[1].runs === 0 && e[1].quantity !== 0)
-        .map(e => ({
-          typeId: Number(e[0]),
-          categoryId: this.sdeData.categoryIdFromTypeId(Number(e[0])),
-          name: this.sdeData.types[Number(e[0])]?.name,
-          quantity: e[1].quantity,
+      materials: materialsPlan.getMaterialsList()
+        .filter(({ runs, quantity }) => runs === 0 && quantity !== 0)
+        .map(({ typeId, quantity }) => ({
+          typeId: typeId,
+          categoryId: this.sdeData.categoryIdFromTypeId(typeId),
+          name: this.sdeData.types[typeId]?.name,
+          quantity: quantity,
         })),
     };
   }
@@ -129,7 +127,7 @@ export default class ProductionPlanService {
    */
   private traverseMaterialTree(
     products: { typeId: number, quantity: number }[],
-    assets: { [typeId: number]: number },
+    assets: Record<number, number>,
   ): MaterialPlan {
     const materialPlan = new MaterialPlan(assets);
     while (products.length > 0) {
