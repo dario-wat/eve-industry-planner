@@ -68,7 +68,6 @@ export default class ProductionPlanService {
 
     return {
       blueprintRuns: materialsPlan.getMaterialsList()
-        .filter(material => material.runs > 0)
         .map(({ typeId, runs }) => ({
           typeId: typeId,
           categoryId: this.sdeData.categoryIdFromTypeId(typeId),
@@ -82,7 +81,8 @@ export default class ProductionPlanService {
             MAX_TE * runs
             * (this.blueprintManufactureTime(typeId) ?? 0)
           ) / HOURS_IN_DAY,
-        })),
+        }))
+        .filter(res => res.activeRuns > 0 || res.runs !== 0),
       materials: materialsPlan.getMaterialsList()
         .filter(({ runs, quantity }) => runs === 0 && quantity !== 0)
         .map(({ typeId, quantity }) => ({
