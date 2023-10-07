@@ -62,6 +62,11 @@ async function init() {
   // Initialize all controllers. 
   Container.get(Controllers).init(app);
 
+  // Catch all errors
+  process.on('unhandledRejection', (reason: string) => {
+    console.error('Unhandled Promise Rejection:', reason);
+  });
+
   app.listen(port, () => {
     console.log(`API server listening on port ${port}`);
   });
