@@ -27,7 +27,9 @@ export class MaterialPlan {
   ) {
     this.materials = {};
     // Initialize leftover with existing assets
-    Object.entries(assets).forEach(a => this.addLeftover(Number(a[0]), a[1]));
+    Object.entries(assets).forEach(([typeId, assetQuantity]) =>
+      this.addLeftover(Number(typeId), assetQuantity)
+    );
   }
 
   public addQuantity(typeId: number, quantity: number): void {

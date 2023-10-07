@@ -7,12 +7,13 @@ import EveSdeData from '../../core/sde/EveSdeData';
 import AssetsService, { mergeAssetQuantities } from '../eve_data/AssetsService';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import { MaterialPlan } from './MaterialPlan';
-import ProductionPlanCreationUtil from './ProductionPlanCreationUtil';
+import ProductionPlanCreationUtil from './ProductionPlanCreationUtilService';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { MANUFACTURING, REACTION } from '../../const/IndustryActivity';
 import { sum } from 'lodash';
+import { AlwaysBuyItem } from 'features/always_buy/AlwaysBuyItem';
 
 // TODO this whole thing needs a big refactor
 
@@ -20,6 +21,14 @@ import { sum } from 'lodash';
 const MIN_ME = 1.0; // For ME = 0
 const MAX_TE = 0.8; // For TE = 20
 const HOURS_IN_DAY = 24;
+
+/** Data required to create a production plan. */
+type ProductionPlanCreationData = {
+  plannedProducts: PlannedProduct[],
+  assets: Record<number, number>,
+  alwaysBuyItems: AlwaysBuyItem[],
+  activeIndustryJobs: EveIndustryJob[],
+};
 
 @Service()
 export default class ProductionPlanService {
@@ -40,26 +49,11 @@ export default class ProductionPlanService {
     actorContext: ActorContext,
     group?: string,
   ): Promise<ProductionPlanRes> {
-    const account = await actorContext.genxAccount();
-    const [plannedProducts, assets, alwaysBuy, industryJobs] =
-      await Promise.all([
-        PlannedProduct.findAll({
-          attributes: ['type_id', 'quantity'],
-          where: group
-            ? { accountId: account.id, group }
-            : { accountId: account.id },
-        }),
-        this.assetService.genAssetsForProductionPlan(actorContext),
-        account.getAlwaysBuyItems(),
-        genQueryFlatResultPerCharacter(
-          actorContext,
-          async character => await this.esiQuery.genxIndustryJobs(character.characterId),
-        ),
-      ]);
+    const ppData = await this.genProductionPlanCreationData(actorContext, group);
 
-    const alwaysBuyTypeIds = alwaysBuy.map(ab => ab.typeId);
+    const alwaysBuyTypeIds = ppData.alwaysBuyItems.map(ab => ab.typeId);
     const plannedProductData = groupBy(
-      plannedProducts.map(pp => ({
+      ppData.plannedProducts.map(pp => ({
         typeId: pp.type_id,
         quantity: pp.quantity,
       })),
@@ -67,13 +61,13 @@ export default class ProductionPlanService {
     );
 
     const indyAssets = Object.fromEntries(
-      industryJobs.map(j => {
+      ppData.activeIndustryJobs.map(j => {
         const bp = this.sdeData.productBlueprintFromTypeId(j.product_type_id);
         return [j.product_type_id, (bp?.quantity ?? 0) * j.runs];
       })
     ) as Record<number, number>;
 
-    const fullAssets = mergeAssetQuantities(indyAssets, assets);
+    const fullAssets = mergeAssetQuantities(indyAssets, ppData.assets);
 
     const materialsPlan = this.traverseMaterialTree(
       plannedProductData['build'] ?? [],
@@ -84,9 +78,9 @@ export default class ProductionPlanService {
     );
 
     const creationUtil = new ProductionPlanCreationUtil(
-      industryJobs,
+      ppData.activeIndustryJobs,
       fullAssets,
-      plannedProducts.map(pp => pp.type_id),
+      ppData.plannedProducts.map(pp => pp.type_id),
       this.sdeData,
     );
 
@@ -100,12 +94,11 @@ export default class ProductionPlanService {
           name: this.sdeData.types[typeId]?.name,
           blueprintExists: creationUtil.blueprintExists(typeId),
           runs: runs,
-          activeRuns: activeManufacturingRuns(typeId, industryJobs)
-            + activeReactionRuns(typeId, industryJobs),
+          activeRuns: activeManufacturingRuns(typeId, ppData.activeIndustryJobs)
+            + activeReactionRuns(typeId, ppData.activeIndustryJobs),
           daysToRun: secondsToHours(
             MAX_TE * runs
-            * (creationUtil.blueprintManufactureTime(typeId)
-              ?? 0)
+            * (creationUtil.blueprintManufactureTime(typeId) ?? 0)
           ) / HOURS_IN_DAY,
         })),
       materials: materialsPlan.getMaterialsList()
@@ -117,6 +110,31 @@ export default class ProductionPlanService {
           quantity: quantity,
         })),
     };
+  }
+
+  /** Queries all the necessary data to create the production plan. */
+  private async genProductionPlanCreationData(
+    actorContext: ActorContext,
+    group?: string,
+  ): Promise<ProductionPlanCreationData> {
+    const account = await actorContext.genxAccount();
+    const [plannedProducts, assets, alwaysBuyItems, activeIndustryJobs] =
+      await Promise.all([
+        PlannedProduct.findAll({
+          attributes: ['type_id', 'quantity'],
+          where: group
+            ? { accountId: account.id, group }
+            : { accountId: account.id },
+        }),
+        this.assetService.genAssetsForProductionPlan(actorContext),
+        account.getAlwaysBuyItems(),
+        genQueryFlatResultPerCharacter(
+          actorContext,
+          character => this.esiQuery.genxIndustryJobs(character.characterId),
+        ),
+      ]);
+
+    return { plannedProducts, assets, alwaysBuyItems, activeIndustryJobs };
   }
 
   /**
@@ -190,7 +208,6 @@ export default class ProductionPlanService {
     return materialPlan;
   }
 }
-
 
 function activeManufacturingRuns(
   typeId: number,
