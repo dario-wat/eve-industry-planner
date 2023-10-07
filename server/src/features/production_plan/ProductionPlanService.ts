@@ -1,5 +1,4 @@
 import { Service } from 'typedi';
-import { groupBy } from 'underscore';
 import { secondsToHours } from 'date-fns';
 import { PlannedProduct } from '../planned_product/PlannedProduct';
 import { ProductionPlanRes } from '@internal/shared';
@@ -50,15 +49,6 @@ export default class ProductionPlanService {
   ): Promise<ProductionPlanRes> {
     const ppData = await this.genProductionPlanCreationData(actorContext, group);
 
-    const alwaysBuyTypeIds = ppData.alwaysBuyItems.map(ab => ab.typeId);
-    const plannedProductData = groupBy(
-      ppData.plannedProducts.map(pp => ({
-        typeId: pp.type_id,
-        quantity: pp.quantity,
-      })),
-      pp => alwaysBuyTypeIds.includes(pp.typeId) ? 'buy' : 'build',
-    );
-
     const indyAssets = Object.fromEntries(
       ppData.activeIndustryJobs.map(j => {
         const bp = this.sdeData.productBlueprintFromTypeId(j.product_type_id);
@@ -69,12 +59,11 @@ export default class ProductionPlanService {
     const fullAssets = mergeAssetQuantities(indyAssets, ppData.assets);
 
     const materialsPlan = this.traverseMaterialTree(
-      plannedProductData['build'] ?? [],
+      ppData.plannedProducts.map(pp => ({
+        typeId: pp.type_id,
+        quantity: pp.quantity,
+      })),
       fullAssets,
-    );
-    // TODO this logic is not quite correct
-    plannedProductData['buy']?.forEach(pp =>
-      materialsPlan.addQuantity(pp.typeId, pp.quantity)
     );
 
     return {

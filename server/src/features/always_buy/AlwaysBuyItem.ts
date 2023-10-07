@@ -1,5 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 
+// TODO this is currently not used and should be reactivated if needed
 /** 
  * List of TypeIDs that will always be forced to buy instead of computing
  * the manufacture tree. Ideally these would be defined through an N-to-N

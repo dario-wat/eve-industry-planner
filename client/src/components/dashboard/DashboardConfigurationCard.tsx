@@ -23,7 +23,7 @@ export default function DashboardConfigurationCard() {
         <Box sx={{ pb: 2 }}>
           <MaterialStationConfig />
         </Box>
-        <AlwaysBuyConfig />
+        {/* <AlwaysBuyConfig /> */}
       </CardContent>
     </Card>
   );
