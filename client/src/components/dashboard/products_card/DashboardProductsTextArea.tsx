@@ -9,13 +9,12 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { first } from 'underscore';
-import { useAppDispatch } from 'redux/hooks';
-import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
 import {
   filterNullOrUndef,
   PlannedProductsRes,
   PlannedProductsWithErrorRes,
 } from '@internal/shared';
+import useProductionPlanState from '../useProductionPlanState';
 
 export default function DashboardProductsTextArea(props: {
   group: string,
@@ -30,7 +29,8 @@ export default function DashboardProductsTextArea(props: {
     [props.plannedProducts],
   );
 
-  const dispatch = useAppDispatch();
+  const { fetchProductionPlan } = useProductionPlanState();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const onButtonClick = async () => {
@@ -55,7 +55,7 @@ export default function DashboardProductsTextArea(props: {
       props.onUpdate();
 
       // Trigger new production plan
-      dispatch(fetchProductionPlan());
+      await fetchProductionPlan();
     }
     setErrors(errors);
     setIsSubmitting(false);

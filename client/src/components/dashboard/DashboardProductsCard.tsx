@@ -12,10 +12,9 @@ import { first, groupBy } from 'underscore';
 import useAxios from 'axios-hooks';
 import { useState } from 'react';
 import { PlannedProductsRes } from '@internal/shared';
-import { useAppDispatch } from 'redux/hooks';
-import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
 import DashboardProductsTextArea from './products_card/DashboardProductsTextArea';
 import DashboardProducts from './products_card/DashboardProducts';
+import useProductionPlanState from './useProductionPlanState';
 
 const ADD_TAB = 'add_tab';
 
@@ -32,10 +31,11 @@ export default function DashboardProductsCard() {
     [productGroups],
   );
 
-  const dispatch = useAppDispatch();
+  const { fetchProductionPlan } = useProductionPlanState();
+
   const onChange = () => {
     refetch();
-    dispatch(fetchProductionPlan());
+    fetchProductionPlan();
   };
 
   return (

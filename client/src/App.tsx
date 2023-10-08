@@ -1,11 +1,10 @@
 import useAxios from 'axios-hooks';
-import { Provider } from 'react-redux';
 import HomePage from 'components/homepage/HomePage';
 import { defaultUserContextValue, UserContext } from 'contexts/UserContext';
-import store from 'redux/store';
 import { EveLoggedInUserRes } from '@internal/shared';
 import { Box, CircularProgress, Toolbar } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
+import { RecoilRoot } from 'recoil';
 
 function App() {
   const [{ data, loading }] = useAxios<EveLoggedInUserRes>('/logged_in_user');
@@ -17,7 +16,7 @@ function App() {
     : defaultUserContextValue;
 
   return (
-    <Provider store={store}>
+    <RecoilRoot>
       <UserContext.Provider value={userContext}>
         <BrowserRouter>
           {loading
@@ -37,7 +36,7 @@ function App() {
             <HomePage />}
         </BrowserRouter>
       </UserContext.Provider>
-    </Provider>
+    </RecoilRoot>
   );
 }
 

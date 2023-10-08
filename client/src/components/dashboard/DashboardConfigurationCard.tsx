@@ -94,7 +94,7 @@ function MaterialStationConfig() {
 }
 
 function AlwaysBuyConfig() {
-  // TODO refresh production plan, possibly use isolated as redux
+  // TODO refresh production plan, possibly use isolated as recoil
   const [{
     data: typesData,
     loading: loadingTypes,

@@ -5,10 +5,9 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { PlannedProductsRes } from '@internal/shared';
-import { useAppDispatch } from 'redux/hooks';
-import { fetchProductionPlan } from 'redux/slices/productionPlanSlice';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 import DashboardProductsDataGrid from './DashboardProductsDataGrid';
+import useProductionPlanState from '../useProductionPlanState';
 
 export default function DashboardProducts(props: {
   group: string,
@@ -37,22 +36,24 @@ export default function DashboardProducts(props: {
     }
   };
 
-  const dispatch = useAppDispatch();
+  const { fetchProductionPlan } = useProductionPlanState();
+
   const onProductChange = async () => {
     const { data } = await axios.get<PlannedProductsRes>(
       `/planned_products_group/${props.group}`,
     );
     setPlannedProducts(data);
-    dispatch(fetchProductionPlan());
+    await fetchProductionPlan();
   };
 
   useEffect(
     () => {
       isIsolated
-        ? dispatch(fetchProductionPlan(props.group))
-        : dispatch(fetchProductionPlan());
+        ? fetchProductionPlan(props.group)
+        : fetchProductionPlan();
     },
-    [isIsolated, dispatch, props.group],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isIsolated, props.group],
   );
 
   return (

@@ -15,8 +15,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ProductionPlanRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
-import { fetchProductionPlan, selectProductionPlan } from 'redux/slices/productionPlanSlice';
-import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import useProductionPlanState from './useProductionPlanState';
 
 enum SelectedTab {
   RUNS = 'RUNS',
@@ -24,11 +23,14 @@ enum SelectedTab {
 };
 
 export default function DashboardProductionPlanCard() {
-  const data = useAppSelector(selectProductionPlan);
-  const dispatch = useAppDispatch();
+  const { productionPlan, fetchProductionPlan } = useProductionPlanState();
+
   useEffect(
-    () => { dispatch(fetchProductionPlan()); },
-    [dispatch],
+    () => {
+      fetchProductionPlan();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   const [selectedTab, setSelectedTab] = useState(SelectedTab.RUNS);
@@ -38,7 +40,7 @@ export default function DashboardProductionPlanCard() {
     setRefreshingAssets(true);
     const { status } = await axios.delete('/clear_assets_cache');
     if (status === 200) {
-      await dispatch(fetchProductionPlan());
+      await fetchProductionPlan();
     }
     setRefreshingAssets(false);
   };
@@ -70,8 +72,14 @@ export default function DashboardProductionPlanCard() {
           </LoadingButton>
         </Box>
         {selectedTab === SelectedTab.MATERIALS
-          ? <MaterialsTab data={data.value} loading={data.loading} />
-          : <BlueprintRunsTab data={data.value} loading={data.loading} />
+          ? <MaterialsTab
+            data={productionPlan.value}
+            loading={productionPlan.loading}
+          />
+          : <BlueprintRunsTab
+            data={productionPlan.value}
+            loading={productionPlan.loading}
+          />
         }
       </CardContent>
     </Card >
