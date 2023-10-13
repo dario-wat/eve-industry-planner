@@ -11,7 +11,7 @@
 */
 import 'reflect-metadata';
 
-import { parse } from 'yaml';
+import yaml from 'js-yaml';
 import fs from 'fs';
 import Container from 'typedi';
 import { Sequelize } from 'sequelize';
@@ -21,6 +21,8 @@ import { IconID } from '../core/sde/models/IconID';
 import { TypeID } from '../core/sde/models/TypeID';
 import { CategoryID } from '../core/sde/models/CategoryID';
 import { Station } from '../core/sde/models/Station';
+import { InvItem } from '../core/sde/models/InvItem';
+import { InvUniqueName } from '../core/sde/models/InvUniqueName';
 import {
   Blueprint,
   BpCopyingMaterials,
@@ -58,8 +60,9 @@ async function loadDataToDatabase<MS extends ModelStatic<Model>>(
   }
 
   LOG && LOG('[Script] Parsing YAML');
-  const result = parse(cleanedUpInput ?? fileContent);
+  const result: any = yaml.load(cleanedUpInput ?? fileContent);
 
+  LOG && LOG('[Script] Transforming YAML');
   const records = Object.entries(result).map(transformFn);
   LOG && LOG('[Script] Storing into the database');
   await model.bulkCreate(records, { logging: SEQUELIZE_LOG });
@@ -109,7 +112,7 @@ async function loadBlueprintData() {
   const fileContent = fs.readFileSync(fileName, 'utf8');
 
   LOG && LOG('[Script] Parsing YAML');
-  const result = parse(fileContent);
+  const result: any = yaml.load(fileContent);
 
   const records = Object.entries(result).map(extractBlueprintData);
 
@@ -201,6 +204,24 @@ async function run() {
       name: value.stationName,
     }),
     Station,
+  );
+
+  await loadDataToDatabase(
+    'sde/bsd/invItems.yaml',
+    ([_key, value]: [string, any]) => ({
+      item_id: value.itemID,
+      type_id: value.typeID,
+    }),
+    InvItem,
+  );
+
+  await loadDataToDatabase(
+    'sde/bsd/invUniqueNames.yaml',
+    ([_key, value]: [string, any]) => ({
+      item_id: value.itemID,
+      item_name: value.itemName,
+    }),
+    InvUniqueName,
   );
 
   await loadBlueprintData();
