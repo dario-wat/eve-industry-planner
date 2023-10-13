@@ -12,6 +12,8 @@ import {
   BpReactionProducts,
 } from './models/Blueprint';
 import { CategoryID } from './models/CategoryID';
+import { InvItem } from './models/InvItem';
+import { InvUniqueName } from './models/InvUniqueName';
 
 export type EveSdeType = {
   id: number,
@@ -52,6 +54,16 @@ export type EveSdeBlueprint = {
   reaction_time: number,
 }
 
+export type EveSdeInvItem = {
+  item_id: number,
+  type_id: number,
+}
+
+export type EveSdeInvUniqueName = {
+  item_id: number,
+  item_name: string,
+}
+
 /**
  * SDE (Static Data Export) is a collection of data that is static in the
  * EVE universe (e.g. blueprints, stations, types, ...). This data is not
@@ -82,6 +94,9 @@ export default class EveSdeData {
     public readonly bpReactionProductsByProduct:
       { [type_id: number]: EveSdeBlueprintMaterial },
     public readonly blueprints: { [blueprint_id: number]: EveSdeBlueprint },
+    public readonly invItem: { [item_id: number]: EveSdeInvItem },
+    public readonly invItemByTypeId: { [type_id: number]: EveSdeInvItem[] },
+    public readonly invUniqueName: { [item_id: number]: EveSdeInvUniqueName },
   ) { }
 
   public categoryIdFromTypeId(typeId: number): number | undefined {
@@ -119,6 +134,13 @@ export default class EveSdeData {
       : undefined;
   }
 
+  public regions(): EveSdeInvUniqueName[] {
+    const regionTypeId = 3;
+    return this.invItemByTypeId[regionTypeId].map(item =>
+      this.invUniqueName[item.item_id]
+    );
+  }
+
   /** Loads SDE from MySQL into memory. */
   public static async init(): Promise<EveSdeData> {
     if (this.initialized) {
@@ -135,6 +157,8 @@ export default class EveSdeData {
       bpReactionMaterialsData,
       bpReactionProductsData,
       blueprintData,
+      invItemData,
+      invUniqueNameData,
     ] =
       await Promise.all([
         TypeID.findAll(),
@@ -146,6 +170,8 @@ export default class EveSdeData {
         BpReactionMaterials.findAll(),
         BpReactionProducts.findAll(),
         Blueprint.findAll(),
+        InvItem.findAll(),
+        InvUniqueName.findAll(),
       ]);
 
     return new EveSdeData(
@@ -159,6 +185,9 @@ export default class EveSdeData {
       mapifyMultiSequelize(bpReactionMaterialsData, 'blueprint_id'),
       mapifySequelize(bpReactionProductsData, 'type_id'),
       mapifySequelize(blueprintData, 'id'),
+      mapifySequelize(invItemData, 'item_id'),
+      mapifyMultiSequelize(invItemData, 'type_id'),
+      mapifySequelize(invUniqueNameData, 'item_id'),
     );
   }
 }
