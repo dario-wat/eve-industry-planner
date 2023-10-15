@@ -20,9 +20,17 @@ export default class MarketService {
   public async genMarketOrdersForPage(
     actorContext: ActorContext,
   ): Promise<MarketOrdersRes> {
+    // TODO continue here
+    // const main = await actorContext.genxMainCharacter();
+    // const orderssss = await this.esiQuery.genxRegionMarketOrders(
+    //   main.characterId,
+    //   10000016,
+    // );
+    // console.log(orderssss)
+
     const orders = await genQueryFlatPerCharacter(
       actorContext,
-      async character => await this.esiQuery.genxMarketOrders(character.characterId),
+      character => this.esiQuery.genxCharacterMarketOrders(character.characterId),
     );
 
     const stationNames = await this.eveQuery.genAllStationNames(

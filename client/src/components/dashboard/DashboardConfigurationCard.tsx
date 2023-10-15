@@ -93,6 +93,7 @@ function MaterialStationConfig() {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function AlwaysBuyConfig() {
   // TODO refresh production plan, possibly use isolated as recoil
   const [{

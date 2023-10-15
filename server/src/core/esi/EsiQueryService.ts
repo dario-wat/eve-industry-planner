@@ -6,6 +6,7 @@ import {
   EveContract,
   EveIndustryJob,
   EveMarketOrder,
+  EveMarketOrderType,
   EveName,
   EvePortrait,
   EveStructure,
@@ -368,7 +369,7 @@ export default class EsiQueryService {
       volume_total: 6
     }
   */
-  public async genxMarketOrders(
+  public async genxCharacterMarketOrders(
     token: Token,
     characterId: number,
   ): Promise<EveMarketOrder[]> {
@@ -381,11 +382,59 @@ export default class EsiQueryService {
     return await response.json();
   }
 
-  public async genMarketOrders(
+  public async genCharacterMarketOrders(
     token: Token,
     characterId: number,
   ): Promise<EveMarketOrder[] | null> {
-    return await this.genxMarketOrders(token, characterId)
+    return await this.genxCharacterMarketOrders(token, characterId)
+      .catch(logEsiErrorAndReturnNull);
+  }
+
+  /*
+    Example object:
+    {
+      duration: 365,
+      is_buy_order: false,
+      issued: '2023-08-21T11:07:47Z',
+      location_id: 60002392,
+      min_volume: 1,
+      order_id: 4992795078,
+      price: 10000000,
+      range: 'region',
+      system_id: 30001397,
+      type_id: 46198,
+      volume_remain: 20,
+      volume_total: 20
+    }
+   */
+  public async genxRegionMarketOrders(
+    token: Token,
+    regionId: number,
+    typeId: number,
+    orderType: EveMarketOrderType = 'all',
+    page: number = 1,
+  ): Promise<EveMarketOrder[]> {
+    const response = await this.esi.request(
+      `/markets/${regionId}/orders/`,
+      {
+        type_id: typeId,
+        page,
+        order_type: orderType
+      },
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  public async genRegionMarketOrders(
+    token: Token,
+    regionId: number,
+    typeId: number,
+    orderType: EveMarketOrderType = 'all',
+    page: number = 1,
+  ): Promise<EveMarketOrder[] | null> {
+    return await this.genxRegionMarketOrders(token, regionId, typeId, orderType, page)
       .catch(logEsiErrorAndReturnNull);
   }
 }

@@ -4,6 +4,7 @@ import {
   EveContract,
   EveIndustryJob,
   EveMarketOrder,
+  EveMarketOrderType,
   EveName,
   EvePortrait,
   EveStructure,
@@ -81,10 +82,27 @@ export default class EsiTokenlessQueryService {
     return await this.esiQuery.genxWalletTransactions(token, characterId);
   }
 
-  public async genxMarketOrders(
+  public async genxCharacterMarketOrders(
     characterId: number,
   ): Promise<EveMarketOrder[]> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genxMarketOrders(token, characterId);
+    return await this.esiQuery.genxCharacterMarketOrders(token, characterId);
+  }
+
+  public async genxRegionMarketOrders(
+    characterId: number,
+    regionId: number,
+    typeId: number,
+    orderType: EveMarketOrderType = 'all',
+    page: number = 1,
+  ): Promise<EveMarketOrder[]> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
+    return await this.esiQuery.genxRegionMarketOrders(
+      token,
+      regionId,
+      typeId,
+      orderType,
+      page,
+    );
   }
 }
