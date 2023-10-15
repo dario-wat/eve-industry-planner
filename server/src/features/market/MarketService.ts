@@ -17,7 +17,7 @@ export default class MarketService {
   ) { }
 
   /** Returns all data needed for the Market Orders page. */
-  public async genMarketOrdersForPage(
+  public async genMarketOrdersForAccount(
     actorContext: ActorContext,
   ): Promise<MarketOrdersRes> {
     // TODO continue here
