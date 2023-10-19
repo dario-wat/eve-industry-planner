@@ -202,6 +202,7 @@ async function run() {
     ([_key, value]: [string, any]) => ({
       id: value.stationID,
       name: value.stationName,
+      region_id: value.regionID,
     }),
     Station,
   );

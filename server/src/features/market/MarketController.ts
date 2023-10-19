@@ -24,5 +24,10 @@ export default class MarketController extends Controller {
         res.json(output);
       },
     );
+
+    // TODO finish
+    // this.appGet(
+    //   '/market_orders_region',
+    // );
   }
 }

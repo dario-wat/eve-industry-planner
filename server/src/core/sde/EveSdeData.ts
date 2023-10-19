@@ -36,6 +36,7 @@ export type EveSdeCategory = {
 export type EveSdeStation = {
   id: number,
   name: string,
+  region_id: number,
 }
 
 export type EveSdeBlueprintMaterial = {
@@ -132,13 +133,6 @@ export default class EveSdeData {
     return blueprintId !== undefined
       ? this.blueprints[blueprintId]
       : undefined;
-  }
-
-  public regions(): EveSdeInvUniqueName[] {
-    const regionTypeId = 3;
-    return this.invItemByTypeId[regionTypeId].map(item =>
-      this.invUniqueName[item.item_id]
-    );
   }
 
   /** Loads SDE from MySQL into memory. */

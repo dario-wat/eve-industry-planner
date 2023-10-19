@@ -14,6 +14,7 @@ export const stationModelDefine = (sequelize: Sequelize) => Station.init(
       primaryKey: true,
     },
     name: DataTypes.STRING,
+    region_id: DataTypes.INTEGER,
   },
   {
     sequelize,
