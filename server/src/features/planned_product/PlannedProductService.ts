@@ -9,9 +9,7 @@ import AssetsService from '../eve_data/AssetsService';
 import { MANUFACTURING } from '../../const/IndustryActivity';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
-
-/** Single parsed line in the planned product text. */
-type ParsedLine = { name: string, quantity: number | null };
+import ItemQuantitiesParserService from '../../features/item_quantities/ItemQuantitiesParserService';
 
 @Service()
 export default class PlannedProductService {
@@ -20,6 +18,7 @@ export default class PlannedProductService {
     private readonly sdeData: EveSdeData,
     private readonly assetService: AssetsService,
     private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly itemQuantitiesParser: ItemQuantitiesParserService,
   ) { }
 
   /** Queries all planned products for the given ActorContext. */
@@ -56,8 +55,9 @@ export default class PlannedProductService {
     if (group === '') {
       throw Error('Planned product group name cannot be empty');
     }
-    const lines = PlannedProductService.parseInput(content);
-    const errors = this.validateParsedInput(lines);
+
+    const { itemQuantities, errors } =
+      this.itemQuantitiesParser.parseItemQuantities(content);
     if (errors.length !== 0) {
       return errors;
     }
@@ -74,7 +74,7 @@ export default class PlannedProductService {
 
     // Recreate new data
     const result = await PlannedProduct.bulkCreate(
-      lines.map(l => ({
+      itemQuantities.map(l => ({
         accountId: account.id,
         group,
         type_id: this.sdeData.typeByName[l.name].id,
@@ -83,51 +83,6 @@ export default class PlannedProductService {
     );
 
     return await this.genProductsForResponse(actorContext, result);
-  }
-
-  /** 
-   * Takes in an array of parsed lines and validates each line. Checks for
-   * errors and returns an array of errors if there are any.
-   */
-  private validateParsedInput(
-    lines: ParsedLine[],
-  ): { name: string, error: string }[] {
-    const getError = (line: ParsedLine) =>
-      this.sdeData.typeByName[line.name] === undefined
-        ? `Product with name '${line.name}' doesn't exist`
-        : line.quantity === null || Number.isNaN(line.quantity)
-          ? `Incorrect format '${line.name}'`
-          : null;
-    return lines.map(l => ({ name: l.name, error: getError(l) }))
-      .filter(l => l.error)
-      .map(l => ({ name: l.name, error: l.error! })); // typescript happy
-  }
-
-  /**
-   * Parses the input that the user puts into the text area. Each line should
-   * be a separate item with the name and quantity.
-   * Ignores empty lines and trims excess whitespace.
-   */
-  private static parseInput(content: string): ParsedLine[] {
-    return content
-      .split(/\r?\n/)
-      .map(l => l.trim())
-      .filter(l => l !== '')
-      .map(l => {
-        const words = l.replace(/\s\s+/g, ' ').replace('\t', ' ').split(' ');
-        if (words.length == 1) {  // can't be 0 because that's filtered
-          return { name: l, quantity: null };
-        }
-
-        const quantity = Number(words[words.length - 1]);
-        if (Number.isNaN(quantity)) {
-          return { name: l, quantity: null };
-        }
-        return {
-          name: words.slice(0, words.length - 1).join(' '),
-          quantity: quantity,
-        };
-      });
   }
 
   /*
