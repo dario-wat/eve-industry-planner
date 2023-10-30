@@ -1,14 +1,13 @@
 import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
-import { hoursToSeconds } from 'date-fns';
 import { combineMapsWithNulls, mapify } from '../../lib/util';
 import { EveAsset, EveName } from '../../types/EsiQuery';
 import EveSdeData from '../sde/EveSdeData';
-import { EsiCacheItem, genQueryEsiCache } from '../esi_cache/EsiCacheAction';
 import { filterNullOrUndef } from '@internal/shared';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import ActorContext from '../../core/actor_context/ActorContext';
+import EsiCacheDefService from '../../core/esi_cache/EsiCacheDefService';
 
 /** More complex EVE queries built on top of the ESI query services. */
 @Service()
@@ -17,6 +16,7 @@ export default class EveQueryService {
   constructor(
     private readonly esiQuery: EsiTokenlessQueryService,
     private readonly sdeData: EveSdeData,
+    private readonly esiCacheDef: EsiCacheDefService,
   ) { }
 
   /**
@@ -34,18 +34,8 @@ export default class EveQueryService {
       return sdeStation.name;
     }
 
-    return await genQueryEsiCache(
-      stationId.toString(),
-      EsiCacheItem.STRUCTURE,
-      hoursToSeconds(24),
-      async () => {
-        const structure = await this.esiQuery.genStructure(
-          character.characterId,
-          stationId,
-        );
-        return structure?.name ?? null;
-      },
-    );
+    const structure = await this.esiCacheDef.genStructure(character, stationId);
+    return structure?.name ?? null;
   }
 
   /** 
