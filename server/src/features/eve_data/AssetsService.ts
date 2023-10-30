@@ -10,7 +10,6 @@ import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { groupBy, mapValues, mergeWith, sum } from 'lodash';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
-import EsiCacheDefService from '../../core/esi_cache/EsiCacheDefService';
 
 /** Data returned by the flatAsset function. */
 type AssetsData = {
@@ -38,7 +37,6 @@ export default class AssetsService {
   constructor(
     private readonly eveQuery: EveQueryService,
     private readonly sdeData: EveSdeData,
-    private readonly esiCacheDef: EsiCacheDefService,
   ) { }
 
   /**
@@ -49,7 +47,7 @@ export default class AssetsService {
    * containers will appear as if it is on top level.
    */
   private async genFlatAssets(character: EsiCharacter): Promise<AssetsData> {
-    const assets = await this.esiCacheDef.genAssets(character) ?? [];
+    const assets = await this.eveQuery.genAllAssets(character) ?? [];
     const assetMap = mapify(assets, 'item_id');
     const assetsWithParent: AssetWithParent[] = assets.map(asset => ({
       self: asset,

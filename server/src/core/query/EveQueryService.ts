@@ -1,13 +1,14 @@
 import { Service } from 'typedi';
 import { chunk, range, uniq, zip } from 'underscore'
 import { combineMapsWithNulls, mapify } from '../../lib/util';
-import { EveAsset, EveName } from '../../types/EsiQuery';
+import { EveAsset, EveName, EveStructure } from '../../types/EsiQuery';
 import EveSdeData from '../sde/EveSdeData';
 import { filterNullOrUndef } from '@internal/shared';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import ActorContext from '../../core/actor_context/ActorContext';
-import EsiCacheDefService from '../../core/esi_cache/EsiCacheDefService';
+import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
+import { hoursToSeconds } from 'date-fns';
 
 /** More complex EVE queries built on top of the ESI query services. */
 @Service()
@@ -16,7 +17,6 @@ export default class EveQueryService {
   constructor(
     private readonly esiQuery: EsiTokenlessQueryService,
     private readonly sdeData: EveSdeData,
-    private readonly esiCacheDef: EsiCacheDefService,
   ) { }
 
   /**
@@ -34,7 +34,7 @@ export default class EveQueryService {
       return sdeStation.name;
     }
 
-    const structure = await this.esiCacheDef.genStructure(character, stationId);
+    const structure = await this.genStructureCached(character, stationId);
     return structure?.name ?? null;
   }
 
@@ -68,6 +68,34 @@ export default class EveQueryService {
     return combineMapsWithNulls(stationNamesList);
   }
 
+  /** Cached version of genStructure */
+  private async genStructureCached(
+    character: EsiCharacter,
+    stationId: number,
+  ): Promise<EveStructure | null> {
+    return await genQueryEsiCache(
+      stationId.toString(),
+      EsiCacheItem.STRUCTURE,
+      hoursToSeconds(24),
+      async () => await this.esiQuery.genStructure(
+        character.characterId,
+        stationId,
+      ),
+    );
+  }
+
+  /** Queries all assets for the given user and caches the result. */
+  public async genAllAssets(
+    character: EsiCharacter,
+  ): Promise<EveAsset[] | null> {
+    return await genQueryEsiCache(
+      character.characterId.toString(),
+      EsiCacheItem.ASSETS,
+      hoursToSeconds(1),
+      async () => await this.genAllAssetsInternal(character),
+    );
+  }
+
   // TODO this can throw exceptions
   /* 
     Similar to genxAssets and genAssets, but instead it will look for multiple
@@ -75,7 +103,7 @@ export default class EveQueryService {
     This function does multiple requests.
     Returns the same type as genAssets.
   */
-  public async genAllAssets(character: EsiCharacter): Promise<EveAsset[]> {
+  private async genAllAssetsInternal(character: EsiCharacter): Promise<EveAsset[]> {
     const pageCount = 5;
     const allAssets = await Promise.all(
       range(1, pageCount + 1).map(
