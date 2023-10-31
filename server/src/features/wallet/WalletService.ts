@@ -6,6 +6,7 @@ import EveQueryService from '../../core/query/EveQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
+import StationService from '../../core/query/StationService';
 
 @Service()
 export default class WalletService {
@@ -14,6 +15,7 @@ export default class WalletService {
     private readonly eveQuery: EveQueryService,
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly stationService: StationService,
   ) { }
 
   /** Wallet transactions data for Market page. */
@@ -27,7 +29,7 @@ export default class WalletService {
       character => character.getWalletTransactions(),
     );
 
-    const stationNames = await this.eveQuery.genAllStationNames(
+    const stationNames = await this.stationService.genAllStationNames(
       actorContext,
       transactions.map(([_, t]) => t.location_id),
     );

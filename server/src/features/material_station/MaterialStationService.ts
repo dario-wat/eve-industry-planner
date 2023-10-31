@@ -3,12 +3,14 @@ import { MaterialStationsRes } from '@internal/shared';
 import { MaterialStation } from './MaterialStation';
 import EveQueryService from '../../core/query/EveQueryService';
 import ActorContext from '../../core/actor_context/ActorContext';
+import StationService from '../../core/query/StationService';
 
 @Service()
 export default class MaterialStationUtil {
 
   constructor(
     private readonly eveQuery: EveQueryService,
+    private readonly stationService: StationService,
   ) { }
 
   /** Queries all material stations related to logged in account. */
@@ -51,7 +53,7 @@ export default class MaterialStationUtil {
     actorContext: ActorContext,
     materialStations: MaterialStation[],
   ): Promise<MaterialStationsRes> {
-    const stations = await this.eveQuery.genAllStationNames(
+    const stations = await this.stationService.genAllStationNames(
       actorContext,
       materialStations.map(station => station.station_id),
     );

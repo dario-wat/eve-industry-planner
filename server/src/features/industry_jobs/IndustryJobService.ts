@@ -12,6 +12,7 @@ import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 import { IndustryJob } from './IndustryJob';
 import { groupBy } from 'underscore';
 import { entries, mapValues, sum } from 'lodash';
+import StationService from '../../core/query/StationService';
 
 @Service()
 export default class IndustryJobService {
@@ -20,6 +21,7 @@ export default class IndustryJobService {
     private readonly eveQuery: EveQueryService,
     private readonly esiQuery: EsiTokenlessQueryService,
     private readonly sdeData: EveSdeData,
+    private readonly stationService: StationService,
   ) { }
 
   /** Data for the Industry Jobs page. */
@@ -62,7 +64,7 @@ export default class IndustryJobService {
       ),
     );
 
-    const stationName = await this.eveQuery.genStationName(
+    const stationName = await this.stationService.genStationName(
       character,
       industryJob.station_id,
     );

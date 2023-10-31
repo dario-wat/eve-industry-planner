@@ -10,6 +10,7 @@ import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { groupBy, mapValues, mergeWith, sum } from 'lodash';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
+import StationService from '../../core/query/StationService';
 
 /** Data returned by the flatAsset function. */
 type AssetsData = {
@@ -37,6 +38,7 @@ export default class AssetsService {
   constructor(
     private readonly eveQuery: EveQueryService,
     private readonly sdeData: EveSdeData,
+    private readonly stationService: StationService,
   ) { }
 
   /**
@@ -69,7 +71,7 @@ export default class AssetsService {
       .filter(o => o.parent === null)
       .map(o => o.self.location_id),
     );
-    const stationNames = await this.eveQuery.genAllStationNamesForCharacter(
+    const stationNames = await this.stationService.genAllStationNamesForCharacter(
       character,
       rootLocationIds,
     );

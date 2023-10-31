@@ -5,6 +5,7 @@ import EveQueryService from '../../core/query/EveQueryService';
 import { MarketOrdersRes } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
+import StationService from '../../core/query/StationService';
 
 
 @Service()
@@ -14,6 +15,7 @@ export default class MarketService {
     private readonly eveQuery: EveQueryService,
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly stationService: StationService,
   ) { }
 
   /** Returns all data needed for the Market Orders page. */
@@ -33,7 +35,7 @@ export default class MarketService {
       character => this.esiQuery.genxCharacterMarketOrders(character.characterId),
     );
 
-    const stationNames = await this.eveQuery.genAllStationNames(
+    const stationNames = await this.stationService.genAllStationNames(
       actorContext,
       orders.map(([_, o]) => o.location_id),
     );
