@@ -212,6 +212,7 @@ async function run() {
     ([_key, value]: [string, any]) => ({
       item_id: value.itemID,
       type_id: value.typeID,
+      location_id: value.locationID,
     }),
     InvItem,
   );

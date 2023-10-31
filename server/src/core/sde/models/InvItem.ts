@@ -13,7 +13,8 @@ export const invItemModelDefine = (sequelize: Sequelize) => InvItem.init(
       type: DataTypes.INTEGER,
       primaryKey: true
     },
-    type_id: DataTypes.INTEGER
+    type_id: DataTypes.INTEGER,
+    location_id: DataTypes.INTEGER,
   },
   {
     sequelize,

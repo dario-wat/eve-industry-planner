@@ -15,6 +15,8 @@ import { CategoryID } from './models/CategoryID';
 import { InvItem } from './models/InvItem';
 import { InvUniqueName } from './models/InvUniqueName';
 
+const SOLAR_SYSTEM_TYPE_ID = 5;
+
 export type EveSdeType = {
   id: number,
   name: string,
@@ -58,6 +60,7 @@ export type EveSdeBlueprint = {
 export type EveSdeInvItem = {
   item_id: number,
   type_id: number,
+  location_id: number,
 }
 
 export type EveSdeInvUniqueName = {
@@ -133,6 +136,20 @@ export default class EveSdeData {
     return blueprintId !== undefined
       ? this.blueprints[blueprintId]
       : undefined;
+  }
+
+  /**
+   * Finds region ID for the given solar system ID.
+   * Throws if the input ID is not a solar system ID.
+   * E.g. solar system ID: 30003699
+   */
+  public solarSystemToRegion(solarSystemId: number): number {
+    const solarSystem = this.invItem[solarSystemId];
+    if (solarSystem?.type_id !== SOLAR_SYSTEM_TYPE_ID) {
+      throw Error('Input ID should be a solar system ID');
+    }
+    const constellation = this.invItem[solarSystem.location_id];
+    return constellation.location_id;
   }
 
   /** Loads SDE from MySQL into memory. */
