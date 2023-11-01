@@ -15,6 +15,11 @@ import {
 import EsiProviderService from './EsiProviderService';
 import { AppLog } from '../logger/AppLog';
 
+export type MultiPageResult<T> = {
+  data: T[],
+  pages: number,
+};
+
 /*
 * This is a library of ESI (EVE Swagger Interface) queries.
 * All functions simply query ESI and return JSON so the whole library
@@ -149,21 +154,24 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     page: number = 1,
-  ): Promise<EveAsset[]> {
+  ): Promise<MultiPageResult<EveAsset>> {
     const response = await this.esi.request(
       `/characters/${characterId}/assets/`,
       { page },
       undefined,
       { token },
     );
-    return await response.json();
+    return {
+      data: await response.json(),
+      pages: Number(response.headers['x-pages']),
+    };
   }
 
   public async genAssets(
     token: Token,
     characterId: number,
     page: number = 1,
-  ): Promise<EveAsset[] | null> {
+  ): Promise<MultiPageResult<EveAsset> | null> {
     return await this.genxAssets(token, characterId, page)
       .catch(logEsiErrorAndReturnNull);
   }

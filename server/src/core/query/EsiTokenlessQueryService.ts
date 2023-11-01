@@ -11,7 +11,7 @@ import {
   EveWalletTransaction,
 } from '../../types/EsiQuery';
 import EsiSequelizeProvider from '../esi/EsiSequelizeProvider';
-import EsiQueryService from '../esi/EsiQueryService';
+import EsiQueryService, { MultiPageResult } from '../esi/EsiQueryService';
 
 /**
  * This is a token-agnostic version of ESI queries. Instead of fetching
@@ -59,12 +59,12 @@ export default class EsiTokenlessQueryService {
     return await this.esiQuery.genxNames(token, ids);
   }
 
-  public async genAssets(
+  public async genxAssets(
     characterId: number,
     page: number = 1,
-  ): Promise<EveAsset[] | null> {
+  ): Promise<MultiPageResult<EveAsset>> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genAssets(token, characterId, page);
+    return await this.esiQuery.genxAssets(token, characterId, page);
   }
 
   public async genStructure(
