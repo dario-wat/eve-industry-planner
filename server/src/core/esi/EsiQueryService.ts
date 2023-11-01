@@ -15,7 +15,7 @@ import {
 import EsiProviderService from './EsiProviderService';
 import { AppLog } from '../logger/AppLog';
 
-export type MultiPageResult<T> = {
+export type EsiMultiPageResult<T> = {
   data: T[],
   pages: number,
 };
@@ -122,7 +122,7 @@ export default class EsiQueryService {
     @param page
       We can't query all assets a once, we need to query the specific
       page of results.
-    So this function itself is not that useful. Check out genAllAssets.
+    So this function itself is not that useful. Check out genxAllAssets.
     
     Assets example object
     {
@@ -154,7 +154,7 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     page: number = 1,
-  ): Promise<MultiPageResult<EveAsset>> {
+  ): Promise<EsiMultiPageResult<EveAsset>> {
     const response = await this.esi.request(
       `/characters/${characterId}/assets/`,
       { page },
@@ -171,7 +171,7 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     page: number = 1,
-  ): Promise<MultiPageResult<EveAsset> | null> {
+  ): Promise<EsiMultiPageResult<EveAsset> | null> {
     return await this.genxAssets(token, characterId, page)
       .catch(logEsiErrorAndReturnNull);
   }
@@ -244,7 +244,7 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     page: number = 1,
-  ): Promise<MultiPageResult<EveContract>> {
+  ): Promise<EsiMultiPageResult<EveContract>> {
     const response = await this.esi.request(
       `/characters/${characterId}/contracts/`,
       { page },
@@ -261,7 +261,7 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     page: number = 1,
-  ): Promise<MultiPageResult<EveContract> | null> {
+  ): Promise<EsiMultiPageResult<EveContract> | null> {
     return await this.genxContracts(token, characterId, page)
       .catch(logEsiErrorAndReturnNull);
   }

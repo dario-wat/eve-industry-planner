@@ -3,14 +3,14 @@ import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { Service } from 'typedi';
 import { range } from 'lodash';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
-import { MultiPageResult } from '../../core/esi/EsiQueryService';
+import { EsiMultiPageResult } from '../../core/esi/EsiQueryService';
 
 /**
  * Utility function that handles multi page ESI queries.
  * It will make sure that all pages are queried and full result returned.
  */
 async function genMultiPageData<T>(
-  genQuery: (page: number) => Promise<MultiPageResult<T>>,
+  genQuery: (page: number) => Promise<EsiMultiPageResult<T>>,
 ): Promise<T[]> {
   const firstPageResult = await genQuery(1);
   const remainingResult = await Promise.all(
