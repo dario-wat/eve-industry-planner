@@ -424,7 +424,7 @@ export default class EsiQueryService {
     typeId: number,
     orderType: EveMarketOrderType = 'all',
     page: number = 1,
-  ): Promise<EveMarketOrder[]> {
+  ): Promise<EsiMultiPageResult<EveMarketOrder>> {
     const response = await this.esi.request(
       `/markets/${regionId}/orders/`,
       {
@@ -435,7 +435,10 @@ export default class EsiQueryService {
       undefined,
       { token },
     );
-    return await response.json();
+    return {
+      data: await response.json(),
+      pages: Number(response.headers['x-pages']),
+    };
   }
 
   public async genRegionMarketOrders(
@@ -444,7 +447,7 @@ export default class EsiQueryService {
     typeId: number,
     orderType: EveMarketOrderType = 'all',
     page: number = 1,
-  ): Promise<EveMarketOrder[] | null> {
+  ): Promise<EsiMultiPageResult<EveMarketOrder> | null> {
     return await this.genxRegionMarketOrders(token, regionId, typeId, orderType, page)
       .catch(logEsiErrorAndReturnNull);
   }

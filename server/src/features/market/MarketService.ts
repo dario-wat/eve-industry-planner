@@ -22,14 +22,6 @@ export default class MarketService {
   public async genMarketOrdersForAccount(
     actorContext: ActorContext,
   ): Promise<MarketOrdersRes> {
-    // TODO continue here
-    // const main = await actorContext.genxMainCharacter();
-    // const orderssss = await this.esiQuery.genxRegionMarketOrders(
-    //   main.characterId,
-    //   10000016,
-    // );
-    // console.log(orderssss)
-
     const orders = await genQueryFlatPerCharacter(
       actorContext,
       character => this.esiQuery.genxCharacterMarketOrders(character.characterId),

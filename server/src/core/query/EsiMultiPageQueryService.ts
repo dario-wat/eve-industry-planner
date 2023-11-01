@@ -1,4 +1,4 @@
-import { EveAsset, EveContract } from 'types/EsiQuery';
+import { EveAsset, EveContract, EveMarketOrder, EveMarketOrderType } from 'types/EsiQuery';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { Service } from 'typedi';
 import { range } from 'lodash';
@@ -40,14 +40,32 @@ export default class EsiMultiPageQueryService {
   */
   public async genxAllAssets(character: EsiCharacter): Promise<EveAsset[]> {
     return await genMultiPageData(
-      async page => await this.esiQuery.genxAssets(character.characterId, page)
+      async page => await this.esiQuery.genxAssets(character.characterId, page),
     );
   }
 
   /** Fetches all contracts for the given user. */
   public async genxAllContracts(character: EsiCharacter): Promise<EveContract[]> {
     return await genMultiPageData(
-      async page => await this.esiQuery.genxContracts(character.characterId, page)
+      async page => await this.esiQuery.genxContracts(character.characterId, page),
+    );
+  }
+
+  /** Fetches all market orders for the given region. */
+  public async genxAllRegionMarketOrders(
+    character: EsiCharacter,
+    regionId: number,
+    typeId: number,
+    orderType: EveMarketOrderType = 'all',
+  ): Promise<EveMarketOrder[]> {
+    return await genMultiPageData(
+      async page => await this.esiQuery.genxRegionMarketOrders(
+        character.characterId,
+        regionId,
+        typeId,
+        orderType,
+        page,
+      ),
     );
   }
 }

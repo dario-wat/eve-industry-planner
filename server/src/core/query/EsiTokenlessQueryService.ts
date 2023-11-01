@@ -95,7 +95,7 @@ export default class EsiTokenlessQueryService {
     typeId: number,
     orderType: EveMarketOrderType = 'all',
     page: number = 1,
-  ): Promise<EveMarketOrder[]> {
+  ): Promise<EsiMultiPageResult<EveMarketOrder>> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxRegionMarketOrders(
       token,
