@@ -18,6 +18,7 @@ export default class EveQueryService {
     private readonly esiMultiPageQuery: EsiMultiPageQueryService,
   ) { }
 
+  // TODO Do I still need to cache this now that multipage is fixed
   /** Queries all assets for the given user and caches the result. */
   public async genAllAssets(
     character: EsiCharacter,

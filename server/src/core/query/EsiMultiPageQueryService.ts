@@ -3,6 +3,23 @@ import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { Service } from 'typedi';
 import { range } from 'lodash';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
+import { MultiPageResult } from '../../core/esi/EsiQueryService';
+
+/**
+ * Utility function that handles multi page ESI queries.
+ * It will make sure that all pages are queried and full result returned.
+ */
+async function genMultiPageData<T>(
+  genQuery: (page: number) => Promise<MultiPageResult<T>>,
+): Promise<T[]> {
+  const firstPageResult = await genQuery(1);
+  const remainingResult = await Promise.all(
+    range(2, firstPageResult.pages + 1).map(
+      async page => await genQuery(page)
+    ),
+  );
+  return [firstPageResult, ...remainingResult].map(({ data }) => data).flat();
+}
 
 /** 
  * Service class specifically for ESI queries that contain multiple pages
@@ -22,22 +39,15 @@ export default class EsiMultiPageQueryService {
     Returns the same type as genAssets.
   */
   public async genxAllAssets(character: EsiCharacter): Promise<EveAsset[]> {
-    const firstPageAssets = await this.esiQuery.genxAssets(character.characterId, 1);
-    const remainingAssets = await Promise.all(
-      range(2, firstPageAssets.pages + 1).map(
-        page => this.esiQuery.genxAssets(character.characterId, page),
-      ),
+    return await genMultiPageData(
+      async page => await this.esiQuery.genxAssets(character.characterId, page)
     );
-    return [firstPageAssets, ...remainingAssets].map(({ data }) => data).flat();
   }
 
+  /** Fetches all contracts for the given user. */
   public async genxAllContracts(character: EsiCharacter): Promise<EveContract[]> {
-    const firstPageContracts = await this.esiQuery.genxContracts(character.characterId, 1);
-    const remainingContracts = await Promise.all(
-      range(2, firstPageContracts.pages + 1).map(
-        page => this.esiQuery.genxContracts(character.characterId, page),
-      ),
+    return await genMultiPageData(
+      async page => await this.esiQuery.genxContracts(character.characterId, page)
     );
-    return [firstPageContracts, ...remainingContracts].map(({ data }) => data).flat();
   }
 }
