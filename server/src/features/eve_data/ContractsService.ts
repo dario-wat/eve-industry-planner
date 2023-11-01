@@ -1,16 +1,16 @@
 import { Service } from 'typedi';
 import { EveContractsRes } from '@internal/shared';
 import EveQueryService from '../../core/query/EveQueryService';
-import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
+import EsiMultiPageQueryService from '../../core/query/EsiMultiPageQueryService';
 
 @Service()
 export default class ContractsService {
 
   constructor(
     private readonly eveQuery: EveQueryService,
-    private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiMultiPageQuery: EsiMultiPageQueryService,
   ) { }
 
   /** Data for the Contracts page. */
@@ -21,7 +21,7 @@ export default class ContractsService {
 
     const contracts = await genQueryFlatResultPerCharacter(
       actorContext,
-      character => this.esiQuery.genxContracts(character.characterId),
+      character => this.esiMultiPageQuery.genxAllContracts(character),
     );
 
     const names = await this.eveQuery.genAllNames(

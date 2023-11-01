@@ -1,4 +1,4 @@
-import { EveAsset } from 'types/EsiQuery';
+import { EveAsset, EveContract } from 'types/EsiQuery';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { Service } from 'typedi';
 import { range } from 'lodash';
@@ -21,7 +21,7 @@ export default class EsiMultiPageQueryService {
     This function does multiple requests.
     Returns the same type as genAssets.
   */
-  public async genAllAssets(character: EsiCharacter): Promise<EveAsset[]> {
+  public async genxAllAssets(character: EsiCharacter): Promise<EveAsset[]> {
     const firstPageAssets = await this.esiQuery.genxAssets(character.characterId, 1);
     const remainingAssets = await Promise.all(
       range(2, firstPageAssets.pages + 1).map(
@@ -29,5 +29,15 @@ export default class EsiMultiPageQueryService {
       ),
     );
     return [firstPageAssets, ...remainingAssets].map(({ data }) => data).flat();
+  }
+
+  public async genxAllContracts(character: EsiCharacter): Promise<EveContract[]> {
+    const firstPageContracts = await this.esiQuery.genxContracts(character.characterId, 1);
+    const remainingContracts = await Promise.all(
+      range(2, firstPageContracts.pages + 1).map(
+        page => this.esiQuery.genxContracts(character.characterId, page),
+      ),
+    );
+    return [firstPageContracts, ...remainingContracts].map(({ data }) => data).flat();
   }
 }

@@ -26,7 +26,7 @@ export default class EveQueryService {
       character.characterId.toString(),
       EsiCacheItem.ASSETS,
       hoursToSeconds(1),
-      async () => await this.esiMultiPageQuery.genAllAssets(character),
+      async () => await this.esiMultiPageQuery.genxAllAssets(character),
     );
   }
 

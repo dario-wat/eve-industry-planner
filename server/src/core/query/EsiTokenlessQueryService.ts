@@ -46,7 +46,7 @@ export default class EsiTokenlessQueryService {
   public async genxContracts(
     characterId: number,
     page: number = 1,
-  ): Promise<EveContract[]> {
+  ): Promise<MultiPageResult<EveContract>> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxContracts(token, characterId, page);
   }

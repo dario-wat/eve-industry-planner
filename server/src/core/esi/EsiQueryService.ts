@@ -244,21 +244,24 @@ export default class EsiQueryService {
     token: Token,
     characterId: number,
     page: number = 1,
-  ): Promise<EveContract[]> {
+  ): Promise<MultiPageResult<EveContract>> {
     const response = await this.esi.request(
       `/characters/${characterId}/contracts/`,
       { page },
       undefined,
       { token },
     );
-    return await response.json();
+    return {
+      data: await response.json(),
+      pages: Number(response.headers['x-pages']),
+    };
   }
 
   public async genContracts(
     token: Token,
     characterId: number,
     page: number = 1,
-  ): Promise<EveContract[] | null> {
+  ): Promise<MultiPageResult<EveContract> | null> {
     return await this.genxContracts(token, characterId, page)
       .catch(logEsiErrorAndReturnNull);
   }
