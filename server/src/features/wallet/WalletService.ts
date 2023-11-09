@@ -44,7 +44,7 @@ export default class WalletService {
         locationId: t.location_id,
         quantity: t.quantity,
         typeId: t.type_id,
-        name: this.sdeData.types[t.type_id].name,
+        name: this.sdeData.types[t.type_id]?.name,
         categoryId: this.sdeData.categoryIdFromTypeId(t.type_id),
         unitPrice: t.unit_price,
       }));
