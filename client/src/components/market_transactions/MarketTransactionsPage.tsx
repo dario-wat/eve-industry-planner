@@ -9,21 +9,29 @@ import { WalletTransactionsRes } from '@internal/shared';
 import { isAfter, isBefore, subDays } from 'date-fns';
 import { DesktopDatePicker, LocalizationProvider, enUS } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { Grid, Tab, Tabs } from '@mui/material';
+import { Grid, MenuItem, Select, Tab, Tabs } from '@mui/material';
 import AllMarketTransactionsDataGrid from './AllMarketTransactionsDataGrid';
 import AggregatedTransactionsDataGrid from './AggregatedTransactionsDataGrid';
+import { uniq } from 'underscore';
 
 enum SelectedTab {
   TRANSACTIONS = 'TRANSACTIONS',
   AGGREGATED = 'AGGREGATED',
 };
 
+const ALL_CHARACTERS = '-ALL-';
+
 export default function MarketTransactionsPage() {
   const [{ data }] = useAxios<WalletTransactionsRes>('/wallet_transactions');
 
+  const characterNames = uniq(data?.map(d => d.characterName) ?? []);
+
   const [searchText, setSearchText] = useState('');
+
   const [startDate, setStartDate] = useState(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState(new Date())
+
+  const [selectedCharacter, setSelectedCharacter] = useState<string>(ALL_CHARACTERS);
 
   const [selectedTab, setSelectedTab] = useState(SelectedTab.AGGREGATED);
 
@@ -36,6 +44,7 @@ export default function MarketTransactionsPage() {
     )
     && isBefore(new Date(d.date), endDate)
     && isAfter(new Date(d.date), startDate)
+    && (selectedCharacter === ALL_CHARACTERS || selectedCharacter === d.characterName)
   );
 
   return (
@@ -77,6 +86,17 @@ export default function MarketTransactionsPage() {
               onChange={newValue => newValue && setEndDate(newValue)}
             />
           </LocalizationProvider>
+        </Grid>
+        <Grid item>
+          <Select
+            sx={{ width: 250, backgroundColor: 'white' }}
+            value={selectedCharacter}
+            onChange={event => setSelectedCharacter(event.target.value)}
+            label="Character"
+          >
+            <MenuItem value={ALL_CHARACTERS}>All</MenuItem>
+            {characterNames.map(name => <MenuItem value={name}>{name}</MenuItem>)}
+          </Select>
         </Grid>
       </Grid>
       <Card>
