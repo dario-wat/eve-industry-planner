@@ -19,7 +19,7 @@ import DashboardPage from 'components/dashboard/DashboardPage';
 import { UserContext } from 'contexts/UserContext';
 import EveLoginButton from './EveLoginButton';
 import createAppTheme from 'theme/createAppTheme';
-import MarketTransactionsPage from 'components/MarketTransactionsPage';
+import MarketTransactionsPage from 'components/market_transactions/MarketTransactionsPage';
 import MarketOrdersPage from 'components/MarketOrdersPage';
 import { Route, Routes } from 'react-router-dom';
 import MarketComparisonPage from 'components/MarketComparisonPage';
