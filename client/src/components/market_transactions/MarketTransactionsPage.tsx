@@ -13,10 +13,12 @@ import { Grid, MenuItem, Select, Tab, Tabs } from '@mui/material';
 import AllMarketTransactionsDataGrid from './AllMarketTransactionsDataGrid';
 import AggregatedTransactionsDataGrid from './AggregatedTransactionsDataGrid';
 import { uniq } from 'underscore';
+import OverallTransactionDataGrid from './OverallTransactionDataGrid';
 
 enum SelectedTab {
   TRANSACTIONS = 'TRANSACTIONS',
   AGGREGATED = 'AGGREGATED',
+  OVERALL = 'OVERALL',
 };
 
 const ALL_CHARACTERS = '-ALL-';
@@ -95,7 +97,9 @@ export default function MarketTransactionsPage() {
             label="Character"
           >
             <MenuItem value={ALL_CHARACTERS}>All</MenuItem>
-            {characterNames.map(name => <MenuItem value={name}>{name}</MenuItem>)}
+            {characterNames.map(name =>
+              <MenuItem key={name} value={name}>{name}</MenuItem>
+            )}
           </Select>
         </Grid>
       </Grid>
@@ -112,6 +116,7 @@ export default function MarketTransactionsPage() {
           >
             <Tab label="Aggregated" value={SelectedTab.AGGREGATED} />
             <Tab label="Transactions" value={SelectedTab.TRANSACTIONS} />
+            <Tab label="Overall" value={SelectedTab.OVERALL} />
           </Tabs>
           <Box
             sx={{ height: 'auto', width: '100%' }}
@@ -127,6 +132,9 @@ export default function MarketTransactionsPage() {
                   }
                   {selectedTab === SelectedTab.TRANSACTIONS &&
                     <AllMarketTransactionsDataGrid data={filteredData} />
+                  }
+                  {selectedTab === SelectedTab.OVERALL &&
+                    <OverallTransactionDataGrid data={filteredData} />
                   }
                 </>
               )
