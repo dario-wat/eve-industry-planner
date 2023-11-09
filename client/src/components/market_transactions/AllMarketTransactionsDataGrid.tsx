@@ -1,7 +1,7 @@
 import { WalletTransactionsRes } from '@internal/shared';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import EveIconAndName from 'components/util/EveIconAndName';
-import { ColoredNumber, formatNoDecimal } from 'components/util/numbers';
+import { ColoredNumber, formatNumber } from 'components/util/numbers';
 import { format } from 'date-fns';
 
 const columns: GridColDef[] = [
@@ -30,7 +30,7 @@ const columns: GridColDef[] = [
     width: 100,
     align: 'right',
     sortable: false,
-    valueFormatter: params => formatNoDecimal(params.value),
+    valueFormatter: params => formatNumber(params.value),
   },
   {
     field: 'total',

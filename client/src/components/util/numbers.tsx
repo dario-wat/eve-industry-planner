@@ -1,16 +1,24 @@
-/** Formats the price. */
-export function formatNoDecimal(price: number): string {
-  return price.toLocaleString('en-US', { maximumFractionDigits: 0 });
+/** Formats a number. */
+export function formatNumber(
+  number: number,
+  fractionDigits: number = 0,
+): string {
+  return number.toLocaleString('en-US', {
+    maximumFractionDigits: fractionDigits,
+    minimumFractionDigits: fractionDigits,
+  });
 }
 
-/** Creates a bolded price either green or red. */
+/** Creates a bolded number either green or red. */
 export function ColoredNumber(props: {
   number: number,
   color: 'red' | 'green',
+  fractionDigits?: number,
 }) {
+
   return (
     <div style={{ color: props.color, fontWeight: 'bold' }}>
-      {formatNoDecimal(props.number)}
+      {formatNumber(props.number, props.fractionDigits ?? 0)}
     </div>
   );
 }

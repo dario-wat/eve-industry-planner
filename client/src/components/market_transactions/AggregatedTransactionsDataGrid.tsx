@@ -5,14 +5,6 @@ import { ColoredNumber } from "components/util/numbers";
 import { sum } from "mathjs";
 import { groupBy } from "underscore";
 
-// Name
-// Bought / Sold
-// Total bought / sold price
-// Avg Buy Price
-// Avg Sell Price
-// Avg gain
-// % gain
-
 const columns: GridColDef[] = [
   {
     field: 'name',
@@ -73,37 +65,24 @@ const columns: GridColDef[] = [
     headerName: 'Avg Diff',
     width: 100,
     align: 'right',
-    renderCell: params => <ColoredNumber number={params.value} color="green" />,
+    renderCell: params =>
+      <ColoredNumber
+        number={params.value}
+        color={params.value < 0 ? 'red' : 'green'}
+      />,
   },
-  // {
-  //   field: 'totalQuantity',
-  //   headerName: 'Quantity',
-  //   width: 100,
-  //   align: 'right',
-  //   sortable: true,
-  // },
-  // {
-  //   field: 'averagePrice',
-  //   headerName: 'Average Price',
-  //   width: 150,
-  //   align: 'right',
-  //   sortable: true,
-  //   renderCell: params =>
-  //     <div style={{ color: 'green', fontWeight: 'bold' }}>
-  //       {params.value.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-  //     </div>,
-  // },
-  // {
-  //   field: 'totalPrice',
-  //   headerName: 'Total',
-  //   width: 150,
-  //   align: 'right',
-  //   sortable: true,
-  //   renderCell: params =>
-  //     <div style={{ color: 'green', fontWeight: 'bold' }}>
-  //       {params.value.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-  //     </div>,
-  // },
+  {
+    field: 'gainPerc',
+    headerName: 'Gain %',
+    width: 100,
+    align: 'right',
+    renderCell: params =>
+      <ColoredNumber
+        number={params.value}
+        color={params.value < 0 ? 'red' : 'green'}
+        fractionDigits={1}
+      />,
+  },
 ];
 
 /**
@@ -134,14 +113,17 @@ export default function AggregatedTransactionsDataGrid(props: {
     const avgSellPrice = sellVolume / sellQuantity;
 
     const avgDiff = avgSellPrice - avgBuyPrice;
+
+    const gainPerc = 100 * avgDiff / avgSellPrice;
     return {
       buyQuantity,
       sellQuantity,
       buyVolume,
       sellVolume,
-      avgBuyPrice: avgBuyPrice ?? 0,
-      avgSellPrice: avgSellPrice ?? 0,
-      avgDiff: avgDiff ?? 0,
+      avgBuyPrice,
+      avgSellPrice,
+      avgDiff,
+      gainPerc,
       typeId: transactions[0].typeId,
       categoryId: transactions[0].categoryId,
       name: transactions[0].name,
