@@ -25,7 +25,7 @@ export default function MarketTransactionsPage() {
   const [startDate, setStartDate] = useState(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState(new Date())
 
-  const [selectedTab, setSelectedTab] = useState(SelectedTab.TRANSACTIONS);
+  const [selectedTab, setSelectedTab] = useState(SelectedTab.AGGREGATED);
 
   const isIncluded = (s: string) =>
     s.toLowerCase().includes(searchText.toLowerCase());

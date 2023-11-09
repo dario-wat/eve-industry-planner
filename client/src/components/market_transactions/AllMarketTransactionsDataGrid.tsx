@@ -1,6 +1,7 @@
 import { WalletTransactionsRes } from '@internal/shared';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import EveIconAndName from 'components/util/EveIconAndName';
+import { ColoredNumber, formatNoDecimal } from 'components/util/pricing';
 import { format } from 'date-fns';
 
 const columns: GridColDef[] = [
@@ -29,7 +30,7 @@ const columns: GridColDef[] = [
     width: 100,
     align: 'right',
     sortable: false,
-    valueFormatter: params => params.value.toLocaleString('en-US'),
+    valueFormatter: params => formatNoDecimal(params.value),
   },
   {
     field: 'total',
@@ -38,12 +39,10 @@ const columns: GridColDef[] = [
     align: 'right',
     sortable: false,
     renderCell: params =>
-      <div style={{
-        color: params.row.isBuy ? 'red' : 'green',
-        fontWeight: 'bold',
-      }}>
-        {(params.row.quantity * params.row.unitPrice).toLocaleString('en-US')}
-      </div>,
+      <ColoredNumber
+        number={params.row.quantity * params.row.unitPrice}
+        color={params.row.isBuy ? 'red' : 'green'}
+      />,
   },
   {
     field: 'locationName',
