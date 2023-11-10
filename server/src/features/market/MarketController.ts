@@ -29,5 +29,17 @@ export default class MarketController extends Controller {
     // this.appGet(
     //   '/market_orders_region',
     // );
+
+    // TODO comment
+    this.appGet(
+      '/market_history/:typeId',
+      async (req: Request, res: Response, actorContext: ActorContext) => {
+        const output = await this.marketService.genMarketHistory(
+          actorContext,
+          Number(req.params.typeId),
+        );
+        res.json(output);
+      },
+    );
   }
 }

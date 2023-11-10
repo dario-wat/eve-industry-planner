@@ -1,18 +1,17 @@
 import { Service } from 'typedi';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
-import EveQueryService from '../../core/query/EveQueryService';
-import { MarketOrdersRes } from '@internal/shared';
+import { MarketHistoryRes, MarketOrdersRes } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
 import StationService from '../../core/query/StationService';
+import { THE_FORGE } from '../../const/IDs';
 
 
 @Service()
 export default class MarketService {
 
   constructor(
-    private readonly eveQuery: EveQueryService,
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiTokenlessQueryService,
     private readonly stationService: StationService,
@@ -48,5 +47,26 @@ export default class MarketService {
         issuedDate: o.issued,
         duration: o.duration,
       }));
+  }
+
+  // TODO comment
+  public async genMarketHistory(
+    actorContext: ActorContext,
+    typeId: number,
+  ): Promise<MarketHistoryRes> {
+    const main = await actorContext.genxMainCharacter();
+    const history = await this.esiQuery.genxRegionMarketHistory(
+      main.characterId,
+      THE_FORGE,
+      typeId,
+    );
+
+    return history.map(h => ({
+      date: h.date,
+      iskVolume: h.average * h.volume,
+      diffHigh: h.highest - h.average,
+      diffLow: h.average - h.lowest,
+      volume: h.volume,
+    }));
   }
 }

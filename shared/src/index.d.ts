@@ -139,6 +139,14 @@ export type MarketOrdersRes = {
   duration: number,
 }[];
 
+export type MarketHistoryRes = {
+  date: string,
+  iskVolume: number,
+  diffHigh: number,
+  diffLow: number,
+  volume: number,
+}[];
+
 export type LinkedCharacterRes = {
   characterId: number,
   characterName: string | undefined,
