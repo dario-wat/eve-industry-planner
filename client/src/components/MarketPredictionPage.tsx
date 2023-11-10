@@ -3,6 +3,9 @@ import { Box, Card, CardContent, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
 import { MarketHistoryRes } from '@internal/shared';
+import { ChartContainer, LinePlot, ChartsYAxis, ChartsXAxis, BarPlot } from '@mui/x-charts';
+import { format } from 'date-fns';
+import { max, min } from 'mathjs';
 
 // TODO
 // - ID selection or multi use
@@ -17,9 +20,10 @@ export default function MarketPredictionPage() {
   const onSubmit = async () => {
     setIsLoading(true);
     const { data } = await axios.get<MarketHistoryRes>(`/market_history/${idText}`);
-    setHistoryData(data);
+    setHistoryData(data.sort((a, b) => a.date.localeCompare(b.date)));
     setIsLoading(false);
   };
+
   return (
     <div>
       <Card>
@@ -40,17 +44,142 @@ export default function MarketPredictionPage() {
               Submit
             </LoadingButton>
           </Box>
-          <Box
-            sx={{ height: 'auto', width: '100%' }}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            {/* TODO what here */}
-            {historyData?.map(d => d.iskVolume)}
-          </Box>
+          {historyData &&
+            <Box
+              sx={{ height: 'auto', width: '100%' }}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <ChartContainer
+                width={1000}
+                height={500}
+                series={[
+                  {
+                    type: 'line',
+                    yAxisKey: 'line',
+                    data: historyData.map(h => h.highest),
+                    label: 'Highest',
+                    color: 'green',
+                    showMark: false,
+                  },
+                  {
+                    type: 'line',
+                    yAxisKey: 'line',
+                    data: historyData.map(h => h.lowest),
+                    label: 'Lowest',
+                    color: 'red',
+                    showMark: false,
+                  },
+                  {
+                    type: 'line',
+                    yAxisKey: 'line',
+                    data: historyData.map(h => h.average),
+                    label: 'Average',
+                    color: 'orange',
+                    showMark: false,
+                  },
+                  {
+                    type: 'bar',
+                    yAxisKey: 'bar',
+                    data: historyData.map(h => h.volume),
+                    color: 'green',
+                  },
+                ]}
+                xAxis={[
+                  {
+                    id: 'time',
+                    scaleType: 'band',
+                    data: historyData.map(h => new Date(h.date)),
+                    valueFormatter: date => format(date, 'yyyy-MM-dd'),
+                  }
+                ]}
+                yAxis={[
+                  {
+                    id: 'line',
+                    scaleType: 'linear',
+                    min: 0.9 * min(historyData.map(h => h.lowest)),
+                    // max: 0.98 * max(historyData.map(h => h.highest))
+                  },
+                  {
+                    id: 'bar',
+                    scaleType: 'linear',
+                    max: 4 * max(historyData.map(h => h.volume)),
+                  },
+                ]}
+              >
+                <BarPlot />
+                <LinePlot />
+                <ChartsYAxis position="left" axisId="line" />
+                <ChartsYAxis position="right" axisId="bar" />
+                <ChartsXAxis position="bottom" axisId="time" />
+              </ChartContainer>
+            </Box>
+
+            // <>
+            //   <Box
+            //     sx={{ height: 'auto', width: '100%' }}
+            //     display="flex"
+            //     justifyContent="center"
+            //     alignItems="center"
+            //   >
+            //     <LineChart
+            //       width={900}
+            //       height={400}
+            //       series={[
+            //         {
+            //           data: historyData.map(h => h.highest),
+            //           label: 'Highest',
+            //           color: 'green',
+            //           showMark: false,
+            //         },
+            //         {
+            //           data: historyData.map(h => h.lowest),
+            //           label: 'Lowest',
+            //           color: 'red',
+            //           showMark: false,
+            //         },
+            //         {
+            //           data: historyData.map(h => h.average),
+            //           label: 'Average',
+            //           color: 'orange',
+            //           showMark: false,
+            //         },
+            //       ]}
+            //       xAxis={[
+            //         {
+            //           scaleType: 'time',
+            //           data: historyData.map(h => new Date(h.date)),
+            //           valueFormatter: date => format(date, 'yyyy-MM-dd'),
+            //         }
+            //       ]}
+            //     />
+            //   </Box>
+            //   <Box
+            //     sx={{ height: 'auto', width: '100%' }}
+            //     display="flex"
+            //     justifyContent="center"
+            //     alignItems="center"
+            //   >
+            //     <BarChart
+            //       width={900}
+            //       height={200}
+            //       xAxis={[{
+            //         scaleType: 'band',
+            //         data: historyData.map(h => h.date),
+            //       }]}
+            //       series={[
+            //         {
+            //           data: historyData.map(h => h.volume),
+            //           color: 'green',
+            //         },
+            //       ]}
+            //     />
+            //   </Box>
+            // </>
+          }
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 }

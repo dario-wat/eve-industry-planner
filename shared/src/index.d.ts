@@ -140,10 +140,11 @@ export type MarketOrdersRes = {
 }[];
 
 export type MarketHistoryRes = {
+  average: number,
   date: string,
-  iskVolume: number,
-  diffHigh: number,
-  diffLow: number,
+  highest: number,
+  lowest: number,
+  order_count: number,
   volume: number,
 }[];
 

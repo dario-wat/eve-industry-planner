@@ -100,7 +100,6 @@ export default function AggregatedTransactionsDataGrid(props: {
       sortModel={[{ field: 'sellVolume', sort: 'desc' }]}
       disableSelectionOnClick
       disableColumnMenu
-      experimentalFeatures={{ newEditingApi: true }}
     />
   );
 }

@@ -479,7 +479,7 @@ export default class EsiQueryService {
     token: Token,
     regionId: number,
     typeId: number,
-  ): Promise<EveMarketHistory> {
+  ): Promise<EveMarketHistory[]> {
     const response = await this.esi.request(
       `/markets/${regionId}/history/`,
       { type_id: typeId },
@@ -493,7 +493,7 @@ export default class EsiQueryService {
     token: Token,
     regionId: number,
     typeId: number,
-  ): Promise<EveMarketHistory | null> {
+  ): Promise<EveMarketHistory[] | null> {
     return await this.genxRegionMarketHistory(token, regionId, typeId)
       .catch(logEsiErrorAndReturnNull);
   }

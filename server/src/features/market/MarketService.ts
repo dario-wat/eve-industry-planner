@@ -6,7 +6,9 @@ import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
 import StationService from '../../core/query/StationService';
 import { THE_FORGE } from '../../const/IDs';
+import { differenceInDays, parse } from 'date-fns';
 
+const MAX_HISTORY_DAYS = 90;
 
 @Service()
 export default class MarketService {
@@ -49,7 +51,7 @@ export default class MarketService {
       }));
   }
 
-  // TODO comment
+  /** Fetches market history for a single typeId. */
   public async genMarketHistory(
     actorContext: ActorContext,
     typeId: number,
@@ -61,12 +63,13 @@ export default class MarketService {
       typeId,
     );
 
-    return history.map(h => ({
-      date: h.date,
-      iskVolume: h.average * h.volume,
-      diffHigh: h.highest - h.average,
-      diffLow: h.average - h.lowest,
-      volume: h.volume,
-    }));
+    const today = new Date();
+
+    return history.filter(h =>
+      differenceInDays(
+        today,
+        parse(h.date, 'yyyy-MM-dd', new Date())
+      ) < MAX_HISTORY_DAYS
+    );
   }
 }

@@ -30,7 +30,7 @@ export default class MarketController extends Controller {
     //   '/market_orders_region',
     // );
 
-    // TODO comment
+    /** Fetches market history data for a single typeId. */
     this.appGet(
       '/market_history/:typeId',
       async (req: Request, res: Response, actorContext: ActorContext) => {

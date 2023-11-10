@@ -111,7 +111,7 @@ export default class EsiTokenlessQueryService {
     characterId: number,
     regionId: number,
     typeId: number,
-  ): Promise<EveMarketHistory> {
+  ): Promise<EveMarketHistory[]> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxRegionMarketHistory(
       token,
