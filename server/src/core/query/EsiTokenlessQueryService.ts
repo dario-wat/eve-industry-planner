@@ -119,4 +119,17 @@ export default class EsiTokenlessQueryService {
       typeId,
     );
   }
+
+  public async genRegionMarketHistory(
+    characterId: number,
+    regionId: number,
+    typeId: number,
+  ): Promise<EveMarketHistory[] | null> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
+    return await this.esiQuery.genRegionMarketHistory(
+      token,
+      regionId,
+      typeId,
+    );
+  }
 }

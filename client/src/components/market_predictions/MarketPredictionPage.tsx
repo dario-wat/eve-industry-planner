@@ -53,7 +53,10 @@ export default function MarketPredictionPage() {
       <Card>
         <CardContent>
           <Box sx={{ display: 'flex', gap: 4 }}>
-            <ItemAutocomplete onInputChange={value => setItemName(value)} />
+            <ItemAutocomplete
+              onInputChange={value => setItemName(value)}
+              width={350}
+            />
             <LoadingButton
               loading={isLoading}
               variant="contained"

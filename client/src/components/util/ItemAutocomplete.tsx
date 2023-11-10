@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 
 export default function ItemAutocomplete(props: {
   onInputChange: (value: string) => void,
+  width?: number,
 }) {
   const [{ data, loading }] = useAxios<EveSdeTypesRes>('/type_ids_items');
   const autocompleteData = data && data.map(t => ({
@@ -15,7 +16,7 @@ export default function ItemAutocomplete(props: {
 
   return (
     <Autocomplete
-      sx={{ width: 280 }}
+      sx={{ width: props.width ?? 280 }}
       disablePortal
       loading={loading}
       options={autocompleteData ?? []}
