@@ -54,13 +54,13 @@ export default class MarketService {
   /** Fetches market history for a single typeId. */
   public async genMarketHistory(
     actorContext: ActorContext,
-    typeId: number,
+    typeName: string,
   ): Promise<MarketHistoryRes> {
     const main = await actorContext.genxMainCharacter();
     const history = await this.esiQuery.genxRegionMarketHistory(
       main.characterId,
       THE_FORGE,
-      typeId,
+      this.sdeData.typeByName[typeName]?.id,
     );
 
     const today = new Date();

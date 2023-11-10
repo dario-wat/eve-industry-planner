@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Card, CardContent, TextField } from '@mui/material';
+import { Box, Card, CardContent } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
 import { MarketHistoryRes } from '@internal/shared';
@@ -9,12 +9,12 @@ import { max, min } from 'mathjs';
 import { formatNumberScale } from '../util/numbers';
 import { createHeuristic } from './MarketItemScores';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import ItemAutocomplete from 'components/util/ItemAutocomplete';
 
 // TODO
 // - ID selection or multi use
 // - Or just go through everything
 // - Scheduled job to check things out
-// - Input typeahead name ?
 
 const scoreColumns: GridColDef[] = [
   {
@@ -35,13 +35,15 @@ const scoreColumns: GridColDef[] = [
 ];
 
 export default function MarketPredictionPage() {
-  const [idText, setIdText] = useState('');
+  const [itemName, setItemName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [historyData, setHistoryData] = useState<MarketHistoryRes | null>(null);
 
   const onSubmit = async () => {
     setIsLoading(true);
-    const { data } = await axios.get<MarketHistoryRes>(`/market_history/${idText}`);
+    const { data } = await axios.get<MarketHistoryRes>(
+      `/market_history/${itemName}`,
+    );
     setHistoryData(data.sort((a, b) => a.date.localeCompare(b.date)));
     setIsLoading(false);
   };
@@ -51,12 +53,7 @@ export default function MarketPredictionPage() {
       <Card>
         <CardContent>
           <Box sx={{ display: 'flex', gap: 4 }}>
-            <TextField
-              label="ID"
-              variant="outlined"
-              value={idText}
-              onChange={e => setIdText(e.target.value)}
-            />
+            <ItemAutocomplete onInputChange={value => setItemName(value)} />
             <LoadingButton
               loading={isLoading}
               variant="contained"
