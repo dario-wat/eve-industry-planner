@@ -1,8 +1,8 @@
 /**
- * Finds all tradeable items by querying the number of items
- * traded in The Forge in the past year or so.
+ * Finds all sale volume for all items traded in The Forge
+ * in the past year or so.
  * 
- * ts-node ./server/src/scripts/tradeableItems.ts
+ * ts-node ./server/src/scripts/generateItemSaleVolumes.ts
  */
 import 'reflect-metadata';
 
@@ -68,7 +68,7 @@ async function run() {
     LOG(`TypeID: ${typeId}, volume: ${result[typeId]}`);
   }
 
-  fs.writeFile('tradeableItems.txt', JSON.stringify(result), () => { });
+  fs.writeFile('itemSaleVolumes.txt', JSON.stringify(result), () => { });
   LOG(`Failed typeIds: ${failed}`);
 
   LOG('Finished!');
