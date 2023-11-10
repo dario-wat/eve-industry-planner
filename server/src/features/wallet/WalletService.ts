@@ -2,7 +2,6 @@ import { WalletTransactionsRes } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { Service } from 'typedi';
 import { WalletTransaction } from './WalletTransaction';
-import EveQueryService from '../../core/query/EveQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
@@ -12,7 +11,6 @@ import StationService from '../../core/query/StationService';
 export default class WalletService {
 
   constructor(
-    private readonly eveQuery: EveQueryService,
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiTokenlessQueryService,
     private readonly stationService: StationService,
