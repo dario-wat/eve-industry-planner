@@ -116,3 +116,12 @@ export interface EveMarketOrder {
 }
 
 export type EveMarketOrderType = 'all' | 'buy' | 'sell';
+
+export interface EveMarketHistory {
+  average: number,
+  date: string,
+  highest: number,
+  lowest: number,
+  order_count: number,
+  volume: number,
+}

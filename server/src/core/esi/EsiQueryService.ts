@@ -5,6 +5,7 @@ import {
   EveAssetName,
   EveContract,
   EveIndustryJob,
+  EveMarketHistory,
   EveMarketOrder,
   EveMarketOrderType,
   EveName,
@@ -449,6 +450,51 @@ export default class EsiQueryService {
     page: number = 1,
   ): Promise<EsiMultiPageResult<EveMarketOrder> | null> {
     return await this.genxRegionMarketOrders(token, regionId, typeId, orderType, page)
+      .catch(logEsiErrorAndReturnNull);
+  }
+
+  /*
+    Example object:
+    [
+      {
+        average: 192000000,
+        date: '2022-10-01',
+        highest: 196000000,
+        lowest: 183700000,
+        order_count: 37,
+        volume: 41
+      },
+      {
+        average: 194973214.29,
+        date: '2022-10-02',
+        highest: 199050000,
+        lowest: 183500000,
+        order_count: 49,
+        volume: 56
+      },
+      ...
+    ]
+  */
+  public async genxRegionMarketHistory(
+    token: Token,
+    regionId: number,
+    typeId: number,
+  ): Promise<EveMarketHistory> {
+    const response = await this.esi.request(
+      `/markets/${regionId}/history/`,
+      { type_id: typeId },
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  public async genRegionMarketHistory(
+    token: Token,
+    regionId: number,
+    typeId: number,
+  ): Promise<EveMarketHistory | null> {
+    return await this.genxRegionMarketHistory(token, regionId, typeId)
       .catch(logEsiErrorAndReturnNull);
   }
 }
