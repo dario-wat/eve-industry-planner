@@ -6,13 +6,33 @@ import { MarketHistoryRes } from '@internal/shared';
 import { ChartContainer, LinePlot, ChartsYAxis, ChartsXAxis, BarPlot } from '@mui/x-charts';
 import { format } from 'date-fns';
 import { max, min } from 'mathjs';
-import { formatNumberScale } from './util/numbers';
+import { formatNumberScale } from '../util/numbers';
+import { createHeuristic } from './MarketItemScores';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
 // TODO
 // - ID selection or multi use
 // - Or just go through everything
 // - Scheduled job to check things out
 // - Input typeahead name ?
+
+const scoreColumns: GridColDef[] = [
+  {
+    field: 'name',
+    headerName: 'Name',
+    width: 200,
+  },
+  {
+    field: 'value',
+    headerName: 'Value',
+    width: 150,
+  },
+  {
+    field: 'value_3_days',
+    headerName: 'Value (last 3 days)',
+    width: 150,
+  },
+];
 
 export default function MarketPredictionPage() {
   const [idText, setIdText] = useState('');
@@ -117,6 +137,22 @@ export default function MarketPredictionPage() {
                 <ChartsYAxis position="right" axisId="bar" />
                 <ChartsXAxis position="bottom" axisId="time" />
               </ChartContainer>
+            </Box>
+          }
+          {historyData &&
+            <Box sx={{ p: 4 }}>
+              <DataGrid
+                sx={{ width: 550 }}
+                initialState={{
+                  sorting: {
+                    sortModel: [{ field: 'date', sort: 'desc' }],
+                  },
+                }}
+                rows={createHeuristic(historyData)}
+                columns={scoreColumns}
+                disableSelectionOnClick
+                disableColumnMenu
+              />
             </Box>
           }
         </CardContent>

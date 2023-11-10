@@ -64,7 +64,6 @@ export default class MarketService {
     );
 
     const today = new Date();
-
     return history.filter(h =>
       differenceInDays(
         today,
