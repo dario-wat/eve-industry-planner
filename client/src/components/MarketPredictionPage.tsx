@@ -6,11 +6,13 @@ import { MarketHistoryRes } from '@internal/shared';
 import { ChartContainer, LinePlot, ChartsYAxis, ChartsXAxis, BarPlot } from '@mui/x-charts';
 import { format } from 'date-fns';
 import { max, min } from 'mathjs';
+import { formatNumberScale } from './util/numbers';
 
 // TODO
 // - ID selection or multi use
 // - Or just go through everything
 // - Scheduled job to check things out
+// - Input typeahead name ?
 
 export default function MarketPredictionPage() {
   const [idText, setIdText] = useState('');
@@ -100,6 +102,7 @@ export default function MarketPredictionPage() {
                     scaleType: 'linear',
                     min: 0.9 * min(historyData.map(h => h.lowest)),
                     // max: 0.98 * max(historyData.map(h => h.highest))
+                    valueFormatter: num => formatNumberScale(num),
                   },
                   {
                     id: 'bar',
@@ -115,68 +118,6 @@ export default function MarketPredictionPage() {
                 <ChartsXAxis position="bottom" axisId="time" />
               </ChartContainer>
             </Box>
-
-            // <>
-            //   <Box
-            //     sx={{ height: 'auto', width: '100%' }}
-            //     display="flex"
-            //     justifyContent="center"
-            //     alignItems="center"
-            //   >
-            //     <LineChart
-            //       width={900}
-            //       height={400}
-            //       series={[
-            //         {
-            //           data: historyData.map(h => h.highest),
-            //           label: 'Highest',
-            //           color: 'green',
-            //           showMark: false,
-            //         },
-            //         {
-            //           data: historyData.map(h => h.lowest),
-            //           label: 'Lowest',
-            //           color: 'red',
-            //           showMark: false,
-            //         },
-            //         {
-            //           data: historyData.map(h => h.average),
-            //           label: 'Average',
-            //           color: 'orange',
-            //           showMark: false,
-            //         },
-            //       ]}
-            //       xAxis={[
-            //         {
-            //           scaleType: 'time',
-            //           data: historyData.map(h => new Date(h.date)),
-            //           valueFormatter: date => format(date, 'yyyy-MM-dd'),
-            //         }
-            //       ]}
-            //     />
-            //   </Box>
-            //   <Box
-            //     sx={{ height: 'auto', width: '100%' }}
-            //     display="flex"
-            //     justifyContent="center"
-            //     alignItems="center"
-            //   >
-            //     <BarChart
-            //       width={900}
-            //       height={200}
-            //       xAxis={[{
-            //         scaleType: 'band',
-            //         data: historyData.map(h => h.date),
-            //       }]}
-            //       series={[
-            //         {
-            //           data: historyData.map(h => h.volume),
-            //           color: 'green',
-            //         },
-            //       ]}
-            //     />
-            //   </Box>
-            // </>
           }
         </CardContent>
       </Card>

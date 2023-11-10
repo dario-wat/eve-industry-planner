@@ -10,6 +10,7 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import { useContext, useState } from 'react';
 import { EveContractsRes } from '@internal/shared';
 import { UserContext } from 'contexts/UserContext';
+import { formatNumberScale } from './util/numbers';
 
 const FINISHED_STATUS = 'finished';
 
@@ -79,12 +80,7 @@ export default function ContractsPage() {
       field: 'price',
       headerName: 'Price',
       width: 100,
-      valueFormatter: params =>
-        params.value > 1000000
-          ? (params.value / 1000000).toFixed(1) + 'M'
-          : params.value > 1000
-            ? (params.value / 1000) + 'K'
-            : params.value
+      valueFormatter: params => formatNumberScale(params.value),
     },
     dateField,  // Inject date field here
     {
