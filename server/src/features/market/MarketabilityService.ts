@@ -5,6 +5,8 @@ import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService'
 import { Service } from 'typedi';
 import { potentialTypeIds } from '../../const/potentialItems';
 import { chunk } from 'underscore';
+import { MarketabilityRes } from '@internal/shared';
+import EveSdeData from '../../core/sde/EveSdeData';
 
 // TODO
 // - scheduled job for this
@@ -15,8 +17,11 @@ type TypeIdMarketability = {
   scores: MarketabilityScore[],
 };
 
+const EPS = 1e-6;
+
 const RECENT_DAYS = 60;
 
+// TODO use these ?
 /** Minimum difference in price between high and low. */
 const MIN_DIFF = 0.1;
 /** Percentage of days that satisfy minimum difference. */
@@ -44,6 +49,7 @@ export default class MarketabilityService {
 
   constructor(
     private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly sdeData: EveSdeData,
   ) { }
 
   /**
@@ -64,6 +70,7 @@ export default class MarketabilityService {
     const recentHistory = history.sort((a, b) => b.date.localeCompare(a.date))
       .slice(0, RECENT_DAYS);
 
+    // TODO magic numbers
     const avgDiff = mean(
       recentHistory.slice(0, 3).map(h => (h.highest - h.lowest) / h.highest)
     );
@@ -74,7 +81,7 @@ export default class MarketabilityService {
       recentHistory.slice(0, 14).map(h => h.average * h.volume)
     );
     const avgAvgLineDiff = mean(
-      recentHistory.slice(0, 30).map(h =>
+      recentHistory.slice(0, 30).filter(h => h.highest - h.lowest > EPS).map(h =>
         (h.average - h.lowest) / (h.highest - h.lowest)
       )
     );
@@ -104,5 +111,20 @@ export default class MarketabilityService {
     }
 
     return result;
+  }
+
+  /** 
+   * Similar to genEvaluatePotentialTradeItems, but it augments the data
+   * for response to UI.
+   */
+  public async genMarketableItemsForPage(
+    actorContext: ActorContext,
+  ): Promise<MarketabilityRes> {
+    const marketableItems = await this.genEvaluatePotentialTradeItems(actorContext);
+    return marketableItems.map(i => ({
+      ...i,
+      categoryId: this.sdeData.categoryIdFromTypeId(i.typeId),
+      name: this.sdeData.types[i.typeId].name,
+    }));
   }
 }
