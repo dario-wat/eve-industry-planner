@@ -97,9 +97,8 @@ export default function MarketabiltyTab() {
     ...d.scores.map(s => ({ [s.name]: s.value }))
       .reduce((acc, obj) => ({ ...acc, ...obj }), {}),
   }))?.filter(d =>
-    d.avgDiff > minDiff
-    && d.avgPrice > minPrice
-    && d.avgIskVolume > minIskVolume
+    // @ts-ignore
+    d.avgDiff > minDiff && d.avgPrice > minPrice && d.avgIskVolume > minIskVolume
   );
 
   return (
@@ -132,17 +131,24 @@ export default function MarketabiltyTab() {
           onChange={e => setMinIskVolume(Number(e.target.value))}
         />
       </Box>
-      {rowData
-        ? (
-          <DataGrid
-            rows={rowData}
-            columns={columns}
-            disableSelectionOnClick
-            disableColumnMenu
-          />
-        )
-        : <CircularProgress />
-      }
+      <Box
+        sx={{ height: 'auto', width: '100%' }}
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+      >
+        {rowData
+          ? (
+            <DataGrid
+              rows={rowData}
+              columns={columns}
+              disableSelectionOnClick
+              disableColumnMenu
+            />
+          )
+          : <CircularProgress />
+        }
+      </Box>
     </Box>
   );
 }
