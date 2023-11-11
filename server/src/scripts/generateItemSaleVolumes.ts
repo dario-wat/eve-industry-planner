@@ -2,6 +2,11 @@
  * Finds all sale volume for all items traded in The Forge
  * in the past year or so.
  * 
+ * Ideally this script would only run once and never again, but if
+ * there are new items added to the game, it migh need to be ran again.
+ * The output file is simply converted in a typescript code
+ * e.g. itemSaleVolumes.ts
+ * 
  * ts-node ./server/src/scripts/generateItemSaleVolumes.ts
  */
 import 'reflect-metadata';
