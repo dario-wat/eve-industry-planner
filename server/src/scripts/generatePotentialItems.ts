@@ -102,7 +102,7 @@ async function run() {
           const history = await esiQuery.genxRegionMarketHistory(
             characterId,
             THE_FORGE,
-            typeId
+            typeId,
           );
 
           const recentHistory = history.sort((a, b) =>

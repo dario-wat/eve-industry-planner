@@ -7,6 +7,7 @@ import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
 import StationService from '../../core/query/StationService';
 import { THE_FORGE } from '../../const/IDs';
 import { differenceInDays, parse } from 'date-fns';
+import MarketabilityService from './MarketabilityService';
 
 const MAX_HISTORY_DAYS = 90;
 
@@ -17,6 +18,7 @@ export default class MarketService {
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiTokenlessQueryService,
     private readonly stationService: StationService,
+    private readonly marketability: MarketabilityService,
   ) { }
 
   /** Returns all data needed for the Market Orders page. */
