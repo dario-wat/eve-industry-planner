@@ -1,9 +1,10 @@
 import { MarketabilityRes } from '@internal/shared';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, TextField } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
 import EveIconAndName from 'components/util/EveIconAndName';
-import { ColoredNumber } from 'components/util/numbers';
+import { ColoredNumber, formatNumber } from 'components/util/numbers';
+import { useState } from 'react';
 
 const GOOD_AVG_DIFF = 0.1;
 const GOOD_AVG_PRICE = 10000000;  // 10M
@@ -73,10 +74,21 @@ const columns: GridColDef[] = [
         fractionDigits={2}
       />
   },
+  {
+    field: 'avgVolume',
+    headerName: 'Avg Volume',
+    width: 120,
+    align: 'right',
+    renderCell: params => formatNumber(params.value)
+  },
 ];
 
 export default function MarketabiltyTab() {
   const [{ data }] = useAxios<MarketabilityRes>('/marketability');
+
+  const [minDiff, setMinDiff] = useState(0.09);
+  const [minPrice, setMinPrice] = useState(5 * 1e6);
+  const [minIskVolume, setMinIskVolume] = useState(2 * 1e9);
 
   const rowData = data?.map(d => ({
     typeId: d.typeId,
@@ -84,15 +96,42 @@ export default function MarketabiltyTab() {
     categoryId: d.categoryId,
     ...d.scores.map(s => ({ [s.name]: s.value }))
       .reduce((acc, obj) => ({ ...acc, ...obj }), {}),
-  }));
+  }))?.filter(d =>
+    d.avgDiff > minDiff
+    && d.avgPrice > minPrice
+    && d.avgIskVolume > minIskVolume
+  );
 
   return (
     <Box
       sx={{ height: 'auto', width: '100%' }}
-      display="flex"
       justifyContent="center"
       alignItems="center"
+      flexDirection="column"
     >
+      <Box sx={{ p: 2, gap: 1 }} display="flex">
+        <TextField
+          sx={{ width: 150 }}
+          label="Min Diff"
+          variant="outlined"
+          value={minDiff}
+          onChange={e => setMinDiff(Number(e.target.value))}
+        />
+        <TextField
+          sx={{ width: 150 }}
+          label="Min Price"
+          variant="outlined"
+          value={minPrice}
+          onChange={e => setMinPrice(Number(e.target.value))}
+        />
+        <TextField
+          sx={{ width: 150 }}
+          label="Min Isk Volume"
+          variant="outlined"
+          value={minIskVolume}
+          onChange={e => setMinIskVolume(Number(e.target.value))}
+        />
+      </Box>
       {rowData
         ? (
           <DataGrid

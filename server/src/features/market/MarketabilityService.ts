@@ -86,12 +86,14 @@ export default class MarketabilityService {
         (h.average - h.lowest) / (h.highest - h.lowest)
       )
     );
+    const avgVolume = mean(recentHistory.slice(0, 14).map(h => h.volume));
 
     return [
       { name: 'avgDiff', value: avgDiff },
       { name: 'avgPrice', value: avgPrice },
       { name: 'avgIskVolume', value: avgIskVolume },
       { name: 'avgAvgLineDiff', value: isNaN(avgAvgLineDiff) ? -1 : avgAvgLineDiff },
+      { name: 'avgVolume', value: avgVolume },
     ];
   }
 
