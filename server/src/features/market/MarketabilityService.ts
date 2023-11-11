@@ -6,6 +6,9 @@ import { Service } from 'typedi';
 import { potentialTypeIds } from '../../const/potentialItems';
 import { chunk } from 'underscore';
 
+// TODO
+// - scheduled job for this
+
 type MarketabilityScore = { name: string, value: number };
 type TypeIdMarketability = {
   typeId: number,
