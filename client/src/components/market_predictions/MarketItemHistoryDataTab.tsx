@@ -44,8 +44,8 @@ export default function MarketItemHistoryDataTab() {
   };
 
   return (
-    <>
-      <Box sx={{ display: 'flex', gap: 4 }}>
+    <Box>
+      <Box sx={{ display: 'flex', gap: 4, pl: 2 }}>
         <ItemAutocomplete
           onInputChange={value => setItemName(value)}
           width={350}
@@ -148,6 +148,6 @@ export default function MarketItemHistoryDataTab() {
           />
         </Box>
       }
-    </>
+    </Box>
   );
 }
