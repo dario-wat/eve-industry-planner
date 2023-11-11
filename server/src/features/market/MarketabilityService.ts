@@ -4,7 +4,7 @@ import ActorContext from '../../core/actor_context/ActorContext';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import { Service } from 'typedi';
 import { potentialTypeIds } from '../../const/potentialItems';
-import { chunk } from 'underscore';
+import { chunk, isNaN } from 'underscore';
 import { MarketabilityRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
 
@@ -72,7 +72,8 @@ export default class MarketabilityService {
 
     // TODO magic numbers
     const avgDiff = mean(
-      recentHistory.slice(0, 3).map(h => (h.highest - h.lowest) / h.highest)
+      recentHistory.slice(0, 3).filter(h => h.highest > EPS)
+        .map(h => (h.highest - h.lowest) / h.highest)
     );
     const avgPrice = mean(
       recentHistory.slice(0, 14).map(h => h.average)
@@ -90,7 +91,7 @@ export default class MarketabilityService {
       { name: 'avgDiff', value: avgDiff },
       { name: 'avgPrice', value: avgPrice },
       { name: 'avgIskVolume', value: avgIskVolume },
-      { name: 'avgAvgLineDiff', value: avgAvgLineDiff },
+      { name: 'avgAvgLineDiff', value: isNaN(avgAvgLineDiff) ? -1 : avgAvgLineDiff },
     ];
   }
 
