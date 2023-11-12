@@ -89,6 +89,7 @@ export default function MarketabiltyTab() {
   const [minDiff, setMinDiff] = useState(0.09);
   const [minPrice, setMinPrice] = useState(5 * 1e6);
   const [minIskVolume, setMinIskVolume] = useState(2 * 1e9);
+  const [searchText, setSearchText] = useState('');
 
   const rowData = data?.map(d => ({
     typeId: d.typeId,
@@ -99,6 +100,7 @@ export default function MarketabiltyTab() {
   }))?.filter(d =>
     // @ts-ignore
     d.avgDiff > minDiff && d.avgPrice > minPrice && d.avgIskVolume > minIskVolume
+    && d.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
   return (
@@ -124,6 +126,13 @@ export default function MarketabiltyTab() {
           variant="outlined"
           value={minIskVolume}
           onChange={e => setMinIskVolume(Number(e.target.value))}
+        />
+        <TextField
+          sx={{ width: 200 }}
+          label="Search"
+          variant="outlined"
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
         />
       </Box>
       <Box
