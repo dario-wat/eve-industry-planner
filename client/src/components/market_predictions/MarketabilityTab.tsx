@@ -102,12 +102,7 @@ export default function MarketabiltyTab() {
   );
 
   return (
-    <Box
-      sx={{ height: 'auto', width: '100%' }}
-      justifyContent="center"
-      alignItems="center"
-      flexDirection="column"
-    >
+    <Box>
       <Box sx={{ p: 2, gap: 1 }} display="flex">
         <TextField
           sx={{ width: 150 }}
@@ -133,9 +128,9 @@ export default function MarketabiltyTab() {
       </Box>
       <Box
         sx={{ height: 'auto', width: '100%' }}
+        display="flex"
         justifyContent="center"
         alignItems="center"
-        flexDirection="column"
       >
         {rowData
           ? (
