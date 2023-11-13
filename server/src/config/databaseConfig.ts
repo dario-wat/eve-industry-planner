@@ -1,6 +1,7 @@
 import { Dialect } from 'sequelize/types';
 
-const databaseConfig = {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const localDatabaseConfig = {
   name: 'eve_industry_planner_db',
   username: 'root',
   password: 'KMkk%^FLt7%WyhHg8HcfMkShdH$tYw5Sq',
@@ -9,4 +10,13 @@ const databaseConfig = {
   dialect: 'mysql' as Dialect,
 };
 
-export default databaseConfig;
+const awsDatabaseConfig = {
+  name: 'eve_industry_planner_db',
+  username: 'root',
+  password: 'KMkk%^FLt7%WyhHg8HcfMkShdH$tYw5Sq',
+  host: 'eve-industry-planner-db.cgr23aa1xkf3.us-west-2.rds.amazonaws.com',
+  port: 3306,
+  dialect: 'mysql' as Dialect,
+};
+
+export default awsDatabaseConfig;

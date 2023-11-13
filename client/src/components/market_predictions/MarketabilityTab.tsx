@@ -86,9 +86,9 @@ const columns: GridColDef[] = [
 export default function MarketabiltyTab() {
   const [{ data }] = useAxios<MarketabilityRes>('/marketability');
 
-  const [minDiff, setMinDiff] = useState(0.09);
-  const [minPrice, setMinPrice] = useState(5 * 1e6);
-  const [minIskVolume, setMinIskVolume] = useState(2 * 1e9);
+  const [minDiff, setMinDiff] = useState('0.09');
+  const [minPrice, setMinPrice] = useState((5 * 1e6).toString());
+  const [minIskVolume, setMinIskVolume] = useState((2 * 1e9).toString());
   const [searchText, setSearchText] = useState('');
 
   const rowData = data?.map(d => ({
@@ -99,7 +99,11 @@ export default function MarketabiltyTab() {
       .reduce((acc, obj) => ({ ...acc, ...obj }), {}),
   }))?.filter(d =>
     // @ts-ignore
-    d.avgDiff > minDiff && d.avgPrice > minPrice && d.avgIskVolume > minIskVolume
+    d.avgDiff > Number(minDiff)
+    // @ts-ignore
+    && d.avgPrice > Number(minPrice)
+    // @ts-ignore
+    && d.avgIskVolume > Number(minIskVolume)
     && d.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -111,21 +115,21 @@ export default function MarketabiltyTab() {
           label="Min Diff"
           variant="outlined"
           value={minDiff}
-          onChange={e => setMinDiff(Number(e.target.value))}
+          onChange={e => setMinDiff(e.target.value)}
         />
         <TextField
           sx={{ width: 150 }}
           label="Min Price"
           variant="outlined"
           value={minPrice}
-          onChange={e => setMinPrice(Number(e.target.value))}
+          onChange={e => setMinPrice(e.target.value)}
         />
         <TextField
           sx={{ width: 150 }}
           label="Min Isk Volume"
           variant="outlined"
           value={minIskVolume}
-          onChange={e => setMinIskVolume(Number(e.target.value))}
+          onChange={e => setMinIskVolume(e.target.value)}
         />
         <TextField
           sx={{ width: 200 }}

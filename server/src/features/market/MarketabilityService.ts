@@ -10,6 +10,7 @@ import EveSdeData from '../../core/sde/EveSdeData';
 
 // TODO
 // - scheduled job for this
+// - compute avg diff from live data
 
 type MarketabilityScore = { name: string, value: number };
 type TypeIdMarketability = {
