@@ -19,5 +19,8 @@
     "client": "cd client && npm start",
     "client-install": "cd client && npm i",
     "shared-test": "cd shared && npm run test"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
   }
 }
