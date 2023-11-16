@@ -29,11 +29,14 @@ async function init() {
 
   // Needs to be called after database init
   const sequelize = Container.get(Sequelize);
+  console.log('-2')
 
   await connectToDatabase(sequelize);
+  console.log('-1')
 
   // Needs to be called after the database init
   const sdeData = await EveSdeData.init();
+  console.log('0')
   Container.set(EveSdeData, sdeData);
 
   console.log('1')
