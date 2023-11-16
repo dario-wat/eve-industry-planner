@@ -36,6 +36,8 @@ async function init() {
   const sdeData = await EveSdeData.init();
   Container.set(EveSdeData, sdeData);
 
+  console.log('1')
+
   const app = express();
 
   const sequelizeSessionStore = await initSessionStore(sequelize);
@@ -47,23 +49,36 @@ async function init() {
     cookie: { secure: false, maxAge: hoursToMilliseconds(7 * 24) },
   }))
 
+  console.log('2')
+
   app.use(cookieParser());
+  console.log('3')
   app.use(cors({
     origin: process.env.CLIENT_DOMAIN!,
     credentials: true,
   }));
+  console.log('4')
   app.use(express.urlencoded({ extended: true }));
+  console.log('5')
   app.use(express.json());
+
+  console.log('6')
 
   // Initialize all controllers. 
   Container.get(Controllers).init(app);
+
+  console.log('7')
 
   // Catch all errors
   process.on('unhandledRejection', (reason: string) => {
     console.error('Unhandled Promise Rejection:', reason);
   });
 
+  console.log('8')
+
   const port = process.env.PORT || process.env.SERVER_PORT!;
+
+  console.log('9')
   app.listen(port, () => {
     console.log(`API server listening on port ${port}`);
   });
