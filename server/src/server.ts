@@ -34,10 +34,14 @@ async function init() {
   await connectToDatabase(sequelize);
   console.log('-1')
 
+  console.log(process.memoryUsage())
+
   // Needs to be called after the database init
   const sdeData = await EveSdeData.init();
   console.log('0')
   Container.set(EveSdeData, sdeData);
+
+  console.log(process.memoryUsage())
 
   console.log('1')
 

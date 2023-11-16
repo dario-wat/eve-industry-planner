@@ -50,7 +50,7 @@ export function initDatabaseSequelize(): Sequelize {
       host: process.env.DATABASE_HOST!,
       port: Number(process.env.DATABASE_PORT!),
       dialect: 'mysql' as Dialect,
-      logging: console.log,
+      logging: false,
     }
   );
 

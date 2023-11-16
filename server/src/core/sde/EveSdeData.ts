@@ -158,32 +158,17 @@ export default class EveSdeData {
       throw new Error('EveSdeData is already initialized!');
     }
 
-    const [
-      typesData,
-      groupsData,
-      categoriesData,
-      stationsData,
-      bpManufactureMaterialsData,
-      bpManufactureProductsData,
-      bpReactionMaterialsData,
-      bpReactionProductsData,
-      blueprintData,
-      invItemData,
-      invUniqueNameData,
-    ] =
-      await Promise.all([
-        TypeID.findAll(),
-        GroupID.findAll(),
-        CategoryID.findAll(),
-        Station.findAll(),
-        BpManufacturingMaterials.findAll(),
-        BpManufacturingProducts.findAll(),
-        BpReactionMaterials.findAll(),
-        BpReactionProducts.findAll(),
-        Blueprint.findAll(),
-        InvItem.findAll(),
-        InvUniqueName.findAll(),
-      ]);
+    const typesData = await TypeID.findAll();
+    const groupsData = await GroupID.findAll();
+    const categoriesData = await CategoryID.findAll();
+    const stationsData = await Station.findAll();
+    const bpManufactureMaterialsData = await BpManufacturingMaterials.findAll();
+    const bpManufactureProductsData = await BpManufacturingProducts.findAll();
+    const bpReactionMaterialsData = await BpReactionMaterials.findAll();
+    const bpReactionProductsData = await BpReactionProducts.findAll();
+    const blueprintData = await Blueprint.findAll();
+    const invItemData = await InvItem.findAll();
+    const invUniqueNameData = await InvUniqueName.findAll();
 
     return new EveSdeData(
       mapifySequelize(typesData, 'id'),
