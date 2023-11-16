@@ -12,11 +12,6 @@ import Controllers from './loaders/Controllers';
 import EveSdeData from './core/sde/EveSdeData';
 import { hoursToMilliseconds } from 'date-fns';
 import initSessionStore from './loaders/initSessionStore';
-import { DOMAIN } from './const/ServerConst';
-
-const port = 8080;
-const domain = DOMAIN;
-const sessionSecret = 'mcqbjEBpLRT0FgUBMI8d7qOHVfhM8WkYm0sKpHrO';
 
 async function connectToDatabase(
   sequelize: Sequelize,
@@ -45,7 +40,7 @@ async function init() {
 
   const sequelizeSessionStore = await initSessionStore(sequelize);
   app.use(session({
-    secret: sessionSecret,
+    secret: process.env.SESSION_SECRET!,
     store: sequelizeSessionStore,
     resave: false,
     saveUninitialized: true,
@@ -54,7 +49,7 @@ async function init() {
 
   app.use(cookieParser());
   app.use(cors({
-    origin: domain,
+    origin: process.env.CLIENT_DOMAIN!,
     credentials: true,
   }));
   app.use(express.urlencoded({ extended: true }));
@@ -68,6 +63,7 @@ async function init() {
     console.error('Unhandled Promise Rejection:', reason);
   });
 
+  const port = process.env.SERVER_PORT!;
   app.listen(port, () => {
     console.log(`API server listening on port ${port}`);
   });

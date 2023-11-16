@@ -1,6 +1,5 @@
 import { Service } from 'typedi';
 import ESI from 'eve-esi-client';
-import { CLIENT_ID, SECRET, CALLBACK_URI } from '../../config/eveSsoConfig';
 import EsiSequelizeProvider from './EsiSequelizeProvider';
 
 /**
@@ -15,9 +14,9 @@ export default class EsiProviderService {
   ) {
     this.esi = new ESI({
       provider: provider,
-      clientId: CLIENT_ID,
-      secretKey: SECRET,
-      callbackUri: CALLBACK_URI,
+      clientId: process.env.ESI_CLIENT_ID!,
+      secretKey: process.env.ESI_SECRET!,
+      callbackUri: process.env.ESI_CALLBACK_URI!,
     });
   }
 

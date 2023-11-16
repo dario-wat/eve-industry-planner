@@ -1,10 +1,7 @@
 import { Request, Response } from 'express';
 import { Service } from 'typedi';
-import { SSO_STATE } from '../../config/eveSsoConfig';
 import { requiredScopes } from '../../const/EveScopes';
-import { DOMAIN } from '../../const/ServerConst';
 import EsiProviderService from '../esi/EsiProviderService';
-import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
 import { EsiCharacter } from '../esi/models/EsiCharacter';
 import ActorContext from '../actor_context/ActorContext';
 import AccountService from '../account/AccountService';
@@ -15,7 +12,6 @@ export default class EveLoginController extends Controller {
 
   constructor(
     private readonly esi: EsiProviderService,
-    private readonly esiQuery: EsiTokenlessQueryService,
     private readonly accountService: AccountService,
   ) {
     super();
@@ -26,7 +22,10 @@ export default class EveLoginController extends Controller {
     this.appGet(
       '/login_url',
       async (_req: Request, res: Response, _actorContext: ActorContext) => {
-        res.send(this.esi.get().getRedirectUrl(SSO_STATE, requiredScopes));
+        res.send(
+          // TODO use generated SSO state on callback
+          this.esi.get().getRedirectUrl(process.env.ESI_SSO_STATE!, requiredScopes)
+        );
       },
     );
 
@@ -49,7 +48,7 @@ export default class EveLoginController extends Controller {
 
         req.session.accountId = account.id;
 
-        res.redirect(DOMAIN);
+        res.redirect(process.env.CLIENT_DOMAIN!);
       },
     );
 
