@@ -5,7 +5,7 @@ import actorContextMiddleware from '../core/controller/actorContextMiddleware';
 import AccountController from '../core/account/AccountController';
 import EsiCacheController from '../core/esi_cache/EsiCacheController';
 import EveSdeDataController from '../core/sde/EveSdeDataController';
-import HealthController from '../core/controller/healthController';
+import HealthController from '../core/controller/HealthController';
 import ScribbleController from '../features/scribble/ScribbleController';
 import AlwaysBuyItemController from '../features/always_buy/AlwaysBuyItemController';
 import MaterialStationController from '../features/material_station/MaterialStationController';
