@@ -66,7 +66,7 @@ export default function HomePage() {
     },
     {
       path: '/market_prediction',
-      label: 'MarketPrediction',
+      label: 'Market Prediction',
       icon: <AttachMoneyIcon />,
       component: MarketPredictionPage,
     },

@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
+import { Dialect } from 'sequelize/types';
 import Container from 'typedi';
-import databaseConfig from '../config/databaseConfig';
 import {
   blueprintModelDefine,
   bpCopyingMaterialsDefine,
@@ -43,13 +43,13 @@ import { invUniqueNameModelDefine } from '../core/sde/models/InvUniqueName';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
-    databaseConfig.name,
-    databaseConfig.username,
-    databaseConfig.password,
+    process.env.DATABASE_NAME!,
+    process.env.DATABASE_USERNAME!,
+    process.env.DATABASE_PASSWORD!,
     {
-      host: databaseConfig.host,
-      port: databaseConfig.port,
-      dialect: databaseConfig.dialect,
+      host: process.env.DATABASE_HOST!,
+      port: Number(process.env.DATABASE_PORT!),
+      dialect: 'mysql' as Dialect,
       logging: false,
     }
   );
