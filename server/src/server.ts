@@ -13,6 +13,8 @@ import EveSdeData from './core/sde/EveSdeData';
 import { hoursToMilliseconds } from 'date-fns';
 import initSessionStore from './loaders/initSessionStore';
 
+console.log(process.env)
+
 async function connectToDatabase(
   sequelize: Sequelize,
 ): Promise<void> {
@@ -63,7 +65,7 @@ async function init() {
     console.error('Unhandled Promise Rejection:', reason);
   });
 
-  const port = process.env.SERVER_PORT!;
+  const port = process.env.PORT || process.env.SERVER_PORT!;
   app.listen(port, () => {
     console.log(`API server listening on port ${port}`);
   });
