@@ -5,6 +5,7 @@ import actorContextMiddleware from '../core/controller/actorContextMiddleware';
 import AccountController from '../core/account/AccountController';
 import EsiCacheController from '../core/esi_cache/EsiCacheController';
 import EveSdeDataController from '../core/sde/EveSdeDataController';
+import HealthController from '../core/controller/healthController';
 import ScribbleController from '../features/scribble/ScribbleController';
 import AlwaysBuyItemController from '../features/always_buy/AlwaysBuyItemController';
 import MaterialStationController from '../features/material_station/MaterialStationController';
@@ -34,6 +35,7 @@ export default class Controllers {
     private readonly industryJobController: IndustryJobController,
     private readonly walletController: WalletController,
     private readonly marketController: MarketController,
+    private readonly healthController: HealthController,
   ) { }
 
   public init(app: Express): void {
@@ -57,5 +59,6 @@ export default class Controllers {
     this.industryJobController.init(app);
     this.walletController.init(app);
     this.marketController.init(app);
+    this.healthController.init(app);
   }
 }

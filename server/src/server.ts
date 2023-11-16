@@ -29,21 +29,14 @@ async function init() {
 
   // Needs to be called after database init
   const sequelize = Container.get(Sequelize);
-  console.log('-2')
 
   await connectToDatabase(sequelize);
-  console.log('-1')
-
-  console.log(process.memoryUsage())
 
   // Needs to be called after the database init
+  console.log('Loading EVE SDE data');
   const sdeData = await EveSdeData.init();
-  console.log('0')
   Container.set(EveSdeData, sdeData);
-
-  console.log(process.memoryUsage())
-
-  console.log('1')
+  console.log('Done loading EVE SDE data');
 
   const app = express();
 
@@ -56,36 +49,23 @@ async function init() {
     cookie: { secure: false, maxAge: hoursToMilliseconds(7 * 24) },
   }))
 
-  console.log('2')
-
   app.use(cookieParser());
-  console.log('3')
   app.use(cors({
     origin: process.env.CLIENT_DOMAIN!,
     credentials: true,
   }));
-  console.log('4')
   app.use(express.urlencoded({ extended: true }));
-  console.log('5')
   app.use(express.json());
-
-  console.log('6')
 
   // Initialize all controllers. 
   Container.get(Controllers).init(app);
-
-  console.log('7')
 
   // Catch all errors
   process.on('unhandledRejection', (reason: string) => {
     console.error('Unhandled Promise Rejection:', reason);
   });
 
-  console.log('8')
-
   const port = process.env.PORT || process.env.SERVER_PORT!;
-
-  console.log('9')
   app.listen(port, () => {
     console.log(`API server listening on port ${port}`);
   });
