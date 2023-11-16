@@ -13,8 +13,6 @@ import EveSdeData from './core/sde/EveSdeData';
 import { hoursToMilliseconds } from 'date-fns';
 import initSessionStore from './loaders/initSessionStore';
 
-console.log(process.env)
-
 async function connectToDatabase(
   sequelize: Sequelize,
 ): Promise<void> {
