@@ -8,7 +8,7 @@ export default class HealthController extends Controller {
 
   protected initController(): void {
     this.appGet(
-      '/health',
+      '/healthz',
       async (_req: Request, res: Response, _actorContext: ActorContext) => {
         res.json({ status: 'I am ALIVE!' });
       },
