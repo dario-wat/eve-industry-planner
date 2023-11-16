@@ -12,9 +12,10 @@
     "underscore": "^1.13.4"
   },
   "scripts": {
-    "server": "nodemon ./server/src/server.ts",
+    "server-dev": "nodemon ./server/src/server.ts",
+    "server-prod": "ts-node ./server/src/server.ts",
     "server-test": "cd server && npm run test",
-    "server-install": "cd server && npm i",
+    "server-build": "cd server && npm i",
     "client": "cd client && npm start",
     "client-install": "cd client && npm i",
     "shared-test": "cd shared && npm run test"
