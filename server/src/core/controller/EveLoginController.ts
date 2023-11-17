@@ -46,6 +46,7 @@ export default class EveLoginController extends Controller {
           esiCharacter,
         );
 
+        console.log('SSO Callback Account ID:', account.id);
         req.session.accountId = account.id;
 
         res.redirect(process.env.CLIENT_DOMAIN!);
