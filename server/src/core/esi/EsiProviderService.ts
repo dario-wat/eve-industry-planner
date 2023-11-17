@@ -16,7 +16,7 @@ export default class EsiProviderService {
       provider: provider,
       clientId: process.env.ESI_CLIENT_ID!,
       secretKey: process.env.ESI_SECRET!,
-      callbackUri: process.env.HOSTNAME!,   // AWS adds this
+      callbackUri: process.env.ESI_CALLBACK_URI!,
     });
   }
 
