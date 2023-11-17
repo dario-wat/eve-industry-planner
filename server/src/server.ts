@@ -49,7 +49,7 @@ async function init() {
     cookie: {
       secure: true,
       maxAge: hoursToMilliseconds(7 * 24),
-      sameSite: 'none',
+      // sameSite: 'none',
     },
   }))
 
