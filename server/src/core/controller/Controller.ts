@@ -35,6 +35,7 @@ export default abstract class Controller {
   /** Helper function to define a `get` endpoint. */
   protected appGet(route: string, handler: RouterHandlerFn): void {
     this.router.get(route, async (req: Request, res: Response) => {
+      console.log(`GET ${route}`);
       await handler(req, res, res.locals.actorContext);
     });
   }
@@ -42,6 +43,7 @@ export default abstract class Controller {
   /** Helper function to define `post` endpoint. */
   protected appPost(route: string, handler: RouterHandlerFn): void {
     this.router.post(route, async (req: Request, res: Response) => {
+      console.log(`POST ${route}`);
       await handler(req, res, res.locals.actorContext);
     });
   }
@@ -49,6 +51,7 @@ export default abstract class Controller {
   /** Helper function to define 'delete' endpoint. */
   protected appDelete(route: string, handler: RouterHandlerFn): void {
     this.router.delete(route, async (req: Request, res: Response) => {
+      console.log(`DELETE ${route}`);
       await handler(req, res, res.locals.actorContext);
     });
   }
