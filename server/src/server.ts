@@ -47,7 +47,7 @@ async function init() {
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: Boolean(process.env.COOKIE_SECURE!),
+      secure: true,
       maxAge: hoursToMilliseconds(7 * 24),
       sameSite: 'none',
     },
