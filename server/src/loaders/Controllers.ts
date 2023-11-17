@@ -42,6 +42,7 @@ export default class Controllers {
     app.use(actorContextMiddleware);
 
     this.eveLoginController.init(app);
+    this.healthController.init(app);
 
     // Only login controller does not require a logged in user,
     // all other controllers will go through this middleware first
@@ -59,6 +60,5 @@ export default class Controllers {
     this.industryJobController.init(app);
     this.walletController.init(app);
     this.marketController.init(app);
-    this.healthController.init(app);
   }
 }
