@@ -47,7 +47,7 @@ async function init() {
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: true,
+      secure: false,
       maxAge: hoursToMilliseconds(7 * 24),
       // sameSite: 'none',
     },
