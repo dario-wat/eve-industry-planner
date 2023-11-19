@@ -50,6 +50,7 @@ async function init() {
     resave: false,
     saveUninitialized: true,
     cookie: {
+      domain: process.env.CLIENT_DOMAIN!,
       secure: true,
       maxAge: hoursToMilliseconds(7 * 24),
       sameSite: 'none',
