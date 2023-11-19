@@ -36,6 +36,7 @@ export default abstract class Controller {
   protected appGet(route: string, handler: RouterHandlerFn): void {
     this.router.get(route, async (req: Request, res: Response) => {
       console.log(`GET ${route}`);
+      console.log(`ishttps: ${req.secure}, protocol: ${req.protocol}`)
       await handler(req, res, res.locals.actorContext);
     });
   }
