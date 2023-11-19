@@ -7,8 +7,6 @@ export default function actorContextMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  console.log('Session:', req.session);
-  console.log('Session Account ID:', req.session.accountId)
   const actorContext = new ActorContext(req.session.accountId ?? null);
   res.locals.actorContext = actorContext;
   next();

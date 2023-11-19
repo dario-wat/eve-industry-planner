@@ -35,12 +35,10 @@ export default function DashboardProductsTextArea(props: {
   const [errors, setErrors] = useState<string[]>([]);
   const onButtonClick = async () => {
     if (props.group === '') {
-      console.log('boefre');
       toast.error('Group name cannot be empty!', {
         position: 'bottom-center',
         autoClose: 3000,
       });
-      console.log('bafter');
       return;
     }
     setIsSubmitting(true);

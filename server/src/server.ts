@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import 'dotenv/config';
 
 import cors from 'cors';
-import http from 'http';
 import https from 'https';
 import fs from 'fs';
 import express from 'express';
@@ -65,9 +64,10 @@ async function init() {
   app.use(express.json());
 
   // Enable trust for the X-Forwarded-Proto header
+  // This is needed for AWS App Runner
   app.set('trust proxy', true);
 
-  // Initialize all controllers. 
+  // Initialize all controllers.
   Container.get(Controllers).init(app);
 
   // Catch all errors
@@ -76,21 +76,22 @@ async function init() {
   });
 
   const port = process.env.PORT || process.env.SERVER_PORT!;
-  app.listen(port, () => {
-    console.log(`API server listening on port ${port}`);
-  });
+  const useHttps = process.env.USE_HTTPS_LOCAL === '1';
+  if (useHttps) {
+    const options = {
+      key: fs.readFileSync('localhost.key'),
+      cert: fs.readFileSync('localhost.crt'),
+    };
 
-  // const options = {
-  //   key: fs.readFileSync('localhost.key'),
-  //   cert: fs.readFileSync('localhost.crt'),
-  // };
-
-  // const serverHTTPS = https.createServer(options, app);
-  // serverHTTPS.listen(port, () => {
-  //   console.log(`HTTPS server running at https://localhost:${port}/`);
-  // });
-
-
+    const serverHTTPS = https.createServer(options, app);
+    serverHTTPS.listen(port, () => {
+      console.log(`HTTPS server running at https://localhost:${port}/`);
+    });
+  } else {
+    app.listen(port, () => {
+      console.log(`API server listening on port ${port}`);
+    });
+  }
 }
 
 init();
