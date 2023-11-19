@@ -18,6 +18,7 @@
     "server-test": "cd server && npm run test",
     "server-build": "cd server && npm i",
     "client": "cd client && npm start",
+    "client-https": "cd client & npm run start-https",
     "client-install": "cd client && npm i",
     "shared-test": "cd shared && npm run test"
   }

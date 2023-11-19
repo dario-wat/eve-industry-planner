@@ -2,6 +2,9 @@ import 'reflect-metadata';
 import 'dotenv/config';
 
 import cors from 'cors';
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
 import express from 'express';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
@@ -47,7 +50,7 @@ async function init() {
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: false,
+      secure: true,
       maxAge: hoursToMilliseconds(7 * 24),
       sameSite: 'none',
     },
@@ -70,9 +73,21 @@ async function init() {
   });
 
   const port = process.env.PORT || process.env.SERVER_PORT!;
-  app.listen(port, () => {
-    console.log(`API server listening on port ${port}`);
+  // app.listen(port, () => {
+  //   console.log(`API server listening on port ${port}`);
+  // });
+
+  const options = {
+    key: fs.readFileSync('localhost.key'),
+    cert: fs.readFileSync('localhost.crt'),
+  };
+
+  const serverHTTPS = https.createServer(options, app);
+  serverHTTPS.listen(port, () => {
+    console.log(`HTTPS server running at https://localhost:${port}/`);
   });
+
+
 }
 
 init();
