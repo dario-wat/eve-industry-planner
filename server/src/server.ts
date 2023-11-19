@@ -73,19 +73,19 @@ async function init() {
   });
 
   const port = process.env.PORT || process.env.SERVER_PORT!;
-  // app.listen(port, () => {
-  //   console.log(`API server listening on port ${port}`);
-  // });
-
-  const options = {
-    key: fs.readFileSync('localhost.key'),
-    cert: fs.readFileSync('localhost.crt'),
-  };
-
-  const serverHTTPS = https.createServer(options, app);
-  serverHTTPS.listen(port, () => {
-    console.log(`HTTPS server running at https://localhost:${port}/`);
+  app.listen(port, () => {
+    console.log(`API server listening on port ${port}`);
   });
+
+  // const options = {
+  //   key: fs.readFileSync('localhost.key'),
+  //   cert: fs.readFileSync('localhost.crt'),
+  // };
+
+  // const serverHTTPS = https.createServer(options, app);
+  // serverHTTPS.listen(port, () => {
+  //   console.log(`HTTPS server running at https://localhost:${port}/`);
+  // });
 
 
 }
