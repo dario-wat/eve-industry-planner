@@ -64,6 +64,9 @@ async function init() {
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
 
+  // Enable trust for the X-Forwarded-Proto header
+  app.set('trust proxy', true);
+
   // Initialize all controllers. 
   Container.get(Controllers).init(app);
 
