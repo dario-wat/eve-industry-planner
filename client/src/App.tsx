@@ -18,6 +18,7 @@ function App() {
   return (
     <RecoilRoot>
       <UserContext.Provider value={userContext}>
+        {/* This matches the github pages base url */}
         <BrowserRouter basename="/eve-industry-planner">
           {loading
             ?

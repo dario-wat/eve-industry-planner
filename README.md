@@ -5,6 +5,14 @@ To run call in separate terminals:
 - npm run server
 - npm run client
 
+# Testing https
+
+1. Go to client/src/index.tsx and update the baseURL to use https
+2. Add USE_HTTPS_LOCAL=1 to .env
+3. Uncomment env variables in .env related to https
+4. Run client with "npm run client-https"
+4. Run server with "npm run server-dev"
+
 # Demo
 
 

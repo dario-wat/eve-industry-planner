@@ -48,7 +48,8 @@ export default class EveLoginController extends Controller {
 
         req.session.accountId = account.id;
 
-        res.redirect(process.env.CLIENT_DOMAIN!);
+        // This matches the github pages base url
+        res.redirect(process.env.CLIENT_DOMAIN! + '/eve-industry-planner');
       },
     );
 
