@@ -18,7 +18,7 @@ function App() {
   return (
     <RecoilRoot>
       <UserContext.Provider value={userContext}>
-        <BrowserRouter>
+        <BrowserRouter basename="/eve-industry-planner">
           {loading
             ?
             <Box sx={{ height: 300, width: 1 }}>
