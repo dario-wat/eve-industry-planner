@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.js": "/eve-industry-planner/static/js/main.b928dfc7.chunk.js",
-    "main.js.map": "/eve-industry-planner/static/js/main.b928dfc7.chunk.js.map",
+    "main.js": "/eve-industry-planner/static/js/main.8caaea52.chunk.js",
+    "main.js.map": "/eve-industry-planner/static/js/main.8caaea52.chunk.js.map",
     "runtime-main.js": "/eve-industry-planner/static/js/runtime-main.41f9aa78.js",
     "runtime-main.js.map": "/eve-industry-planner/static/js/runtime-main.41f9aa78.js.map",
     "static/css/2.2c4e78b8.chunk.css": "/eve-industry-planner/static/css/2.2c4e78b8.chunk.css",
@@ -15,6 +15,6 @@
     "static/js/runtime-main.41f9aa78.js",
     "static/css/2.2c4e78b8.chunk.css",
     "static/js/2.262887c7.chunk.js",
-    "static/js/main.b928dfc7.chunk.js"
+    "static/js/main.8caaea52.chunk.js"
   ]
 }
