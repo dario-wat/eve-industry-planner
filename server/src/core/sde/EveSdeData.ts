@@ -12,10 +12,6 @@ import {
   BpReactionProducts,
 } from './models/Blueprint';
 import { CategoryID } from './models/CategoryID';
-import { InvItem } from './models/InvItem';
-import { InvUniqueName } from './models/InvUniqueName';
-
-const SOLAR_SYSTEM_TYPE_ID = 5;
 
 export type EveSdeType = {
   id: number,
@@ -57,17 +53,6 @@ export type EveSdeBlueprint = {
   reaction_time: number,
 }
 
-export type EveSdeInvItem = {
-  item_id: number,
-  type_id: number,
-  location_id: number,
-}
-
-export type EveSdeInvUniqueName = {
-  item_id: number,
-  item_name: string,
-}
-
 /**
  * SDE (Static Data Export) is a collection of data that is static in the
  * EVE universe (e.g. blueprints, stations, types, ...). This data is not
@@ -98,9 +83,6 @@ export default class EveSdeData {
     public readonly bpReactionProductsByProduct:
       { [type_id: number]: EveSdeBlueprintMaterial },
     public readonly blueprints: { [blueprint_id: number]: EveSdeBlueprint },
-    public readonly invItem: { [item_id: number]: EveSdeInvItem },
-    public readonly invItemByTypeId: { [type_id: number]: EveSdeInvItem[] },
-    public readonly invUniqueName: { [item_id: number]: EveSdeInvUniqueName },
   ) { }
 
   public categoryIdFromTypeId(typeId: number): number | undefined {
@@ -138,20 +120,6 @@ export default class EveSdeData {
       : undefined;
   }
 
-  /**
-   * Finds region ID for the given solar system ID.
-   * Throws if the input ID is not a solar system ID.
-   * E.g. solar system ID: 30003699
-   */
-  public solarSystemToRegion(solarSystemId: number): number {
-    const solarSystem = this.invItem[solarSystemId];
-    if (solarSystem?.type_id !== SOLAR_SYSTEM_TYPE_ID) {
-      throw Error('Input ID should be a solar system ID');
-    }
-    const constellation = this.invItem[solarSystem.location_id];
-    return constellation.location_id;
-  }
-
   /** Loads SDE from MySQL into memory. */
   public static async init(): Promise<EveSdeData> {
     if (this.initialized) {
@@ -167,8 +135,6 @@ export default class EveSdeData {
     const bpReactionMaterialsData = await BpReactionMaterials.findAll();
     const bpReactionProductsData = await BpReactionProducts.findAll();
     const blueprintData = await Blueprint.findAll();
-    const invItemData = await InvItem.findAll();
-    const invUniqueNameData = await InvUniqueName.findAll();
 
     return new EveSdeData(
       mapifySequelize(typesData, 'id'),
@@ -181,9 +147,6 @@ export default class EveSdeData {
       mapifyMultiSequelize(bpReactionMaterialsData, 'blueprint_id'),
       mapifySequelize(bpReactionProductsData, 'type_id'),
       mapifySequelize(blueprintData, 'id'),
-      mapifySequelize(invItemData, 'item_id'),
-      mapifyMultiSequelize(invItemData, 'type_id'),
-      mapifySequelize(invUniqueNameData, 'item_id'),
     );
   }
 }
