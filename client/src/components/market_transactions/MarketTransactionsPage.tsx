@@ -14,6 +14,7 @@ import AllMarketTransactionsDataGrid from './AllMarketTransactionsDataGrid';
 import AggregatedTransactionsDataGrid from './AggregatedTransactionsDataGrid';
 import { uniq } from 'underscore';
 import OverallTransactionDataGrid from './OverallTransactionDataGrid';
+import { LoadingButton } from '@mui/lab';
 
 enum SelectedTab {
   TRANSACTIONS = 'TRANSACTIONS',
@@ -24,7 +25,8 @@ enum SelectedTab {
 const ALL_CHARACTERS = '-ALL-';
 
 export default function MarketTransactionsPage() {
-  const [{ data }] = useAxios<WalletTransactionsRes>('/wallet_transactions');
+  const [{ data, loading }, refetch] =
+    useAxios<WalletTransactionsRes>('/wallet_transactions');
 
   const characterNames = uniq(data?.map(d => d.characterName) ?? []);
 
@@ -101,6 +103,17 @@ export default function MarketTransactionsPage() {
               <MenuItem key={name} value={name}>{name}</MenuItem>
             )}
           </Select>
+        </Grid>
+        <Grid item>
+          <LoadingButton
+            sx={{ height: '40px' }}
+            loading={loading}
+            variant="contained"
+            size="small"
+            onClick={() => refetch()}
+          >
+            Refresh
+          </LoadingButton>
         </Grid>
       </Grid>
       <Card>

@@ -27,6 +27,8 @@ async function connectToDatabase(
 }
 
 async function init() {
+  const useHttps = process.env.USE_HTTPS_LOCAL === '1';
+
   initDatabase();
 
   // Needs to be called after database init
@@ -49,9 +51,9 @@ async function init() {
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: true,
+      secure: useHttps,
       maxAge: hoursToMilliseconds(7 * 24),
-      sameSite: 'none',
+      sameSite: useHttps ? 'none' : undefined,
     },
   }))
 
@@ -76,7 +78,6 @@ async function init() {
   });
 
   const port = process.env.PORT || process.env.SERVER_PORT!;
-  const useHttps = process.env.USE_HTTPS_LOCAL === '1';
   if (useHttps) {
     const options = {
       key: fs.readFileSync('localhost.key'),
