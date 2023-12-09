@@ -6,6 +6,8 @@ import { Box, CircularProgress, Toolbar } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 
+export const BASE_PATH = '/eve-industry-planner';
+
 function App() {
   const [{ data, loading }] = useAxios<EveLoggedInUserRes>('/logged_in_user');
   const userContext = data
@@ -19,7 +21,7 @@ function App() {
     <RecoilRoot>
       <UserContext.Provider value={userContext}>
         {/* This matches the github pages base url */}
-        <BrowserRouter basename="/eve-industry-planner">
+        <BrowserRouter basename={BASE_PATH}>
           {loading
             ?
             <Box sx={{ height: 300, width: 1 }}>
