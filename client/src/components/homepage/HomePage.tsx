@@ -35,6 +35,12 @@ export default function HomePage() {
 
   const routes = [
     {
+      path: '/',
+      label: 'Dashboard',
+      icon: <DashboardIcon />,
+      component: DashboardPage,
+    },
+    {
       path: '/industry_jobs',
       label: 'Industry Jobs',
       icon: <ScienceIcon />,
@@ -81,12 +87,6 @@ export default function HomePage() {
       label: 'Characters',
       icon: <SleddingIcon />,
       component: CharactersPage,
-    },
-    {
-      path: '/',
-      label: 'Dashboard',
-      icon: <DashboardIcon />,
-      component: DashboardPage,
     },
   ];
 
