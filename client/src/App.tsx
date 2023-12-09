@@ -21,7 +21,7 @@ function App() {
     <RecoilRoot>
       <UserContext.Provider value={userContext}>
         {/* This matches the github pages base url */}
-        <HashRouter basename="/">
+        <HashRouter basename={BASE_PATH}>
           {loading
             ?
             <Box sx={{ height: 300, width: 1 }}>
