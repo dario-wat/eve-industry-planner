@@ -3,7 +3,7 @@ import HomePage from 'components/homepage/HomePage';
 import { defaultUserContextValue, UserContext } from 'contexts/UserContext';
 import { EveLoggedInUserRes } from '@internal/shared';
 import { Box, CircularProgress, Toolbar } from '@mui/material';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 
 const BASE_PATH = '/eve-industry-planner';
@@ -21,7 +21,7 @@ function App() {
     <RecoilRoot>
       <UserContext.Provider value={userContext}>
         {/* This matches the github pages base url */}
-        <BrowserRouter basename={BASE_PATH}>
+        <HashRouter basename={BASE_PATH}>
           {loading
             ?
             <Box sx={{ height: 300, width: 1 }}>
@@ -37,7 +37,7 @@ function App() {
             </Box>
             :
             <HomePage />}
-        </BrowserRouter>
+        </HashRouter>
       </UserContext.Provider>
     </RecoilRoot>
   );
