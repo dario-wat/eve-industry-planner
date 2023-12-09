@@ -27,7 +27,6 @@ import { Route, Routes } from 'react-router-dom';
 import MarketComparisonPage from 'components/MarketComparisonPage';
 import CharactersPage from 'components/CharactersPage';
 import MarketPredictionPage from 'components/market_predictions/MarketPredictionPage';
-import { BASE_PATH } from 'App';
 
 export default function HomePage() {
   const userContext = useContext(UserContext);
@@ -105,7 +104,7 @@ export default function HomePage() {
               <Routes>
                 {routes.map((route: any) =>
                   <Route
-                    path={BASE_PATH + route.path}
+                    path={route.path}
                     key={route.path}
                     element={<route.component />} />
                 )}

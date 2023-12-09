@@ -6,7 +6,7 @@ import { Box, CircularProgress, Toolbar } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 
-export const BASE_PATH = '/eve-industry-planner';
+const BASE_PATH = '/eve-industry-planner';
 
 function App() {
   const [{ data, loading }] = useAxios<EveLoggedInUserRes>('/logged_in_user');
