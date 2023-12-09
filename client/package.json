@@ -1,7 +1,7 @@
 {
   "name": "eve-industry-planner",
   "version": "0.1.0",
-  "homepage": "https://dario-wat.github.io/eve-industry-planner/",
+  "homepage": "https://dario-wat.github.io/eve-industry-planner",
   "dependencies": {
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
