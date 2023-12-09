@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/eve-industry-planner/static/css/main.b07b66ba.css",
-    "main.js": "/eve-industry-planner/static/js/main.ec1e31c2.js",
+    "main.js": "/eve-industry-planner/static/js/main.1e207666.js",
     "index.html": "/eve-industry-planner/index.html",
     "main.b07b66ba.css.map": "/eve-industry-planner/static/css/main.b07b66ba.css.map",
-    "main.ec1e31c2.js.map": "/eve-industry-planner/static/js/main.ec1e31c2.js.map"
+    "main.1e207666.js.map": "/eve-industry-planner/static/js/main.1e207666.js.map"
   },
   "entrypoints": [
     "static/css/main.b07b66ba.css",
-    "static/js/main.ec1e31c2.js"
+    "static/js/main.1e207666.js"
   ]
 }
