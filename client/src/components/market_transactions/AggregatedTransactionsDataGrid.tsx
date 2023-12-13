@@ -34,14 +34,14 @@ const columns: GridColDef[] = [
   {
     field: 'buyVolume',
     headerName: 'Buy Volume',
-    width: 100,
+    width: 120,
     align: 'right',
     renderCell: params => <ColoredNumber number={params.value} color="red" />,
   },
   {
     field: 'sellVolume',
     headerName: 'Sell Volume',
-    width: 100,
+    width: 120,
     align: 'right',
     renderCell: params => <ColoredNumber number={params.value} color="green" />,
   },
