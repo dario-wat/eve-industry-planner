@@ -1,8 +1,10 @@
-import { WalletTransactionsRes } from "@internal/shared";
+import { MarketOrdersRes, WalletTransactionsRes } from "@internal/shared";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import EveIconAndName from "components/util/EveIconAndName";
 import { ColoredNumber } from "components/util/numbers";
 import { transactionAggregate } from "./transactionAggregate";
+import useAxios from "axios-hooks";
+import { Box, CircularProgress } from "@mui/material";
 
 const columns: GridColDef[] = [
   {
@@ -11,11 +13,16 @@ const columns: GridColDef[] = [
     width: 300,
     sortable: false,
     renderCell: params =>
-      <EveIconAndName
-        typeId={params.row.typeId}
-        categoryId={params.row.categoryId}
-        name={params.row.name}
-      />,
+      <Box sx={{
+        color: params.row.hasBuyOrder ? 'default' : 'red',
+        display: 'contents',
+      }}>
+        <EveIconAndName
+          typeId={params.row.typeId}
+          categoryId={params.row.categoryId}
+          name={params.row.name}
+        />
+      </Box>,
   },
   {
     field: 'buyQuantity',
@@ -91,15 +98,23 @@ const columns: GridColDef[] = [
 export default function AggregatedTransactionsDataGrid(props: {
   data: WalletTransactionsRes,
 }) {
+  const [{ data }] = useAxios<MarketOrdersRes>('/market_orders');
+  const buyOrders = new Set(data?.filter(d => d.isBuy)?.map(d => d.typeId));
+
   const aggregatedData = transactionAggregate(props.data);
+  const aggregatedDataWithBuyOrder = aggregatedData.map(d =>
+    ({ ...d, hasBuyOrder: buyOrders.has(d.typeId) })
+  );
 
   return (
-    <DataGrid
-      rows={aggregatedData}
-      columns={columns}
-      sortModel={[{ field: 'sellVolume', sort: 'desc' }]}
-      disableSelectionOnClick
-      disableColumnMenu
-    />
+    data
+      ? <DataGrid
+        rows={aggregatedDataWithBuyOrder}
+        columns={columns}
+        sortModel={[{ field: 'sellVolume', sort: 'desc' }]}
+        disableSelectionOnClick
+        disableColumnMenu
+      />
+      : <CircularProgress />
   );
 }
