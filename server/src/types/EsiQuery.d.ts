@@ -100,6 +100,20 @@ export interface EveWalletTransaction {
   unit_price: number,
 }
 
+export interface EveWalletJournalEntry {
+  amount: number,
+  balance: number,
+  context_id: number | null,
+  context_id_type: string | null,
+  date: string,
+  description: string,
+  first_party_id: number,
+  id: number,
+  reason: '',
+  ref_type: string,
+  second_party_id: number,
+}
+
 export interface EveMarketOrder {
   duration: number,
   is_corporation: boolean,

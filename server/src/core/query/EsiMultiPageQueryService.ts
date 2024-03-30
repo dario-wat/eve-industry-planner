@@ -1,4 +1,4 @@
-import { EveAsset, EveContract, EveMarketOrder, EveMarketOrderType } from 'types/EsiQuery';
+import { EveAsset, EveContract, EveMarketOrder, EveMarketOrderType, EveWalletJournalEntry } from 'types/EsiQuery';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { Service } from 'typedi';
 import { range } from 'lodash';
@@ -48,6 +48,15 @@ export default class EsiMultiPageQueryService {
   public async genxAllContracts(character: EsiCharacter): Promise<EveContract[]> {
     return await genMultiPageData(
       async page => await this.esiQuery.genxContracts(character.characterId, page),
+    );
+  }
+
+  /** Fetches all wallet journal entries for the given user. */
+  public async genxAllWalletJournal(
+    character: EsiCharacter,
+  ): Promise<EveWalletJournalEntry[]> {
+    return await genMultiPageData(
+      async page => await this.esiQuery.genxWalletJournal(character.characterId, page),
     );
   }
 

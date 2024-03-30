@@ -20,6 +20,7 @@ export default class WalletService {
   public async genWalletTransactionsForPage(
     actorContext: ActorContext,
   ): Promise<WalletTransactionsRes> {
+    // TODO this should be done in a scheduled task
     await this.genSyncWalletTransactions(actorContext);
 
     const transactions = await genQueryFlatPerCharacter(

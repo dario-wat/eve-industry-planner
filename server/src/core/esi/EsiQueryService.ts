@@ -11,6 +11,7 @@ import {
   EveName,
   EvePortrait,
   EveStructure,
+  EveWalletJournalEntry,
   EveWalletTransaction,
 } from '../../types/EsiQuery';
 import EsiProviderService from './EsiProviderService';
@@ -362,6 +363,48 @@ export default class EsiQueryService {
     characterId: number,
   ): Promise<EveWalletTransaction[] | null> {
     return await this.genxWalletTransactions(token, characterId)
+      .catch(logEsiErrorAndReturnNull);
+  }
+
+  /*
+    Example object:
+    {
+      amount: 428700000,
+      balance: 4151951012.7678,
+      context_id: 6281722078,
+      context_id_type: 'market_transaction_id',
+      date: '2024-03-30T20:05:37Z',
+      description: 'Market: Roxane Barviainen bought stuff from Trading Lady',
+      first_party_id: 96289381,
+      id: 22659767215,
+      reason: '',
+      ref_type: 'market_transaction',
+      second_party_id: 1688205171
+    }
+  */
+  public async genxWalletJournal(
+    token: Token,
+    characterId: number,
+    page: number = 1,
+  ): Promise<EsiMultiPageResult<EveWalletJournalEntry>> {
+    const response = await this.esi.request(
+      `/characters/${characterId}/wallet/journal/`,
+      { page },
+      undefined,
+      { token },
+    );
+    return {
+      data: await response.json(),
+      pages: Number(response.headers['x-pages']),
+    };
+  }
+
+  public async genWalletJournal(
+    token: Token,
+    characterId: number,
+    page: number = 1,
+  ): Promise<EsiMultiPageResult<EveWalletJournalEntry> | null> {
+    return await this.genxWalletJournal(token, characterId, page)
       .catch(logEsiErrorAndReturnNull);
   }
 

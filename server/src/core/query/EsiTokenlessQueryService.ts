@@ -9,6 +9,7 @@ import {
   EveName,
   EvePortrait,
   EveStructure,
+  EveWalletJournalEntry,
   EveWalletTransaction,
 } from '../../types/EsiQuery';
 import EsiSequelizeProvider from '../esi/EsiSequelizeProvider';
@@ -81,6 +82,14 @@ export default class EsiTokenlessQueryService {
   ): Promise<EveWalletTransaction[]> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxWalletTransactions(token, characterId);
+  }
+
+  public async genxWalletJournal(
+    characterId: number,
+    page: number = 1,
+  ): Promise<EsiMultiPageResult<EveWalletJournalEntry>> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
+    return await this.esiQuery.genxWalletJournal(token, characterId, page);
   }
 
   public async genxCharacterMarketOrders(
