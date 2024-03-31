@@ -38,6 +38,7 @@ import { plannedProductAssocsDefine } from '../features/planned_product/PlannedP
 import { industryJobAssocsDefine } from '../features/industry_jobs/IndustryJobAssocs';
 import { industryJobModelDefine } from '../features/industry_jobs/IndustryJob';
 import { walletTransactionAssocsDefine } from '../features/wallet/WalletTransactionAssocs';
+import { walletJournalEntryModelDefine } from '../features/wallet/WalletJournalEntry';
 import { invItemModelDefine } from '../core/sde/models/InvItem';
 import { invUniqueNameModelDefine } from '../core/sde/models/InvUniqueName';
 
@@ -92,6 +93,7 @@ export function initDatabase(): void {
   plannedProductModelDefine(sequelize);
   materialStationModelDefine(sequelize);
   walletTransactionModelDefine(sequelize);
+  walletJournalEntryModelDefine(sequelize);
   scribbleModelDefine(sequelize);
   alwaysBuyItemModelDefine(sequelize);
   industryJobModelDefine(sequelize);

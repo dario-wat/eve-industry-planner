@@ -11,6 +11,7 @@ import { EsiAccount } from './EsiAccount';
 import { EsiToken } from './EsiToken';
 import { Account } from '../../account/Account';
 import { WalletTransaction } from '../../../features/wallet/WalletTransaction';
+import { WalletJournalEntry } from 'features/wallet/WalletJournalEntry';
 
 /**
  * EsiCharacter represents an EVE character. Up to 3 EsiCharacters are a part
@@ -27,6 +28,7 @@ export class EsiCharacter extends Model implements Character {
   declare getEsiTokens: HasManyGetAssociationsMixin<EsiToken>;
   declare getAccount: BelongsToGetAssociationMixin<Account | null>;
   declare getWalletTransactions: HasManyGetAssociationsMixin<WalletTransaction>;
+  declare getWalletJournal: HasManyGetAssociationsMixin<WalletJournalEntry>;
 
   /** Updates this EsiCharacter in the DB. */
   public async updateCharacter(

@@ -1,4 +1,5 @@
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
+import { WalletJournalEntry } from './WalletJournalEntry';
 import { WalletTransaction } from './WalletTransaction';
 
 export function walletTransactionAssocsDefine() {
@@ -11,6 +12,22 @@ export function walletTransactionAssocsDefine() {
     },
   );
   WalletTransaction.belongsTo(
+    EsiCharacter,
+    {
+      foreignKey: 'characterId',
+      onDelete: 'SET NULL',
+    },
+  );
+
+  /** Each wallet journal entry belongs to one specific character. */
+  EsiCharacter.hasMany(
+    WalletJournalEntry,
+    {
+      foreignKey: 'characterId',
+      onDelete: 'CASCADE',
+    },
+  );
+  WalletJournalEntry.belongsTo(
     EsiCharacter,
     {
       foreignKey: 'characterId',
