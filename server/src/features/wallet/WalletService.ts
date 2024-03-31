@@ -6,6 +6,7 @@ import EveSdeData from '../../core/sde/EveSdeData';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
 import StationService from '../../core/query/StationService';
+import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 
 @Service()
 export default class WalletService {
@@ -20,9 +21,6 @@ export default class WalletService {
   public async genWalletTransactionsForPage(
     actorContext: ActorContext,
   ): Promise<WalletTransactionsRes> {
-    // TODO this should be done in a scheduled task
-    await this.genSyncWalletTransactions(actorContext);
-
     const transactions = await genQueryFlatPerCharacter(
       actorContext,
       character => character.getWalletTransactions(),
@@ -50,25 +48,30 @@ export default class WalletService {
   }
 
   /**
-   * Queries wallet transactions from ESI for all characters linked to the
-   * given actor context. Stores the transactions into the DB.
-   * This is used for longer wallet transaction retention.
+   * Queries wallet transactions from ESI for all characters. 
+   * Stores the transactions into the DB. This is used for longer
+   * wallet transaction retention.
    */
-  private async genSyncWalletTransactions(
-    actorContext: ActorContext,
-  ): Promise<void> {
-    const transactions = await genQueryFlatPerCharacter(
-      actorContext,
-      character => this.esiQuery.genxWalletTransactions(character.characterId),
-    );
+  public async genSyncAllWalletTransactions(): Promise<void> {
+    const allCharacters = await EsiCharacter.findAll();
+    await Promise.all(allCharacters.map(async character => {
+      let transactions;
+      try {
+        transactions = await this.esiQuery.genxWalletTransactions(
+          character.characterId,
+        )
+      } catch (_error) {
+        return;
+      }
 
-    // We are storing all transaction into the database for longer retention
-    await WalletTransaction.bulkCreate(
-      transactions.map(([character, transaction]) => ({
-        characterId: character.characterId,
-        ...transaction,
-      })),
-      { ignoreDuplicates: true },
-    );
+      // We are storing all transaction into the database for longer retention
+      await WalletTransaction.bulkCreate(
+        transactions.map(transaction => ({
+          characterId: character.characterId,
+          ...transaction,
+        })),
+        { ignoreDuplicates: true },
+      );
+    }));
   }
 }

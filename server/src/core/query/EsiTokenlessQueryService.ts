@@ -84,6 +84,13 @@ export default class EsiTokenlessQueryService {
     return await this.esiQuery.genxWalletTransactions(token, characterId);
   }
 
+  public async genWalletTransactions(
+    characterId: number,
+  ): Promise<EveWalletTransaction[] | null> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
+    return await this.esiQuery.genWalletTransactions(token, characterId);
+  }
+
   public async genxWalletJournal(
     characterId: number,
     page: number = 1,
