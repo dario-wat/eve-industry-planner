@@ -1,4 +1,4 @@
-import { BrokerFeesRes, WalletTransactionsRes } from '@internal/shared';
+import { FeesAndTaxesRes, WalletTransactionsRes } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { Service } from 'typedi';
 import { WalletTransaction } from './WalletTransaction';
@@ -50,19 +50,23 @@ export default class WalletService {
       }));
   }
 
-  public async genBrokerFeesForPage(
+  /** Returns all broker fees and transaction taxes from the wallet journal. */
+  public async genFeesAndTaxesForPage(
     actorContext: ActorContext,
-  ): Promise<BrokerFeesRes> {
+  ): Promise<FeesAndTaxesRes> {
     const walletJournal = await genQueryFlatPerCharacter(
       actorContext,
       character => character.getWalletJournalEntries(),
     );
 
     return walletJournal
-      .filter(([_, journalEntry]) => journalEntry.ref_type === 'brokers_fee')
+      .filter(([_, journalEntry]) =>
+        ['brokers_fee', 'transaction_tax'].includes(journalEntry.ref_type)
+      )
       .map(([_character, journalEntry]) => ({
         date: journalEntry.date,
         amount: journalEntry.amount,
+        type: journalEntry.ref_type,
       }));
   }
 

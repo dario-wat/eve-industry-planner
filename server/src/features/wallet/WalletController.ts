@@ -26,9 +26,9 @@ export default class WalletController extends Controller {
     );
 
     this.appGet(
-      '/broker_fees',
+      '/fees_and_taxes',
       async (_req: Request, res: Response, actorContext: ActorContext) => {
-        const output = await this.walletService.genBrokerFeesForPage(
+        const output = await this.walletService.genFeesAndTaxesForPage(
           actorContext,
         );
         res.json(output);
