@@ -9,6 +9,8 @@ import {
 
 export class WalletJournalEntry extends Model {
 
+  declare amount: number;
+  declare date: string;
   declare ref_type: string;
 
   declare characterId: ForeignKey<EsiCharacter['characterId']>;
@@ -25,8 +27,14 @@ export const walletJournalEntryModelDefine =
       },
       amount: DataTypes.BIGINT,
       balance: DataTypes.BIGINT,
-      context_id: DataTypes.BIGINT,
-      context_id_type: DataTypes.STRING,
+      context_id: {
+        type: DataTypes.BIGINT,
+        allowNull: true,
+      },
+      context_id_type: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       date: DataTypes.STRING,
       description: DataTypes.STRING,
       first_party_id: DataTypes.BIGINT,

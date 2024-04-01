@@ -24,5 +24,15 @@ export default class WalletController extends Controller {
         res.json(output);
       },
     );
+
+    this.appGet(
+      '/broker_fees',
+      async (_req: Request, res: Response, actorContext: ActorContext) => {
+        const output = await this.walletService.genBrokerFeesForPage(
+          actorContext,
+        );
+        res.json(output);
+      },
+    );
   }
 }

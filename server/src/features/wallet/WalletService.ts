@@ -1,4 +1,4 @@
-import { WalletTransactionsRes } from '@internal/shared';
+import { BrokerFeesRes, WalletTransactionsRes } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { Service } from 'typedi';
 import { WalletTransaction } from './WalletTransaction';
@@ -7,6 +7,8 @@ import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService'
 import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
 import StationService from '../../core/query/StationService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
+import EsiMultiPageQueryService from '../../core/query/EsiMultiPageQueryService';
+import { WalletJournalEntry } from './WalletJournalEntry';
 
 @Service()
 export default class WalletService {
@@ -15,6 +17,7 @@ export default class WalletService {
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiTokenlessQueryService,
     private readonly stationService: StationService,
+    private readonly esiMultiPageQueryService: EsiMultiPageQueryService,
   ) { }
 
   /** Wallet transactions data for Market page. */
@@ -47,6 +50,22 @@ export default class WalletService {
       }));
   }
 
+  public async genBrokerFeesForPage(
+    actorContext: ActorContext,
+  ): Promise<BrokerFeesRes> {
+    const walletJournal = await genQueryFlatPerCharacter(
+      actorContext,
+      character => character.getWalletJournalEntries(),
+    );
+
+    return walletJournal
+      .filter(([_, journalEntry]) => journalEntry.ref_type === 'brokers_fee')
+      .map(([_character, journalEntry]) => ({
+        date: journalEntry.date,
+        amount: journalEntry.amount,
+      }));
+  }
+
   /**
    * Queries wallet transactions from ESI for all characters. 
    * Stores the transactions into the DB. This is used for longer
@@ -69,6 +88,28 @@ export default class WalletService {
         transactions.map(transaction => ({
           characterId: character.characterId,
           ...transaction,
+        })),
+        { ignoreDuplicates: true },
+      );
+    }));
+  }
+
+  public async genSyncWalletJournal(): Promise<void> {
+    const allCharacters = await EsiCharacter.findAll();
+    await Promise.all(allCharacters.map(async character => {
+      let journal;
+      try {
+        journal = await this.esiMultiPageQueryService.genxAllWalletJournal(
+          character,
+        );
+      } catch (_error) {
+        return;
+      }
+
+      await WalletJournalEntry.bulkCreate(
+        journal.map(journalEntry => ({
+          characterId: character.characterId,
+          ...journalEntry,
         })),
         { ignoreDuplicates: true },
       );

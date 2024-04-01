@@ -124,6 +124,11 @@ export type WalletTransactionsRes = {
   unitPrice: number,
 }[];
 
+export type BrokerFeesRes = {
+  date: string,
+  amount: number,
+}[];
+
 export type MarketOrdersRes = {
   characterName: string,
   typeId: number,

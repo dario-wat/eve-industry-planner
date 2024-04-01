@@ -15,11 +15,13 @@ import AggregatedTransactionsDataGrid from './AggregatedTransactionsDataGrid';
 import { uniq } from 'underscore';
 import OverallTransactionDataGrid from './OverallTransactionDataGrid';
 import { LoadingButton } from '@mui/lab';
+import BrokerFeesDataGrid from './BrokerFeesDataGrid';
 
 enum SelectedTab {
   TRANSACTIONS = 'TRANSACTIONS',
   AGGREGATED = 'AGGREGATED',
   OVERALL = 'OVERALL',
+  BROKER_FEES = 'BROKER_FEES',
 };
 
 const ALL_CHARACTERS = '-ALL-';
@@ -130,6 +132,7 @@ export default function MarketTransactionsPage() {
             <Tab label="Aggregated" value={SelectedTab.AGGREGATED} />
             <Tab label="Transactions" value={SelectedTab.TRANSACTIONS} />
             <Tab label="Overall" value={SelectedTab.OVERALL} />
+            <Tab label="Broker Fees" value={SelectedTab.BROKER_FEES} />
           </Tabs>
           <Box
             sx={{ height: 'auto', width: '100%' }}
@@ -148,6 +151,9 @@ export default function MarketTransactionsPage() {
                   }
                   {selectedTab === SelectedTab.OVERALL &&
                     <OverallTransactionDataGrid data={filteredData} />
+                  }
+                  {selectedTab === SelectedTab.BROKER_FEES &&
+                    <BrokerFeesDataGrid />
                   }
                 </>
               )

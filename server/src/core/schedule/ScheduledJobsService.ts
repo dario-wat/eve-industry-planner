@@ -13,5 +13,9 @@ export default class ScheduledJobsService {
     schedule.scheduleJob('*/10 * * * *', async () =>
       await this.walletService.genSyncAllWalletTransactions()
     );
+
+    schedule.scheduleJob('*/10 * * * *', async () =>
+      await this.walletService.genSyncWalletJournal()
+    );
   }
 }
