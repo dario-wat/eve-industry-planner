@@ -9,19 +9,17 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CachedIcon from '@mui/icons-material/Cached';
-import { withStyles } from '@material-ui/styles';
 import axios from 'axios';
 import { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { styled } from '@mui/system';
 
 const drawerWidth = 220;
 
-const SmallerListItemIcon = withStyles({
-  root: {
-    minWidth: 0,
-    marginRight: 16,
-  },
-})(ListItemIcon);
+const SmallerListItemIcon = styled(ListItemIcon)(({ theme }) => `
+  min-width: 0px;
+  margin-right: 16px;
+`)
 
 type Props = {
   routes: {

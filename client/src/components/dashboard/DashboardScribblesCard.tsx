@@ -12,8 +12,8 @@ import useAxios from 'axios-hooks';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ScribbleRes, ScribblesRes } from '@internal/shared';
-import { CircularProgress } from '@material-ui/core';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function DashboardScribblesCard() {
   const [{ data, loading }, refetch] = useAxios<ScribblesRes>('/scribbles');

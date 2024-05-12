@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { withStyles } from '@material-ui/styles';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -15,6 +14,7 @@ import {
   PlannedProductsWithErrorRes,
 } from '@internal/shared';
 import useProductionPlanState from '../useProductionPlanState';
+import { styled } from '@mui/system';
 
 export default function DashboardProductsTextArea(props: {
   group: string,
@@ -59,11 +59,9 @@ export default function DashboardProductsTextArea(props: {
     setIsSubmitting(false);
   };
 
-  const RedTextTypography = withStyles({
-    root: {
-      color: 'red',
-    },
-  })(Typography);
+  const RedTextTypography = styled(Typography)(({ theme }) => `
+    color: red;
+  `);
 
   return (
     <Box>
