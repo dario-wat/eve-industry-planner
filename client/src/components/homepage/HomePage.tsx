@@ -99,7 +99,7 @@ export default function HomePage() {
           ?
           <>
             <NavigationDrawer routes={routes} />
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <Box component="main" sx={{ width: '100%', p: 3, overflow: 'auto' }}>
               <Toolbar /> {/* need this to push the nav bar below the app bar */}
               <Routes>
                 {routes.map((route: any) =>
