@@ -112,7 +112,7 @@ export default function AggregatedTransactionsDataGrid(props: {
         rows={aggregatedDataWithBuyOrder}
         columns={columns}
         sortModel={[{ field: 'sellVolume', sort: 'desc' }]}
-        disableSelectionOnClick
+        disableRowSelectionOnClick
         disableColumnMenu
       />
       : <CircularProgress />

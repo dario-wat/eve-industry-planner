@@ -164,9 +164,8 @@ function Scribble(props: {
             hideFooter
             rows={props.text.split(/\r?\n/).map(l => ({ data: l }))}
             columns={columns}
-            disableSelectionOnClick
+            disableRowSelectionOnClick
             disableColumnMenu
-            experimentalFeatures={{ newEditingApi: true }}
           />
         }
       </Box>

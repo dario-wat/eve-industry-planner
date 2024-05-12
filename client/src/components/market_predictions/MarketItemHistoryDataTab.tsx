@@ -143,7 +143,7 @@ export default function MarketItemHistoryDataTab() {
             }}
             rows={createHeuristic(historyData)}
             columns={scoreColumns}
-            disableSelectionOnClick
+            disableRowSelectionOnClick
             disableColumnMenu
           />
         </Box>

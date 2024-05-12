@@ -30,9 +30,8 @@ export default function createAppTheme() {
           autoHeight: true,
           density: 'compact',
           getRowId: _ => uniqueId(),
-          pageSize: 100,
+          pageSizeOptions: [100],
           rowHeight: 40,
-          rowsPerPageOptions: [100],
         },
         styleOverrides: {
           root: {

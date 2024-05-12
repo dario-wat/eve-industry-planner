@@ -90,7 +90,7 @@ export default function DashboardProductsDataGrid(props: {
           hideFooter
           rows={props.plannedProducts}
           columns={columns}
-          disableSelectionOnClick
+          disableRowSelectionOnClick
           disableColumnMenu
         />
       </Box>

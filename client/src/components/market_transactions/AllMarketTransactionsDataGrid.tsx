@@ -30,7 +30,7 @@ const columns: GridColDef[] = [
     width: 100,
     align: 'right',
     sortable: false,
-    valueFormatter: params => formatNumber(params.value),
+    valueFormatter: (value: any) => formatNumber(value),
   },
   {
     field: 'total',
@@ -55,8 +55,8 @@ const columns: GridColDef[] = [
     headerName: 'Time',
     width: 150,
     sortable: false,
-    valueFormatter: params => format(
-      new Date(params.value),
+    valueFormatter: (value: any) => format(
+      new Date(value),
       'yyyy.MM.dd - HH:mm',
     ),
   },
@@ -83,9 +83,8 @@ export default function AllMarketTransactionsDataGrid(props: {
       }}
       rows={props.data}
       columns={columns}
-      disableSelectionOnClick
+      disableRowSelectionOnClick
       disableColumnMenu
-      experimentalFeatures={{ newEditingApi: true }}
     />
   );
 }

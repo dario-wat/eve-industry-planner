@@ -45,8 +45,8 @@ export default function MarketOrdersPage() {
       width: 150,
       align: 'right',
       sortable: false,
-      valueGetter: params =>
-        params.row.volumeRemain + ' / ' + params.row.volumeTotal,
+      valueGetter: (value, row) =>
+        row.volumeRemain + ' / ' + row.volumeTotal,
     },
     {
       field: 'price',
@@ -54,7 +54,7 @@ export default function MarketOrdersPage() {
       width: 100,
       align: 'right',
       sortable: false,
-      valueFormatter: params => params.value.toLocaleString('en-US'),
+      valueFormatter: (value: any) => value.toLocaleString('en-US'),
     },
     {
       field: 'locationName',
@@ -67,8 +67,8 @@ export default function MarketOrdersPage() {
       headerName: 'Expires',
       width: 100,
       sortable: false,
-      valueGetter: params => formatDistanceToNowStrict(
-        addDays(new Date(params.row.issuedDate), params.row.duration),
+      valueGetter: (value, row) => formatDistanceToNowStrict(
+        addDays(new Date(row.issuedDate), row.duration),
         { addSuffix: true, unit: 'day' }
       ),
     },
@@ -112,9 +112,8 @@ export default function MarketOrdersPage() {
               <DataGrid
                 rows={sellOrders}
                 columns={columns}
-                disableSelectionOnClick
+                disableRowSelectionOnClick
                 disableColumnMenu
-                experimentalFeatures={{ newEditingApi: true }}
               />
               : <CircularProgress />
             }
@@ -134,9 +133,8 @@ export default function MarketOrdersPage() {
               <DataGrid
                 rows={buyOrders}
                 columns={columns}
-                disableSelectionOnClick
+                disableRowSelectionOnClick
                 disableColumnMenu
-                experimentalFeatures={{ newEditingApi: true }}
               />
               : <CircularProgress />
             }

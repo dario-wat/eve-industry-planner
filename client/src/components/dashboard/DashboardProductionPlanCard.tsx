@@ -159,9 +159,8 @@ function MaterialsTab(props: {
         <DataGrid
           rows={props.data.materials}
           columns={columns}
-          disableSelectionOnClick
+          disableRowSelectionOnClick
           disableColumnMenu
-          experimentalFeatures={{ newEditingApi: true }}
         />
         :
         <Box
@@ -217,7 +216,7 @@ function BlueprintRunsTab(props: {
       width: 70,
       align: 'right',
       sortable: false,
-      valueFormatter: params => params.value.toFixed(1),
+      valueFormatter: (value: any) => value.toFixed(1),
     },
   ];
 
@@ -239,10 +238,9 @@ function BlueprintRunsTab(props: {
             key={uniqueId()}
             rows={d[1]}
             columns={columns(d[0])}
-            disableSelectionOnClick
+            disableRowSelectionOnClick
             disableColumnMenu
             hideFooter
-            experimentalFeatures={{ newEditingApi: true }}
           />
         )
         :

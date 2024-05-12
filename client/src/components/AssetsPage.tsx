@@ -80,9 +80,8 @@ export default function AssetsPage() {
               <DataGrid
                 rows={filteredData}
                 columns={columns}
-                disableSelectionOnClick
+                disableRowSelectionOnClick
                 disableColumnMenu
-                experimentalFeatures={{ newEditingApi: true }}
               />
               : <CircularProgress />
             }

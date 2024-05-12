@@ -38,8 +38,8 @@ const activeJobsColumns: GridColDef[] = [
     field: 'end_date',
     headerName: 'Remaining Time',
     width: 170,
-    valueFormatter: params => formatDistanceToNowStrict(
-      new Date(params.value),
+    valueFormatter: (value: any) => formatDistanceToNowStrict(
+      new Date(value),
       { addSuffix: true },
     ),
   },
@@ -165,9 +165,8 @@ function ActiveJobs() {
       }}
       rows={activeJobs}
       columns={activeJobsColumns}
-      disableSelectionOnClick
+      disableRowSelectionOnClick
       disableColumnMenu
-      experimentalFeatures={{ newEditingApi: true }}
     />
     : <CircularProgress />
 }
@@ -183,9 +182,8 @@ function JobHistory() {
       }}
       rows={data}
       columns={jobHistoryColumns}
-      disableSelectionOnClick
+      disableRowSelectionOnClick
       disableColumnMenu
-      experimentalFeatures={{ newEditingApi: true }}
     />
     : <CircularProgress />
 }

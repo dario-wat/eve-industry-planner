@@ -150,7 +150,7 @@ export default function MarketabiltyTab() {
             <DataGrid
               rows={rowData}
               columns={columns}
-              disableSelectionOnClick
+              disableRowSelectionOnClick
               disableColumnMenu
             />
           )

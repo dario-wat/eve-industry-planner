@@ -51,7 +51,7 @@ export default function ContractsPage() {
       headerName: 'Issuer',
       width: 150,
       sortable: false,
-      valueGetter: params => params?.value?.name,
+      valueGetter: (value: any) => value?.name,
       renderCell: params => emphasizeSelf(params.row.issuer?.id, params.value),
     },
     {
@@ -59,7 +59,7 @@ export default function ContractsPage() {
       headerName: 'Assignee',
       width: 150,
       sortable: false,
-      valueGetter: params => params?.value?.name,
+      valueGetter: (value: any) => value?.name,
       renderCell: params => emphasizeSelf(params.row.assignee?.id, params.value),
     },
     {
@@ -67,7 +67,7 @@ export default function ContractsPage() {
       headerName: 'Acceptor',
       width: 150,
       sortable: false,
-      valueGetter: params => params?.value?.name,
+      valueGetter: (value: any) => value?.name,
       renderCell: params => emphasizeSelf(params.row.acceptor?.id, params.value),
     },
     {
@@ -80,7 +80,7 @@ export default function ContractsPage() {
       field: 'price',
       headerName: 'Price',
       width: 100,
-      valueFormatter: params => formatNumberScale(params.value),
+      valueFormatter: value => formatNumberScale(value),
     },
     dateField,  // Inject date field here
     {
@@ -97,8 +97,8 @@ export default function ContractsPage() {
       headerName: 'Expires',
       width: 120,
       sortable: false,
-      valueFormatter: params => formatDistanceToNowStrict(
-        new Date(params.value),
+      valueFormatter: value => formatDistanceToNowStrict(
+        new Date(value),
         { addSuffix: true },
       ),
     },
@@ -109,12 +109,13 @@ export default function ContractsPage() {
       headerName: 'Accepted',
       width: 120,
       sortable: false,
-      valueFormatter: params => formatDistanceToNowStrict(
-        new Date(params.value),
+      valueFormatter: value => formatDistanceToNowStrict(
+        new Date(value),
         { addSuffix: true },
       ),
     },
   );
+
   return <div>
     <Box sx={{ pb: 2 }}>
       <TextField
@@ -152,9 +153,8 @@ export default function ContractsPage() {
               hideFooter={true}
               rows={activeContracts}
               columns={columnsActive}
-              disableSelectionOnClick
+              disableRowSelectionOnClick
               disableColumnMenu
-              experimentalFeatures={{ newEditingApi: true }}
             />
             : <CircularProgress />
           }
@@ -183,9 +183,8 @@ export default function ContractsPage() {
               }}
               rows={finishedContracts}
               columns={columnsFinished}
-              disableSelectionOnClick
+              disableRowSelectionOnClick
               disableColumnMenu
-              experimentalFeatures={{ newEditingApi: true }}
             />
             : <CircularProgress />
           }
