@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Sequelize } from 'sequelize';
 import { Dialect } from 'sequelize/types';
 import Container from 'typedi';
