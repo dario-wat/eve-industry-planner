@@ -41,6 +41,7 @@ export function transactionAggregate(
     const avgDiff = avgSellPrice - avgBuyPrice;
 
     const gainPerc = 100 * avgDiff / avgSellPrice;
+    const estimatedProfit = avgDiff * sellQuantity;
     return {
       buyQuantity,
       sellQuantity,
@@ -50,6 +51,7 @@ export function transactionAggregate(
       avgSellPrice,
       avgDiff,
       gainPerc,
+      estimatedProfit,
       typeId: transactions[0].typeId,
       categoryId: transactions[0].categoryId,
       name: transactions[0].name,

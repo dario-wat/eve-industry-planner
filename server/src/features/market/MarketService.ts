@@ -40,7 +40,7 @@ export default class MarketService {
       .map(([character, o]) => ({
         characterName: character.characterName,
         typeId: o.type_id,
-        name: this.sdeData.types[o.type_id].name,
+        name: this.sdeData.types[o.type_id]?.name,
         categoryId: this.sdeData.categoryIdFromTypeId(o.type_id),
         locationName: stationNames[o.location_id] ?? null,
         locationId: o.location_id,

@@ -27,14 +27,14 @@ const columns: GridColDef[] = [
   {
     field: 'buyQuantity',
     headerName: 'Bought',
-    width: 100,
+    width: 90,
     align: 'right',
     renderCell: params => <ColoredNumber number={params.value} color="red" />,
   },
   {
     field: 'sellQuantity',
     headerName: 'Sold',
-    width: 100,
+    width: 90,
     align: 'right',
     renderCell: params => <ColoredNumber number={params.value} color="green" />,
   },
@@ -80,14 +80,24 @@ const columns: GridColDef[] = [
   {
     field: 'gainPerc',
     headerName: 'Gain %',
-    width: 100,
+    width: 70,
     align: 'right',
     renderCell: params =>
       <ColoredNumber
         number={params.value}
-        color={params.value < 0 ? 'red' : 'green'}
+        color={params.value < 5 ? 'red' : 'green'}
         fractionDigits={1}
       />,
+  },
+  {
+    field: 'estimatedProfit',
+    headerName: "Est profit",
+    width: 100,
+    align: 'right',
+    renderCell: params => <ColoredNumber
+      number={params.value}
+      color={params.value < 0 ? 'red' : 'green'}
+    />
   },
 ];
 
@@ -111,7 +121,7 @@ export default function AggregatedTransactionsDataGrid(props: {
       ? <DataGrid
         rows={aggregatedDataWithBuyOrder}
         columns={columns}
-        sortModel={[{ field: 'sellVolume', sort: 'desc' }]}
+        sortModel={[{ field: 'estimatedProfit', sort: 'desc' }]}
         disableRowSelectionOnClick
         disableColumnMenu
       />
