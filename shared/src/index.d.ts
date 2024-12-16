@@ -157,7 +157,8 @@ export type MarketHistoryRes = {
 export type LinkedCharacterRes = {
   characterId: number,
   characterName: string | undefined,
-  portrait: string,
+  portrait: string | null,
+  tokenExpired: boolean,
 }[];
 
 export type ScribbleRes = {

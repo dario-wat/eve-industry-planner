@@ -58,7 +58,7 @@ export default class StationService {
     actorContext: ActorContext,
     stationIds: number[],
   ): Promise<Record<number, string | null>> {
-    const characters = await actorContext.genLinkedCharacters();
+    const characters = await actorContext.genLoggedInLinkedCharacters();
     const stationNamesList = await Promise.all(characters.map(async character =>
       await this.genAllStationNamesForCharacter(character, stationIds),
     ));

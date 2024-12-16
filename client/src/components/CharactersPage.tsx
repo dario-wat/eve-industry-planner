@@ -29,16 +29,26 @@ function CharacterCard(
       <CardMedia
         sx={{ pt: 2, pl: 2, pr: 2 }}
         component="img"
-        image={character.portrait}
+        image={character.portrait ?? 'https://placehold.co/128x128?text=No+Portrait'}
       />
       <CardContent>
         <Box sx={{
           display: 'flex',
           justifyContent: 'center',
+          alignItems: 'center',
+          flexDirection: 'column',
         }}>
           <Typography gutterBottom variant="subtitle2" component="div">
             {character.characterName}
           </Typography>
+          {character.tokenExpired
+            ? <Typography gutterBottom variant="subtitle2" component="div" sx={{ color: 'red' }}>
+              Token Expired
+            </Typography>
+            : <Typography gutterBottom variant="subtitle2" component="div" sx={{ color: 'green' }}>
+              Logged In
+            </Typography>
+          }
         </Box>
       </CardContent>
     </Card >

@@ -17,7 +17,7 @@ export async function genQueryPerCharacter<T>(
   actorContext: ActorContext,
   fn: (character: EsiCharacter) => Promise<T>,
 ): Promise<[EsiCharacter, T][]> {
-  const characters = await actorContext.genLinkedCharacters();
+  const characters = await actorContext.genLoggedInLinkedCharacters();
   return await Promise.all(characters.map(async character =>
     ([character, await fn(character)])
   ));

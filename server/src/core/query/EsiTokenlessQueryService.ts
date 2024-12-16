@@ -45,6 +45,14 @@ export default class EsiTokenlessQueryService {
     return await this.esiQuery.genxPortrait(token, characterId);
   }
 
+  public async genPortrait(characterId: number): Promise<EvePortrait | null> {
+    try {
+      return await this.genxPortrait(characterId);
+    } catch {
+      return null;
+    }
+  }
+
   public async genxContracts(
     characterId: number,
     page: number = 1,
@@ -59,6 +67,17 @@ export default class EsiTokenlessQueryService {
   ): Promise<EveName[]> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxNames(token, ids);
+  }
+
+  public async genNames(
+    characterId: number,
+    ids: number[],
+  ): Promise<EveName[]> {
+    try {
+      return await this.genxNames(characterId, ids);
+    } catch {
+      return []
+    }
   }
 
   public async genxAssets(

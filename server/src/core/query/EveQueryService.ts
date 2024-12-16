@@ -44,7 +44,7 @@ export default class EveQueryService {
     const chunks = chunk(uniqueIds, chunkSize);
 
     const responses = await Promise.all(chunks.map(
-      ch => this.esiQuery.genxNames(character.characterId, ch),
+      ch => this.esiQuery.genNames(character.characterId, ch),
     ));
     return mapify(filterNullOrUndef(responses.flat()), 'id');
   }

@@ -69,4 +69,18 @@ export default class ActorContext {
     }
     return await account.getEsiCharacters();
   }
+
+  /**
+   * Similar to genLinkedCharacters, but only returns the ones with valid
+   * refresh tokens (i.e. logged in).
+   */
+  public async genLoggedInLinkedCharacters(): Promise<EsiCharacter[]> {
+    const characters = await this.genLinkedCharacters();
+    const charactersWithLogin = await Promise.all(characters.map(async character =>
+      ({ character, isLoggedIn: await character.isLoggedIn() }))
+    );
+    return charactersWithLogin
+      .filter(({ isLoggedIn }) => isLoggedIn)
+      .map(({ character }) => character);
+  }
 }

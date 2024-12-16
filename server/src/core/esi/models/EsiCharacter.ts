@@ -56,6 +56,13 @@ export class EsiCharacter extends Model implements Character {
   public async genxAccount(): Promise<Account> {
     return (await this.getAccount())!;
   }
+
+  /** Checks if the EsiCharacter has a valid refresh token (i.e. logged in). */
+  public async isLoggedIn(): Promise<boolean> {
+    const tokens = await this.getEsiTokens();
+    const now = new Date();
+    return tokens.some(token => token.expires.getTime() > now.getTime());
+  }
 }
 
 export const esiCharacterModelDefine =

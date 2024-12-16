@@ -25,11 +25,13 @@ export default class AccountController extends Controller {
         const characters = await actorContext.genLinkedCharacters();
 
         const genData = async (character: EsiCharacter) => {
-          const portrait = await this.esiQuery.genxPortrait(character.characterId);
+          const portrait = await this.esiQuery.genPortrait(character.characterId);
+          const isLoggedIn = await character.isLoggedIn();
           return {
             characterId: character.characterId,
             characterName: character.characterName,
-            portrait: portrait.px128x128,
+            portrait: portrait?.px128x128,
+            tokenExpired: !isLoggedIn,
           };
         };
 

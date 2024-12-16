@@ -56,7 +56,7 @@ export default class EveLoginController extends Controller {
     this.appGet(
       '/logged_in_user',
       async (_req: Request, res: Response, actorContext: ActorContext) => {
-        const characters = await actorContext.genLinkedCharacters();
+        const characters = await actorContext.genLoggedInLinkedCharacters();
         res.json({
           character_ids: characters.map(character => character.characterId),
           character_names: characters.map(character => character.characterName),

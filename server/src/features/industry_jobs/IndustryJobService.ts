@@ -134,7 +134,7 @@ export default class IndustryJobService {
   private async genSyncIndustryJobs(
     actorContext: ActorContext,
   ): Promise<void> {
-    const characters = await actorContext.genLinkedCharacters();
+    const characters = await actorContext.genLoggedInLinkedCharacters();
 
     const characterEsiIndustryJobs = await Promise.all(characters.map(
       async character => ([
