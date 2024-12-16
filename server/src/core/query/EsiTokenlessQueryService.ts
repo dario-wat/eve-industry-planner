@@ -69,17 +69,6 @@ export default class EsiTokenlessQueryService {
     return await this.esiQuery.genxNames(token, ids);
   }
 
-  public async genNames(
-    characterId: number,
-    ids: number[],
-  ): Promise<EveName[]> {
-    try {
-      return await this.genxNames(characterId, ids);
-    } catch {
-      return []
-    }
-  }
-
   public async genxAssets(
     characterId: number,
     page: number = 1,

@@ -47,7 +47,7 @@ export default class ActorContext {
 
   /** Currently returns one character of all linked ones. */
   public async genMainCharacter(): Promise<EsiCharacter | null> {
-    const characters = await this.genLinkedCharacters();
+    const characters = await this.genLoggedInLinkedCharacters();
     if (characters.length === 0) {
       return null;
     }
