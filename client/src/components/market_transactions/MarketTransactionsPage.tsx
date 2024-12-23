@@ -6,7 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import { WalletTransactionsRes } from '@internal/shared';
-import { isAfter, isBefore, subDays } from 'date-fns';
+import { isAfter, isBefore } from 'date-fns';
 import { DesktopDatePicker, LocalizationProvider, enUS } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Grid, MenuItem, Select, Tab, Tabs } from '@mui/material';
@@ -16,6 +16,8 @@ import { uniq } from 'underscore';
 import OverallTransactionDataGrid from './OverallTransactionDataGrid';
 import { LoadingButton } from '@mui/lab';
 import FeesAndTaxesDataGrid from './FeesAndTaxesDataGrid';
+import { ALL_CHARACTERS } from './marketTransactionsStore';
+import { useMarketTransactionsStore } from './marketTransactionsStore';
 
 enum SelectedTab {
   TRANSACTIONS = 'TRANSACTIONS',
@@ -24,20 +26,18 @@ enum SelectedTab {
   FEES_AND_TAXES = 'FEES_AND_TAXES',
 };
 
-const ALL_CHARACTERS = '-ALL-';
-
 export default function MarketTransactionsPage() {
   const [{ data, loading }, refetch] =
     useAxios<WalletTransactionsRes>('/wallet_transactions');
 
   const characterNames = uniq(data?.map(d => d.characterName) ?? []);
 
-  const [searchText, setSearchText] = useState('');
-
-  const [startDate, setStartDate] = useState(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState(new Date())
-
-  const [selectedCharacter, setSelectedCharacter] = useState<string>(ALL_CHARACTERS);
+  const {
+    searchText, setSearchText,
+    startDate, setStartDate,
+    endDate, setEndDate,
+    selectedCharacter, setSelectedCharacter,
+  } = useMarketTransactionsStore();
 
   const [selectedTab, setSelectedTab] = useState(SelectedTab.AGGREGATED);
 

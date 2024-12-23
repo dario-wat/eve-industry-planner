@@ -2,18 +2,25 @@ import { FeesAndTaxesRes } from "@internal/shared";
 import { CircularProgress } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import useAxios from "axios-hooks";
-import { format } from "date-fns";
+import { format, isAfter, isBefore } from "date-fns";
 import { sum } from "mathjs";
 import { groupBy } from "underscore";
+import { useMarketTransactionsStore } from "./marketTransactionsStore";
 
 export default function FeesAndTaxesDataGrid(props: {}) {
+  const { startDate, endDate } = useMarketTransactionsStore();
   const [{ data }] = useAxios<FeesAndTaxesRes>('/fees_and_taxes');
   if (!data) {
     return <CircularProgress />;
   }
 
+  const filteredData = data && data.filter(d =>
+    isBefore(new Date(d.date), endDate)
+    && isAfter(new Date(d.date), startDate)
+  );
+
   const datedData = Object.entries(groupBy(
-    data,
+    filteredData,
     d => format(new Date(d.date), 'yyyy-MM-dd'),
   ));
 
