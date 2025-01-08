@@ -22,35 +22,34 @@ const HOURS_IN_DAY = 24;
 
 /** Data required to create a production plan. */
 type ProductionPlanCreationData = {
-  plannedProducts: PlannedProduct[],
-  assets: Record<number, number>,
-  alwaysBuyItems: AlwaysBuyItem[],
-  activeIndustryJobs: EveIndustryJob[],
+  plannedProducts: PlannedProduct[];
+  assets: Record<number, number>;
+  alwaysBuyItems: AlwaysBuyItem[];
+  activeIndustryJobs: EveIndustryJob[];
 };
 
 @Service()
 export default class ProductionPlanService {
-
   constructor(
     private readonly sdeData: EveSdeData,
     private readonly assetService: AssetsService,
-    private readonly esiQuery: EsiTokenlessQueryService,
-  ) { }
+    private readonly esiQuery: EsiTokenlessQueryService
+  ) {}
 
   /**
    * Takes all planned products and finds the required materials to build those.
    * Then for each material recursively keeps finding the next list of materials
-   * until it reaches leaves(minerals, planetary commodities, 
+   * until it reaches leaves(minerals, planetary commodities,
    * moon minerals, ...).
    */
   public async genProductionPlan(
     actorContext: ActorContext,
-    group?: string,
+    group?: string
   ): Promise<ProductionPlanRes> {
     const ppData = await this.genProductionPlanCreationData(actorContext, group);
 
     const indyAssets = Object.fromEntries(
-      ppData.activeIndustryJobs.map(j => {
+      ppData.activeIndustryJobs.map((j) => {
         const bp = this.sdeData.productBlueprintFromTypeId(j.product_type_id);
         return [j.product_type_id, (bp?.quantity ?? 0) * j.runs];
       })
@@ -59,15 +58,16 @@ export default class ProductionPlanService {
     const fullAssets = mergeAssetQuantities(indyAssets, ppData.assets);
 
     const materialsPlan = this.traverseMaterialTree(
-      ppData.plannedProducts.map(pp => ({
+      ppData.plannedProducts.map((pp) => ({
         typeId: pp.type_id,
         quantity: pp.quantity,
       })),
-      fullAssets,
+      fullAssets
     );
 
     return {
-      blueprintRuns: materialsPlan.getMaterialsList()
+      blueprintRuns: materialsPlan
+        .getMaterialsList()
         .map(({ typeId, runs }) => ({
           typeId: typeId,
           categoryId: this.sdeData.categoryIdFromTypeId(typeId),
@@ -75,15 +75,16 @@ export default class ProductionPlanService {
           name: this.sdeData.types[typeId]?.name,
           blueprintExists: this.blueprintExists(ppData, typeId),
           runs: runs,
-          activeRuns: activeManufacturingRuns(typeId, ppData.activeIndustryJobs)
-            + activeReactionRuns(typeId, ppData.activeIndustryJobs),
-          daysToRun: secondsToHours(
-            MAX_TE * runs
-            * (this.blueprintManufactureTime(typeId) ?? 0)
-          ) / HOURS_IN_DAY,
+          activeRuns:
+            activeManufacturingRuns(typeId, ppData.activeIndustryJobs) +
+            activeReactionRuns(typeId, ppData.activeIndustryJobs),
+          daysToRun:
+            secondsToHours(MAX_TE * runs * (this.blueprintManufactureTime(typeId) ?? 0)) /
+            HOURS_IN_DAY,
         }))
-        .filter(res => res.activeRuns > 0 || res.runs !== 0),
-      materials: materialsPlan.getMaterialsList()
+        .filter((res) => res.activeRuns > 0 || res.runs !== 0),
+      materials: materialsPlan
+        .getMaterialsList()
         .filter(({ runs, quantity }) => runs === 0 && quantity !== 0)
         .map(({ typeId, quantity }) => ({
           typeId: typeId,
@@ -101,8 +102,8 @@ export default class ProductionPlanService {
    *    i.e. things that don't have a blueprint)
    */
   private traverseMaterialTree(
-    products: { typeId: number, quantity: number }[],
-    assets: Record<number, number>,
+    products: { typeId: number; quantity: number }[],
+    assets: Record<number, number>
   ): MaterialPlan {
     const materialPlan = new MaterialPlan(assets);
     while (products.length > 0) {
@@ -110,10 +111,7 @@ export default class ProductionPlanService {
 
       // FIRST check if we have any leftover from previous blueprint runs
       // or from pre-existing assets
-      const subtracted = materialPlan.subtractLeftover(
-        product.typeId,
-        product.quantity,
-      );
+      const subtracted = materialPlan.subtractLeftover(product.typeId, product.quantity);
       product.quantity -= subtracted;
 
       if (product.quantity === 0) {
@@ -127,8 +125,7 @@ export default class ProductionPlanService {
       materialPlan.addQuantity(product.typeId, product.quantity);
 
       // SECOND if there wasn't enough leftover then we go make more
-      const productBlueprint =
-        this.sdeData.productBlueprintFromTypeId(product.typeId);
+      const productBlueprint = this.sdeData.productBlueprintFromTypeId(product.typeId);
       if (productBlueprint === undefined) {
         // Leaf node (mineral, planetary commodity, ice, ...)
         continue;
@@ -136,8 +133,8 @@ export default class ProductionPlanService {
 
       const blueprintId = productBlueprint.blueprint_id;
       const bpMaterials =
-        this.sdeData.bpManufactureMaterialsByBlueprint[blueprintId]
-        || this.sdeData.bpReactionMaterialsByBlueprint[blueprintId];
+        this.sdeData.bpManufactureMaterialsByBlueprint[blueprintId] ||
+        this.sdeData.bpReactionMaterialsByBlueprint[blueprintId];
 
       // TODO fix this
       // const meLevel = this.sdeData.typeIdIsReactionFormula(blueprintId)
@@ -155,10 +152,12 @@ export default class ProductionPlanService {
       }
 
       if (bpMaterials.length > 0) {
-        products.push(...bpMaterials.map(m => ({
-          typeId: m.type_id,
-          quantity: Math.ceil(m.quantity * meLevel) * runs,
-        })));
+        products.push(
+          ...bpMaterials.map((m) => ({
+            typeId: m.type_id,
+            quantity: Math.ceil(m.quantity * meLevel) * runs,
+          }))
+        );
       }
     }
 
@@ -168,94 +167,85 @@ export default class ProductionPlanService {
   /** Queries all the necessary data to create the production plan. */
   private async genProductionPlanCreationData(
     actorContext: ActorContext,
-    group?: string,
+    group?: string
   ): Promise<ProductionPlanCreationData> {
     const account = await actorContext.genxAccount();
-    const [plannedProducts, assets, alwaysBuyItems, activeIndustryJobs] =
-      await Promise.all([
-        PlannedProduct.findAll({
-          attributes: ['type_id', 'quantity'],
-          where: group
-            ? { accountId: account.id, group }
-            : { accountId: account.id },
-        }),
-        this.assetService.genAssetsForProductionPlan(actorContext),
-        account.getAlwaysBuyItems(),
-        genQueryFlatResultPerCharacter(
-          actorContext,
-          character => this.esiQuery.genxIndustryJobs(character.characterId),
-        ),
-      ]);
+    const [plannedProducts, assets, alwaysBuyItems, activeIndustryJobs] = await Promise.all([
+      PlannedProduct.findAll({
+        attributes: ['type_id', 'quantity'],
+        where: group ? { accountId: account.id, group } : { accountId: account.id },
+      }),
+      this.assetService.genAssetsForProductionPlan(actorContext),
+      account.getAlwaysBuyItems(),
+      genQueryFlatResultPerCharacter(actorContext, (character) =>
+        this.esiQuery.genxIndustryJobs(character.characterId)
+      ),
+    ]);
 
     return { plannedProducts, assets, alwaysBuyItems, activeIndustryJobs };
   }
 
-
-  private getProductionCategory(
-    ppData: ProductionPlanCreationData,
-    typeId: number,
-  ): string {
-    if (ppData.plannedProducts.map(pp => pp.type_id).includes(typeId)) {
+  private getProductionCategory(ppData: ProductionPlanCreationData, typeId: number): string {
+    if (ppData.plannedProducts.map((pp) => pp.type_id).includes(typeId)) {
       return 'End Product / Other';
     }
 
-    const groupId = this.sdeData.types[typeId].group_id;
+    const groupId = this.sdeData.types[typeId]?.group_id;
     switch (groupId) {
-      case 334: return 'Construction Components';
-      case 428: return 'Intermediate Materials';
-      case 429: return 'Composite Materials';
-      case 873: return 'Capital Components';
-      case 964: return 'Hybrid Tech Components';
-      case 974: return 'Hybrid Reactions';
-      case 4096: return 'Biochem Reactions';
-      default: return 'Other';
+      case 334:
+        return 'Construction Components';
+      case 428:
+        return 'Intermediate Materials';
+      case 429:
+        return 'Composite Materials';
+      case 873:
+        return 'Capital Components';
+      case 964:
+        return 'Hybrid Tech Components';
+      case 974:
+        return 'Hybrid Reactions';
+      case 4096:
+        return 'Biochem Reactions';
+      default:
+        return 'Other';
     }
   }
 
   private blueprintManufactureTime(typeId: number): number | undefined {
-    return this.sdeData.productBlueprintTimeDataFromTypeId(typeId)?.manufacturing_time
-      ?? this.sdeData.productBlueprintTimeDataFromTypeId(typeId)?.reaction_time;
+    return (
+      this.sdeData.productBlueprintTimeDataFromTypeId(typeId)?.manufacturing_time ??
+      this.sdeData.productBlueprintTimeDataFromTypeId(typeId)?.reaction_time
+    );
   }
 
-  private blueprintExists(
-    ppData: ProductionPlanCreationData,
-    typeId: number,
-  ): boolean {
-    const blueprintId = this.sdeData.productBlueprintFromTypeId(typeId)
-      ?.blueprint_id;
-    return blueprintId !== undefined
-      && (
-        blueprintId in ppData.assets
-        || this.industryJobContainsBlueprint(ppData, blueprintId)
-      );
+  private blueprintExists(ppData: ProductionPlanCreationData, typeId: number): boolean {
+    const blueprintId = this.sdeData.productBlueprintFromTypeId(typeId)?.blueprint_id;
+    return (
+      blueprintId !== undefined &&
+      (blueprintId in ppData.assets || this.industryJobContainsBlueprint(ppData, blueprintId))
+    );
   }
 
   private industryJobContainsBlueprint(
     ppData: ProductionPlanCreationData,
-    blueprintId: number,
+    blueprintId: number
   ): boolean {
-    return !isEmpty(ppData.activeIndustryJobs.filter(job =>
-      job.blueprint_type_id === blueprintId,
-    ));
+    return !isEmpty(
+      ppData.activeIndustryJobs.filter((job) => job.blueprint_type_id === blueprintId)
+    );
   }
 }
 
-function activeManufacturingRuns(
-  typeId: number,
-  industryJobs: EveIndustryJob[]
-): number {
-  const qualifiedJobs = industryJobs.filter(j =>
-    j.activity_id === MANUFACTURING && j.product_type_id === typeId
+function activeManufacturingRuns(typeId: number, industryJobs: EveIndustryJob[]): number {
+  const qualifiedJobs = industryJobs.filter(
+    (j) => j.activity_id === MANUFACTURING && j.product_type_id === typeId
   );
-  return sum(qualifiedJobs.map(job => job.runs));
+  return sum(qualifiedJobs.map((job) => job.runs));
 }
 
-function activeReactionRuns(
-  typeId: number,
-  industryJobs: EveIndustryJob[]
-): number {
-  const qualifiedJobs = industryJobs.filter(j =>
-    j.activity_id === REACTION && j.product_type_id === typeId
+function activeReactionRuns(typeId: number, industryJobs: EveIndustryJob[]): number {
+  const qualifiedJobs = industryJobs.filter(
+    (j) => j.activity_id === REACTION && j.product_type_id === typeId
   );
-  return sum(qualifiedJobs.map(job => job.runs));
+  return sum(qualifiedJobs.map((job) => job.runs));
 }
