@@ -191,7 +191,6 @@ export type MarketOrdersComparisonRes = {
   }[];
 }[];
 
-// export type MarketOrdersWithErrorsRes = {
-//   name?: string;
-//   error?: string;
-// }[];
+export type ParseErrorRes = { name: string; error: string }[];
+
+export type MarketOrdersComparisonWithErrorsRes = MarketOrdersComparisonRes | ParseErrorRes;

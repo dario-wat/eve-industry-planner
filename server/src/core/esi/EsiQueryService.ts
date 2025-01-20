@@ -568,7 +568,7 @@ export default class EsiQueryService {
       volume_remain: 20,
       volume_total: 20
     }
-   */
+  */
   public async genxRegionMarketOrders(
     token: Token,
     regionId: number,
@@ -600,6 +600,49 @@ export default class EsiQueryService {
     page: number = 1,
   ): Promise<EsiMultiPageResult<EveMarketOrder> | null> {
     return await this.genxRegionMarketOrders(token, regionId, typeId, orderType, page)
+      .catch(logEsiErrorAndReturnNull);
+  }
+
+  /*
+    Example object:
+    {
+      duration: 365,
+      is_buy_order: false,
+      issued: '2023-08-21T11:07:47Z',
+      location_id: 60002392,
+      min_volume: 1,
+      order_id: 4992795078,
+      price: 10000000,
+      range: 'region',
+      system_id: 30001397,
+      type_id: 46198,
+      volume_remain: 20,
+      volume_total: 20
+    }
+   */
+  public async genxStructureMarketOrders(
+    token: Token,
+    structureId: number,
+    page: number = 1,
+  ): Promise<EsiMultiPageResult<EveMarketOrder>> {
+    const response = await this.esi.request(
+      `/markets/structures/${structureId}/`,
+      { page },
+      undefined,
+      { token },
+    );
+    return {
+      data: await response.json(),
+      pages: Number(response.headers['x-pages']),
+    };
+  }
+
+  public async genStructureMarketOrders(
+    token: Token,
+    structureId: number,
+    page: number = 1,
+  ): Promise<EsiMultiPageResult<EveMarketOrder> | null> {
+    return await this.genxStructureMarketOrders(token, structureId, page)
       .catch(logEsiErrorAndReturnNull);
   }
 

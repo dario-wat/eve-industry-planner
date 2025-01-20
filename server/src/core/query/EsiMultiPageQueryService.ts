@@ -9,7 +9,7 @@ import { EsiMultiPageResult } from '../../core/esi/EsiQueryService';
  * Utility function that handles multi page ESI queries.
  * It will make sure that all pages are queried and full result returned.
  */
-async function genMultiPageData<T>(
+async function genxMultiPageData<T>(
   genQuery: (page: number) => Promise<EsiMultiPageResult<T>>,
 ): Promise<T[]> {
   const firstPageResult = await genQuery(1);
@@ -39,14 +39,14 @@ export default class EsiMultiPageQueryService {
     Returns the same type as genAssets.
   */
   public async genxAllAssets(character: EsiCharacter): Promise<EveAsset[]> {
-    return await genMultiPageData(
+    return await genxMultiPageData(
       async page => await this.esiQuery.genxAssets(character.characterId, page),
     );
   }
 
   /** Fetches all contracts for the given user. */
   public async genxAllContracts(character: EsiCharacter): Promise<EveContract[]> {
-    return await genMultiPageData(
+    return await genxMultiPageData(
       async page => await this.esiQuery.genxContracts(character.characterId, page),
     );
   }
@@ -55,7 +55,7 @@ export default class EsiMultiPageQueryService {
   public async genxAllWalletJournal(
     character: EsiCharacter,
   ): Promise<EveWalletJournalEntry[]> {
-    return await genMultiPageData(
+    return await genxMultiPageData(
       async page => await this.esiQuery.genxWalletJournal(character.characterId, page),
     );
   }
@@ -67,7 +67,7 @@ export default class EsiMultiPageQueryService {
     typeId: number,
     orderType: EveMarketOrderType = 'all',
   ): Promise<EveMarketOrder[]> {
-    return await genMultiPageData(
+    return await genxMultiPageData(
       async page => await this.esiQuery.genxRegionMarketOrders(
         character.characterId,
         regionId,
@@ -76,5 +76,31 @@ export default class EsiMultiPageQueryService {
         page,
       ),
     );
+  }
+
+  /** Fetches all market orders for the given structure. */
+  public async genxAllStructureMarketOrders(
+    character: EsiCharacter,
+    structureId: number,
+  ): Promise<EveMarketOrder[]> {
+    return await genxMultiPageData(
+      async page => await this.esiQuery.genxStructureMarketOrders(
+        character.characterId, 
+        structureId, 
+        page,
+      ),
+    );
+  }
+
+  /** Fetches all market orders for the given structure. */
+  public async genAllStructureMarketOrders(
+    character: EsiCharacter,
+    structureId: number,
+  ): Promise<EveMarketOrder[] | null> {
+    try {
+      return await this.genxAllStructureMarketOrders(character, structureId);
+    } catch {
+      return null;
+    }
   }
 }

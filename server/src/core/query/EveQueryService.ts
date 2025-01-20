@@ -45,20 +45,4 @@ export default class EveQueryService {
     );
     return mapify(filterNullOrUndef(responses.flat()), 'id');
   }
-
-  /**
-   * Fetches region ID from system ID by
-   * solar system -> constellation -> region.
-   */
-  public async genxRegionIdFromSystemId(
-    character: EsiCharacter,
-    systemId: number
-  ): Promise<number> {
-    const solarSystem = await this.esiQuery.genxSolarSystem(character.characterId, systemId);
-    const constellation = await this.esiQuery.genxConstellation(
-      character.characterId,
-      solarSystem.constellation_id
-    );
-    return constellation.region_id;
-  }
 }

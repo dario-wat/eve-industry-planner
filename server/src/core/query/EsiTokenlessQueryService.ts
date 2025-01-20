@@ -87,22 +87,6 @@ export default class EsiTokenlessQueryService {
     return await this.esiQuery.genStructure(token, structureId);
   }
 
-  public async genxSolarSystem(
-    characterId: number,
-    systemId: number,
-  ): Promise<EveSolarSystem> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genxSolarSystem(token, systemId);
-  }
-
-  public async genxConstellation(
-    characterId: number,
-    constellationId: number,
-  ): Promise<EveConstellation> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genxConstellation(token, constellationId);
-  }
-
   public async genxWalletTransactions(
     characterId: number,
   ): Promise<EveWalletTransaction[]> {
@@ -147,6 +131,15 @@ export default class EsiTokenlessQueryService {
       orderType,
       page,
     );
+  }
+
+  public async genxStructureMarketOrders(
+    characterId: number,
+    structureId: number,
+    page: number = 1,
+  ): Promise<EsiMultiPageResult<EveMarketOrder>> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
+    return await this.esiQuery.genxStructureMarketOrders(token, structureId, page);
   }
 
   public async genxRegionMarketHistory(

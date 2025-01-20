@@ -1,17 +1,20 @@
-import { EveAssetsLocationsRes, MarketOrdersComparisonRes } from "@internal/shared";
-import { Autocomplete, Box, Button, CircularProgress, TextField } from "@mui/material";
+import { EveAssetsLocationsRes, MarketOrdersComparisonRes, MarketOrdersComparisonWithErrorsRes, ParseErrorRes } from "@internal/shared";
+import { Autocomplete, Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import axios from "axios";
 import useAxios from 'axios-hooks';
 import React, { useState } from "react";
-import { uniq } from "underscore";
+import { first, uniq } from "underscore";
 import EveIconAndName from "./util/EveIconAndName";
 import { formatNumber } from "./util/numbers";
+import { styled } from '@mui/system';
 
 // TODO add full prices
 // TODO handle error with station name being a number in the browser
+// TODO price coloring
+// TODO add amarr
 
 type Location = { locationId: number; locationName: string };
 
@@ -35,18 +38,24 @@ export default function MarketComparisonPage() {
   const [text, setText] = useState('');
   
   const [data, setData] = useState<MarketOrdersComparisonRes | null>(null);
+  const [errors, setErrors] = useState<string[]>([]);
 
   const onSubmit = async () => {
     // TODO loading indicator
-    const { data } = await axios.post<MarketOrdersComparisonRes>(
+    const { data } = await axios.post<MarketOrdersComparisonWithErrorsRes>(
       '/market_comparison',
       {
          stationIds: selectedStations.map(({ locationId }) => locationId), 
          text ,
       },
     );
-    setData(data);
+    setData(hasData(data) ? data : null);
+    setErrors(hasErrors(data) ? data.map((d) => d.error) : []);
   };
+
+  const RedTextTypography = styled(Typography)(({ theme }) => `
+    color: red;
+  `);
   
   return (
     <>
@@ -70,6 +79,11 @@ export default function MarketComparisonPage() {
           value={text}
           onChange={e => setText(e.target.value)}
         />
+        <Box sx={{ pb: 2 }}>
+          <RedTextTypography variant='body2'>
+            {first(errors)}
+          </RedTextTypography>
+        </Box>
         <Button variant="contained" size="medium" onClick={onSubmit}>
           Submit
         </Button>
@@ -136,7 +150,7 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
     width: 200,
     sortable: false,
     align: 'right',
-    valueFormatter: value => value === null ? '-' : formatNumber(value, 2),
+    valueFormatter: value => !value ? '-' : formatNumber(value, 2),
   }));
 
   const columns: GridColDef[] = [
@@ -183,4 +197,16 @@ function formatDataPrices(data: MarketOrdersComparisonRes): ItemPrices[] {
     }
   }
   return Object.values(formattedData);
+}
+
+function hasErrors(
+  data: MarketOrdersComparisonWithErrorsRes,
+): data is ParseErrorRes {
+  return data.length > 0 && 'error' in data[0];
+}
+
+function hasData(
+  data: MarketOrdersComparisonWithErrorsRes,
+): data is MarketOrdersComparisonRes {
+  return data.length > 0 && 'stationId' in data[0];
 }
