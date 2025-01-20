@@ -16,6 +16,7 @@ import axios from 'axios';
 import { ProductionPlanRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
 import useProductionPlanState from './useProductionPlanState';
+import { formatNumber } from 'components/util/numbers';
 
 enum SelectedTab {
   RUNS = 'RUNS',
@@ -110,6 +111,7 @@ function MaterialsTab(props: {
       headerName: 'Quantity',
       width: 100,
       sortable: false,
+      valueFormatter: value => !value ? '-' : formatNumber(value, 0),
     },
   ];
 

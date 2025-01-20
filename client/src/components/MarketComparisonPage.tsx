@@ -8,13 +8,12 @@ import useAxios from 'axios-hooks';
 import React, { useState } from "react";
 import { first, uniq } from "underscore";
 import EveIconAndName from "./util/EveIconAndName";
-import { formatNumber } from "./util/numbers";
+import { ColoredNumber, formatNumber } from "./util/numbers";
 import { styled } from '@mui/system';
 
 // TODO add full prices
-// TODO handle error with station name being a number in the browser
 // TODO price coloring
-// TODO add amarr
+// TODO copy cheapest. what if multiple are the same cheapest price
 
 type Location = { locationId: number; locationName: string };
 
@@ -28,7 +27,11 @@ type ItemPrices = {
 const STATIONS: Location[] = [{
   locationId: 60003760,
   locationName: 'Jita IV - Moon 4 - Caldari Navy Assembly Plant',
-}];
+}, {
+  locationId: 60008494,
+  locationName: 'Amarr VIII (Oris) - Emperor Family Academy',
+},
+];
 
 export default function MarketComparisonPage() {
   const [
@@ -39,9 +42,10 @@ export default function MarketComparisonPage() {
   
   const [data, setData] = useState<MarketOrdersComparisonRes | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onSubmit = async () => {
-    // TODO loading indicator
+    setIsLoading(true);
     const { data } = await axios.post<MarketOrdersComparisonWithErrorsRes>(
       '/market_comparison',
       {
@@ -51,6 +55,7 @@ export default function MarketComparisonPage() {
     );
     setData(hasData(data) ? data : null);
     setErrors(hasErrors(data) ? data.map((d) => d.error) : []);
+    setIsLoading(false);
   };
 
   const RedTextTypography = styled(Typography)(({ theme }) => `
@@ -84,15 +89,25 @@ export default function MarketComparisonPage() {
             {first(errors)}
           </RedTextTypography>
         </Box>
-        <Button variant="contained" size="medium" onClick={onSubmit}>
+        <Button 
+          variant="contained" 
+          size="medium" 
+          onClick={onSubmit}
+          disabled={isLoading}
+        >
           Submit
         </Button>
       </CardContent>
     </Card>
-    { data && 
-      <Box  sx={{ pt: 4 }}>
-        <MarketComparisonDataGrid data={data} />
-      </Box>
+    { isLoading
+      ? <Box sx={{ pt: 4, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+          <CircularProgress />
+        </Box>
+      : data
+      ? <Box sx={{ pt: 4 }}>
+          <MarketComparisonDataGrid data={data} />
+        </Box>
+      : null 
     }
     </>
   );
@@ -109,7 +124,7 @@ function StationSelector(props: {
   const locations = uniq(
     [...assetLocations ?? [], ...STATIONS], 
     ({ locationId }) => locationId,
-  );
+  ).filter(({ locationName }) => typeof locationName === 'string');
   return (
     <Autocomplete
       multiple
@@ -143,6 +158,13 @@ function StationSelector(props: {
 
 function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes }) {
   const priceData = formatDataPrices(data);
+  const stationIds = data.map(({ stationId }) => stationId);
+  const priceDataMap: Record<number, ItemPrices> = 
+    Object.fromEntries(priceData.map((itemPrice) => ([itemPrice.typeId, itemPrice])));
+  const isLowestPrice = (price: number, typeId: number) =>
+    !stationIds.some((stationId) => 
+      (priceDataMap[typeId]?.[`price_${stationId}`] ?? Infinity) < price
+  );
 
   const extraColumns: GridColDef[] = data.map(({ stationId, stationName }) => ({
     field: `price_${stationId}`,
@@ -150,7 +172,14 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
     width: 200,
     sortable: false,
     align: 'right',
-    valueFormatter: value => !value ? '-' : formatNumber(value, 2),
+    renderCell: params => {
+      const price: number | null | undefined = params.row[`price_${stationId}`];
+      return !price
+        ? '-' 
+        : isLowestPrice(price, params.row.typeId)
+        ? <ColoredNumber number={price} color="green" fractionDigits={2} />
+        : formatNumber(price, 2);
+    }
   }));
 
   const columns: GridColDef[] = [
