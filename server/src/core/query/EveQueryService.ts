@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { chunk, uniq } from 'underscore'
+import { chunk, uniq } from 'underscore';
 import { mapify } from '../../lib/util';
 import { EveAsset, EveName } from '../../types/EsiQuery';
 import { filterNullOrUndef } from '@internal/shared';
@@ -12,22 +12,19 @@ import EsiMultiPageQueryService from './EsiMultiPageQueryService';
 /** More complex EVE queries built on top of the ESI query services. */
 @Service()
 export default class EveQueryService {
-
   constructor(
     private readonly esiQuery: EsiTokenlessQueryService,
-    private readonly esiMultiPageQuery: EsiMultiPageQueryService,
-  ) { }
+    private readonly esiMultiPageQuery: EsiMultiPageQueryService
+  ) {}
 
   // TODO Do I still need to cache this now that multipage is fixed
   /** Queries all assets for the given user and caches the result. */
-  public async genAllAssets(
-    character: EsiCharacter,
-  ): Promise<EveAsset[] | null> {
+  public async genAllAssets(character: EsiCharacter): Promise<EveAsset[] | null> {
     return await genQueryEsiCache(
       character.characterId.toString(),
       EsiCacheItem.ASSETS,
       hoursToSeconds(1),
-      async () => await this.esiMultiPageQuery.genxAllAssets(character),
+      async () => await this.esiMultiPageQuery.genxAllAssets(character)
     );
   }
 
@@ -37,15 +34,31 @@ export default class EveQueryService {
    */
   public async genAllNames(
     character: EsiCharacter,
-    ids: number[],
+    ids: number[]
   ): Promise<Record<number, EveName>> {
     const chunkSize = 1000;
-    const uniqueIds = uniq(ids).filter(id => id !== 0);
+    const uniqueIds = uniq(ids).filter((id) => id !== 0);
     const chunks = chunk(uniqueIds, chunkSize);
 
-    const responses = await Promise.all(chunks.map(
-      ch => this.esiQuery.genxNames(character.characterId, ch),
-    ));
+    const responses = await Promise.all(
+      chunks.map((ch) => this.esiQuery.genxNames(character.characterId, ch))
+    );
     return mapify(filterNullOrUndef(responses.flat()), 'id');
+  }
+
+  /**
+   * Fetches region ID from system ID by
+   * solar system -> constellation -> region.
+   */
+  public async genxRegionIdFromSystemId(
+    character: EsiCharacter,
+    systemId: number
+  ): Promise<number> {
+    const solarSystem = await this.esiQuery.genxSolarSystem(character.characterId, systemId);
+    const constellation = await this.esiQuery.genxConstellation(
+      character.characterId,
+      solarSystem.constellation_id
+    );
+    return constellation.region_id;
   }
 }

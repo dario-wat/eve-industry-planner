@@ -15,7 +15,7 @@ import { AlwaysBuyItem } from 'features/always_buy/AlwaysBuyItem';
 
 // TODO this whole thing needs a big refactor
 
-// const MAX_ME = 0.9; // For ME = 10
+const MAX_ME = 0.9; // For ME = 10
 const MIN_ME = 1.0; // For ME = 0
 const MAX_TE = 0.8; // For TE = 20
 const HOURS_IN_DAY = 24;
@@ -141,7 +141,7 @@ export default class ProductionPlanService {
       //   || this.sdeData.types[product.typeId]?.meta_group_id === MetaGroup.TECH_I
       //   ? MIN_ME :
       //   MAX_ME;
-      const meLevel = MIN_ME;
+      const meLevel = MAX_ME;
 
       const runs = Math.ceil(product.quantity / productBlueprint.quantity);
       materialPlan.addRuns(product.typeId, runs);

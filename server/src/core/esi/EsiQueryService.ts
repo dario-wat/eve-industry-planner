@@ -3,6 +3,7 @@ import { Service } from 'typedi';
 import {
   EveAsset,
   EveAssetName,
+  EveConstellation,
   EveContract,
   EveIndustryJob,
   EveMarketHistory,
@@ -10,6 +11,7 @@ import {
   EveMarketOrderType,
   EveName,
   EvePortrait,
+  EveSolarSystem,
   EveStructure,
   EveWalletJournalEntry,
   EveWalletTransaction,
@@ -117,6 +119,111 @@ export default class EsiQueryService {
     structureId: number,
   ): Promise<EveStructure | null> {
     return await this.genxStructure(token, structureId)
+      .catch(logEsiErrorAndReturnNull);
+  }
+
+  /*
+    Solar system example object:
+    {
+      "constellation_id": 20000691,
+      "name": "E3OI-U",
+      "planets": [
+        {
+          "asteroid_belts": [40299082, 40299083, 40299084, 40299087],
+          "moons": [40299085, 40299086, 40299088],
+          "planet_id": 40299081
+        },
+        {
+          "moons": [40299090],
+          "planet_id": 40299089
+        },
+        {
+          "moons": [
+            40299092, 40299093, 40299094, 40299095, 40299096, 40299097,
+            40299098, 40299099, 40299100, 40299101, 40299102, 40299103,
+            40299104
+          ],
+          "planet_id": 40299091
+        },
+        {
+          "moons": [
+            40299106, 40299107, 40299108, 40299109, 40299110, 40299111,
+            40299112, 40299113, 40299114, 40299115, 40299116, 40299117,
+            40299118, 40299119, 40299120
+          ],
+          "planet_id": 40299105
+        },
+        {
+          "asteroid_belts": [40299122],
+          "moons": [40299123, 40299124, 40299125],
+          "planet_id": 40299121
+        }
+      ],
+      "position": {
+        "x": -429785458560803840,
+        "y": 55986490854246150,
+        "z": -226681473350494530
+      },
+      "security_class": "G",
+      "security_status": -0.04511237144470215,
+      "star_id": 40299080,
+      "stargates": [50010588, 50010589, 50010590, 50010591],
+      "system_id": 30004725
+    }
+  */
+  public async genxSolarSystem(
+    token: Token,
+    systemId: number,
+  ): Promise<EveSolarSystem> {
+    const response = await this.esi.request(
+      `/universe/systems/${systemId}`,
+      undefined,
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  public async genSolarSystem(
+    token: Token,
+    systemId: number,
+  ): Promise<EveSolarSystem | null> {
+    return await this.genxSolarSystem(token, systemId)
+      .catch(logEsiErrorAndReturnNull);
+  }
+
+  /*
+    Example constellation object:
+    {
+      "constellation_id": 20000691,
+      "name": "O5K-Y6",
+      "position": {
+        "x": -429956931523100740,
+        "y": 58891568439957010,
+        "z": -222333617049187420
+      },
+      "region_id": 10000060,
+      "systems": [30004724, 30004725, 30004726, 30004727, 30004728, 30004729]
+    }
+  */
+  public async genxConstellation(
+    token: Token,
+    constellationId: number,
+  ): Promise<EveConstellation> {
+    const response = await this.esi.request(
+      `/universe/constellations/${constellationId}`,
+      undefined,
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  public async genConstellation(
+    token: Token,
+    constellationId: number,
+  ): Promise<EveConstellation | null> {
+    return await this.genxConstellation(token, constellationId)
       .catch(logEsiErrorAndReturnNull);
   }
 
