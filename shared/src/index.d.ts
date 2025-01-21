@@ -188,6 +188,7 @@ export type MarketOrdersComparisonRes = {
     categoryId: number | undefined;
     name: string;
     price: number | null;
+    quantity: number;
   }[];
 }[];
 

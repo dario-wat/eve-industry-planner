@@ -1,5 +1,5 @@
 import { EveAssetsLocationsRes, MarketOrdersComparisonRes, MarketOrdersComparisonWithErrorsRes, ParseErrorRes } from "@internal/shared";
-import { Autocomplete, Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, CircularProgress, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -12,7 +12,6 @@ import { ColoredNumber, formatNumber } from "./util/numbers";
 import { styled } from '@mui/system';
 
 // TODO add full prices
-// TODO price coloring
 // TODO copy cheapest. what if multiple are the same cheapest price
 
 type Location = { locationId: number; locationName: string };
@@ -21,6 +20,7 @@ type ItemPrices = {
   typeId: number;
   categoryId: number | undefined;
   name: string;
+  quantity: number;
   [key: `price_${number}`]: number | null; // `price_{stationId}`
 }
 
@@ -157,6 +157,7 @@ function StationSelector(props: {
 }
 
 function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes }) {
+  const [isSingle, setIsSingle] = useState<boolean>(true);
   const priceData = formatDataPrices(data);
   const stationIds = data.map(({ stationId }) => stationId);
   const priceDataMap: Record<number, ItemPrices> = 
@@ -173,12 +174,13 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
     sortable: false,
     align: 'right',
     renderCell: params => {
-      const price: number | null | undefined = params.row[`price_${stationId}`];
-      return !price
+      const price: number | null = params.row[`price_${stationId}`] ?? null;
+      const showPrice = price === null ? null : isSingle ? price : price * params.row.quantity;
+      return !price || !showPrice
         ? '-' 
         : isLowestPrice(price, params.row.typeId)
-        ? <ColoredNumber number={price} color="green" fractionDigits={2} />
-        : formatNumber(price, 2);
+        ? <ColoredNumber number={showPrice} color="green" fractionDigits={2} />
+        : formatNumber(showPrice, 2);
     }
   }));
 
@@ -195,11 +197,29 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
           name={params.row.name}
         />,
     },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      width: 120,
+      sortable: false,
+      valueFormatter: value => value ? formatNumber(value) : '-',
+    },
     ...extraColumns,
   ];
   return (
     <Card>
       <CardContent>
+        <ToggleButtonGroup
+          sx={{ pb: 2 }}
+          color="primary"
+          size="small"
+          value={isSingle ? 'single' : 'total'}
+          exclusive
+          onChange={(_, value) => setIsSingle(value === 'single')}
+        >
+          <ToggleButton value="single">Single</ToggleButton>
+          <ToggleButton value="total">Total</ToggleButton>
+        </ToggleButtonGroup>
         <DataGrid 
         rows={priceData} 
         columns={columns} 
@@ -218,9 +238,9 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
 function formatDataPrices(data: MarketOrdersComparisonRes): ItemPrices[] {
   const formattedData: { [typeId: number]: ItemPrices } = {};
   for (const { stationId, items } of data) {
-    for (const { typeId, categoryId, name, price } of items) {
+    for (const { typeId, categoryId, name, quantity, price } of items) {
       if (!(typeId in formattedData)) {
-        formattedData[typeId] = { typeId, categoryId, name };
+        formattedData[typeId] = { typeId, categoryId, name, quantity };
       }
       formattedData[typeId][`price_${stationId}`] = price;
     }

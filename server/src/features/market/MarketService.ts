@@ -131,25 +131,29 @@ export default class MarketService {
     );
   }
 
-  // TODO handle quantities
   /** Finds the lowest price from the orders for each item. */
   private async genLowestItemPrices(
     orders: EveMarketOrder[],
     itemQuantities: ItemQuantity[]
   ): Promise<MarketOrdersComparisonRes[number]['items']> {
-    const types = itemQuantities.map(({ name }) => this.sdeData.typeByName[name]);
-    const typeIds = new Set(types.map(({ id }) => id));
+    const typeQuantities = Object.fromEntries(
+      itemQuantities.map(({ name, quantity }) => [this.sdeData.typeByName[name]?.id, quantity])
+    );
     return chain(orders)
       .filter((order) => order?.is_buy_order === false)
-      .filter(({ type_id }) => typeIds.has(type_id))
+      .filter(({ type_id }) => type_id in typeQuantities)
       .groupBy('type_id')
       .pairs()
-      .map(([typeId, typeOrders]) => {
+      .map(([typeIdStr, typeOrders]) => {
+        const typeId = Number(typeIdStr);
+        const quantity = typeQuantities[typeId];
+        // TODO handle price and quantity
         return {
-          typeId: Number(typeId),
-          categoryId: this.sdeData.categoryIdFromTypeId(Number(typeId)),
-          name: this.sdeData.types[Number(typeId)].name,
+          typeId,
+          categoryId: this.sdeData.categoryIdFromTypeId(typeId),
+          name: this.sdeData.types[typeId].name,
           price: typeOrders.length === 0 ? null : Math.min(...typeOrders.map(({ price }) => price)),
+          quantity,
         };
       })
       .value();
