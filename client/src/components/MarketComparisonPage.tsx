@@ -29,8 +29,6 @@ import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 import CopySnackbar from './util/CopySnackbar';
 import { sum } from 'mathjs';
 
-// TODO totals for each station and min for all stations
-
 type Location = { locationId: number; locationName: string };
 
 type ItemPrices = {
@@ -133,6 +131,7 @@ function StationSelector(props: {
       options={locations}
       getOptionLabel={(option: any) => option.locationName}
       filterSelectedOptions
+      disableCloseOnSelect
       isOptionEqualToValue={(option, value) => option.locationId === value.locationId}
       value={props.selectedStations}
       onChange={(_, values) => {
