@@ -12,6 +12,7 @@ import { ColoredNumber, formatNumber } from "./util/numbers";
 import { styled } from '@mui/system';
 import { ContentCopy as ContentCopyIcon } from "@mui/icons-material";
 import CopySnackbar from "./util/CopySnackbar";
+import { sum } from "mathjs";
 
 // TODO totals for each station and min for all stations
 
@@ -160,6 +161,7 @@ function StationSelector(props: {
 function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes }) {
   const [isSingle, setIsSingle] = useState<boolean>(true);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
   const priceData = formatDataPrices(data);
   const stationIds = data.map(({ stationId }) => stationId);
   const lowestPrices = priceData.map(itemPrice => {
@@ -188,6 +190,25 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
     );
     setSnackbarOpen(true);
   };
+
+  const stationNameMap: Record<number, string> = Object.fromEntries(
+    data.map(({ stationId, stationName }) => [stationId, stationName])
+  );
+  const stationTotals: Record<number, { stationName: string; totalPrice: number }> = {};
+  for (const [_, stationPriceData] of lowestPrices) {
+    if (stationPriceData === null || stationPriceData.price === null) {
+      continue;
+    }
+    if (stationPriceData.stationId in stationTotals) {
+      stationTotals[stationPriceData.stationId].totalPrice += 
+        stationPriceData.quantity * stationPriceData.price;
+    } else {
+      stationTotals[stationPriceData.stationId] = { 
+        stationName: stationNameMap[stationPriceData.stationId],
+        totalPrice: stationPriceData.quantity * stationPriceData.price,
+      };
+    }
+  }
 
   const extraColumns: GridColDef[] = data.map(({ stationId, stationName }) => ({
     field: `price_${stationId}`,
@@ -251,17 +272,54 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
           <ToggleButton value="total">Total</ToggleButton>
         </ToggleButtonGroup>
         <DataGrid 
-        rows={priceData} 
-        columns={columns} 
-        disableRowSelectionOnClick 
-        disableColumnMenu
-      />
-      <CopySnackbar
-        open={snackbarOpen}
-        onClose={() => setSnackbarOpen(false)}
-      />
+          rows={priceData} 
+          columns={columns} 
+          disableRowSelectionOnClick 
+          disableColumnMenu
+        />
+        <Box sx={{ pt: 2 }}>
+          <CombinedPriceDataGrid stationTotals={Object.values(stationTotals)} />
+        </Box>
+        <CopySnackbar
+          open={snackbarOpen}
+          onClose={() => setSnackbarOpen(false)}
+        />
       </CardContent>
     </Card>
+  );
+}
+
+function CombinedPriceDataGrid(props: {
+  stationTotals: { stationName: string; totalPrice: number }[];
+}) {
+  const totalRow = { 
+    stationName: 'Total', 
+    totalPrice: sum(props.stationTotals.map(({ totalPrice }) => totalPrice))
+  };
+  const columns: GridColDef[] = [
+    {
+      field: 'stationName',
+      headerName: 'Station',
+      width: 400,
+      sortable: false,
+    },
+    {
+      field: 'totalPrice',
+      headerName: 'Total',
+      width: 300,
+      sortable: false,
+      align: 'right',
+      headerAlign: 'right',
+      valueFormatter: value => formatNumber(value, 2),
+    }
+  ];
+  return (
+    <DataGrid 
+      rows={[...props.stationTotals, totalRow]}
+      columns={columns} 
+      disableRowSelectionOnClick 
+      disableColumnMenu
+    />
   );
 }
 

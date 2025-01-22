@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { PlannedProductsRes } from '@internal/shared';
 import DashboardProductsTextArea from './products_card/DashboardProductsTextArea';
 import DashboardProducts from './products_card/DashboardProducts';
-import useProductionPlanState from './useProductionPlanState';
+import useProductionPlanState from '../../recoil/useProductionPlanState';
 
 const ADD_TAB = 'add_tab';
 

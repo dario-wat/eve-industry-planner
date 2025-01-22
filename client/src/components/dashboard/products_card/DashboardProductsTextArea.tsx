@@ -13,7 +13,7 @@ import {
   PlannedProductsRes,
   PlannedProductsWithErrorRes,
 } from '@internal/shared';
-import useProductionPlanState from '../useProductionPlanState';
+import useProductionPlanState from '../../../recoil/useProductionPlanState';
 import { styled } from '@mui/system';
 
 export default function DashboardProductsTextArea(props: {

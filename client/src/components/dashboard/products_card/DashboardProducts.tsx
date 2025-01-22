@@ -7,7 +7,7 @@ import axios from 'axios';
 import { PlannedProductsRes } from '@internal/shared';
 import DashboardProductsTextArea from './DashboardProductsTextArea';
 import DashboardProductsDataGrid from './DashboardProductsDataGrid';
-import useProductionPlanState from '../useProductionPlanState';
+import useProductionPlanState from '../../../recoil/useProductionPlanState';
 
 export default function DashboardProducts(props: {
   group: string,

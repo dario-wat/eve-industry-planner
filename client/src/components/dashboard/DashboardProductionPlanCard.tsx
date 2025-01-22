@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ProductionPlanRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
-import useProductionPlanState from './useProductionPlanState';
+import useProductionPlanState from '../../recoil/useProductionPlanState';
 import { formatNumber } from 'components/util/numbers';
 import CopySnackbar from 'components/util/CopySnackbar';
 
