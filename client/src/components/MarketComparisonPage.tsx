@@ -1,18 +1,19 @@
 import { EveAssetsLocationsRes, MarketOrdersComparisonRes, MarketOrdersComparisonWithErrorsRes, ParseErrorRes } from "@internal/shared";
-import { Autocomplete, Box, Button, CircularProgress, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, CircularProgress, IconButton, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import axios from "axios";
 import useAxios from 'axios-hooks';
 import React, { useState } from "react";
-import { first, uniq } from "underscore";
+import { first, min, uniq } from "underscore";
 import EveIconAndName from "./util/EveIconAndName";
 import { ColoredNumber, formatNumber } from "./util/numbers";
 import { styled } from '@mui/system';
+import { ContentCopy as ContentCopyIcon } from "@mui/icons-material";
+import CopySnackbar from "./util/CopySnackbar";
 
-// TODO add full prices
-// TODO copy cheapest. what if multiple are the same cheapest price
+// TODO totals for each station and min for all stations
 
 type Location = { locationId: number; locationName: string };
 
@@ -158,14 +159,35 @@ function StationSelector(props: {
 
 function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes }) {
   const [isSingle, setIsSingle] = useState<boolean>(true);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const priceData = formatDataPrices(data);
   const stationIds = data.map(({ stationId }) => stationId);
-  const priceDataMap: Record<number, ItemPrices> = 
-    Object.fromEntries(priceData.map((itemPrice) => ([itemPrice.typeId, itemPrice])));
-  const isLowestPrice = (price: number, typeId: number) =>
-    !stationIds.some((stationId) => 
-      (priceDataMap[typeId]?.[`price_${stationId}`] ?? Infinity) < price
-  );
+  const lowestPrices = priceData.map(itemPrice => {
+    const stationPrices = stationIds.map(stationId => 
+      ({ stationId, price: itemPrice[`price_${stationId}`] }),
+    );
+    const lowestPrice = min(stationPrices, ({ price }) => price);
+    if (typeof lowestPrice === 'number') {
+      return [itemPrice.typeId, null] as const;
+    }
+    return [itemPrice.typeId, { 
+      stationId: lowestPrice.stationId,
+      price: lowestPrice.price,
+      name: itemPrice.name,
+      quantity: itemPrice.quantity,
+    }] as const;
+  });
+  const lowestPricesMap = Object.fromEntries(lowestPrices);
+
+  const copyCheapestItems = (stationId: number) => {
+    navigator.clipboard.writeText(
+      lowestPrices
+        .filter(([_, stationPrice]) => stationPrice?.stationId === stationId)
+        .map(([_, stationPrice]) => `${stationPrice?.name} ${stationPrice?.quantity}`)
+        .join('\r\n')
+    );
+    setSnackbarOpen(true);
+  };
 
   const extraColumns: GridColDef[] = data.map(({ stationId, stationName }) => ({
     field: `price_${stationId}`,
@@ -178,10 +200,18 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
       const showPrice = price === null ? null : isSingle ? price : price * params.row.quantity;
       return !price || !showPrice
         ? '-' 
-        : isLowestPrice(price, params.row.typeId)
+        : lowestPricesMap[params.row.typeId]?.stationId === stationId
         ? <ColoredNumber number={showPrice} color="green" fractionDigits={2} />
         : formatNumber(showPrice, 2);
-    }
+    },
+    renderHeader: () => (
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <IconButton size="small" onClick={() => copyCheapestItems(stationId)}>
+          <ContentCopyIcon />
+        </IconButton>
+        <strong>{ stationName }</strong>
+      </Box>
+    ),
   }));
 
   const columns: GridColDef[] = [
@@ -225,6 +255,10 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
         columns={columns} 
         disableRowSelectionOnClick 
         disableColumnMenu
+      />
+      <CopySnackbar
+        open={snackbarOpen}
+        onClose={() => setSnackbarOpen(false)}
       />
       </CardContent>
     </Card>

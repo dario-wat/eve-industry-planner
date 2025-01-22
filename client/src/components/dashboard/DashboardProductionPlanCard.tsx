@@ -2,12 +2,9 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
-import IconButton from '@mui/material/IconButton';
-import Snackbar from '@mui/material/Snackbar';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
-import CloseIcon from '@mui/icons-material/Close';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { LoadingButton } from '@mui/lab';
 import { groupBy, uniqueId } from 'underscore';
@@ -17,6 +14,7 @@ import { ProductionPlanRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
 import useProductionPlanState from './useProductionPlanState';
 import { formatNumber } from 'components/util/numbers';
+import CopySnackbar from 'components/util/CopySnackbar';
 
 enum SelectedTab {
   RUNS = 'RUNS',
@@ -139,21 +137,9 @@ function MaterialsTab(props: {
           }}>
           Copy
         </LoadingButton>
-        <Snackbar
+        <CopySnackbar
           open={snackbarOpen}
-          autoHideDuration={3000}
-          message="Copied!"
           onClose={() => setSnackbarOpen(false)}
-          action={
-            <IconButton
-              size="small"
-              aria-label="close"
-              color="inherit"
-              onClick={() => setSnackbarOpen(false)}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          }
         />
       </Box>
       {!props.loading
