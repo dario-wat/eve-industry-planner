@@ -48,6 +48,18 @@ const STATIONS: Location[] = [
     locationId: 60008494,
     locationName: 'Amarr VIII (Oris) - Emperor Family Academy',
   },
+  {
+    locationId: 60004588,
+    locationName: 'Rens VI - Moon 8 - Brutor Tribe Treasury',
+  },
+  {
+    locationId: 60011866,
+    locationName: 'Dodixie IX - Moon 20 - Federation Navy Assembly Plant',
+  },
+  {
+    locationId: 60005686,
+    locationName: 'Hek VIII - Moon 12 - Boundless Creation Factory',
+  },
 ];
 
 export default function MarketComparisonPage() {

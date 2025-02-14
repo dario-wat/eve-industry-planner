@@ -12,6 +12,7 @@ import { EveIndustryJob } from '../../types/EsiQuery';
 import { MANUFACTURING, REACTION } from '../../const/IndustryActivity';
 import { isEmpty, sum } from 'lodash';
 import { AlwaysBuyItem } from 'features/always_buy/AlwaysBuyItem';
+import { MetaGroup } from '../../const/MetaGroups';
 
 // TODO this whole thing needs a big refactor
 
@@ -137,11 +138,12 @@ export default class ProductionPlanService {
         this.sdeData.bpReactionMaterialsByBlueprint[blueprintId];
 
       // TODO fix this
-      // const meLevel = this.sdeData.typeIdIsReactionFormula(blueprintId)
-      //   || this.sdeData.types[product.typeId]?.meta_group_id === MetaGroup.TECH_I
-      //   ? MIN_ME :
-      //   MAX_ME;
-      const meLevel = MAX_ME;
+      const meLevel =
+        this.sdeData.typeIdIsReactionFormula(blueprintId) ||
+        this.sdeData.types[product.typeId]?.meta_group_id !== MetaGroup.TECH_I
+          ? MIN_ME
+          : MAX_ME;
+      // const meLevel = MIN_ME;
 
       const runs = Math.ceil(product.quantity / productBlueprint.quantity);
       materialPlan.addRuns(product.typeId, runs);
