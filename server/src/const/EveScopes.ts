@@ -101,5 +101,6 @@ export const requiredScopes = [
   'esi-markets.read_corporation_orders.v1',
   'esi-industry.read_character_mining.v1',
   'esi-planets.read_customs_offices.v1',
-  'esi-characterstats.read.v1',
+  // No longer works
+  // 'esi-characterstats.read.v1',
 ];

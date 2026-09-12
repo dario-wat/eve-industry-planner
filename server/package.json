@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": ">=26"
+  },
   "dependencies": {
     "@babel/core": "^7.19.0",
     "@babel/preset-env": "^7.19.0",
@@ -11,7 +14,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "eve-esi-client": "^0.6.1",
-    "eve-sso": "^2.0.0",
+    "eve-sso": "file:../packages/eve-sso",
     "express": "^4.18.1",
     "express-session": "^1.17.3",
     "jest": "^28.0.0",
@@ -36,17 +39,13 @@
     "@types/lodash": "^4.14.197",
     "@types/memoizee": "^0.4.8",
     "@types/mysql": "^2.15.21",
+    "@types/node": "^26.5.1",
     "@types/node-schedule": "^2.1.6",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
     "eslint": "^8.47.0",
     "nodemon": "^2.0.19",
     "patch-package": "^6.4.7"
-  },
-  "overrides": {
-    "eve-sso": {
-      "node-fetch": "^2.6.1"
-    }
   },
   "scripts": {
     "test": "jest",

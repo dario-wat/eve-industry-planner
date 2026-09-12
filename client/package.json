@@ -2,6 +2,9 @@
   "name": "eve-industry-planner",
   "version": "0.1.0",
   "homepage": "https://dario-wat.github.io/eve-industry-planner",
+  "engines": {
+    "node": ">=26"
+  },
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
