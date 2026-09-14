@@ -40,8 +40,6 @@ import { industryJobAssocsDefine } from '../features/industry_jobs/IndustryJobAs
 import { industryJobModelDefine } from '../features/industry_jobs/IndustryJob';
 import { walletTransactionAssocsDefine } from '../features/wallet/WalletTransactionAssocs';
 import { walletJournalEntryModelDefine } from '../features/wallet/WalletJournalEntry';
-import { invItemModelDefine } from '../core/sde/models/InvItem';
-import { invUniqueNameModelDefine } from '../core/sde/models/InvUniqueName';
 
 export function initDatabaseSequelize(): Sequelize {
   const sequelize = new Sequelize(
@@ -73,8 +71,6 @@ export function initDatabase(): void {
   iconIdModelDefine(sequelize);
   categoryIdModelDefine(sequelize);
   stationModelDefine(sequelize);
-  invItemModelDefine(sequelize);
-  invUniqueNameModelDefine(sequelize);
 
   blueprintModelDefine(sequelize);
 
@@ -129,8 +125,6 @@ export function initDatabaseForSdeScript(): void {
   iconIdModelDefine(sequelize);
   categoryIdModelDefine(sequelize);
   stationModelDefine(sequelize);
-  invItemModelDefine(sequelize);
-  invUniqueNameModelDefine(sequelize);
 
   blueprintModelDefine(sequelize);
 

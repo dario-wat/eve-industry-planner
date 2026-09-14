@@ -13,7 +13,6 @@ export const iconIdModelDefine = (sequelize: Sequelize) => IconID.init(
       type: DataTypes.INTEGER,
       primaryKey: true,
     },
-    description: DataTypes.STRING,
     icon_file: DataTypes.STRING,
   },
   {

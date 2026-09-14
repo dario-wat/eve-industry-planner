@@ -21,8 +21,6 @@ import { IconID } from '../core/sde/models/IconID';
 import { TypeID } from '../core/sde/models/TypeID';
 import { CategoryID } from '../core/sde/models/CategoryID';
 import { Station } from '../core/sde/models/Station';
-import { InvItem } from '../core/sde/models/InvItem';
-import { InvUniqueName } from '../core/sde/models/InvUniqueName';
 import {
   Blueprint,
   BpCopyingMaterials,
@@ -107,7 +105,7 @@ function extractBlueprintData([key, value]: [string, any]) {
 }
 
 async function loadBlueprintData() {
-  const fileName = 'sde/fsd/blueprints.yaml';
+  const fileName = 'sde2/blueprints.yaml';
   LOG && LOG('[Script] Reading file: %s', fileName);
   const fileContent = fs.readFileSync(fileName, 'utf8');
 
@@ -151,7 +149,7 @@ async function run() {
   await sequelize.sync({ force: true, logging: SEQUELIZE_LOG });
 
   await loadDataToDatabase(
-    'sde/fsd/typeIDs.yaml',
+    'sde2/types.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
       group_id: value.groupID,
@@ -168,7 +166,7 @@ async function run() {
   );
 
   await loadDataToDatabase(
-    'sde/fsd/groupIDs.yaml',
+    'sde2/groups.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
       category_id: value.categoryID,
@@ -179,17 +177,16 @@ async function run() {
   );
 
   await loadDataToDatabase(
-    'sde/fsd/iconIDs.yaml',
+    'sde2/icons.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
-      description: value.description,
       icon_file: value.iconFile,
     }),
     IconID,
   );
 
   await loadDataToDatabase(
-    'sde/fsd/categoryIDs.yaml',
+    'sde2/categories.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
       name: value.name.en,
@@ -197,6 +194,7 @@ async function run() {
     CategoryID,
   );
 
+  // TODO: stations need to be reworked for the new SDE format - deferred for now.
   await loadDataToDatabase(
     'sde/bsd/staStations.yaml',
     ([_key, value]: [string, any]) => ({
@@ -205,25 +203,6 @@ async function run() {
       region_id: value.regionID,
     }),
     Station,
-  );
-
-  await loadDataToDatabase(
-    'sde/bsd/invItems.yaml',
-    ([_key, value]: [string, any]) => ({
-      item_id: value.itemID,
-      type_id: value.typeID,
-      location_id: value.locationID,
-    }),
-    InvItem,
-  );
-
-  await loadDataToDatabase(
-    'sde/bsd/invUniqueNames.yaml',
-    ([_key, value]: [string, any]) => ({
-      item_id: value.itemID,
-      item_name: value.itemName,
-    }),
-    InvUniqueName,
   );
 
   await loadBlueprintData();

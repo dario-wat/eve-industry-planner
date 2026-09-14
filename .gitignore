@@ -30,6 +30,7 @@ yarn-error.log*
 
 # static data export
 /sde
+/sde2
 
 # SSL certs
 localhost.crt
