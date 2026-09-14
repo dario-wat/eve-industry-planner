@@ -4,21 +4,21 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
  * This is an SDE (Static Data Export) model.
  */
 
-export class Station extends Model {}
+export class SolarSystem extends Model {}
 
-export const stationModelDefine = (sequelize: Sequelize) =>
-  Station.init(
+export const solarSystemModelDefine = (sequelize: Sequelize) =>
+  SolarSystem.init(
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
       },
-      solar_system_id: DataTypes.INTEGER,
+      region_id: DataTypes.INTEGER,
     },
     {
       sequelize,
-      modelName: Station.name,
-      tableName: 'stations',
+      modelName: SolarSystem.name,
+      tableName: 'solar_systems',
       timestamps: false,
     },
   );

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /*
-* This script will read yaml files from SDE (not all, but only the ones
-* specified in this script) and store them into the database. Only some
-* fields will be stored (again the ones defined in the scripts).
-*
-* Note: some files may be quite large so it could take a while.
-* Run like this:
-* ts-node ./server/src/scripts/loadDataIntoMySqlScript.ts
-*/
+ * This script will read yaml files from SDE (not all, but only the ones
+ * specified in this script) and store them into the database. Only some
+ * fields will be stored (again the ones defined in the scripts).
+ *
+ * Note: some files may be quite large so it could take a while.
+ * Run like this:
+ * ts-node ./server/src/scripts/loadDataIntoMySqlScript.ts
+ */
 import 'reflect-metadata';
 
 import yaml from 'js-yaml';
@@ -21,6 +21,7 @@ import { IconID } from '../core/sde/models/IconID';
 import { TypeID } from '../core/sde/models/TypeID';
 import { CategoryID } from '../core/sde/models/CategoryID';
 import { Station } from '../core/sde/models/Station';
+import { SolarSystem } from '../core/sde/models/SolarSystem';
 import {
   Blueprint,
   BpCopyingMaterials,
@@ -43,10 +44,9 @@ async function loadDataToDatabase<MS extends ModelStatic<Model>>(
   fileName: string,
   transformFn: ([keyof, value]: [string, any]) => any,
   model: MS,
-  options?:
-    {
-      cleanupInputFn?: ((inString: string) => string) | undefined,
-    },
+  options?: {
+    cleanupInputFn?: ((inString: string) => string) | undefined;
+  },
 ) {
   LOG && LOG('[Script] Reading file: %s', fileName);
   const fileContent = fs.readFileSync(fileName, 'utf8');
@@ -83,24 +83,19 @@ function extractBlueprintData([key, value]: [string, any]) {
       research_time_time: value.activities.research_time?.time,
       reaction_time: value.activities.reaction?.time,
     },
-    [BpCopyingMaterials.name]:
-      (value.activities.copying?.materials ?? []).map(materialMapper),
-    [BpInventionMaterials.name]:
-      (value.activities.invention?.materials ?? []).map(materialMapper),
-    [BpManufacturingMaterials.name]:
-      (value.activities.manufacturing?.materials ?? []).map(materialMapper),
-    [BpReactionMaterials.name]:
-      (value.activities.reaction?.materials ?? []).map(materialMapper),
-    [BpMeMaterials.name]:
-      (value.activities.research_material?.materials ?? []).map(materialMapper),
-    [BpTeMaterials.name]:
-      (value.activities.research_time?.materials ?? []).map(materialMapper),
-    [BpInventionProducts.name]:
-      (value.activities.invention?.products ?? []).map(materialMapper),
-    [BpManufacturingProducts.name]:
-      (value.activities.manufacturing?.products ?? []).map(materialMapper),
-    [BpReactionProducts.name]:
-      (value.activities.reaction?.products ?? []).map(materialMapper),
+    [BpCopyingMaterials.name]: (value.activities.copying?.materials ?? []).map(materialMapper),
+    [BpInventionMaterials.name]: (value.activities.invention?.materials ?? []).map(materialMapper),
+    [BpManufacturingMaterials.name]: (value.activities.manufacturing?.materials ?? []).map(
+      materialMapper,
+    ),
+    [BpReactionMaterials.name]: (value.activities.reaction?.materials ?? []).map(materialMapper),
+    [BpMeMaterials.name]: (value.activities.research_material?.materials ?? []).map(materialMapper),
+    [BpTeMaterials.name]: (value.activities.research_time?.materials ?? []).map(materialMapper),
+    [BpInventionProducts.name]: (value.activities.invention?.products ?? []).map(materialMapper),
+    [BpManufacturingProducts.name]: (value.activities.manufacturing?.products ?? []).map(
+      materialMapper,
+    ),
+    [BpReactionProducts.name]: (value.activities.reaction?.products ?? []).map(materialMapper),
   };
 }
 
@@ -120,12 +115,10 @@ async function loadBlueprintData() {
     { logging: SEQUELIZE_LOG },
   );
 
-  const bulkCreateHelper =
-    async <MS extends ModelStatic<Model>>(model: MS) =>
-      await model.bulkCreate(
-        records.map((o: any) => o[model.name]).flat(),
-        { logging: SEQUELIZE_LOG },
-      );
+  const bulkCreateHelper = async <MS extends ModelStatic<Model>>(model: MS) =>
+    await model.bulkCreate(records.map((o: any) => o[model.name]).flat(), {
+      logging: SEQUELIZE_LOG,
+    });
 
   await bulkCreateHelper(BpCopyingMaterials);
   await bulkCreateHelper(BpInventionMaterials);
@@ -160,8 +153,8 @@ async function run() {
     {
       cleanupInputFn: (inString: string) =>
         inString
-          .replaceAll('\r\n\'\r\n', '\r\n            \'\r\n')
-          .replaceAll('\n\'\n', '\n            \'\n'),
+          .replaceAll("\r\n'\r\n", "\r\n            '\r\n")
+          .replaceAll("\n'\n", "\n            '\n"),
     },
   );
 
@@ -171,7 +164,7 @@ async function run() {
       id: key,
       category_id: value.categoryID,
       icon_id: value.iconID,
-      name: value.name.en
+      name: value.name.en,
     }),
     GroupID,
   );
@@ -194,13 +187,20 @@ async function run() {
     CategoryID,
   );
 
-  // TODO: stations need to be reworked for the new SDE format - deferred for now.
   await loadDataToDatabase(
-    'sde/bsd/staStations.yaml',
-    ([_key, value]: [string, any]) => ({
-      id: value.stationID,
-      name: value.stationName,
+    'sde2/mapSolarSystems.yaml',
+    ([key, value]: [string, any]) => ({
+      id: key,
       region_id: value.regionID,
+    }),
+    SolarSystem,
+  );
+
+  await loadDataToDatabase(
+    'sde2/npcStations.yaml',
+    ([key, value]: [string, any]) => ({
+      id: key,
+      solar_system_id: value.solarSystemID,
     }),
     Station,
   );

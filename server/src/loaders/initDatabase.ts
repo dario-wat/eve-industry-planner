@@ -19,6 +19,7 @@ import { iconIdModelDefine } from '../core/sde/models/IconID';
 import { typeIdModelDefine } from '../core/sde/models/TypeID';
 import { categoryIdModelDefine } from '../core/sde/models/CategoryID';
 import { stationModelDefine } from '../core/sde/models/Station';
+import { solarSystemModelDefine } from '../core/sde/models/SolarSystem';
 import { plannedProductModelDefine } from '../features/planned_product/PlannedProduct';
 import { esiCacheModelDefine } from '../core/esi_cache/EsiCache';
 import { materialStationModelDefine } from '../features/material_station/MaterialStation';
@@ -51,7 +52,7 @@ export function initDatabaseSequelize(): Sequelize {
       port: Number(process.env.DATABASE_PORT!),
       dialect: 'mysql' as Dialect,
       logging: false,
-    }
+    },
   );
 
   Container.set(Sequelize, sequelize);
@@ -71,6 +72,7 @@ export function initDatabase(): void {
   iconIdModelDefine(sequelize);
   categoryIdModelDefine(sequelize);
   stationModelDefine(sequelize);
+  solarSystemModelDefine(sequelize);
 
   blueprintModelDefine(sequelize);
 
@@ -125,6 +127,7 @@ export function initDatabaseForSdeScript(): void {
   iconIdModelDefine(sequelize);
   categoryIdModelDefine(sequelize);
   stationModelDefine(sequelize);
+  solarSystemModelDefine(sequelize);
 
   blueprintModelDefine(sequelize);
 
