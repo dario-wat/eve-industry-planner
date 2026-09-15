@@ -12,6 +12,7 @@ import {
   EveName,
   EvePortrait,
   EveSolarSystem,
+  EveStation,
   EveStructure,
   EveWalletJournalEntry,
   EveWalletTransaction,
@@ -119,6 +120,49 @@ export default class EsiQueryService {
     structureId: number,
   ): Promise<EveStructure | null> {
     return await this.genxStructure(token, structureId)
+      .catch(logEsiErrorAndReturnNull);
+  }
+
+  /*
+    Station example object (works for NPC stations)
+    {
+      max_dockable_ship_volume: 50000000.0,
+      name: 'Jita IV - Moon 4 - Caldari Navy Assembly Plant',
+      office_rental_cost: 7830379188.0,
+      owner: 1000035,
+      position: { x: -107303362560.0, y: -18744975360.0, z: 436489052160.0 },
+      race_id: 1,
+      reprocessing_efficiency: 0.5,
+      reprocessing_stations_take: 0.05,
+      services: [
+        'bounty-missions', 'courier-missions', 'reprocessing-plant', 'market',
+        'cloning', 'repair-facilities', 'factory', 'fitting', 'news',
+        'insurance', 'docking', 'office-rental', 'loyalty-point-store',
+        'navy-offices', 'security-offices'
+      ],
+      station_id: 60003760,
+      system_id: 30000142,
+      type_id: 52678
+    }
+  */
+  public async genxStation(
+    token: Token,
+    stationId: number,
+  ): Promise<EveStation> {
+    const response = await this.esi.request(
+      `/universe/stations/${stationId}/`,
+      undefined,
+      undefined,
+      { token },
+    );
+    return await response.json();
+  }
+
+  public async genStation(
+    token: Token,
+    stationId: number,
+  ): Promise<EveStation | null> {
+    return await this.genxStation(token, stationId)
       .catch(logEsiErrorAndReturnNull);
   }
 

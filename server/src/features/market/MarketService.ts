@@ -111,12 +111,13 @@ export default class MarketService {
           };
         }
 
+        const regionId = this.sdeData.regionIdFromStationId(stationId);
         const types = itemQuantities.map(({ name }) => this.sdeData.typeByName[name]);
         const orders = await Promise.all(
           types.map(async ({ id }) => {
             const orders = await this.esiMultipageueryService.genxAllRegionMarketOrders(
               main,
-              stationData.region_id,
+              regionId!,
               id
             );
             return orders;
@@ -124,7 +125,7 @@ export default class MarketService {
         );
         return {
           stationId,
-          stationName: stationData.name,
+          stationName: (await this.stationService.genStationName(main, stationId)) ?? '',
           items: await this.genLowestItemPrices(orders.flat(), itemQuantities),
         };
       })

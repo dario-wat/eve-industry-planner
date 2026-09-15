@@ -4,6 +4,7 @@ import { EsiCache } from './EsiCache';
 export enum EsiCacheItem {
   ASSETS,
   STRUCTURE,
+  STATION,
 }
 
 /*

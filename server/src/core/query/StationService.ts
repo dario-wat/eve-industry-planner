@@ -5,7 +5,7 @@ import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { uniq, zip } from 'underscore';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { combineMapsWithNulls } from '../../lib/util';
-import { EveStructure } from 'types/EsiQuery';
+import { EveStation, EveStructure } from 'types/EsiQuery';
 import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { hoursToSeconds } from 'date-fns';
 
@@ -17,15 +17,15 @@ export default class StationService {
   ) {}
 
   /**
-   * Tries to fetch the station name by any means.
-   * 1. Check SDE stations
-   * 2. Check ESI Cache
-   * 3. Call into ESI for structure data
+   * Fetches the station name.
+   * 1. NPC stations (per SDE): ESI's station endpoint.
+   * 2. Player structures: ESI's structure endpoint (ACL-gated).
    */
   public async genStationName(character: EsiCharacter, stationId: number): Promise<string | null> {
-    const sdeStation = this.sdeData.stations[stationId];
-    if (sdeStation) {
-      return sdeStation.name;
+    const isNpcStation = this.sdeData.stations[stationId] !== undefined;
+    if (isNpcStation) {
+      const station = await this.genStationCached(character, stationId);
+      return station?.name ?? null;
     }
 
     const structure = await this.genStructureCached(character, stationId);
@@ -74,6 +74,19 @@ export default class StationService {
       EsiCacheItem.STRUCTURE,
       hoursToSeconds(24),
       async () => await this.esiQuery.genStructure(character.characterId, stationId)
+    );
+  }
+
+  /** Cached version of genStation. NPC station names never change. */
+  private async genStationCached(
+    character: EsiCharacter,
+    stationId: number
+  ): Promise<EveStation | null> {
+    return await genQueryEsiCache(
+      stationId.toString(),
+      EsiCacheItem.STATION,
+      hoursToSeconds(24 * 30),
+      async () => await this.esiQuery.genStation(character.characterId, stationId)
     );
   }
 }

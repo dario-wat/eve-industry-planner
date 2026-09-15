@@ -1,7 +1,6 @@
 import { Service } from 'typedi';
 import {
   EveAsset,
-  EveConstellation,
   EveContract,
   EveIndustryJob,
   EveMarketHistory,
@@ -9,7 +8,7 @@ import {
   EveMarketOrderType,
   EveName,
   EvePortrait,
-  EveSolarSystem,
+  EveStation,
   EveStructure,
   EveWalletJournalEntry,
   EveWalletTransaction,
@@ -85,6 +84,14 @@ export default class EsiTokenlessQueryService {
   ): Promise<EveStructure | null> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genStructure(token, structureId);
+  }
+
+  public async genStation(
+    characterId: number,
+    stationId: number,
+  ): Promise<EveStation | null> {
+    const token = await this.esiSequelizeProvider.genxToken(characterId);
+    return await this.esiQuery.genStation(token, stationId);
   }
 
   public async genxWalletTransactions(

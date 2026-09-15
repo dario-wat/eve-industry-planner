@@ -4,6 +4,7 @@ import { mapify } from '../../lib/util';
 import { TypeID } from './models/TypeID';
 import { GroupID } from './models/GroupID';
 import { Station } from './models/Station';
+import { SolarSystem } from './models/SolarSystem';
 import {
   Blueprint,
   BpManufacturingMaterials,
@@ -33,7 +34,11 @@ export type EveSdeCategory = {
 
 export type EveSdeStation = {
   id: number,
-  name: string,
+  solar_system_id: number,
+}
+
+export type EveSdeSolarSystem = {
+  id: number,
   region_id: number,
 }
 
@@ -74,6 +79,7 @@ export default class EveSdeData {
     public readonly groups: { [group_id: number]: EveSdeGroup },
     public readonly categories: { [category_id: number]: EveSdeCategory },
     public readonly stations: { [station_id: number]: EveSdeStation },
+    public readonly solarSystems: { [solar_system_id: number]: EveSdeSolarSystem },
     public readonly bpManufactureMaterialsByBlueprint:
       { [blueprint_id: number]: EveSdeBlueprintMaterial[] },
     public readonly bpManufactureProductsByProduct:
@@ -96,6 +102,12 @@ export default class EveSdeData {
     const group = type && this.groups[type.group_id];
     const category = group && this.categories[group.category_id];
     return category?.name;
+  }
+
+  public regionIdFromStationId(stationId: number): number | undefined {
+    const station = this.stations[stationId];
+    const solarSystem = station && this.solarSystems[station.solar_system_id];
+    return solarSystem?.region_id;
   }
 
   public typeIdIsReactionFormula(typeId: number): boolean {
@@ -130,6 +142,7 @@ export default class EveSdeData {
     const groupsData = await GroupID.findAll();
     const categoriesData = await CategoryID.findAll();
     const stationsData = await Station.findAll();
+    const solarSystemsData = await SolarSystem.findAll();
     const bpManufactureMaterialsData = await BpManufacturingMaterials.findAll();
     const bpManufactureProductsData = await BpManufacturingProducts.findAll();
     const bpReactionMaterialsData = await BpReactionMaterials.findAll();
@@ -142,6 +155,7 @@ export default class EveSdeData {
       mapifySequelize(groupsData, 'id'),
       mapifySequelize(categoriesData, 'id'),
       mapifySequelize(stationsData, 'id'),
+      mapifySequelize(solarSystemsData, 'id'),
       mapifyMultiSequelize(bpManufactureMaterialsData, 'blueprint_id'),
       mapifySequelize(bpManufactureProductsData, 'type_id'),
       mapifyMultiSequelize(bpReactionMaterialsData, 'blueprint_id'),

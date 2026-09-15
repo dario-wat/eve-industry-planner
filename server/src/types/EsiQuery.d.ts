@@ -29,6 +29,21 @@ export interface EveStructure {
   type_id: number;
 }
 
+export interface EveStation {
+  max_dockable_ship_volume?: number;
+  name: string;
+  office_rental_cost?: number;
+  owner?: number;
+  position: EvePosition;
+  race_id?: number;
+  reprocessing_efficiency?: number;
+  reprocessing_stations_take?: number;
+  services?: string[];
+  station_id: number;
+  system_id: number;
+  type_id: number;
+}
+
 export interface EveSolarSystem {
   constellation_id: number;
   name: string;
