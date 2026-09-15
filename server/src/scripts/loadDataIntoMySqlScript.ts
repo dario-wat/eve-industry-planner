@@ -8,11 +8,15 @@
  * Note: some files may be quite large so it could take a while.
  * Run like this:
  * ts-node ./server/src/scripts/loadDataIntoMySqlScript.ts
+ *
+ * No logs:
+ * SDE_LOAD_QUIET=1 ts-node ./server/src/scripts/loadDataIntoMySqlScript.ts
  */
 import 'reflect-metadata';
 
 import yaml from 'js-yaml';
 import fs from 'fs';
+import { styleText } from 'node:util';
 import Container from 'typedi';
 import { Sequelize } from 'sequelize';
 import { Model, ModelStatic } from 'sequelize/types';
@@ -36,9 +40,37 @@ import {
 } from '../core/sde/models/Blueprint';
 import { initDatabaseForSdeScript } from '../loaders/initDatabase';
 
-// Either console.log or false
-const LOG = console.log;
 const SEQUELIZE_LOG = false;
+const loggingEnabled = process.env.SDE_LOAD_QUIET !== '1';
+
+function logFile(label: string): void {
+  if (!loggingEnabled) return;
+  console.log(styleText('cyan', label));
+}
+
+function logFileEnd(): void {
+  if (!loggingEnabled) return;
+  console.log('');
+}
+
+/** Phases for one file/section, printed on a single indented line (read · parse · insert). */
+function createPhaseLine(): { step: (phase: string) => void; end: () => void } {
+  let open = false;
+
+  return {
+    step(phase: string): void {
+      if (!loggingEnabled) return;
+      const chunk = open ? ` · ${phase}` : `  ${phase}`;
+      open = true;
+      process.stdout.write(styleText('white', chunk));
+    },
+    end(): void {
+      if (!loggingEnabled || !open) return;
+      process.stdout.write('\n');
+      open = false;
+    },
+  };
+}
 
 async function loadDataToDatabase<MS extends ModelStatic<Model>>(
   fileName: string,
@@ -48,22 +80,29 @@ async function loadDataToDatabase<MS extends ModelStatic<Model>>(
     cleanupInputFn?: ((inString: string) => string) | undefined;
   },
 ) {
-  LOG && LOG('[Script] Reading file: %s', fileName);
+  const phases = createPhaseLine();
+  logFile(fileName);
+
+  phases.step('read');
   const fileContent = fs.readFileSync(fileName, 'utf8');
 
-  let cleanedUpInput;
-  if (options && options.cleanupInputFn) {
-    LOG && LOG('[Script] Cleaning up content');
-    cleanedUpInput = options.cleanupInputFn(fileContent);
+  let yamlInput = fileContent;
+  if (options?.cleanupInputFn) {
+    phases.step('cleanup');
+    yamlInput = options.cleanupInputFn(fileContent);
   }
 
-  LOG && LOG('[Script] Parsing YAML');
-  const result: any = yaml.load(cleanedUpInput ?? fileContent);
+  phases.step('parse');
+  const result: any = yaml.load(yamlInput);
 
-  LOG && LOG('[Script] Transforming YAML');
+  phases.step('transform');
   const records = Object.entries(result).map(transformFn);
-  LOG && LOG('[Script] Storing into the database');
+
+  phases.step('insert');
   await model.bulkCreate(records, { logging: SEQUELIZE_LOG });
+
+  phases.end();
+  logFileEnd();
 }
 
 function extractBlueprintData([key, value]: [string, any]) {
@@ -101,15 +140,19 @@ function extractBlueprintData([key, value]: [string, any]) {
 
 async function loadBlueprintData() {
   const fileName = 'sde2/blueprints.yaml';
-  LOG && LOG('[Script] Reading file: %s', fileName);
+  const phases = createPhaseLine();
+  logFile(fileName);
+
+  phases.step('read');
   const fileContent = fs.readFileSync(fileName, 'utf8');
 
-  LOG && LOG('[Script] Parsing YAML');
+  phases.step('parse');
   const result: any = yaml.load(fileContent);
 
+  phases.step('transform');
   const records = Object.entries(result).map(extractBlueprintData);
 
-  LOG && LOG('[Script] Storing into the database');
+  phases.step('insert');
   await Blueprint.bulkCreate(
     records.map((o: any) => o[Blueprint.name]),
     { logging: SEQUELIZE_LOG },
@@ -129,17 +172,25 @@ async function loadBlueprintData() {
   await bulkCreateHelper(BpInventionProducts);
   await bulkCreateHelper(BpManufacturingProducts);
   await bulkCreateHelper(BpReactionProducts);
+
+  phases.end();
+  logFileEnd();
 }
 
 async function run() {
-  LOG && LOG('[Script] Script started');
+  const setupPhases = createPhaseLine();
+  logFile('SDE load');
 
+  setupPhases.step('connect');
   initDatabaseForSdeScript();
   const sequelize = Container.get(Sequelize);
   await sequelize.authenticate({ logging: SEQUELIZE_LOG });
 
-  LOG && LOG('[Script] Recreating tables');
+  setupPhases.step('sync');
   await sequelize.sync({ force: true, logging: SEQUELIZE_LOG });
+
+  setupPhases.end();
+  logFileEnd();
 
   await loadDataToDatabase(
     'sde2/types.yaml',
@@ -207,7 +258,10 @@ async function run() {
 
   await loadBlueprintData();
 
-  LOG && LOG('[Script] Finished!');
+  logFile('SDE load complete');
 }
 
-run();
+run().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});
