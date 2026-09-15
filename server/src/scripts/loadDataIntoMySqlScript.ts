@@ -16,10 +16,10 @@ import fs from 'fs';
 import Container from 'typedi';
 import { Sequelize } from 'sequelize';
 import { Model, ModelStatic } from 'sequelize/types';
-import { GroupID } from '../core/sde/models/GroupID';
-import { IconID } from '../core/sde/models/IconID';
-import { TypeID } from '../core/sde/models/TypeID';
-import { CategoryID } from '../core/sde/models/CategoryID';
+import { Group } from '../core/sde/models/Group';
+import { Icon } from '../core/sde/models/Icon';
+import { Type } from '../core/sde/models/Type';
+import { Category } from '../core/sde/models/Category';
 import { Station } from '../core/sde/models/Station';
 import { SolarSystem } from '../core/sde/models/SolarSystem';
 import {
@@ -149,7 +149,7 @@ async function run() {
       name: value.name.en,
       meta_group_id: value.metaGroupID,
     }),
-    TypeID,
+    Type,
     {
       cleanupInputFn: (inString: string) =>
         inString
@@ -166,7 +166,7 @@ async function run() {
       icon_id: value.iconID,
       name: value.name.en,
     }),
-    GroupID,
+    Group,
   );
 
   await loadDataToDatabase(
@@ -175,7 +175,7 @@ async function run() {
       id: key,
       icon_file: value.iconFile,
     }),
-    IconID,
+    Icon,
   );
 
   await loadDataToDatabase(
@@ -184,7 +184,7 @@ async function run() {
       id: key,
       name: value.name.en,
     }),
-    CategoryID,
+    Category,
   );
 
   await loadDataToDatabase(

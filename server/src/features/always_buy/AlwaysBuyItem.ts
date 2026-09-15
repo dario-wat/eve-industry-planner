@@ -4,7 +4,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 /** 
  * List of TypeIDs that will always be forced to buy instead of computing
  * the manufacture tree. Ideally these would be defined through an N-to-N
- * relationship between Account and TypeID. However, since TypeID is a part
+ * relationship between Account and Type. However, since Type is a part
  * of SDE, the table will occasionally be dropped and rebuilt thus making
  * it impossible to use foreign keys.
  * So for that reason we use this AlwaysBuyItem model that contains the

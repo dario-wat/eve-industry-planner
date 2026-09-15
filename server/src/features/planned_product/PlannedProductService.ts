@@ -113,7 +113,7 @@ export default class PlannedProductService {
       this.sdeData.bpManufactureProductsByProduct[typeId]?.quantity ?? 0;
 
     return plannedProducts.map(pp => ({
-      name: this.sdeData.types[pp.type_id].name,
+      name: this.sdeData.types[pp.type_id]?.name,
       typeId: pp.type_id,
       group: pp.group,
       categoryId: this.sdeData.categoryIdFromTypeId(pp.type_id),

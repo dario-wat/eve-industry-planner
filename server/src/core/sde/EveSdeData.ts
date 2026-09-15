@@ -1,8 +1,8 @@
 import { Model } from 'sequelize-typescript';
 import { groupBy } from 'underscore';
 import { mapify } from '../../lib/util';
-import { TypeID } from './models/TypeID';
-import { GroupID } from './models/GroupID';
+import { Type } from './models/Type';
+import { Group } from './models/Group';
 import { Station } from './models/Station';
 import { SolarSystem } from './models/SolarSystem';
 import {
@@ -12,65 +12,64 @@ import {
   BpReactionMaterials,
   BpReactionProducts,
 } from './models/Blueprint';
-import { CategoryID } from './models/CategoryID';
+import { Category } from './models/Category';
 
 export type EveSdeType = {
-  id: number,
-  name: string,
-  group_id: number,
-  meta_group_id: number,
-}
+  id: number;
+  name: string;
+  group_id: number;
+  meta_group_id: number;
+};
 
 export type EveSdeGroup = {
-  id: number,
-  name: string,
-  category_id: number,
-}
+  id: number;
+  name: string;
+  category_id: number;
+};
 
 export type EveSdeCategory = {
-  id: number,
-  name: string,
-}
+  id: number;
+  name: string;
+};
 
 export type EveSdeStation = {
-  id: number,
-  solar_system_id: number,
-}
+  id: number;
+  solar_system_id: number;
+};
 
 export type EveSdeSolarSystem = {
-  id: number,
-  region_id: number,
-}
+  id: number;
+  region_id: number;
+};
 
 export type EveSdeBlueprintMaterial = {
-  blueprint_id: number,
-  type_id: number,
-  quantity: number,
-}
+  blueprint_id: number;
+  type_id: number;
+  quantity: number;
+};
 
 export type EveSdeBlueprint = {
-  id: number,
-  copying_time: number,
-  invention_time: number,
-  manufacturing_time: number,
-  research_material_time: number,
-  research_time_time: number,
-  reaction_time: number,
-}
+  id: number;
+  copying_time: number;
+  invention_time: number;
+  manufacturing_time: number;
+  research_material_time: number;
+  research_time_time: number;
+  reaction_time: number;
+};
 
 /**
  * SDE (Static Data Export) is a collection of data that is static in the
  * EVE universe (e.g. blueprints, stations, types, ...). This data is not
  * queries through ESI, but rather downloaded as a set of YAML files.
- * 
+ *
  * We use `loadDataIntoMySqlScript` script to load all YAML files into MySQL.
- * 
+ *
  * All the SDE data is loaded into memory when the server starts. This data
  * is used very commonly, and the memory is not big so it's better to preload
  * everything rather than making a lot of queries into MySQL.
  */
 export default class EveSdeData {
-
   private static initialized: boolean = false;
 
   private constructor(
@@ -80,16 +79,16 @@ export default class EveSdeData {
     public readonly categories: { [category_id: number]: EveSdeCategory },
     public readonly stations: { [station_id: number]: EveSdeStation },
     public readonly solarSystems: { [solar_system_id: number]: EveSdeSolarSystem },
-    public readonly bpManufactureMaterialsByBlueprint:
-      { [blueprint_id: number]: EveSdeBlueprintMaterial[] },
-    public readonly bpManufactureProductsByProduct:
-      { [type_id: number]: EveSdeBlueprintMaterial },
-    public readonly bpReactionMaterialsByBlueprint:
-      { [blueprint_id: number]: EveSdeBlueprintMaterial[] },
-    public readonly bpReactionProductsByProduct:
-      { [type_id: number]: EveSdeBlueprintMaterial },
+    public readonly bpManufactureMaterialsByBlueprint: {
+      [blueprint_id: number]: EveSdeBlueprintMaterial[];
+    },
+    public readonly bpManufactureProductsByProduct: { [type_id: number]: EveSdeBlueprintMaterial },
+    public readonly bpReactionMaterialsByBlueprint: {
+      [blueprint_id: number]: EveSdeBlueprintMaterial[];
+    },
+    public readonly bpReactionProductsByProduct: { [type_id: number]: EveSdeBlueprintMaterial },
     public readonly blueprints: { [blueprint_id: number]: EveSdeBlueprint },
-  ) { }
+  ) {}
 
   public categoryIdFromTypeId(typeId: number): number | undefined {
     const type = this.types[typeId];
@@ -116,20 +115,13 @@ export default class EveSdeData {
     return reactionFormulaGroupIds.includes(groupId);
   }
 
-  public productBlueprintFromTypeId(
-    typeId: number,
-  ): EveSdeBlueprintMaterial | undefined {
-    return this.bpManufactureProductsByProduct[typeId]
-      || this.bpReactionProductsByProduct[typeId];
+  public productBlueprintFromTypeId(typeId: number): EveSdeBlueprintMaterial | undefined {
+    return this.bpManufactureProductsByProduct[typeId] || this.bpReactionProductsByProduct[typeId];
   }
 
-  public productBlueprintTimeDataFromTypeId(
-    typeId: number,
-  ): EveSdeBlueprint | undefined {
+  public productBlueprintTimeDataFromTypeId(typeId: number): EveSdeBlueprint | undefined {
     const blueprintId = this.productBlueprintFromTypeId(typeId)?.blueprint_id;
-    return blueprintId !== undefined
-      ? this.blueprints[blueprintId]
-      : undefined;
+    return blueprintId !== undefined ? this.blueprints[blueprintId] : undefined;
   }
 
   /** Loads SDE from MySQL into memory. */
@@ -138,9 +130,9 @@ export default class EveSdeData {
       throw new Error('EveSdeData is already initialized!');
     }
 
-    const typesData = await TypeID.findAll();
-    const groupsData = await GroupID.findAll();
-    const categoriesData = await CategoryID.findAll();
+    const typesData = await Type.findAll();
+    const groupsData = await Group.findAll();
+    const categoriesData = await Category.findAll();
     const stationsData = await Station.findAll();
     const solarSystemsData = await SolarSystem.findAll();
     const bpManufactureMaterialsData = await BpManufacturingMaterials.findAll();
@@ -166,17 +158,17 @@ export default class EveSdeData {
 }
 
 /** Helper function to create mapping from ID to data. */
-function mapifySequelize<TOut>(
-  ds: Pick<Model, 'get'>[],
-  key: string,
-): Record<string, TOut> {
-  return mapify(ds.map(d => d.get()), key);
+function mapifySequelize<TOut>(ds: Pick<Model, 'get'>[], key: string): Record<string, TOut> {
+  return mapify(
+    ds.map((d) => d.get()),
+    key,
+  );
 }
 
 /** Similar as mapifySequelize, but the returned result is an array. */
-function mapifyMultiSequelize<TOut>(
-  ds: Pick<Model, 'get'>[],
-  key: string,
-): Record<string, TOut[]> {
-  return groupBy(ds.map(d => d.get()), elem => elem[key]);
+function mapifyMultiSequelize<TOut>(ds: Pick<Model, 'get'>[], key: string): Record<string, TOut[]> {
+  return groupBy(
+    ds.map((d) => d.get()),
+    (elem) => elem[key],
+  );
 }

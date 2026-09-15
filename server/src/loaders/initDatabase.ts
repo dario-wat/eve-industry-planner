@@ -14,10 +14,10 @@ import {
   bpReactionMaterialsDefine,
   bpReactionProductsDefine,
 } from '../core/sde/models/Blueprint';
-import { groupIdModelDefine } from '../core/sde/models/GroupID';
-import { iconIdModelDefine } from '../core/sde/models/IconID';
-import { typeIdModelDefine } from '../core/sde/models/TypeID';
-import { categoryIdModelDefine } from '../core/sde/models/CategoryID';
+import { groupModelDefine } from '../core/sde/models/Group';
+import { iconModelDefine } from '../core/sde/models/Icon';
+import { typeModelDefine } from '../core/sde/models/Type';
+import { categoryModelDefine } from '../core/sde/models/Category';
 import { stationModelDefine } from '../core/sde/models/Station';
 import { solarSystemModelDefine } from '../core/sde/models/SolarSystem';
 import { plannedProductModelDefine } from '../features/planned_product/PlannedProduct';
@@ -67,10 +67,10 @@ export function initDatabase(): void {
   const sequelize = initDatabaseSequelize();
 
   // Eve SDE
-  typeIdModelDefine(sequelize);
-  groupIdModelDefine(sequelize);
-  iconIdModelDefine(sequelize);
-  categoryIdModelDefine(sequelize);
+  typeModelDefine(sequelize);
+  groupModelDefine(sequelize);
+  iconModelDefine(sequelize);
+  categoryModelDefine(sequelize);
   stationModelDefine(sequelize);
   solarSystemModelDefine(sequelize);
 
@@ -122,10 +122,10 @@ export function initDatabaseForSdeScript(): void {
   const sequelize = initDatabaseSequelize();
 
   // Eve SDE
-  typeIdModelDefine(sequelize);
-  groupIdModelDefine(sequelize);
-  iconIdModelDefine(sequelize);
-  categoryIdModelDefine(sequelize);
+  typeModelDefine(sequelize);
+  groupModelDefine(sequelize);
+  iconModelDefine(sequelize);
+  categoryModelDefine(sequelize);
   stationModelDefine(sequelize);
   solarSystemModelDefine(sequelize);
 
