@@ -102,7 +102,7 @@ export default function MarketComparisonPage() {
             fullWidth
             rows={12}
             multiline
-            placeholder={'Items to compare in format: <item name> <volume>.\n' + 'E.g. Scimitar 2'}
+            placeholder={'Items to compare in format: <item name> <volume>.\nE.g. Scimitar 2'}
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
@@ -198,8 +198,8 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
   const copyCheapestItems = (stationId: number) => {
     navigator.clipboard.writeText(
       lowestPrices
-        .filter(([_, stationPrice]) => stationPrice?.stationId === stationId)
-        .map(([_, stationPrice]) => `${stationPrice?.name} ${stationPrice?.quantity}`)
+        .filter(([, stationPrice]) => stationPrice?.stationId === stationId)
+        .map(([, stationPrice]) => `${stationPrice?.name} ${stationPrice?.quantity}`)
         .join('\r\n')
     );
     setSnackbarOpen(true);
@@ -209,7 +209,7 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
     data.map(({ stationId, stationName }) => [stationId, stationName])
   );
   const stationTotals: Record<number, { stationName: string; totalPrice: number }> = {};
-  for (const [_, stationPriceData] of lowestPrices) {
+  for (const [, stationPriceData] of lowestPrices) {
     if (stationPriceData === null || stationPriceData.price === null) {
       continue;
     }

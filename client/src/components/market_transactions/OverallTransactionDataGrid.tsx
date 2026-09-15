@@ -3,7 +3,6 @@ import { BarChart } from "@mui/x-charts";
 import { format } from "date-fns";
 import { sum } from "mathjs";
 import { groupBy } from "underscore";
-import { transactionAggregate } from "./transactionAggregate";
 
 export default function OverallTransactionDataGrid(props: {
   data: WalletTransactionsRes,

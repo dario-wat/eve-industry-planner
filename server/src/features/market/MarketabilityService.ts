@@ -22,23 +22,6 @@ const EPS = 1e-6;
 
 const RECENT_DAYS = 60;
 
-// TODO use these ?
-/** Minimum difference in price between high and low. */
-const MIN_DIFF = 0.1;
-/** Percentage of days that satisfy minimum difference. */
-const MIN_DIFF_DAYS = 0.9;
-
-/** Range for the average price between low and high. */
-const AVG_RANGE = [0.3, 0.7];
-/** Percentage of days that satisfy average range. */
-const AVG_RANGE_DAYS = 0.9;
-
-const AVG_PRICE = 1000000;
-const AVG_PRICE_DAYS = 0.9;
-
-const AVG_ISK_VOLUME = 1000000000;
-const AVG_ISK_VOLUME_DAYS = 0.9;
-
 const CHUNK_SIZE = 100;
 
 /**
