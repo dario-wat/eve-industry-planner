@@ -1,5 +1,4 @@
 import { EsiCharacter } from 'core/esi/models/EsiCharacter';
-import { AlwaysBuyItem } from 'features/always_buy/AlwaysBuyItem';
 import { MaterialStation } from 'features/material_station/MaterialStation';
 import { PlannedProduct } from 'features/planned_product/PlannedProduct';
 import { Scribble } from 'features/scribble/Scribble';
@@ -23,13 +22,11 @@ export class Account extends Model {
 
   declare getEsiCharacters: HasManyGetAssociationsMixin<EsiCharacter>;
   declare getScribbles: HasManyGetAssociationsMixin<Scribble>;
-  declare getAlwaysBuyItems: HasManyGetAssociationsMixin<AlwaysBuyItem>;
   declare getMaterialStations: HasManyGetAssociationsMixin<MaterialStation>;
   declare getPlannedProducts: HasManyGetAssociationsMixin<PlannedProduct>;
 
   declare addEsiCharacter: HasManyAddAssociationMixin<EsiCharacter, 'characterId'>;
   declare addScribble: HasManyAddAssociationMixin<Scribble, 'id'>;
-  declare addAlwaysBuyItem: HasManyAddAssociationMixin<AlwaysBuyItem, 'id'>;
   declare addMaterialStation: HasManyAddAssociationMixin<MaterialStation, 'id'>;
   declare addPlannedProduct: HasManyAddAssociationMixin<PlannedProduct, 'id'>;
 }

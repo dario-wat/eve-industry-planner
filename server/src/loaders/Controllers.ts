@@ -7,7 +7,6 @@ import EsiCacheController from '../core/esi_cache/EsiCacheController';
 import EveSdeDataController from '../core/sde/EveSdeDataController';
 import HealthController from '../core/controller/HealthController';
 import ScribbleController from '../features/scribble/ScribbleController';
-import AlwaysBuyItemController from '../features/always_buy/AlwaysBuyItemController';
 import MaterialStationController from '../features/material_station/MaterialStationController';
 import EvePagesDataController from '../features/eve_data/EvePagesDataController';
 import PlannedProductController from '../features/planned_product/PlannedProductController';
@@ -31,7 +30,6 @@ export default class Controllers {
     private readonly accountController: AccountController,
     private readonly eveSdeDataController: EveSdeDataController,
     private readonly scribbleController: ScribbleController,
-    private readonly alwaysBuyItemController: AlwaysBuyItemController,
     private readonly industryJobController: IndustryJobController,
     private readonly walletController: WalletController,
     private readonly marketController: MarketController,
@@ -56,7 +54,6 @@ export default class Controllers {
     this.accountController.init(app);
     this.eveSdeDataController.init(app);
     this.scribbleController.init(app);
-    this.alwaysBuyItemController.init(app);
     this.industryJobController.init(app);
     this.walletController.init(app);
     this.marketController.init(app);

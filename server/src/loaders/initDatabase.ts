@@ -30,11 +30,9 @@ import { esiTokenModelDefine } from '../core/esi/models/EsiToken';
 import { esiAssocsDefine } from '../core/esi/models/EsiAssocs';
 import { walletTransactionModelDefine } from '../features/wallet/WalletTransaction';
 import { scribbleModelDefine } from '../features/scribble/Scribble';
-import { alwaysBuyItemModelDefine } from '../features/always_buy/AlwaysBuyItem';
 import { accountModelDefine } from '../core/account/Account';
 import { accountAssocsDefine } from '../core/account/AccountAssocs';
 import { scribbleAssocsDefine } from '../features/scribble/ScribbleAssocs';
-import { alwaysBuyItemAssocsDefine } from '../features/always_buy/AlwaysBuyItemAssocs';
 import { materialStationAssocsDefine } from '../features/material_station/MaterialStationAssocs';
 import { plannedProductAssocsDefine } from '../features/planned_product/PlannedProductAssocs';
 import { industryJobAssocsDefine } from '../features/industry_jobs/IndustryJobAssocs';
@@ -94,7 +92,6 @@ export function initDatabase(): void {
   walletTransactionModelDefine(sequelize);
   walletJournalEntryModelDefine(sequelize);
   scribbleModelDefine(sequelize);
-  alwaysBuyItemModelDefine(sequelize);
   industryJobModelDefine(sequelize);
 
   // Special
@@ -110,7 +107,6 @@ export function initDatabase(): void {
   esiAssocsDefine();
   accountAssocsDefine();
   scribbleAssocsDefine();
-  alwaysBuyItemAssocsDefine();
   materialStationAssocsDefine();
   plannedProductAssocsDefine();
   industryJobAssocsDefine();

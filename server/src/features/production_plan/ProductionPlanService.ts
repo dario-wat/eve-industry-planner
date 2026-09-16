@@ -11,7 +11,6 @@ import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { MANUFACTURING, REACTION } from '../../const/IndustryActivity';
 import { isEmpty, sum } from 'lodash';
-import { AlwaysBuyItem } from 'features/always_buy/AlwaysBuyItem';
 import { MetaGroup } from '../../const/MetaGroups';
 
 // TODO this whole thing needs a big refactor
@@ -25,7 +24,6 @@ const HOURS_IN_DAY = 24;
 type ProductionPlanCreationData = {
   plannedProducts: PlannedProduct[];
   assets: Record<number, number>;
-  alwaysBuyItems: AlwaysBuyItem[];
   activeIndustryJobs: EveIndustryJob[];
 };
 
@@ -172,19 +170,18 @@ export default class ProductionPlanService {
     group?: string
   ): Promise<ProductionPlanCreationData> {
     const account = await actorContext.genxAccount();
-    const [plannedProducts, assets, alwaysBuyItems, activeIndustryJobs] = await Promise.all([
+    const [plannedProducts, assets, activeIndustryJobs] = await Promise.all([
       PlannedProduct.findAll({
         attributes: ['type_id', 'quantity'],
         where: group ? { accountId: account.id, group } : { accountId: account.id },
       }),
       this.assetService.genAssetsForProductionPlan(actorContext),
-      account.getAlwaysBuyItems(),
       genQueryFlatResultPerCharacter(actorContext, (character) =>
         this.esiQuery.genxIndustryJobs(character.characterId)
       ),
     ]);
 
-    return { plannedProducts, assets, alwaysBuyItems, activeIndustryJobs };
+    return { plannedProducts, assets, activeIndustryJobs };
   }
 
   private getProductionCategory(ppData: ProductionPlanCreationData, typeId: number): string {

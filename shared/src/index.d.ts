@@ -171,8 +171,6 @@ export type ScribblesRes = ScribbleRes[];
 
 export type EveSdeTypesRes = { id: number; name: string }[];
 
-export type AlwaysBuyItemsRes = { typeId: number; typeName: string }[];
-
 export type MarketabilityRes = {
   typeId: number;
   categoryId: number | undefined;
