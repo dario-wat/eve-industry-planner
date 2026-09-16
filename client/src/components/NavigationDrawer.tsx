@@ -1,7 +1,6 @@
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
-import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -41,14 +40,16 @@ export default function NavigationDrawer(props: Props) {
       sx={{
         width: drawerWidth,
         flexShrink: 0,
+        height: '100%',
         [`& .MuiDrawer-paper`]: {
           width: drawerWidth,
           boxSizing: 'border-box',
+          position: 'relative',
+          height: '100%',
         },
       }}>
-      <Toolbar /> {/* need this to push the nav bar below the app bar */}
       <Box sx={{
-        height: '90vh',
+        height: '100%',
         display: 'flex',
         justifyContent: 'space-between',
         flexDirection: 'column',

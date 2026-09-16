@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
@@ -93,14 +92,13 @@ export default function HomePage() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
         <HomePageAppBar />
         {userContext && userContext.is_logged_in
           ?
-          <>
+          <Box sx={{ display: 'flex', flex: 1, minHeight: 0 }}>
             <NavigationDrawer routes={routes} />
             <Box component="main" sx={{ width: '100%', p: 3, overflow: 'auto' }}>
-              <Toolbar /> {/* need this to push the nav bar below the app bar */}
               <Routes>
                 {routes.map((route: any) =>
                   <Route
@@ -110,18 +108,15 @@ export default function HomePage() {
                 )}
               </Routes>
             </Box>
-          </>
+          </Box>
           :
-          <Box sx={{ height: 300, width: 1 }}>
-            <Toolbar /> {/* need this to push the nav bar below the app bar */}
-            <Box
-              sx={{ height: '100%', width: 1 }}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <EveLoginButton useBlack />
-            </Box>
+          <Box
+            sx={{ flex: 1, width: 1 }}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <EveLoginButton useBlack />
           </Box>
         }
       </Box>

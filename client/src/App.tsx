@@ -2,7 +2,7 @@ import useAxios from 'axios-hooks';
 import HomePage from 'components/homepage/HomePage';
 import { defaultUserContextValue, UserContext } from 'contexts/UserContext';
 import { EveLoggedInUserRes } from '@internal/shared';
-import { Box, CircularProgress, Toolbar } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 
@@ -24,16 +24,13 @@ function App() {
         <BrowserRouter basename={BASE_PATH}>
           {loading
             ?
-            <Box sx={{ height: 300, width: 1 }}>
-              <Toolbar /> {/* need this to push the nav bar below the app bar */}
-              <Box
-                sx={{ height: '100%', width: 1 }}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-              >
-                <CircularProgress />
-              </Box>
+            <Box
+              sx={{ height: '100vh', width: 1 }}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <CircularProgress />
             </Box>
             :
             <HomePage />}
