@@ -29,10 +29,8 @@ import { esiCharacterModelDefine } from '../core/esi/models/EsiCharacter';
 import { esiTokenModelDefine } from '../core/esi/models/EsiToken';
 import { esiAssocsDefine } from '../core/esi/models/EsiAssocs';
 import { walletTransactionModelDefine } from '../features/wallet/WalletTransaction';
-import { scribbleModelDefine } from '../features/scribble/Scribble';
 import { accountModelDefine } from '../core/account/Account';
 import { accountAssocsDefine } from '../core/account/AccountAssocs';
-import { scribbleAssocsDefine } from '../features/scribble/ScribbleAssocs';
 import { materialStationAssocsDefine } from '../features/material_station/MaterialStationAssocs';
 import { plannedProductAssocsDefine } from '../features/planned_product/PlannedProductAssocs';
 import { industryJobAssocsDefine } from '../features/industry_jobs/IndustryJobAssocs';
@@ -91,7 +89,6 @@ export function initDatabase(): void {
   materialStationModelDefine(sequelize);
   walletTransactionModelDefine(sequelize);
   walletJournalEntryModelDefine(sequelize);
-  scribbleModelDefine(sequelize);
   industryJobModelDefine(sequelize);
 
   // Special
@@ -106,7 +103,6 @@ export function initDatabase(): void {
   // Assocs
   esiAssocsDefine();
   accountAssocsDefine();
-  scribbleAssocsDefine();
   materialStationAssocsDefine();
   plannedProductAssocsDefine();
   industryJobAssocsDefine();

@@ -1,7 +1,6 @@
 import { EsiCharacter } from 'core/esi/models/EsiCharacter';
 import { MaterialStation } from 'features/material_station/MaterialStation';
 import { PlannedProduct } from 'features/planned_product/PlannedProduct';
-import { Scribble } from 'features/scribble/Scribble';
 import {
   DataTypes,
   HasManyAddAssociationMixin,
@@ -21,12 +20,10 @@ export class Account extends Model {
   declare id: number;
 
   declare getEsiCharacters: HasManyGetAssociationsMixin<EsiCharacter>;
-  declare getScribbles: HasManyGetAssociationsMixin<Scribble>;
   declare getMaterialStations: HasManyGetAssociationsMixin<MaterialStation>;
   declare getPlannedProducts: HasManyGetAssociationsMixin<PlannedProduct>;
 
   declare addEsiCharacter: HasManyAddAssociationMixin<EsiCharacter, 'characterId'>;
-  declare addScribble: HasManyAddAssociationMixin<Scribble, 'id'>;
   declare addMaterialStation: HasManyAddAssociationMixin<MaterialStation, 'id'>;
   declare addPlannedProduct: HasManyAddAssociationMixin<PlannedProduct, 'id'>;
 }

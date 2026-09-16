@@ -161,14 +161,6 @@ export type LinkedCharacterRes = {
   tokenExpired: boolean;
 }[];
 
-export type ScribbleRes = {
-  id: number;
-  name: string;
-  text: string;
-};
-
-export type ScribblesRes = ScribbleRes[];
-
 export type EveSdeTypesRes = { id: number; name: string }[];
 
 export type MarketabilityRes = {
