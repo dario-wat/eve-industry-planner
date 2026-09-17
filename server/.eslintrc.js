@@ -1,29 +1,22 @@
 module.exports = {
+    'root': true,
     'env': {
-        'browser': true,
+        'node': true,
         'es2021': true
     },
     'extends': [
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended'
     ],
-    'overrides': [
-        {
-            'env': {
-                'node': true
-            },
-            'files': [
-                '.eslintrc.{js,cjs}'
-            ],
-            'parserOptions': {
-                'sourceType': 'script'
-            }
-        }
+    'ignorePatterns': [
+        '.eslintrc.js'
     ],
     'parser': '@typescript-eslint/parser',
     'parserOptions': {
         'ecmaVersion': 'latest',
-        'sourceType': 'module'
+        'sourceType': 'module',
+        'project': true,
+        'tsconfigRootDir': __dirname
     },
     'plugins': [
         '@typescript-eslint'
@@ -35,12 +28,33 @@ module.exports = {
             { 'avoidEscape': true }
         ],
         'no-unused-vars': 'off',
+        'no-unused-private-class-members': 'error',
         '@typescript-eslint/no-unused-vars': [
             'error',
             {
+                'vars': 'all',
+                'args': 'all',
+                'caughtErrors': 'all',
+                'ignoreRestSiblings': false,
                 'varsIgnorePattern': '^_',
-                'argsIgnorePattern': '^_'
+                'argsIgnorePattern': '^_',
+                'caughtErrorsIgnorePattern': '^_',
+                'destructuredArrayIgnorePattern': '^_'
             }
-        ]
+        ],
+        '@typescript-eslint/no-extraneous-class': [
+            'error',
+            {
+                'allowWithDecorator': true
+            }
+        ],
+        '@typescript-eslint/consistent-type-assertions': [
+            'error',
+            {
+                'assertionStyle': 'as',
+                'objectLiteralTypeAssertions': 'never'
+            }
+        ],
+        '@typescript-eslint/no-non-null-asserted-nullish-coalescing': 'error'
     }
 };
