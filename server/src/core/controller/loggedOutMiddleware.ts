@@ -6,7 +6,7 @@ export default function loggedOutMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  if (req.session.accountId == undefined) {
+  if (req.session.accountId === undefined) {
     return res.json(null);
   }
   else {

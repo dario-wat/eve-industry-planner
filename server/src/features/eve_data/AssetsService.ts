@@ -108,7 +108,7 @@ export default class AssetsService {
 
     const locationName = (asset: AssetWithParent) =>
       stationNames[asset.self.location_id]
-      || (asset.parent && stationNames[asset.parent!.location_id])!;
+      || (asset.parent && stationNames[asset.parent.location_id])!;
 
     return assetsWithParent
       .filter(shouldIncludeAsset)

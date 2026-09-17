@@ -27,6 +27,11 @@ module.exports = {
             'single',
             { 'avoidEscape': true }
         ],
+        'eqeqeq': [
+            'error',
+            'always'
+        ],
+        '@typescript-eslint/no-unnecessary-type-assertion': 'error',
         'no-unused-vars': 'off',
         'no-unused-private-class-members': 'error',
         '@typescript-eslint/no-unused-vars': [

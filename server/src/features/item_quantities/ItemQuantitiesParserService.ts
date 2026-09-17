@@ -72,7 +72,7 @@ export default class ItemQuantitiesParserService {
       .filter((l) => l !== '')
       .map((l) => {
         const words = l.replace(/\s\s+/g, ' ').replace('\t', ' ').split(' ');
-        if (words.length == 1) {
+        if (words.length === 1) {
           // can't be 0 because that's filtered
           return { name: l, quantity: null };
         }
