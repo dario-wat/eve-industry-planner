@@ -13,12 +13,26 @@ import { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/system';
 
-const drawerWidth = 220;
+const drawerWidth = 200;
 
-const SmallerListItemIcon = styled(ListItemIcon)(({ theme }) => `
-  min-width: 0px;
-  margin-right: 16px;
-`)
+const compactListSx = {
+  py: 0.5,
+  '& .MuiListItemButton-root': {
+    minHeight: 28,
+    py: 0.25,
+  },
+  '& .MuiListItemText-root': {
+    my: 0,
+  },
+};
+
+const SmallerListItemIcon = styled(ListItemIcon)({
+  minWidth: 0,
+  marginRight: 12,
+  '& .MuiSvgIcon-root': {
+    fontSize: 20,
+  },
+});
 
 type Props = {
   routes: {
@@ -55,7 +69,7 @@ export default function NavigationDrawer(props: Props) {
         flexDirection: 'column',
       }}>
         <Box sx={{ overflow: 'auto' }}>
-          <List>
+          <List dense sx={compactListSx}>
             {routes.map(route => (
               <ListItem
                 key={route.path}
@@ -74,7 +88,7 @@ export default function NavigationDrawer(props: Props) {
           </List>
         </Box>
         <Box>
-          <List>
+          <List dense sx={compactListSx}>
             <LogoutButtonListItem />
           </List>
         </Box>
