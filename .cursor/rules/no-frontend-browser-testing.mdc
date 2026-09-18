@@ -1,0 +1,10 @@
+---
+description: Do not start the client or verify frontend changes in the browser
+alwaysApply: true
+---
+
+# No frontend server or browser testing
+
+When making frontend / client changes, do not start the frontend server (`npm run client` or similar) and do not open the browser to test the work. The user runs the client and verifies UI themselves.
+
+This overrides any general instruction to verify web UI in the browser.

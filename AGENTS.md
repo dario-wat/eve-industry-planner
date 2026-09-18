@@ -39,7 +39,7 @@ Feature folders under `server/src/features/<name>/`: Sequelize model, `*Assocs.t
 
 Functional components. MUI for UI. Recoil (or existing page stores) for client state. `UserContext` for login. `axios-hooks` for API calls.
 
-After UI, layout, routing, or client-state changes, verify the affected flow in the browser — not only a screenshot.
+Do not start the frontend server (`npm run client` or similar) and do not open the browser to test UI, layout, routing, or client-state changes. The user runs the client themselves.
 
 ## Do not
 
