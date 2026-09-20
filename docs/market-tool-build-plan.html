@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EVE market and trading tool — greenfield build plan</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-sunk: #f7f7f8;
+    --text: #18181b;
+    --text-2: #52525b;
+    --text-3: #8b8b93;
+    --stroke: #e4e4e7;
+    --stroke-2: #d4d4d8;
+    --accent: #2563eb;
+    --accent-soft: #eff4ff;
+    --danger: #b91c1c;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141416;
+      --bg-sunk: #1b1b1e;
+      --text: #ededf0;
+      --text-2: #a9a9b2;
+      --text-3: #76767f;
+      --stroke: #2a2a2e;
+      --stroke-2: #3a3a40;
+      --accent: #6d9eff;
+      --accent-soft: #1a2133;
+      --danger: #f87171;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 400 15px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 48px 28px 96px; }
+  h1 { font-size: 28px; line-height: 1.25; font-weight: 640; margin: 0 0 10px; letter-spacing: -0.01em; }
+  h2 { font-size: 20px; line-height: 1.3; font-weight: 620; margin: 46px 0 12px; letter-spacing: -0.005em; }
+  h3 { font-size: 16px; line-height: 1.35; font-weight: 620; margin: 30px 0 6px; }
+  p { margin: 0 0 12px; }
+  .lede { color: var(--text-2); font-size: 16px; margin-bottom: 0; }
+  .dim { color: var(--text-2); }
+  .small { font-size: 13px; line-height: 1.55; }
+  .caption { font-size: 12.5px; color: var(--text-3); margin-top: 8px; line-height: 1.5; }
+  code {
+    font-family: var(--mono); font-size: 0.88em;
+    background: var(--bg-sunk); border: 1px solid var(--stroke);
+    border-radius: 4px; padding: 1px 4px;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .note {
+    border: 1px solid var(--stroke); border-left: 3px solid var(--accent);
+    background: var(--accent-soft); border-radius: 6px;
+    padding: 16px 18px; margin: 20px 0;
+  }
+  .note h3 { margin: 0 0 6px; font-size: 15px; }
+  .note p:last-child { margin-bottom: 0; }
+
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13.5px; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--stroke); }
+  th { font-weight: 600; color: var(--text-2); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom-color: var(--stroke-2); }
+  tbody tr:nth-child(even) { background: var(--bg-sunk); }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.formula { font-family: var(--mono); font-size: 12px; }
+
+  .pipeline { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; margin: 16px 0; }
+  .stage { border: 1px solid var(--stroke); border-radius: 6px; padding: 12px; }
+  .stage.key { border-color: var(--accent); background: var(--accent-soft); }
+  .stage .n { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+  .stage .t { font-weight: 620; font-size: 13px; margin: 2px 0 4px; }
+  .stage.key .t { color: var(--accent); }
+  .stage .d { font-size: 12px; color: var(--text-2); line-height: 1.45; }
+  @media (max-width: 720px) { .pipeline { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 18px; }
+  .pill {
+    font: inherit; font-size: 12.5px; cursor: pointer;
+    border: 1px solid var(--stroke-2); background: transparent; color: var(--text-2);
+    border-radius: 999px; padding: 3px 12px;
+  }
+  .pill:hover { color: var(--text); }
+  .pill[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .count { font-size: 12.5px; color: var(--text-3); margin-left: 4px; }
+
+  .layer { margin-top: 30px; }
+  .layer > p.blurb { color: var(--text-2); font-size: 13.5px; margin-bottom: 10px; }
+  details.tool { border-top: 1px solid var(--stroke); }
+  details.tool:last-of-type { border-bottom: 1px solid var(--stroke); }
+  details.tool > summary {
+    cursor: pointer; list-style: none; padding: 10px 2px;
+    display: flex; gap: 10px; align-items: baseline;
+  }
+  details.tool > summary::-webkit-details-marker { display: none; }
+  details.tool > summary::before {
+    content: "›"; color: var(--text-3); font-size: 15px; line-height: 1;
+    transform: rotate(0deg); transition: transform .12s ease; display: inline-block; width: 10px;
+  }
+  details.tool[open] > summary::before { transform: rotate(90deg); }
+  .tname { font-weight: 560; flex: 1; }
+  .ttier { font-size: 11.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+  .tbody { padding: 2px 2px 16px 22px; }
+  .tbody .one { margin-bottom: 8px; }
+  .tbody .why { color: var(--text-2); margin-bottom: 10px; }
+  .io { font-size: 13px; color: var(--text-3); margin: 0 0 4px; }
+  .math, .trap { border-left: 2px solid var(--stroke-2); padding-left: 12px; margin: 10px 0 0; font-size: 13.5px; color: var(--text-2); }
+  .trap { border-left-color: var(--accent); }
+  .trap b { color: var(--text); font-weight: 620; }
+
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  hr { border: 0; border-top: 1px solid var(--stroke); margin: 40px 0; }
+  .foot { font-size: 13px; color: var(--text-3); }
+  @media print {
+    :root { --bg:#fff; --bg-sunk:#fafafa; --text:#000; --text-2:#333; --text-3:#666; --stroke:#ddd; --accent:#0040c0; --accent-soft:#f2f6ff; }
+    details.tool { break-inside: avoid; }
+    details.tool > summary::before { content: ""; width: 0; }
+    .filters { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>EVE market and trading tool — greenfield build plan</h1>
+<p class="lede">Thirty-seven proposed tools across seven layers for a station-trading-first market analysis and prediction application, ordered so each layer depends only on the ones above it. Game mechanics verified against CCP documentation and the EVE University wiki as of September 2026.</p>
+
+<div class="note">
+  <h3>The decision that determines your ceiling</h3>
+  <p>ESI gives you a live order book cached for five minutes, and a once-daily price summary. There is nothing in between, and the gap is permanent — you cannot backfill it later. If you poll the book and persist the <b>diff</b> between consecutive polls, you reconstruct order lifecycles, per-side traded volume, and competitor repricing behaviour, none of which any ESI-only tool can see. If you do not, you are permanently limited to restating what the in-game market window already shows.</p>
+</div>
+
+<h2>Pipeline shape</h2>
+<p class="dim">Every tool below sits at one of these stages. The two highlighted stages do not exist in any ESI-only tool and are where the differentiation comes from.</p>
+<div class="pipeline">
+  <div class="stage"><div class="n">01</div><div class="t">Ingest</div><div class="d">Poll books and history on cache-respecting schedules.</div></div>
+  <div class="stage key"><div class="n">02</div><div class="t">Diff and persist</div><div class="d">Store order lifecycles, not snapshots.</div></div>
+  <div class="stage key"><div class="n">03</div><div class="t">Derive</div><div class="d">Quotes, depth, per-side volume, competition.</div></div>
+  <div class="stage"><div class="n">04</div><div class="t">Score</div><div class="d">Fees, margins, fill probability, sizing.</div></div>
+  <div class="stage"><div class="n">05</div><div class="t">Act</div><div class="d">Scanners, alerts, worklist, P&amp;L.</div></div>
+</div>
+
+<h2>Ingest cadence and cost</h2>
+
+<p>The order-book route returns at most 1,000 orders per page, so one full pull of a region costs one request per page. The Forge currently holds roughly 419,000 public orders, which is about <b>419 requests per full pull</b>. That is the unit of cost for everything below.</p>
+
+<h3>Rate limits are not the constraint</h3>
+<p>Since 24 February 2026 the <code>market-order</code> route group is rate limited to <b>12,000 tokens per rolling 15-minute window</b>, with a successful response costing 2 tokens and tokens returning to the bucket after 15 minutes. CCP sized this deliberately: their announcement notes that all 113 regions together come to 1,723 pages, and that the budget is <em>"enough to fetch every region's orders every 5 minutes if you really wanted to"</em> — which works out to 1,723 &times; 3 cycles &times; 2 tokens = 10,338 tokens against the 12,000 limit.</p>
+<p>Polling The Forge alone at full cadence costs 419 &times; 3 &times; 2 = <b>2,514 tokens per window</b>, about a fifth of the budget. You will not hit the rate limit with any sane design.</p>
+
+<h3>Storage is the constraint, and only if you store snapshots</h3>
+<p>The two figures commonly cited both refer to storing <em>complete order books</em> repeatedly:</p>
+<ul>
+  <li>A developer archiving all EVE market data reported on the official forums that each compressed snapshot of The Forge was 5.9 MB, and at 288 snapshots per day that came to roughly <b>1.7 GB/day</b> for that one region. That measurement dates from when The Forge held about 285,000 orders; scaled to today's ~419,000 it would be closer to 2.5 GB/day.</li>
+  <li>An independent write-up measured a single order-book page at 306 KB of JSON, putting one uncompressed snapshot of The Forge at ~112 MB and estimating <b>72 GB/day uncompressed</b> across the major trade hubs at 5-minute cadence.</li>
+</ul>
+<p>Both numbers describe the approach this plan explicitly avoids. Storing diffs instead changes the arithmetic entirely: between two consecutive polls most orders are byte-identical, so you write only created, repriced, partially-consumed, and vanished orders. The steady-state write volume becomes a function of market churn rather than market size. Measure your actual churn rate in the first week and size storage from that — I would not trust anyone's estimate, including mine, over a direct measurement on your own data.</p>
+
+<h3>Choosing a cadence</h3>
+<p>You do not have to poll every five minutes, and for most regions you should not. What degrades as you slow down is not price accuracy — it is your ability to see <em>events between polls</em>. An order that is created and fully consumed inside one interval is invisible no matter what you do, so the interval sets a floor on what you can ever know.</p>
+
+<table>
+  <thead>
+    <tr><th>Cadence</th><th class="num">Requests/day<br>(The Forge)</th><th class="num">Tokens per<br>15-min window</th><th>What you still get</th><th>What you lose</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>5 min</td><td class="num">~120,700</td><td class="num">2,514</td>
+      <td>Everything. Matches the cache, so no data exists that you are missing.</td>
+      <td>Nothing, beyond intra-interval churn that is unobservable at any cadence.</td>
+    </tr>
+    <tr>
+      <td>10 min</td><td class="num">~60,300</td><td class="num">1,257</td>
+      <td>Order lifecycles, per-side volume, competitor repricing — all slightly undercounted. Adam4EVE runs its public trade tracker at exactly this interval and publishes the output as a usable trade estimate.</td>
+      <td>Roughly half the resolution on fast-moving items. Fine for everything else.</td>
+    </tr>
+    <tr>
+      <td>1 hour</td><td class="num">~10,100</td><td class="num">838</td>
+      <td>Spread and depth history, price levels, rough competition trend, order creation and disappearance.</td>
+      <td>Per-side volume becomes badly undercounted on liquid items. Reprice detection mostly gone — a trader repricing every 15 minutes looks like one who repriced once.</td>
+    </tr>
+    <tr>
+      <td>Daily</td><td class="num">~419</td><td class="num">838</td>
+      <td>A daily snapshot of best bid, best ask, depth, and spread. Genuinely useful and far better than nothing.</td>
+      <td>The entire inferred-trade and competition layer. You see net change over 24 hours with no idea what produced it, and cannot distinguish a filled order from a cancelled one.</td>
+    </tr>
+  </tbody>
+</table>
+<p class="caption">Requests assume ~419 pages per full regional pull (419,000 orders at 1,000 per page). Token cost is pages &times; pulls-per-15-minutes &times; 2 tokens per successful response, against CCP's 12,000-token limit for the <code>market-order</code> group.</p>
+
+<div class="note">
+  <h3>Recommended: tier the cadence by region, and always pull whole regions</h3>
+  <p>Fetching a whole region is dramatically cheaper per item than fetching types individually. One full Forge pull costs ~419 requests and returns <em>every</em> tradeable type; fetching 500 watchlist types one at a time costs ~500 requests and returns only those 500. Once your watchlist exceeds a few hundred items, whole-region pulls win outright — so scope by <b>region and cadence</b>, never by type.</p>
+  <p style="margin-bottom:0">A sensible split: your home trading region at <b>5 or 10 minutes</b>, because that is where the competition and per-side-volume signal actually pays; the other hub regions <b>hourly</b>, which is ample for cross-region arbitrage where you are comparing prices rather than watching order flow; everything else <b>daily or not at all</b>. Daily history is a separate, trivially cheap job: one request per type per region per day, and it can be missed without permanent loss because CCP serves it back to the start of the previous calendar year.</p>
+</div>
+
+<h2>Tool catalog</h2>
+<p class="dim"><b>Foundation</b> means nothing downstream works without it. <b>Core</b> is what makes the app worth opening daily. <b>Advanced</b> is worth building only once several months of substrate has accumulated. Expand any row for rationale, inputs, output, the relevant math, and the specific failure mode to avoid.</p>
+
+<div class="filters" id="filters">
+  <button class="pill" data-tier="All" aria-pressed="true">All</button>
+  <button class="pill" data-tier="Foundation" aria-pressed="false">Foundation</button>
+  <button class="pill" data-tier="Core" aria-pressed="false">Core</button>
+  <button class="pill" data-tier="Advanced" aria-pressed="false">Advanced</button>
+  <span class="count" id="count"></span>
+</div>
+
+<div id="catalog"></div>
+
+<h2>Reference: the fee math the engine must implement</h2>
+<p class="dim">These five formulas decide whether every number in the app is right or quietly wrong by a few percent, which on a typical station trade is the entire margin.</p>
+<table>
+  <thead><tr><th>Quantity</th><th>Formula</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Broker fee, NPC station</td><td class="formula">3% − 0.3%×BrokerRelations − 0.03%×factionStanding − 0.02%×corpStanding</td><td>Floors at 1%. Uses <em>unmodified</em> standings — Connections and Diplomacy do not help. 100 ISK minimum.</td></tr>
+    <tr><td>Broker fee, Upwell structure</td><td class="formula">0.5% SCC + owner-set %</td><td>Broker Relations does not apply at all. Owner % is invisible to ESI.</td></tr>
+    <tr><td>Sales tax</td><td class="formula">7.5% × (1 − 0.11 × Accounting)</td><td>3.375% at Accounting V. Base rose from 4% to 7.5% in March 2025.</td></tr>
+    <tr><td>Relist fee</td><td class="formula">(1 − (50% + 6%×AdvBrokerRelations)) × brokerRate × newValue<br>+ brokerRate × max(newValue − oldValue, 0)</td><td>Charged on full <em>remaining</em> order value every reprice. 80% discount at V. 100 ISK minimum.</td></tr>
+    <tr><td>Round-trip breakeven</td><td class="formula">ask / bid &gt; (1 + b) / (1 − t − b)</td><td>About 1.053 at max skills in an NPC station, before any relisting.</td></tr>
+    <tr><td>Buy order escrow</td><td class="formula">100% of order value</td><td>Margin Trading was removed in 2020; no partial escrow exists.</td></tr>
+  </tbody>
+</table>
+
+<h2>Mechanics that invalidate naive tools</h2>
+<p class="dim">Each of these breaks an assumption most market tools make implicitly. Worth encoding as tests rather than remembering.</p>
+<table>
+  <thead><tr><th>Trap</th><th>What it means for the design</th></tr></thead>
+  <tbody>
+    <tr><td>Daily history is region-wide</td><td>There is no per-station history endpoint. For The Forge, Jita dominates enough that it is a fair proxy; for most other regions it silently blends several unrelated markets.</td></tr>
+    <tr><td>Structure orders are invisible by default</td><td><code>/markets/{region_id}/orders/</code> excludes player structures except for ranged orders. Each citadel must be fetched separately with <code>esi-markets.structure_markets.v1</code> and docking access, then merged.</td></tr>
+    <tr><td>Best price is often one unit deep</td><td>Ranking on top-of-book is the single biggest source of false positives. Walk the book for the quantity you actually intend to trade.</td></tr>
+    <tr><td>Buy orders have range and minimum volume</td><td>A regional buy order only matches sellers within its range, and a min-volume order will not fill small sales. Both fields must be respected before counting an order as liquidity.</td></tr>
+    <tr><td>Order modification has a five-minute cooldown</td><td>This drives order layering and constrains any automated repricing logic.</td></tr>
+    <tr><td>Daily downtime distorts intraday statistics</td><td>Roughly 11:00–11:30 UTC every market goes silent. Exclude the window from activity and cadence metrics.</td></tr>
+    <tr><td>Character order history only goes back 90 days</td><td>Your own long-term record has to be accumulated by you. Start persisting wallet and order data before you need it.</td></tr>
+    <tr><td>Most online guides are stale</td><td>Broker Relations gives 0.3%/level, not 0.1%. Sales tax base is 7.5%, not 4% or 2%. Margin Trading no longer exists. Guides predating 2025 get all three wrong.</td></tr>
+  </tbody>
+</table>
+
+<h2>Suggested build order</h2>
+<table>
+  <thead><tr><th>Phase</th><th>Focus</th><th>Contents and rationale</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Substrate only</td><td>Book snapshotter and differ, history warehouse, quote series, SDE service. Ship no UI. Every week you delay is a week of history you can never recover.</td></tr>
+    <tr><td>2</td><td>Fee engine and item page</td><td>Fee resolver, profitability calculator, depth-aware pricer, item deep-dive workbench. First genuinely useful screen, and it validates that the substrate is correct.</td></tr>
+    <tr><td>3</td><td>Scanners</td><td>Liquidity classifier, station-trading scanner, competition meter, volume-balance screen, spike detector. By now you have enough stored history for these to be meaningful.</td></tr>
+    <tr><td>4</td><td>Workflow and P&amp;L</td><td>Order monitor, relist decision engine, FIFO cost basis, realized P&amp;L, daily worklist. This is where the tool starts saving you hours rather than just informing you.</td></tr>
+    <tr><td>5</td><td>Prediction and validation</td><td>Fill-probability model, margin persistence, backtester, scorecard. Needs several months of accumulated substrate to be worth anything at all.</td></tr>
+  </tbody>
+</table>
+
+<h2>If you only build three things</h2>
+<ul>
+  <li><b>The order-book differ</b>, because it is the only irreversible decision here — history you do not record today cannot be recovered tomorrow.</li>
+  <li><b>The volume-balance screen</b>, because buy-side versus sell-side split is the highest-signal filter available and ESI will never give it to you directly.</li>
+  <li><b>The relist cost model</b>, because recurring relist fees on full order value are where station-trading profit actually disappears, and essentially no public tool accounts for them.</li>
+</ul>
+<p class="dim">Those three, plus a fee resolver and a single item page, constitute a tool that is already better informed than anything you can buy or browse.</p>
+
+<hr>
+
+<h2>Sources</h2>
+<ul class="small">
+  <li><a href="https://developers.eveonline.com/docs/services/esi/rate-limiting/">ESI rate limiting</a> and <a href="https://developers.eveonline.com/docs/services/esi/best-practices/">ESI best practices</a> — token costs, bucket mechanics, error limit, ETag and cache handling.</li>
+  <li><a href="https://developers.eveonline.com/blog/market-orders-rate-limit-rolls-out-on-february-24-2026">Market Orders: rate limit rolls out on February 24, 2026</a> — the 12,000-token budget and the 1,723-pages-across-113-regions figure.</li>
+  <li><a href="https://developers.eveonline.com/blog/hold-your-horses-introducing-rate-limiting-to-esi">Hold your horses: introducing rate limiting to ESI</a> — 2 tokens per 2xx, 5 per 4xx, 15-minute refill.</li>
+  <li><a href="https://support.eveonline.com/hc/en-us/articles/203218962-Broker-Fee-and-Sales-Tax">CCP: Broker Fee and Sales Tax</a> — authoritative broker fee and sales tax formulas.</li>
+  <li><a href="https://wiki.eveuniversity.org/Trading">EVE University: Trading</a> — relist fee formula with worked examples, skill effects, structure versus NPC differences.</li>
+  <li><a href="https://www.eveonline.com/news/view/broker-relations">CCP: Broker Relations</a> — the 2020 change replacing Margin Trading with Advanced Broker Relations and mandating 100% escrow.</li>
+  <li><a href="https://orbitalenterprises.github.io/eve-market-strategies/index">EVE Market Strategies</a> (Orbital Enterprises) — quantitative treatment of market making, liquidity filtering, competitor inference from book diffs, and backtesting. Fee percentages in it are pre-2019 and stale; the methodology is not.</li>
+  <li><a href="https://forums.eveonline.com/t/problem-while-downloading-all-market-orders/151641">EVE forums: Problem while downloading all market orders</a> — source of the 5.9 MB compressed per Forge snapshot and 1.7 GB/day figures.</li>
+  <li><a href="https://poignanttech.com/2024/06/14/virtual-markets-part-seven-populating-our-database/">Virtual Markets, Part Seven</a> — source of the 306 KB per page, 112 MB per Forge snapshot, and 72 GB/day uncompressed estimates.</li>
+  <li><a href="https://api.adam4eve.eu/">Adam4EVE API</a> — precedent for 10-minute order-book diffing as a public trade-inference tracker, plus bulk static exports.</li>
+  <li><a href="https://market.fuzzwork.co.uk/api/">Fuzzwork Market Data</a> — precomputed regional, system, and station aggregates if you want a shortcut before your own substrate matures.</li>
+  <li><a href="https://wiki.bravecollective.com/public/dojo/wiki/station_trading_complete_guide">Brave Collective: Station Trading Complete Guide</a> — qualitative item-selection criteria. Note its skill and fee numbers predate 2019 and are wrong.</li>
+</ul>
+
+<p class="foot">Generated September 2026. Game mechanics change; re-verify fee formulas against CCP sources after any expansion touching the market.</p>
+
+</div>
+
+<script>
+const LAYERS = [
+{ title: "1. Data substrate",
+  blurb: "Everything else in this document is a query against these tables. If you build only this layer and nothing else, you can still answer most questions with SQL. If you skip it and call ESI live per page load, you permanently cap yourself at what the in-game market window already shows.",
+  tools: [
+  { name: "Order-book snapshotter and differ", tier: "Foundation",
+    one: "Poll the regional order book on a fixed cadence and persist the diff between consecutive polls, not the snapshot.",
+    why: "This is the keystone. ESI gives you a live book and a daily summary, with nothing in between. Diffing consecutive books reconstructs the middle: when each order appeared, every price change it made, how much volume drained out of it, and when it vanished. Almost every genuinely useful metric further down this page is derived from this one table, and none of them can be computed after the fact — if you did not record it at the time, that information is gone forever.",
+    inputs: "`GET /markets/{region_id}/orders/` paged via `X-Pages`, plus `GET /markets/structures/{structure_id}/` for each citadel you have docking rights in.",
+    output: "An order-lifecycle table keyed by `order_id`: first seen, last seen, every price change with timestamp, volume_remain at each observation, and a terminal state of filled / cancelled / expired.",
+    math: "Between two polls, an order whose `volume_remain` dropped by n contributed n units of traded volume on its own side of the book. An order that disappeared while `volume_remain > 0` either expired or was cancelled — use `issued + duration` to tell which.",
+    trap: "An order that vanishes is ambiguous between 'fully filled' and 'cancelled'. Do not silently count disappearances as trades; carry an explicit `ambiguous` state, because conflating the two is what makes naive volume estimates wrong on illiquid items." },
+  { name: "Daily market-history warehouse", tier: "Foundation",
+    one: "Mirror `GET /markets/{region_id}/history/` into your own table, per type per region, and never delete rows.",
+    why: "ESI serves history from the start of the previous calendar year and no further. Your own copy accumulates indefinitely, which is what lets you ask multi-year seasonality questions later. It is also dirt cheap: one request per type per region per day, and the route only refreshes once daily at 11:05.",
+    inputs: "One request per (region, type) pair per day. Backfill once, then append.",
+    output: "Daily rows of `date, region_id, type_id, average, highest, lowest, order_count, volume`.",
+    trap: "`highest` and `lowest` are executed trade prices for the day, not order-book quotes, and `order_count` is trades executed, not open orders. CCP does not document whether `average` is volume-weighted, so do not treat `average × volume` as exact ISK turnover." },
+  { name: "Quote and depth time series", tier: "Foundation",
+    one: "Roll each book snapshot into one compact row per (type, location, interval).",
+    why: "The raw diff table is for forensics; this is the table your charts and scanners actually read. Collapsing a 400,000-row book into a few thousand quote rows per interval is the difference between a scan that returns in milliseconds and one that times out.",
+    inputs: "Each order-book poll, grouped by type and location.",
+    output: "`best_bid, best_ask, bid_depth_1pct, ask_depth_1pct, bid_depth_5pct, ask_depth_5pct, bid_order_count, sell_order_count, spread_abs, spread_pct`, plus hourly and daily rollups.",
+    math: "Depth at k% means the cumulative units available within k% of the best price on that side. This is what tells you whether a quoted spread is real or is one unit deep and therefore a mirage." },
+  { name: "Inferred trade ledger (buy-side vs sell-side split)", tier: "Foundation",
+    one: "From book diffs, attribute every unit of traded volume to either 'sold into a buy order' or 'bought from a sell order'.",
+    why: "This is the single most valuable dataset you can own, because ESI deliberately never provides it. Daily history gives you one blended volume number. The split is what separates a real station-trading opportunity from a trap: an item where 95% of volume is people buying from sell orders will never fill your buy order, no matter how good the quoted spread looks.",
+    inputs: "The order-lifecycle table.",
+    output: "Per type, location, and day: `buy_side_units, sell_side_units, balance_ratio`.",
+    math: "balance_ratio = buy_side_units / total_units. Values near 0.5 indicate an item that genuinely changes hands in both directions, which is the precondition for market making.",
+    trap: "Polling undercounts fast markets, where an order can be created and fully consumed between polls. Treat this as a lower bound and calibrate it against the daily `volume` field, which is ground truth for the total." },
+  { name: "Static data service", tier: "Foundation",
+    one: "Load the SDE and expose types, packaged volume, the market group tree, meta groups, and the region/system/station graph.",
+    why: "Packaged volume in m³ gates every hauling calculation. The market group tree is how a human actually navigates 15,000 items — 'scan only Ships and Modules' is the first filter anyone reaches for. Meta groups let you compare an item against its tech-2 and faction siblings.",
+    inputs: "SDE YAML, reloaded on each expansion.",
+    output: "Indexed lookups for type metadata, group hierarchy, and spatial topology.",
+    trap: "Type IDs get reused and renamed across expansions, and items get added to or removed from the market. Re-import on every patch and diff the result, or your saved watchlists will silently rot." },
+  { name: "Location registry with per-location fee rates", tier: "Foundation",
+    one: "One table of every station and structure you trade in, carrying its actual broker fee and sales tax.",
+    why: "Fee rates are not a global constant, and treating them as one is the most common source of wrong margins. An NPC station's broker fee depends on your skills and your standings with that specific corporation and faction. An Upwell structure ignores Broker Relations entirely and charges whatever the owner set. The same trade can be profitable in one and a loss in the other.",
+    inputs: "SDE stations, `GET /universe/structures/`, and manually recorded owner fee rates for structures you use.",
+    output: "`location_id → { broker_rate, tax_rate, is_npc, owner_fee, docking_ok }`.",
+    trap: "Structure owner fees can change without notice and there is no ESI endpoint that exposes them. Reconcile periodically against the broker fees actually charged in your wallet journal." },
+  { name: "Character context service", tier: "Foundation",
+    one: "Per character: trade skill levels, raw standings, order slot count, wallet balance, and current orders.",
+    why: "Every profitability number downstream is a function of your real fee rates, and every capital number is a function of your real slots and balance. Tools that assume max skills tell you about a character you may not have. Order slots in particular are a hard scarce resource — 305 at full training — and they are the actual binding constraint on a mature trading operation, not ISK.",
+    inputs: "Character skills, standings, `GET /characters/{id}/orders/`, wallet balance.",
+    output: "A context object every calculator takes as a parameter.",
+    trap: "Broker fees use unmodified standings. Connections and Diplomacy raise your effective standing but do nothing for fees, so read the raw value." }
+]},
+{ title: "2. Fee and profitability engine",
+  blurb: "A small, boring, heavily-tested module that every scanner and every UI number routes through. Getting this wrong does not produce an obvious bug — it produces plausible-looking numbers that are quietly off by a few percent, which is the entire margin on most station trades.",
+  tools: [
+  { name: "Fee resolver", tier: "Foundation",
+    one: "One function: (character, location) → broker rate, sales tax rate, relist discount.",
+    why: "Single source of truth. Every other tool calls this rather than embedding its own copy of the constants, so when CCP next changes the tax rate you edit one file.",
+    inputs: "Character context plus location registry.",
+    output: "Three rates plus the 100 ISK minimum fee floor.",
+    math: "NPC broker = 3% − 0.3%×BrokerRelations − 0.03%×factionStanding − 0.02%×corpStanding, floored at 1%. Structure broker = 0.5% SCC + owner%, with skills having no effect. Sales tax = 7.5% × (1 − 0.11×Accounting), so 3.375% at Accounting V." },
+  { name: "Round-trip profitability calculator", tier: "Core",
+    one: "For any (type, location, character): net margin, ISK per unit, ROI, breakeven sell price, and capital required.",
+    why: "The number every screen displays. Expose it as one pure function so the scanner, the item page, and the order monitor cannot disagree with each other.",
+    inputs: "Best bid, best ask, resolved fee rates.",
+    output: "Net margin and the derived quantities.",
+    math: "A buy-order-to-sell-order round trip is profitable when ask/bid > (1 + b) / (1 − t − b), where b is broker rate and t is sales tax. At max skills in an NPC station that threshold is roughly 1.053, so a quoted spread under about 5.3% is a loss before you have relisted even once." },
+  { name: "Relist cost and undercut budget model", tier: "Core",
+    one: "Compute what an undercutting war actually costs, and how many relists a trade can absorb before it goes negative.",
+    why: "This is the piece essentially no public tool models, and it is where real station-trading profit quietly disappears. The relist charge is assessed on the entire remaining order value, not on the price delta, so it recurs every single time you reprice. A trade showing 8% gross margin that needs twenty relists to fill is not an 8% trade.",
+    inputs: "Order value, fee rates, Advanced Broker Relations level, expected relist count.",
+    output: "ISK per relist, and a maximum sustainable relist count for a target return.",
+    math: "Relist fee = (1 − (50% + 6%×AdvBrokerRelations)) × brokerRate × newOrderValue + brokerRate × max(newValue − oldValue, 0), minimum 100 ISK. At Advanced Broker Relations V the discount reaches 80%, leaving 20% of the broker rate charged on full order value per reprice.",
+    trap: "Sometimes cancelling and creating a fresh order is cheaper than modifying an existing one, particularly when raising a price substantially. Compute both paths and recommend the cheaper." },
+  { name: "Depth-aware execution pricer", tier: "Core",
+    one: "Walk the book to answer 'if I buy or sell n units right now, what is my volume-weighted price?'",
+    why: "Best bid and best ask are frequently one unit deep. Any scanner that ranks on top-of-book price is ranking on a number you cannot actually transact at. Walking the book converts a theoretical spread into an executable one, and this single change eliminates most false positives.",
+    inputs: "Full order book for the type at the location, plus a target quantity.",
+    output: "VWAP, worst fill price, units actually available, and slippage against top-of-book.",
+    trap: "Buy orders have a range and a minimum volume. An order listed in the region is only matchable if the seller's station is within that range, and a min-volume order will not fill a single-unit sale. Filter on both before counting an order as real liquidity." }
+]},
+{ title: "3. Opportunity scanners",
+  blurb: "The part you will use daily. The hard problem is not finding wide spreads — those are trivially easy to list and are overwhelmingly traps. The hard problem is the filter stack that removes them. Design each of these as a composable predicate over the substrate rather than a bespoke query.",
+  tools: [
+  { name: "Liquidity classifier", tier: "Core",
+    one: "A reusable, parameterized predicate that every other scanner composes in as its first stage.",
+    why: "Build this once as a framework rather than re-implementing thresholds in each scanner. Different strategies need different liquidity definitions — market making wants many small trades daily, speculation tolerates thin but trending markets — so make the predicate pluggable rather than fixed.",
+    inputs: "Daily history over a configurable window.",
+    output: "A boolean plus the component scores that produced it, so you can see why something was excluded.",
+    math: "A reasonable default: traded on at least 70% of days in the window, at least 100 trades per day, and average daily ISK volume above a floor you set by capital size. Dividing `order_count` by `volume` also gives you average trade size, a cheap proxy for whether an item is retail flow you can intermediate or a few bulk transfers you cannot." },
+  { name: "Station-trading scanner", tier: "Core",
+    one: "The primary screen: rank every liquid item at one station by realistic net ISK per day.",
+    why: "This is the product. Everything upstream exists to make this ranking trustworthy. The ranking metric should be expected net profit per day after all fees and after an assumed capture rate, not margin percentage — a 40% margin on an item that trades twice a week is worth less than 6% on something that moves constantly.",
+    inputs: "Quote series, inferred trade ledger, fee engine, character context.",
+    output: "Ranked table with net margin, ISK/day, capital required, competition level, volume balance, and days-traded.",
+    math: "expected_daily_profit = net_margin_per_unit × daily_volume × capture_rate, where capture_rate is your realistic share of flow given competition — typically a small single-digit percentage in a contested hub.",
+    trap: "Rank on net ISK per day per order slot, not raw ISK per day, once you are slot-constrained. That reordering changes the top of the list substantially." },
+  { name: "Competition meter and relist cadence estimator", tier: "Core",
+    one: "Estimate how many traders are actively working an item, and therefore how often you must reprice to stay on top of book.",
+    why: "Competition is the variable that decides whether an opportunity fits your play style. An item needing a reprice every fifteen minutes is unusable if you check in twice a day, regardless of its margin. Surfacing this up front stops you from entering markets you cannot service.",
+    inputs: "Order-lifecycle table.",
+    output: "Distinct orders changing price per interval, a time-of-day activity heatmap, and a recommended reprice cadence.",
+    math: "Count distinct `order_id`s whose price changed within each resampling interval. Because a single trader can run several orders, this is an upper bound on participant count — but the trend and the relative comparison across items are what matter.",
+    trap: "There is a daily downtime gap around 11:00–11:30 UTC where every market goes quiet. Exclude it or it will distort your cadence estimates and your time-of-day heatmaps." },
+  { name: "Volume-balance screen", tier: "Core",
+    one: "Filter and sort by the buy-side versus sell-side volume split from the inferred trade ledger.",
+    why: "The highest-signal filter you can apply, and one no ESI-only tool can replicate. Market making needs both sides flowing. A heavy sell-side skew means people buy this item but nobody sells it to buy orders, so your buy order sits unfilled while the spread taunts you.",
+    inputs: "Inferred trade ledger.",
+    output: "balance_ratio per item with a configurable acceptance band." },
+  { name: "Spike and manipulation detector", tier: "Core",
+    one: "Flag items whose current quotes are anomalous against their own recent history.",
+    why: "The classic trap is an item whose 'cheap' buy price is cheap because someone spiked the market an hour ago, or whose enormous spread exists because a manipulator bought out the sell side. Both look spectacular in a naive margin scan.",
+    inputs: "Quote series plus daily history.",
+    output: "Flags with the specific reason attached, rather than a silent exclusion.",
+    math: "Compare current bid against the 7-day high and current ask against the 30-day average; flag z-scores beyond a threshold. A sudden collapse in sell-side order count alongside a price jump is the signature of a buyout." },
+  { name: "Cross-region hauling scanner", tier: "Core",
+    one: "Find profitable buy-here sell-there routes, constrained by cargo volume, jumps, and security.",
+    why: "The natural complement to station trading, and it uses the same substrate. The constraint that makes it real is m³ per ISK of profit — a trade with a wonderful margin that fills a freighter for 20M ISK of profit is not worth the trip or the gank risk.",
+    inputs: "Quote series across regions, SDE volumes, route graph.",
+    output: "Routes with profit per m³, profit per jump, total capital, and depth-limited quantity.",
+    trap: "Use depth-aware pricing on both ends. A route that looks profitable on best-bid-to-best-ask usually evaporates once you price the actual quantity a hauler carries." },
+  { name: "Buyout and relisting scanner", tier: "Advanced",
+    one: "Compute the cost to buy out the sell side up to a target price, and whether reselling at that price clears fees.",
+    why: "An aggressive variant worth modeling explicitly because the arithmetic is unintuitive and the failure mode is expensive — you end up holding inventory that competitors undercut below your cost.",
+    inputs: "Full sell-side book, fee rates, target return.",
+    output: "Units to buy, total cost, required resale price, and units-to-sell versus daily sell-side volume.",
+    math: "Buying at market incurs no broker fee, so to hit return r you must resell at p×(1+r) / (1 − r×(t+b) − t − b).",
+    trap: "Always compare units you would need to sell against the item's average daily sell-side volume. If you need to move three days of volume, you will be undercut long before you clear." },
+  { name: "Substitute and cohort view", tier: "Advanced",
+    one: "Show an item alongside its meta-group siblings and market-group peers.",
+    why: "Demand migrates between substitutes. When a tech-2 module's price spikes, the meta-4 equivalent absorbs the demand. Seeing the cohort together catches moves before they show in the item's own history.",
+    inputs: "SDE meta groups and market group tree, plus quote series.",
+    output: "Side-by-side price and volume across the cohort." },
+  { name: "Build-versus-buy crossover scanner", tier: "Advanced",
+    one: "For anything manufacturable, compare market price against input cost plus job fees.",
+    why: "Industry and market inform each other. When market price drops below build cost, producers exit and supply contracts, which is a genuinely predictive signal for a price floor.",
+    inputs: "Blueprint materials, system cost indices, quote series.",
+    output: "Margin of build over buy, with the crossover date." }
+]},
+{ title: "4. Forecasting and prediction",
+  blurb: "Set expectations honestly here. EVE prices are driven by patch notes, wars, and nullsec politics — exogenous events no time-series model sees coming. The forecasting that genuinely pays is not price prediction; it is predicting volume, fill probability, and whether a margin will survive. Those are far more tractable and far more actionable.",
+  tools: [
+  { name: "Volume and price baseline forecaster", tier: "Advanced",
+    one: "Simple statistical baselines with honest prediction intervals, not a neural network.",
+    why: "EVE volume has extremely strong weekly seasonality — weekends materially outperform weekdays — so a seasonal-naive baseline is hard to beat and trivially explainable. Start there and only add complexity if it measurably wins against that baseline on held-out data.",
+    inputs: "Daily history warehouse.",
+    output: "Point forecast plus an interval, with backtested error metrics displayed next to it.",
+    trap: "Always show the prediction interval. A point forecast presented without uncertainty invites you to size positions as though the number were certain." },
+  { name: "Fill-probability and time-to-fill model", tier: "Advanced",
+    one: "Given your price, queue position, competition, and the item's flow, estimate P(filled within h hours).",
+    why: "This is the prediction that actually changes decisions, and it is the one nobody builds. Capital tied up in an order that will not fill for a week has a real opportunity cost that no margin figure captures. Converting margin into expected ISK per hour of deployed capital is the correct ranking metric, and it requires this model.",
+    inputs: "Inferred trade ledger, competition meter, your order's price and queue depth.",
+    output: "A fill-probability curve over time, and expected ISK per hour of capital.",
+    math: "Fit arrival intensity per side from the trade ledger, then model your fill as a queueing problem where orders ahead of you in price consume arriving flow first." },
+  { name: "Margin-persistence model", tier: "Advanced",
+    one: "Backtest, per item, what fraction of days over the last 90 the round trip was actually profitable.",
+    why: "A margin observed at one instant is a sample of one. An item profitable on 85 of the last 90 days is a business; one profitable on 12 of 90 is noise you happened to catch. This converts a point-in-time scan into a claim about reliability, and it is cheap to compute once you have the quote series.",
+    inputs: "Historical quote series plus fee engine.",
+    output: "Percentage of days profitable, plus the distribution of the spread over time." },
+  { name: "Regime and cycle detector", tier: "Advanced",
+    one: "Detect the recurring margin-compression cycle: wide spread attracts traders, competition compresses it, traders leave, spread widens again.",
+    why: "This pattern is well documented in EVE trading practice and is visible in competition and spread data once you store both. Knowing where in the cycle an item sits tells you whether to enter now or wait.",
+    inputs: "Spread history and competition history.",
+    output: "A current-phase label per item with the historical cycle period." },
+  { name: "Patch-note and event watchlist", tier: "Advanced",
+    one: "Ingest patch notes and dev blogs, extract mentioned item and ship names, map them to type IDs, and alert on your watchlist.",
+    why: "The most reliably profitable speculation in EVE comes from knowing a balance change before the market reprices. This is a genuine information edge available to a tool and unavailable to someone staring at the market window, and text-to-type-ID mapping is a solved problem once you have the SDE loaded.",
+    inputs: "Patch notes and dev blog feeds, SDE type names.",
+    output: "Alerts linking a change to affected types and their current market state." }
+]},
+{ title: "5. Capital, portfolio and risk",
+  blurb: "How much to invest in a trade has no answer without this layer, because position sizing depends on order slots, escrow, per-item flow capacity, and concentration — not just on which trade looks best.",
+  tools: [
+  { name: "Position sizer", tier: "Core",
+    one: "Recommend ISK per trade subject to capital, slots, per-item daily volume, and concentration limits.",
+    why: "The direct answer to 'how much should I put into this'. The binding constraint is usually not your wallet — it is that an item only trades so many units a day, so capital beyond your realistic share of that flow simply sits idle in an unfilled order.",
+    inputs: "Wallet balance, slot count, per-item volume and capture rate, fill-probability model.",
+    output: "Recommended ISK and unit count per opportunity, with the binding constraint named.",
+    math: "Cap position at capture_rate × daily_volume × price. Fund with (n×p) × (1 + b×(2+r)) to cover both the buy-side broker fee and the eventual sell-side fee, plus a buffer for repricing.",
+    trap: "Margin Trading no longer exists — it became Advanced Broker Relations in 2020 and buy orders now require 100% escrow. Any sizing model carried over from an older guide that assumes partial escrow will overcommit you badly." },
+  { name: "Order-slot optimizer", tier: "Core",
+    one: "Treat slots as the scarce resource and solve for the allocation maximizing total ISK per day.",
+    why: "Once you are running near your slot cap, the relevant question stops being 'is this trade good' and becomes 'is this trade better than the worst trade currently occupying a slot'. That is a knapsack problem, and solving it explicitly is worth real money.",
+    inputs: "Ranked opportunities with expected ISK/day, current orders, slot cap.",
+    output: "Suggested additions and evictions." },
+  { name: "FIFO inventory and cost basis", tier: "Core",
+    one: "Track per-item stock with a FIFO cost basis and stock age.",
+    why: "Without cost basis you cannot compute real profit, only gross revenue. FIFO matches how you actually consume inventory, and stock age surfaces dead capital — items bought weeks ago that never sold are the silent drain on a trading operation.",
+    inputs: "Wallet transactions plus current assets.",
+    output: "Per-item quantity, weighted cost, unrealized P&L, and age buckets.",
+    trap: "A volume-weighted average over an arbitrary date window silently distorts whenever inventory crosses the window boundary, which is most of the time. Match lots, do not average." },
+  { name: "Realized P&L engine", tier: "Core",
+    one: "Match sells against buys FIFO and allocate broker fees and sales tax to the correct trade.",
+    why: "The scoreboard. It is also the only way to discover that a trade you believed was profitable was not, once relist fees are properly attributed. Fee allocation is the part people skip and it is exactly where the error lives.",
+    inputs: "Wallet transactions and wallet journal, keyed by `journal_ref_id`.",
+    output: "Realized P&L by item, character, location, and day.",
+    trap: "Broker fees appear in the journal but are not linked to a transaction, because they are charged at order creation and the order may never fill. Attribute them to the order, then to the trade only on fill, and carry fees on unfilled orders as a separate sunk cost line." },
+  { name: "Exposure and risk dashboard", tier: "Advanced",
+    one: "Show capital deployed versus idle, escrow committed, concentration by item and group, and aging inventory.",
+    why: "Catches the failure modes that do not show up in per-trade numbers: over-concentration in one item or one market group, and inventory quietly aging into a loss.",
+    inputs: "Orders, inventory, wallet.",
+    output: "Concentration breakdown and a stale-inventory list." }
+]},
+{ title: "6. Live trading workflow",
+  blurb: "Analysis finds trades; this layer is where the hours actually go. The goal is to compress the repetitive daily loop — check orders, spot undercuts, decide, reprice — into the smallest possible number of decisions, each pre-computed.",
+  tools: [
+  { name: "Order monitor and undercut alerts", tier: "Core",
+    one: "Continuously compare your open orders against the live book and flag every one you have been beaten on.",
+    why: "The most-used screen in any serious trading tool. The value is not the alert itself but attaching the economics to it, so 'you have been undercut' arrives together with what responding would cost and whether it is still worth it.",
+    inputs: "Your character orders plus the live book.",
+    output: "Per-order status with rank in book, distance from top, and margin at current top of book." },
+  { name: "Relist decision engine", tier: "Core",
+    one: "For each beaten order, recommend reprice, hold, cancel-and-recreate, or abandon — with the ISK behind each.",
+    why: "This is the automation that matters. The decision is genuinely non-obvious: repricing costs a recurring fee on full order value, recreating sometimes costs less than modifying, and sometimes the right move is to hold because the undercutter is one unit deep and will clear on its own. Pre-computing this turns an hour of judgement calls into a list you execute.",
+    inputs: "Relist cost model, depth-aware pricer, fill-probability model.",
+    output: "A recommended action per order with expected value and the reasoning shown.",
+    trap: "Orders can only be modified once every five minutes. The engine must track each order's cooldown, or it will recommend actions you cannot take." },
+  { name: "Daily worklist", tier: "Core",
+    one: "One ordered queue of today's actions, with in-game-pasteable strings.",
+    why: "Reduces the whole operation to working down a list. Generating multibuy strings and quickbar-importable item lists removes the retyping that makes the daily loop tedious, which is the actual reason people abandon station trading.",
+    inputs: "Relist decisions plus new opportunities plus expiring orders.",
+    output: "A prioritized action list with copy-paste payloads." },
+  { name: "Order layering planner", tier: "Advanced",
+    one: "Split a position across k orders so you always hold one off cooldown.",
+    why: "A direct exploit of the five-minute modify timer. With a single order, a competitor who undercuts you thirty seconds after your reprice leaves you stranded for four and a half minutes. Holding several staggered orders means you always have one available to reprice.",
+    inputs: "Competition meter output and desired position size.",
+    output: "Recommended order count and size split.",
+    math: "Maintain at least as many orders as you have active competitors, plus one spare that is always repriceable." }
+]},
+{ title: "7. Research and validation",
+  blurb: "The layer that keeps the rest honest. Without it you have no way to distinguish a scanner that finds money from one that finds plausible-looking numbers, and you will keep trusting it either way.",
+  tools: [
+  { name: "Order-book replay backtester", tier: "Advanced",
+    one: "Replay stored book snapshots, place simulated orders, and model fills against the real historical flow.",
+    why: "The only way to evaluate a strategy before risking ISK, and the payoff for having stored diffs from day one. Every parameter in every scanner — margin thresholds, competition limits, capture rates — is a guess until you can test it against recorded history.",
+    inputs: "The order-lifecycle table over a historical window.",
+    output: "Simulated P&L, fill rates, and capital utilization per strategy configuration.",
+    trap: "Your simulated orders would have changed competitor behavior, and a non-adversarial simulator will not capture that. Backtested returns are an optimistic ceiling, not a forecast — treat them as ranking tools between strategies rather than as absolute predictions." },
+  { name: "Recommendation scorecard", tier: "Advanced",
+    one: "Record every scan recommendation, then reconcile it against what your wallet actually did.",
+    why: "Closes the loop, and is the highest-leverage thing you can build for long-run quality. It answers the question that actually matters — is this tool making me money — and turns filter thresholds from guesses into tuned parameters.",
+    inputs: "Logged recommendations plus realized P&L.",
+    output: "Hit rate, realized versus predicted margin, and per-filter contribution." },
+  { name: "Item deep-dive workbench", tier: "Core",
+    one: "One page with everything known about a single item, reachable from every table in the app.",
+    why: "Scanners narrow to a shortlist; this is where the actual decision gets made. It should include the candlestick and volume history, a live depth chart, spread over time, competition over time, your current position and orders, and your realized P&L on it to date — so the judgement call happens in one place with full context.",
+    inputs: "Every table in the substrate.",
+    output: "A single composed view per (type, location).",
+    trap: "Candlestick and market-depth rendering are not covered by general-purpose chart libraries. Plan on a financial charting library or hand-rolled SVG for these two specifically." }
+]}
+];
+
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const fmt = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+
+function render(tier) {
+  const root = document.getElementById("catalog");
+  root.innerHTML = "";
+  let shown = 0, total = 0;
+  for (const layer of LAYERS) {
+    total += layer.tools.length;
+    const tools = tier === "All" ? layer.tools : layer.tools.filter(t => t.tier === tier);
+    if (!tools.length) continue;
+    shown += tools.length;
+    const sec = document.createElement("section");
+    sec.className = "layer";
+    sec.innerHTML = "<h3>" + esc(layer.title) + "</h3><p class='blurb'>" + fmt(layer.blurb) + "</p>";
+    for (const t of tools) {
+      const d = document.createElement("details");
+      d.className = "tool";
+      let body = "<div class='tbody'>";
+      body += "<p class='one'>" + fmt(t.one) + "</p>";
+      body += "<p class='why'>" + fmt(t.why) + "</p>";
+      body += "<p class='io'><b>Inputs</b> — " + fmt(t.inputs) + "</p>";
+      body += "<p class='io'><b>Output</b> — " + fmt(t.output) + "</p>";
+      if (t.math) body += "<p class='math'>" + fmt(t.math) + "</p>";
+      if (t.trap) body += "<p class='trap'><b>Gotcha.</b> " + fmt(t.trap) + "</p>";
+      body += "</div>";
+      d.innerHTML = "<summary><span class='tname'>" + esc(t.name) + "</span><span class='ttier'>" + esc(t.tier) + "</span></summary>" + body;
+      sec.appendChild(d);
+    }
+    root.appendChild(sec);
+  }
+  document.getElementById("count").textContent = shown + " of " + total + " shown";
+}
+
+document.getElementById("filters").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-tier]");
+  if (!btn) return;
+  for (const b of document.querySelectorAll("#filters button")) {
+    b.setAttribute("aria-pressed", String(b === btn));
+  }
+  render(btn.dataset.tier);
+});
+
+render("All");
+</script>
+</body>
+</html>
