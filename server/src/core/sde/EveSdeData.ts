@@ -13,12 +13,16 @@ import {
   BpReactionProducts,
 } from './models/Blueprint';
 import { Category } from './models/Category';
+import { TRADE_UNIVERSE_EXCLUDED_CATEGORY_IDS } from '../../const/Categories';
 
 export type EveSdeType = {
   id: number;
   name: string;
   group_id: number;
   meta_group_id: number;
+  published: boolean | null;
+  market_group_id: number | null;
+  volume: number | null;
 };
 
 export type EveSdeGroup = {
@@ -122,6 +126,19 @@ export default class EveSdeData {
   public productBlueprintTimeDataFromTypeId(typeId: number): EveSdeBlueprint | undefined {
     const blueprintId = this.productBlueprintFromTypeId(typeId)?.blueprint_id;
     return blueprintId !== undefined ? this.blueprints[blueprintId] : undefined;
+  }
+
+  /** Type IDs that can appear on the regional market and are in scope for station trading. */
+  public tradeableTypeIds(): number[] {
+    return Object.values(this.types)
+      .filter((type) => {
+        const categoryId = this.categoryIdFromTypeId(type.id);
+        return type.published === true
+          && typeof type.market_group_id === 'number'
+          && (categoryId === undefined
+            || !TRADE_UNIVERSE_EXCLUDED_CATEGORY_IDS.includes(categoryId));
+      })
+      .map((type) => type.id);
   }
 
   /** Loads SDE from MySQL into memory. */

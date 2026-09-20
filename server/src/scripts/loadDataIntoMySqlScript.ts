@@ -5,6 +5,9 @@
  * specified in this script) and store them into the database. Only some
  * fields will be stored (again the ones defined in the scripts).
  *
+ * DB tables are meant to exactly reflect SDE data, so values are stored
+ * raw with no normalization or defaults applied in this mapper.
+ *
  * Note: some files may be quite large so it could take a while.
  * Run like this:
  * ts-node ./server/src/scripts/loadDataIntoMySqlScript.ts
@@ -199,6 +202,9 @@ async function run() {
       group_id: value.groupID,
       name: value.name.en,
       meta_group_id: value.metaGroupID,
+      published: value.published,
+      market_group_id: value.marketGroupID,
+      volume: value.volume,
     }),
     Type,
     {

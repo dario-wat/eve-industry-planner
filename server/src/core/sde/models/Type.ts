@@ -16,6 +16,9 @@ export const typeModelDefine = (sequelize: Sequelize) =>
       group_id: DataTypes.INTEGER,
       name: DataTypes.STRING,
       meta_group_id: DataTypes.INTEGER,
+      published: DataTypes.BOOLEAN,
+      market_group_id: DataTypes.INTEGER,
+      volume: DataTypes.DOUBLE,
     },
     {
       sequelize,

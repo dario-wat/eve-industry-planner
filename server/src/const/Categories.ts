@@ -45,6 +45,19 @@ export const MINING = 2107;
 export const INFANTRY = 350001;
 
 /**
+ * Categories that can have a market group but are a different game than
+ * station trading. Skills, structures, and structure modules are left in.
+ */
+export const TRADE_UNIVERSE_EXCLUDED_CATEGORY_IDS = [
+  BLUEPRINT,
+  SKINS,
+  APPAREL,
+  ORBITALS,
+  INFRASTRUCTURE_UPGRADES,
+  SOVEREIGNTY_STRUCTURES,
+];
+
+/**
  * List of category IDs that are related to items that can be built by the
  * player. These are the only ones we care about when planning industry.
  */

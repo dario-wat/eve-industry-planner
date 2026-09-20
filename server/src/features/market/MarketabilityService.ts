@@ -3,7 +3,6 @@ import { THE_FORGE } from '../../const/IDs';
 import ActorContext from '../../core/actor_context/ActorContext';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import { Service } from 'typedi';
-import { potentialTypeIds } from '../../const/potentialItems';
 import { chunk, isNaN } from 'underscore';
 import { MarketabilityRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
@@ -81,12 +80,15 @@ export default class MarketabilityService {
     ];
   }
 
-  /** Evaluates all potential type IDs for marketability. */
+  /**
+   * Scores the SDE trade-candidate universe. Price and volume are liquidity
+   * scores here, not membership. Live ESI until the history warehouse exists.
+   */
   public async genEvaluatePotentialTradeItems(
     actorContext: ActorContext
   ): Promise<TypeIdMarketability[]> {
     let result: TypeIdMarketability[] = [];
-    const typeIdChunks = chunk(potentialTypeIds, CHUNK_SIZE);
+    const typeIdChunks = chunk(this.sdeData.tradeableTypeIds(), CHUNK_SIZE);
     for (const typeIdChunk of typeIdChunks) {
       const typeIdEval = await Promise.all(
         typeIdChunk.map(async typeId => ({
