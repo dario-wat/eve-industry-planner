@@ -210,7 +210,7 @@ export default class ProductionPlanService {
     }
   }
 
-  private blueprintManufactureTime(typeId: number): number | undefined {
+  private blueprintManufactureTime(typeId: number): number | null | undefined {
     return (
       this.sdeData.productBlueprintTimeDataFromTypeId(typeId)?.manufacturing_time ??
       this.sdeData.productBlueprintTimeDataFromTypeId(typeId)?.reaction_time

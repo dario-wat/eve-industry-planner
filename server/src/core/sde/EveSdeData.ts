@@ -19,7 +19,7 @@ export type EveSdeType = {
   id: number;
   name: string;
   group_id: number;
-  meta_group_id: number;
+  meta_group_id: number | null;
   published: boolean | null;
   market_group_id: number | null;
   volume: number | null;
@@ -54,12 +54,12 @@ export type EveSdeBlueprintMaterial = {
 
 export type EveSdeBlueprint = {
   id: number;
-  copying_time: number;
-  invention_time: number;
-  manufacturing_time: number;
-  research_material_time: number;
-  research_time_time: number;
-  reaction_time: number;
+  copying_time: number | null;
+  invention_time: number | null;
+  manufacturing_time: number | null;
+  research_material_time: number | null;
+  research_time_time: number | null;
+  reaction_time: number | null;
 };
 
 /**
