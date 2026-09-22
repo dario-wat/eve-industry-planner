@@ -128,17 +128,30 @@ export default class EveSdeData {
     return blueprintId !== undefined ? this.blueprints[blueprintId] : undefined;
   }
 
+  /** Published types with a market group, outside the excluded trade categories. */
+  private isTradeableType(type: EveSdeType): boolean {
+    const categoryId = this.categoryIdFromTypeId(type.id);
+    return type.published === true
+      && typeof type.market_group_id === 'number'
+      && (categoryId === undefined
+        || !TRADE_UNIVERSE_EXCLUDED_CATEGORY_IDS.includes(categoryId));
+  }
+
   /** Type IDs that can appear on the regional market and are in scope for station trading. */
   public tradeableTypeIds(): number[] {
     return Object.values(this.types)
-      .filter((type) => {
-        const categoryId = this.categoryIdFromTypeId(type.id);
-        return type.published === true
-          && typeof type.market_group_id === 'number'
-          && (categoryId === undefined
-            || !TRADE_UNIVERSE_EXCLUDED_CATEGORY_IDS.includes(categoryId));
-      })
+      .filter((type) => this.isTradeableType(type))
       .map((type) => type.id);
+  }
+
+  /** Tradeable types for the item picker. */
+  public tradeableTypes(): { id: number; name: string }[] {
+    return Object.values(this.types).flatMap((type) => {
+      if (!this.isTradeableType(type)) {
+        return [];
+      }
+      return [{ id: type.id, name: type.name }];
+    });
   }
 
   /** Loads SDE from MySQL into memory. */
