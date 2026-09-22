@@ -3,7 +3,6 @@ import {
   EveAsset,
   EveContract,
   EveIndustryJob,
-  EveMarketHistory,
   EveMarketOrder,
   EveMarketOrderType,
   EveName,
@@ -147,31 +146,5 @@ export default class EsiTokenlessQueryService {
   ): Promise<EsiMultiPageResult<EveMarketOrder>> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxStructureMarketOrders(token, structureId, page);
-  }
-
-  public async genxRegionMarketHistory(
-    characterId: number,
-    regionId: number,
-    typeId: number,
-  ): Promise<EveMarketHistory[]> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genxRegionMarketHistory(
-      token,
-      regionId,
-      typeId,
-    );
-  }
-
-  public async genRegionMarketHistory(
-    characterId: number,
-    regionId: number,
-    typeId: number,
-  ): Promise<EveMarketHistory[] | null> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genRegionMarketHistory(
-      token,
-      regionId,
-      typeId,
-    );
   }
 }

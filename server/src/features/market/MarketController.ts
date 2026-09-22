@@ -32,8 +32,8 @@ export default class MarketController extends Controller {
     /** Fetches market history data for a single typeId. */
     this.appGet(
       '/market_history/:typeName',
-      async (req: Request, res: Response, actorContext: ActorContext) => {
-        const output = await this.marketService.genMarketHistory(actorContext, req.params.typeName);
+      async (req: Request, res: Response, _actorContext: ActorContext) => {
+        const output = await this.marketService.genMarketHistory(req.params.typeName);
         res.json(output);
       }
     );
@@ -41,8 +41,8 @@ export default class MarketController extends Controller {
     /** Fetches data for item marketability. */
     this.appGet(
       '/marketability',
-      async (_req: Request, res: Response, actorContext: ActorContext) => {
-        const output = await this.marketabilityService.genMarketableItemsForPage(actorContext);
+      async (_req: Request, res: Response, _actorContext: ActorContext) => {
+        const output = await this.marketabilityService.genMarketableItemsForPage();
         res.json(output);
       }
     );

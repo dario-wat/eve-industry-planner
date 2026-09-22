@@ -1,6 +1,7 @@
 import { Service } from 'typedi';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 import {
   MarketHistoryRes,
   MarketOrdersComparisonRes,
@@ -26,6 +27,7 @@ export default class MarketService {
   constructor(
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQueryService: EsiQueryService,
     private readonly stationService: StationService,
     private readonly esiMultipageueryService: EsiMultiPageQueryService,
     private readonly itemQuantitiesParser: ItemQuantitiesParserService
@@ -61,13 +63,8 @@ export default class MarketService {
   }
 
   /** Fetches market history for a single typeId. */
-  public async genMarketHistory(
-    actorContext: ActorContext,
-    typeName: string
-  ): Promise<MarketHistoryRes> {
-    const main = await actorContext.genxMainCharacter();
-    const history = await this.esiQuery.genxRegionMarketHistory(
-      main.characterId,
+  public async genMarketHistory(typeName: string): Promise<MarketHistoryRes> {
+    const history = await this.esiQueryService.genxRegionMarketHistory(
       THE_FORGE,
       this.sdeData.typeByName[typeName]?.id
     );

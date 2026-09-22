@@ -24,6 +24,7 @@
     "client": "cd client && npm start",
     "client-https": "cd client & npm run start-https",
     "client-install": "cd client && npm i",
-    "shared-test": "cd shared && npm run test"
+    "shared-test": "cd shared && npm run test",
+    "sync-market-history": "ts-node ./server/src/scripts/syncMarketHistory.ts"
   }
 }

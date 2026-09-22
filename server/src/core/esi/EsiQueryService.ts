@@ -713,25 +713,21 @@ export default class EsiQueryService {
     ]
   */
   public async genxRegionMarketHistory(
-    token: Token,
     regionId: number,
     typeId: number,
   ): Promise<EveMarketHistory[]> {
     const response = await this.esi.request(
       `/markets/${regionId}/history/`,
       { type_id: typeId },
-      undefined,
-      { token },
     );
     return await response.json();
   }
 
   public async genRegionMarketHistory(
-    token: Token,
     regionId: number,
     typeId: number,
   ): Promise<EveMarketHistory[] | null> {
-    return await this.genxRegionMarketHistory(token, regionId, typeId)
+    return await this.genxRegionMarketHistory(regionId, typeId)
       .catch(logEsiErrorAndReturnNull);
   }
 }

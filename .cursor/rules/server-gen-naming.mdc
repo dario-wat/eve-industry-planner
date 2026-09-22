@@ -1,0 +1,16 @@
+---
+description: Server async method naming — gen/genx only for I/O
+globs: server/**/*.ts
+alwaysApply: false
+---
+
+# Server `gen*` / `genx*` naming
+
+Use `gen*` and `genx*` only for **async** methods that perform **I/O**: MySQL/Sequelize, ESI, filesystem, external HTTP, etc.
+
+- `gen*` — async; may return null or use catch-and-null patterns (match existing services).
+- `genx*` — async; throws on failure / non-null contract.
+
+Do **not** prefix synchronous or in-memory-only helpers with `gen`, even if they “resolve” or “compute” something (e.g. filtering `EveSdeData`, building ID lists from constructor-injected state). Use a plain name: `resolveTypeIds`, `parseContent`, etc.
+
+When adding methods on services, match the naming of neighboring methods in the same file.

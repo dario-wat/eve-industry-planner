@@ -1,7 +1,6 @@
 import { mean } from 'lodash';
 import { THE_FORGE } from '../../const/IDs';
-import ActorContext from '../../core/actor_context/ActorContext';
-import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 import { Service } from 'typedi';
 import { chunk, isNaN } from 'underscore';
 import { MarketabilityRes } from '@internal/shared';
@@ -31,7 +30,7 @@ const CHUNK_SIZE = 100;
 export default class MarketabilityService {
 
   constructor(
-    private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQuery: EsiQueryService,
     private readonly sdeData: EveSdeData,
   ) { }
 
@@ -39,13 +38,8 @@ export default class MarketabilityService {
    * Evaluates a single type ID for marketability and returns
    * a list of scores.
    */
-  private async genEvaluate(
-    actorContext: ActorContext,
-    typeId: number,
-  ): Promise<MarketabilityScore[]> {
-    const main = await actorContext.genxMainCharacter();
+  private async genEvaluate(typeId: number): Promise<MarketabilityScore[]> {
     const history = await this.esiQuery.genxRegionMarketHistory(
-      main.characterId,
       THE_FORGE,
       typeId,
     );
@@ -84,16 +78,14 @@ export default class MarketabilityService {
    * Scores the SDE trade-candidate universe. Price and volume are liquidity
    * scores here, not membership. Live ESI until the history warehouse exists.
    */
-  public async genEvaluatePotentialTradeItems(
-    actorContext: ActorContext
-  ): Promise<TypeIdMarketability[]> {
+  public async genEvaluatePotentialTradeItems(): Promise<TypeIdMarketability[]> {
     let result: TypeIdMarketability[] = [];
     const typeIdChunks = chunk(this.sdeData.tradeableTypeIds(), CHUNK_SIZE);
     for (const typeIdChunk of typeIdChunks) {
       const typeIdEval = await Promise.all(
         typeIdChunk.map(async typeId => ({
           typeId,
-          scores: await this.genEvaluate(actorContext, typeId),
+          scores: await this.genEvaluate(typeId),
         }))
       );
       result = [...result, ...typeIdEval]
@@ -106,10 +98,8 @@ export default class MarketabilityService {
    * Similar to genEvaluatePotentialTradeItems, but it augments the data
    * for response to UI.
    */
-  public async genMarketableItemsForPage(
-    actorContext: ActorContext,
-  ): Promise<MarketabilityRes> {
-    const marketableItems = await this.genEvaluatePotentialTradeItems(actorContext);
+  public async genMarketableItemsForPage(): Promise<MarketabilityRes> {
+    const marketableItems = await this.genEvaluatePotentialTradeItems();
     return marketableItems.map(i => ({
       ...i,
       categoryId: this.sdeData.categoryIdFromTypeId(i.typeId),

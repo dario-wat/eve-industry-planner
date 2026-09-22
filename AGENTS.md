@@ -32,7 +32,7 @@ Feature folders under `server/src/features/<name>/`: Sequelize model, `*Assocs.t
 - New controllers must be constructed and `init`'d in `server/src/loaders/Controllers.ts`. Login/health skip `loggedOutMiddleware`; everything else requires a session.
 - New models/assocs must be registered in `server/src/loaders/initDatabase.ts`.
 - Request-scoped user is `ActorContext` (`res.locals.actorContext`). Pass it into services; do not read the session in services.
-- Async data methods are named `gen*` (nullable / catch-and-null) and `genx*` (throwing / non-null). Match that.
+- Async methods that hit the database, ESI, or other I/O are named `gen*` (nullable / catch-and-null) and `genx*` (throwing / non-null). Do not use `gen` for pure in-memory helpers (filtering SDE data, resolving IDs from already-loaded state, etc.).
 - Talk to ESI through existing query services (`EsiQueryService`, `EveQueryService`, etc.), not ad-hoc ESI HTTP. Static game data goes through `EveSdeData`.
 
 ## Client conventions
