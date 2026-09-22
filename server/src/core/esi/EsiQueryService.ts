@@ -145,24 +145,15 @@ export default class EsiQueryService {
       type_id: 52678
     }
   */
-  public async genxStation(
-    token: Token,
-    stationId: number,
-  ): Promise<EveStation> {
+  public async genxStation(stationId: number): Promise<EveStation> {
     const response = await this.esi.request(
       `/universe/stations/${stationId}/`,
-      undefined,
-      undefined,
-      { token },
     );
     return await response.json();
   }
 
-  public async genStation(
-    token: Token,
-    stationId: number,
-  ): Promise<EveStation | null> {
-    return await this.genxStation(token, stationId)
+  public async genStation(stationId: number): Promise<EveStation | null> {
+    return await this.genxStation(stationId)
       .catch(logEsiErrorAndReturnNull);
   }
 
@@ -215,24 +206,17 @@ export default class EsiQueryService {
       "system_id": 30004725
     }
   */
-  public async genxSolarSystem(
-    token: Token,
-    systemId: number,
-  ): Promise<EveSolarSystem> {
+  public async genxSolarSystem(systemId: number): Promise<EveSolarSystem> {
     const response = await this.esi.request(
       `/universe/systems/${systemId}`,
-      undefined,
-      undefined,
-      { token },
     );
     return await response.json();
   }
 
   public async genSolarSystem(
-    token: Token,
     systemId: number,
   ): Promise<EveSolarSystem | null> {
-    return await this.genxSolarSystem(token, systemId)
+    return await this.genxSolarSystem(systemId)
       .catch(logEsiErrorAndReturnNull);
   }
 
@@ -251,23 +235,18 @@ export default class EsiQueryService {
     }
   */
   public async genxConstellation(
-    token: Token,
     constellationId: number,
   ): Promise<EveConstellation> {
     const response = await this.esi.request(
       `/universe/constellations/${constellationId}`,
-      undefined,
-      undefined,
-      { token },
     );
     return await response.json();
   }
 
   public async genConstellation(
-    token: Token,
     constellationId: number,
   ): Promise<EveConstellation | null> {
-    return await this.genxConstellation(token, constellationId)
+    return await this.genxConstellation(constellationId)
       .catch(logEsiErrorAndReturnNull);
   }
 
@@ -434,21 +413,20 @@ export default class EsiQueryService {
       { category: 'corporation', id: 98143250, name: 'Prairie Doggers' }
     ]
   */
-  public async genxNames(token: Token, ids: number[]): Promise<EveName[]> {
+  public async genxNames(ids: number[]): Promise<EveName[]> {
     const response = await this.esi.request(
       '/universe/names/',
       undefined,
       ids,
-      { token, method: 'POST' }
+      { method: 'POST' }
     );
     return await response.json();
   }
 
   public async genNames(
-    token: Token,
     ids: number[],
   ): Promise<EveName[] | null> {
-    return await this.genxNames(token, ids).catch(logEsiErrorAndReturnNull);
+    return await this.genxNames(ids).catch(logEsiErrorAndReturnNull);
   }
 
   /*
@@ -461,23 +439,18 @@ export default class EsiQueryService {
     }
   */
   public async genxPortrait(
-    token: Token,
     characterId: number,
   ): Promise<EvePortrait> {
     const response = await this.esi.request(
       `/characters/${characterId}/portrait/`,
-      undefined,
-      undefined,
-      { token },
     );
     return await response.json();
   }
 
   public async genPortrait(
-    token: Token,
     characterId: number,
   ): Promise<EvePortrait | null> {
-    return await this.genxPortrait(token, characterId)
+    return await this.genxPortrait(characterId)
       .catch(logEsiErrorAndReturnNull);
   }
 
@@ -614,7 +587,6 @@ export default class EsiQueryService {
     }
   */
   public async genxRegionMarketOrders(
-    token: Token,
     regionId: number,
     typeId: number,
     orderType: EveMarketOrderType = 'all',
@@ -627,8 +599,6 @@ export default class EsiQueryService {
         page,
         order_type: orderType
       },
-      undefined,
-      { token },
     );
     return {
       data: await response.json(),
@@ -637,13 +607,12 @@ export default class EsiQueryService {
   }
 
   public async genRegionMarketOrders(
-    token: Token,
     regionId: number,
     typeId: number,
     orderType: EveMarketOrderType = 'all',
     page: number = 1,
   ): Promise<EsiMultiPageResult<EveMarketOrder> | null> {
-    return await this.genxRegionMarketOrders(token, regionId, typeId, orderType, page)
+    return await this.genxRegionMarketOrders(regionId, typeId, orderType, page)
       .catch(logEsiErrorAndReturnNull);
   }
 

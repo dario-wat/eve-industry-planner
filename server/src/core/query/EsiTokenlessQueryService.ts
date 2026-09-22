@@ -4,10 +4,6 @@ import {
   EveContract,
   EveIndustryJob,
   EveMarketOrder,
-  EveMarketOrderType,
-  EveName,
-  EvePortrait,
-  EveStation,
   EveStructure,
   EveWalletJournalEntry,
   EveWalletTransaction,
@@ -40,33 +36,12 @@ export default class EsiTokenlessQueryService {
     );
   }
 
-  public async genxPortrait(characterId: number): Promise<EvePortrait> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genxPortrait(token, characterId);
-  }
-
-  public async genPortrait(characterId: number): Promise<EvePortrait | null> {
-    try {
-      return await this.genxPortrait(characterId);
-    } catch {
-      return null;
-    }
-  }
-
   public async genxContracts(
     characterId: number,
     page: number = 1,
   ): Promise<EsiMultiPageResult<EveContract>> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxContracts(token, characterId, page);
-  }
-
-  public async genxNames(
-    characterId: number,
-    ids: number[],
-  ): Promise<EveName[]> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genxNames(token, ids);
   }
 
   public async genxAssets(
@@ -83,14 +58,6 @@ export default class EsiTokenlessQueryService {
   ): Promise<EveStructure | null> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genStructure(token, structureId);
-  }
-
-  public async genStation(
-    characterId: number,
-    stationId: number,
-  ): Promise<EveStation | null> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genStation(token, stationId);
   }
 
   public async genxWalletTransactions(
@@ -120,23 +87,6 @@ export default class EsiTokenlessQueryService {
   ): Promise<EveMarketOrder[]> {
     const token = await this.esiSequelizeProvider.genxToken(characterId);
     return await this.esiQuery.genxCharacterMarketOrders(token, characterId);
-  }
-
-  public async genxRegionMarketOrders(
-    characterId: number,
-    regionId: number,
-    typeId: number,
-    orderType: EveMarketOrderType = 'all',
-    page: number = 1,
-  ): Promise<EsiMultiPageResult<EveMarketOrder>> {
-    const token = await this.esiSequelizeProvider.genxToken(characterId);
-    return await this.esiQuery.genxRegionMarketOrders(
-      token,
-      regionId,
-      typeId,
-      orderType,
-      page,
-    );
   }
 
   public async genxStructureMarketOrders(

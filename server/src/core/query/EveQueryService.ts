@@ -3,17 +3,17 @@ import { chunk, uniq } from 'underscore';
 import { mapify } from '../../lib/util';
 import { EveAsset, EveName } from '../../types/EsiQuery';
 import { filterNullOrUndef } from '@internal/shared';
-import EsiTokenlessQueryService from './EsiTokenlessQueryService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { hoursToSeconds } from 'date-fns';
 import EsiMultiPageQueryService from './EsiMultiPageQueryService';
+import EsiQueryService from '../esi/EsiQueryService';
 
 /** More complex EVE queries built on top of the ESI query services. */
 @Service()
 export default class EveQueryService {
   constructor(
-    private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQuery: EsiQueryService,
     private readonly esiMultiPageQuery: EsiMultiPageQueryService
   ) {}
 
@@ -33,7 +33,6 @@ export default class EveQueryService {
    * e.g. character, corporation, alliance ...
    */
   public async genAllNames(
-    character: EsiCharacter,
     ids: number[]
   ): Promise<Record<number, EveName>> {
     const chunkSize = 1000;
@@ -41,7 +40,7 @@ export default class EveQueryService {
     const chunks = chunk(uniqueIds, chunkSize);
 
     const responses = await Promise.all(
-      chunks.map((ch) => this.esiQuery.genxNames(character.characterId, ch))
+      chunks.map((ch) => this.esiQuery.genxNames(ch))
     );
     return mapify(filterNullOrUndef(responses.flat()), 'id');
   }

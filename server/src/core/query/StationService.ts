@@ -1,4 +1,5 @@
 import { Service } from 'typedi';
+import EsiQueryService from '../esi/EsiQueryService';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
@@ -12,7 +13,8 @@ import { hoursToSeconds } from 'date-fns';
 @Service()
 export default class StationService {
   constructor(
-    private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQuery: EsiQueryService,
+    private readonly esiTokenlessQuery: EsiTokenlessQueryService,
     private readonly sdeData: EveSdeData
   ) {}
 
@@ -24,7 +26,7 @@ export default class StationService {
   public async genStationName(character: EsiCharacter, stationId: number): Promise<string | null> {
     const isNpcStation = this.sdeData.stations[stationId] !== undefined;
     if (isNpcStation) {
-      const station = await this.genStationCached(character, stationId);
+      const station = await this.genStationCached(stationId);
       return station?.name ?? null;
     }
 
@@ -73,20 +75,19 @@ export default class StationService {
       stationId.toString(),
       EsiCacheItem.STRUCTURE,
       hoursToSeconds(24),
-      async () => await this.esiQuery.genStructure(character.characterId, stationId)
+      async () => await this.esiTokenlessQuery.genStructure(character.characterId, stationId)
     );
   }
 
   /** Cached version of genStation. NPC station names never change. */
   private async genStationCached(
-    character: EsiCharacter,
     stationId: number
   ): Promise<EveStation | null> {
     return await genQueryEsiCache(
       stationId.toString(),
       EsiCacheItem.STATION,
       hoursToSeconds(24 * 30),
-      async () => await this.esiQuery.genStation(character.characterId, stationId)
+      async () => await this.esiQuery.genStation(stationId)
     );
   }
 }

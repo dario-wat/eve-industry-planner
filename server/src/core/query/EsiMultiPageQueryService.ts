@@ -3,7 +3,7 @@ import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { Service } from 'typedi';
 import { range } from 'lodash';
 import EsiTokenlessQueryService from './EsiTokenlessQueryService';
-import { EsiMultiPageResult } from '../../core/esi/EsiQueryService';
+import EsiQueryService, { EsiMultiPageResult } from '../../core/esi/EsiQueryService';
 
 /**
  * Utility function that handles multi page ESI queries.
@@ -30,6 +30,7 @@ export default class EsiMultiPageQueryService {
 
   constructor(
     private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQueryService: EsiQueryService,
   ) { }
 
   /* 
@@ -62,14 +63,12 @@ export default class EsiMultiPageQueryService {
 
   /** Fetches all market orders for the given region. */
   public async genxAllRegionMarketOrders(
-    character: EsiCharacter,
     regionId: number,
     typeId: number,
     orderType: EveMarketOrderType = 'all',
   ): Promise<EveMarketOrder[]> {
     return await genxMultiPageData(
-      async page => await this.esiQuery.genxRegionMarketOrders(
-        character.characterId,
+      async page => await this.esiQueryService.genxRegionMarketOrders(
         regionId,
         typeId,
         orderType,

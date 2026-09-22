@@ -3,13 +3,13 @@ import { Service } from 'typedi';
 import ActorContext from '../actor_context/ActorContext';
 import Controller from '../controller/Controller';
 import { EsiCharacter } from '../esi/models/EsiCharacter';
-import EsiTokenlessQueryService from '../query/EsiTokenlessQueryService';
+import EsiQueryService from '../esi/EsiQueryService';
 
 @Service()
 export default class AccountController extends Controller {
 
   constructor(
-    private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQuery: EsiQueryService,
   ) {
     super();
   }

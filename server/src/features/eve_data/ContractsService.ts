@@ -17,15 +17,12 @@ export default class ContractsService {
   public async genDataForPage(
     actorContext: ActorContext,
   ): Promise<EveContractsRes> {
-    const mainCharacter = await actorContext.genxMainCharacter();
-
     const contracts = await genQueryFlatResultPerCharacter(
       actorContext,
       character => this.esiMultiPageQuery.genxAllContracts(character),
     );
 
     const names = await this.eveQuery.genAllNames(
-      mainCharacter,
       contracts.map(c => [c.assignee_id, c.acceptor_id, c.issuer_id]).flat(),
     )
 

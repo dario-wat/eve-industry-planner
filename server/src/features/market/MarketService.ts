@@ -113,7 +113,6 @@ export default class MarketService {
         const orders = await Promise.all(
           types.map(async ({ id }) => {
             const orders = await this.esiMultipageueryService.genxAllRegionMarketOrders(
-              main,
               regionId!,
               id
             );
