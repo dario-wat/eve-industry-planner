@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { EveSdeTypesRes } from '@internal/shared';
 import useAxios from 'axios-hooks';
 import Typography from '@mui/material/Typography';
@@ -5,25 +6,44 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import EveIcon from 'components/util/EveIcon';
 
+type ItemOption = { label: string; id: number };
+
+const RECENT_STORAGE_KEY = 'itemAutocomplete.recentTypeIds';
+const RECENT_LIMIT = 10;
+const filterItems = createFilterOptions<ItemOption>({ matchFrom: 'any', limit: 10 });
+
 export default function ItemAutocomplete(props: {
   onInputChange: (value: string) => void;
   width?: number;
 }) {
   const [{ data, loading }] = useAxios<EveSdeTypesRes>('/type_ids_items');
+  const [inputValue, setInputValue] = useState('');
+  const [recentIds, setRecentIds] = useState(readRecentTypeIds);
   const autocompleteData =
     data?.map((t) => ({
       label: t.name,
       id: t.id,
     })) ?? [];
 
+  const remember = (id: number) => {
+    setRecentIds((prev) => {
+      const next = [id, ...prev.filter((existing) => existing !== id)].slice(0, RECENT_LIMIT);
+      localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   return (
     <Autocomplete
       sx={{ width: props.width ?? 280 }}
-      disablePortal
+      openOnFocus
       loading={loading}
       options={autocompleteData}
-      filterOptions={createFilterOptions({ matchFrom: 'any', limit: 10 })}
+      filterOptions={(options, state) =>
+        state.inputValue.trim() ? filterItems(options, state) : recentOptions(options, recentIds)
+      }
       ListboxProps={{ style: { maxHeight: 'none' } }}
+      noOptionsText={inputValue.trim() ? 'No matching items' : 'Type to search items'}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       renderOption={(props, option, state) => (
         <li
@@ -44,9 +64,38 @@ export default function ItemAutocomplete(props: {
       renderInput={(params) => (
         <TextField {...params} sx={{ verticalAlign: 'inherit' }} label="Item" variant="standard" />
       )}
-      onInputChange={(_, value) => props.onInputChange(value)}
+      onInputChange={(_, value) => {
+        setInputValue(value);
+        props.onInputChange(value);
+      }}
+      onChange={(_, value) => {
+        if (value) {
+          remember(value.id);
+        }
+      }}
     />
   );
+}
+
+function readRecentTypeIds(): number[] {
+  try {
+    const raw = localStorage.getItem(RECENT_STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed.filter((id): id is number => typeof id === 'number').slice(0, RECENT_LIMIT);
+  } catch {
+    return [];
+  }
+}
+
+function recentOptions(options: ItemOption[], recentIds: number[]): ItemOption[] {
+  const byId = new Map(options.map((option) => [option.id, option]));
+  return recentIds.flatMap((id) => {
+    const option = byId.get(id);
+    return option ? [option] : [];
+  });
 }
 
 function highlightMatch(label: string, query: string) {
