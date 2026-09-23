@@ -91,7 +91,7 @@ export default class PlannedProductController extends Controller {
         await this.plannedProductService.genAddPlannedProduct(
           actorContext,
           req.body.group,
-          req.body.typeName,
+          Number(req.body.typeId),
           req.body.quantity,
         );
         res.status(200).end();

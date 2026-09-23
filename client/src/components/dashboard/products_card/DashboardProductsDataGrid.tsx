@@ -16,7 +16,7 @@ export default function DashboardProductsDataGrid(props: {
   onItemDelete: () => void,
   onItemAdd: () => void,
 }) {
-  const [itemTypeName, setItemTypeName] = useState('');
+  const [typeId, setTypeId] = useState<number | null>(null);
   const [itemQuantity, setItemQuantity] = useState('');
 
   const onDeleteItemClick = async (typeId: number) => {
@@ -28,10 +28,10 @@ export default function DashboardProductsDataGrid(props: {
     }
   };
 
-  const onAddItemClick = async (typeName: string, quantity: number) => {
+  const onAddItemClick = async (selectedTypeId: number, quantity: number) => {
     const { status } = await axios.post(
       '/planned_product_add',
-      { typeName, quantity, group: props.group },
+      { typeId: selectedTypeId, quantity, group: props.group },
     );
     if (status === 200) {
       props.onItemAdd();
@@ -95,7 +95,7 @@ export default function DashboardProductsDataGrid(props: {
         />
       </Box>
       <Box sx={{ pr: 2, display: 'inline-flex' }}>
-        <ItemAutocomplete onInputChange={value => setItemTypeName(value)} />
+        <ItemAutocomplete onSelect={setTypeId} />
       </Box>
       <Box sx={{ display: 'inline-flex', pr: 2 }}>
         <TextField
@@ -108,7 +108,12 @@ export default function DashboardProductsDataGrid(props: {
         <Button
           variant="contained"
           size="small"
-          onClick={() => onAddItemClick(itemTypeName, Number(itemQuantity))}>
+          onClick={() => {
+            if (typeId === null) {
+              return;
+            }
+            onAddItemClick(typeId, Number(itemQuantity));
+          }}>
           Add
         </Button>
       </Box>

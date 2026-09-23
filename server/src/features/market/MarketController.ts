@@ -29,11 +29,11 @@ export default class MarketController extends Controller {
     //   '/market_orders_region',
     // );
 
-    /** Fetches market history data for a single typeId. */
+    /** Fetches market history data for a single type id. */
     this.appGet(
-      '/market_history/:typeName',
+      '/market_history/:typeId',
       async (req: Request, res: Response, _actorContext: ActorContext) => {
-        const output = await this.marketService.genMarketHistory(req.params.typeName);
+        const output = await this.marketService.genMarketHistory(Number(req.params.typeId));
         res.json(output);
       }
     );

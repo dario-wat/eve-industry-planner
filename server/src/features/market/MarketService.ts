@@ -62,11 +62,14 @@ export default class MarketService {
       }));
   }
 
-  /** Fetches market history for a single typeId. */
-  public async genMarketHistory(typeName: string): Promise<MarketHistoryRes> {
+  /** Fetches market history for a single type id. */
+  public async genMarketHistory(typeId: number): Promise<MarketHistoryRes> {
+    if (this.sdeData.types[typeId] === undefined) {
+      return [];
+    }
     const history = await this.esiQueryService.genxRegionMarketHistory(
       THE_FORGE,
-      this.sdeData.typeByName[typeName]?.id
+      typeId
     );
 
     const today = new Date();

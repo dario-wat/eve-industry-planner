@@ -30,14 +30,17 @@ const scoreColumns: GridColDef[] = [
 ];
 
 export default function MarketItemHistoryDataTab() {
-  const [itemName, setItemName] = useState('');
+  const [typeId, setTypeId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [historyData, setHistoryData] = useState<MarketHistoryRes | null>(null);
 
   const onSubmit = async () => {
+    if (typeId === null) {
+      return;
+    }
     setIsLoading(true);
     const { data } = await axios.get<MarketHistoryRes>(
-      `/market_history/${itemName}`,
+      `/market_history/${typeId}`,
     );
     setHistoryData(data.sort((a, b) => a.date.localeCompare(b.date)));
     setIsLoading(false);
@@ -47,7 +50,7 @@ export default function MarketItemHistoryDataTab() {
     <Box>
       <Box sx={{ display: 'flex', gap: 4, pl: 2 }}>
         <ItemAutocomplete
-          onInputChange={value => setItemName(value)}
+          onSelect={setTypeId}
           width={350}
         />
         <LoadingButton

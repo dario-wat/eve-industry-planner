@@ -157,10 +157,10 @@ export default class PlannedProductService {
   public async genAddPlannedProduct(
     actorContext: ActorContext,
     group: string,
-    typeName: string,
+    typeId: number,
     quantity: number,
   ): Promise<void> {
-    if (this.sdeData.typeByName[typeName] === undefined) {
+    if (this.sdeData.types[typeId] === undefined) {
       return;
     }
 
@@ -168,7 +168,7 @@ export default class PlannedProductService {
     const result = await account.getPlannedProducts({
       where: {
         group,
-        type_id: this.sdeData.typeByName[typeName].id,
+        type_id: typeId,
       }
     })
 
@@ -177,7 +177,7 @@ export default class PlannedProductService {
         where: {
           accountId: account.id,
           group,
-          type_id: this.sdeData.typeByName[typeName].id,
+          type_id: typeId,
         }
       });
     }
@@ -186,7 +186,7 @@ export default class PlannedProductService {
     await PlannedProduct.create({
       accountId: account.id,
       group,
-      type_id: this.sdeData.typeByName[typeName].id,
+      type_id: typeId,
       quantity: totalQuantity + quantity,
     });
   }

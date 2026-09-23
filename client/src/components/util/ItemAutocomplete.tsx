@@ -13,7 +13,7 @@ const RECENT_LIMIT = 10;
 const filterItems = createFilterOptions<ItemOption>({ matchFrom: 'any', limit: 10 });
 
 export default function ItemAutocomplete(props: {
-  onInputChange: (value: string) => void;
+  onSelect: (typeId: number | null) => void;
   width?: number;
 }) {
   const [{ data, loading }] = useAxios<EveSdeTypesRes>('/type_ids_items');
@@ -66,12 +66,12 @@ export default function ItemAutocomplete(props: {
       )}
       onInputChange={(_, value) => {
         setInputValue(value);
-        props.onInputChange(value);
       }}
       onChange={(_, value) => {
         if (value) {
           remember(value.id);
         }
+        props.onSelect(value ? value.id : null);
       }}
     />
   );
