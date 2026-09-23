@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, Card, CardContent } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
 import { MarketHistoryRes } from '@internal/shared';
@@ -29,7 +29,7 @@ const scoreColumns: GridColDef[] = [
   },
 ];
 
-export default function MarketItemHistoryDataTab() {
+export default function MarketHistoryPage() {
   const [typeId, setTypeId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [historyData, setHistoryData] = useState<MarketHistoryRes | null>(null);
@@ -47,8 +47,11 @@ export default function MarketItemHistoryDataTab() {
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', gap: 4, pl: 2 }}>
+    <div>
+      <Card>
+        <CardContent>
+          <Box>
+            <Box sx={{ display: 'flex', gap: 4, pl: 2 }}>
         <ItemAutocomplete
           onSelect={setTypeId}
           width={350}
@@ -151,6 +154,9 @@ export default function MarketItemHistoryDataTab() {
           />
         </Box>
       }
-    </Box>
+          </Box>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

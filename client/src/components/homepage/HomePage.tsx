@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import ScienceIcon from '@mui/icons-material/Science';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -26,6 +27,7 @@ import { Route, Routes } from 'react-router-dom';
 import MarketComparisonPage from 'components/MarketComparisonPage';
 import CharactersPage from 'components/CharactersPage';
 import MarketPredictionPage from 'components/market_predictions/MarketPredictionPage';
+import MarketHistoryPage from 'components/market_predictions/MarketHistoryPage';
 
 export default function HomePage() {
   const userContext = useContext(UserContext);
@@ -68,6 +70,12 @@ export default function HomePage() {
       label: 'Market Prediction',
       icon: <AttachMoneyIcon />,
       component: MarketPredictionPage,
+    },
+    {
+      path: '/market_history',
+      label: 'Market History',
+      icon: <ShowChartIcon />,
+      component: MarketHistoryPage,
     },
     {
       path: '/market_orders',
