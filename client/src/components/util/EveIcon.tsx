@@ -4,7 +4,7 @@ const BLUEPRINT_CAT = 9;
 
 export default function EveIcon(props: {
   typeId: number,
-  categoryId: number,
+  categoryId?: number,
   size: number,
 }) {
   const imgSrc = props.categoryId === BLUEPRINT_CAT
