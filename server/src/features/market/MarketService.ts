@@ -12,15 +12,12 @@ import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatPerCharacter, genQueryResultIfAvailable } from '../../lib/eveUtil';
 import StationService from '../../core/query/StationService';
 import { THE_FORGE } from '../../const/IDs';
-import { differenceInDays, parse } from 'date-fns';
 import EsiMultiPageQueryService from '../../core/query/EsiMultiPageQueryService';
 import ItemQuantitiesParserService, {
   ItemQuantity,
 } from '../item_quantities/ItemQuantitiesParserService';
 import { chain } from 'underscore';
 import { EveMarketOrder } from 'types/EsiQuery';
-
-const MAX_HISTORY_DAYS = 90;
 
 @Service()
 export default class MarketService {
@@ -62,7 +59,7 @@ export default class MarketService {
       }));
   }
 
-  /** Fetches market history for a single type id. */
+  /** Fetches The Forge market history for one type. Returns the full ESI series. */
   public async genMarketHistory(typeId: number): Promise<MarketHistoryRes> {
     if (this.sdeData.types[typeId] === undefined) {
       return [];
@@ -71,11 +68,7 @@ export default class MarketService {
       THE_FORGE,
       typeId
     );
-
-    const today = new Date();
-    return history.filter(
-      (h) => differenceInDays(today, parse(h.date, 'yyyy-MM-dd', new Date())) < MAX_HISTORY_DAYS
-    );
+    return history.slice().sort((a, b) => a.date.localeCompare(b.date));
   }
 
   /**
