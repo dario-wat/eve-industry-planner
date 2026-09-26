@@ -27,7 +27,7 @@ import { Route, Routes } from 'react-router-dom';
 import MarketComparisonPage from 'components/MarketComparisonPage';
 import CharactersPage from 'components/CharactersPage';
 import MarketPredictionPage from 'components/market_predictions/MarketPredictionPage';
-import MarketHistoryPage from 'components/market_predictions/MarketHistoryPage';
+import MarketHistoryPage from 'components/market_history/MarketHistoryPage';
 
 export default function HomePage() {
   const userContext = useContext(UserContext);
