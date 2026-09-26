@@ -2,8 +2,9 @@ import { MarketabilityRes } from '@internal/shared';
 import { Box, Card, CardContent, CircularProgress, TextField } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
+import { formatNumber } from 'common/format';
 import EveIconAndName from 'components/util/EveIconAndName';
-import { ColoredNumber, formatNumber } from 'components/util/numbers';
+import { ColoredNumber } from 'components/util/numbers';
 import { useState } from 'react';
 
 const GOOD_AVG_DIFF = 0.1;

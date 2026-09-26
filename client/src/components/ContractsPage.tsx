@@ -10,7 +10,7 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import { useContext, useState } from 'react';
 import { EveContractsRes } from '@internal/shared';
 import { UserContext } from 'contexts/UserContext';
-import { formatNumberScale } from './util/numbers';
+import { formatNumberScale } from 'common/format';
 
 const FINISHED_STATUS = 'finished';
 

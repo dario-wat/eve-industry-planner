@@ -13,7 +13,7 @@ import axios from 'axios';
 import { ProductionPlanRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
 import useProductionPlanState from '../../recoil/useProductionPlanState';
-import { formatNumber } from 'components/util/numbers';
+import { formatNumber } from 'common/format';
 import CopySnackbar from 'components/util/CopySnackbar';
 
 enum SelectedTab {

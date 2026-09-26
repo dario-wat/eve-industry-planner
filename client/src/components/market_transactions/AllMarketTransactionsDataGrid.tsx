@@ -1,7 +1,8 @@
 import { WalletTransactionsRes } from '@internal/shared';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { formatNumber } from 'common/format';
 import EveIconAndName from 'components/util/EveIconAndName';
-import { ColoredNumber, formatNumber } from 'components/util/numbers';
+import { ColoredNumber } from 'components/util/numbers';
 import { format } from 'date-fns';
 
 const columns: GridColDef[] = [
