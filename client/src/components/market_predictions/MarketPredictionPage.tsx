@@ -1,9 +1,10 @@
 import { MarketabilityRes } from '@internal/shared';
-import { Box, Card, CardContent, CircularProgress, TextField } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
 import { formatNumber } from 'common/format';
 import EveIconAndName from 'components/util/EveIconAndName';
+import WorkspacePage, { WorkspaceFill, WorkspaceSpinner } from 'components/util/WorkspacePage';
 import { ColoredNumber } from 'components/util/numbers';
 import { useState } from 'react';
 
@@ -109,61 +110,51 @@ export default function MarketPredictionPage() {
   );
 
   return (
-    <div>
-      <Card>
-        <CardContent>
-          <Box>
-            <Box sx={{ p: 2, gap: 1 }} display="flex">
-              <TextField
-                sx={{ width: 150 }}
-                label="Min Diff"
-                variant="outlined"
-                value={minDiff}
-                onChange={e => setMinDiff(e.target.value)}
-              />
-              <TextField
-                sx={{ width: 150 }}
-                label="Min Price"
-                variant="outlined"
-                value={minPrice}
-                onChange={e => setMinPrice(e.target.value)}
-              />
-              <TextField
-                sx={{ width: 150 }}
-                label="Min Isk Volume"
-                variant="outlined"
-                value={minIskVolume}
-                onChange={e => setMinIskVolume(e.target.value)}
-              />
-              <TextField
-                sx={{ width: 200 }}
-                label="Search"
-                variant="outlined"
-                value={searchText}
-                onChange={e => setSearchText(e.target.value)}
-              />
-            </Box>
-            <Box
-              sx={{ height: 'auto', width: '100%' }}
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-            >
-              {rowData
-                ? (
-                  <DataGrid
-                    rows={rowData}
-                    columns={columns}
-                    disableRowSelectionOnClick
-                    disableColumnMenu
-                  />
-                )
-                : <CircularProgress />
-              }
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    </div>
+    <WorkspacePage>
+      <Box sx={{ pb: 1, gap: 1, flexShrink: 0 }} display="flex">
+        <TextField
+          sx={{ width: 150 }}
+          label="Min Diff"
+          variant="outlined"
+          value={minDiff}
+          onChange={e => setMinDiff(e.target.value)}
+        />
+        <TextField
+          sx={{ width: 150 }}
+          label="Min Price"
+          variant="outlined"
+          value={minPrice}
+          onChange={e => setMinPrice(e.target.value)}
+        />
+        <TextField
+          sx={{ width: 150 }}
+          label="Min Isk Volume"
+          variant="outlined"
+          value={minIskVolume}
+          onChange={e => setMinIskVolume(e.target.value)}
+        />
+        <TextField
+          sx={{ width: 200 }}
+          label="Search"
+          variant="outlined"
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+        />
+      </Box>
+      <WorkspaceFill>
+        {rowData
+          ? (
+            <DataGrid
+              autoHeight={false}
+              rows={rowData}
+              columns={columns}
+              disableRowSelectionOnClick
+              disableColumnMenu
+            />
+          )
+          : <WorkspaceSpinner />
+        }
+      </WorkspaceFill>
+    </WorkspacePage>
   );
 }

@@ -77,6 +77,7 @@ export default function AllMarketTransactionsDataGrid(props: {
 }) {
   return (
     <DataGrid
+      autoHeight={false}
       initialState={{
         sorting: {
           sortModel: [{ field: 'date', sort: 'desc' }],

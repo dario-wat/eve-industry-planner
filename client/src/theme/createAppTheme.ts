@@ -7,7 +7,7 @@ export default function createAppTheme() {
   return createTheme({
     palette: {
       background: {
-        default: 'rgba(210, 210, 210, .8)',
+        default: '#dcdcdc',
       },
     },
     mixins: {
@@ -38,6 +38,13 @@ export default function createAppTheme() {
           },
         },
       },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#fff',
+          },
+        },
+      },
       MuiDataGrid: {
         defaultProps: {
           autoHeight: true,
@@ -48,6 +55,7 @@ export default function createAppTheme() {
         },
         styleOverrides: {
           root: {
+            backgroundColor: '#fff',
             '& .MuiDataGrid-row:hover': {
               backgroundColor: 'rgba(220, 220, 220, .5) !important',
             },

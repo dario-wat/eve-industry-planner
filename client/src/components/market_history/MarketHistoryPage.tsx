@@ -1,5 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { Box, Card, CardContent, MenuItem, TextField, Tooltip, Typography, useTheme } from '@mui/material';
+import { Box, MenuItem, TextField, Tooltip, Typography, useTheme } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
@@ -17,6 +17,7 @@ import {
 } from './historyChartOptions';
 import { MarketHistoryDay, buildMarketHistoryDays } from './marketHistoryStats';
 import MarketHistorySummaryTable from './MarketHistorySummaryTable';
+import WorkspacePage from 'components/util/WorkspacePage';
 
 export default function MarketHistoryPage() {
   const [typeId, setTypeId] = useState<number | null>(null);
@@ -47,73 +48,69 @@ export default function MarketHistoryPage() {
   };
 
   return (
-    <div>
-      <Card>
-        <CardContent>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-            <ItemAutocomplete onSelect={setTypeId} width={350} />
-            <LoadingButton
-              loading={isLoading}
-              disabled={typeId === null}
-              variant="contained"
-              color="primary"
-              onClick={onSubmit}
-            >
-              Submit
-            </LoadingButton>
-            <TextField
-              select
-              size="small"
-              label="Range"
-              value={span}
-              onChange={event => setSpan(event.target.value as ChartSpan)}
-              sx={{ width: 140 }}
-            >
-              {CHART_SPANS.map(option => (
-                <MenuItem key={option.id} value={option.id}>{option.label}</MenuItem>
-              ))}
-            </TextField>
-            {marketHistoryDays.length > 0 &&
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1 }}>
-                  The Forge · {format(marketHistoryDays[marketHistoryDays.length - 1].time, 'd MMM yyyy')}
-                </Typography>
-                <Tooltip title="Days with no trades are gaps in the price line and zero volume.">
-                  <Box component="span" sx={{ display: 'inline-flex' }}>
-                    <HelpIcon sx={{ fontSize: 16, color: 'text.secondary', position: 'relative', top: -1 }} />
-                  </Box>
-                </Tooltip>
+    <WorkspacePage scroll>
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+        <ItemAutocomplete onSelect={setTypeId} width={350} />
+        <LoadingButton
+          loading={isLoading}
+          disabled={typeId === null}
+          variant="contained"
+          color="primary"
+          onClick={onSubmit}
+        >
+          Submit
+        </LoadingButton>
+        <TextField
+          select
+          size="small"
+          label="Range"
+          value={span}
+          onChange={event => setSpan(event.target.value as ChartSpan)}
+          sx={{ width: 140 }}
+        >
+          {CHART_SPANS.map(option => (
+            <MenuItem key={option.id} value={option.id}>{option.label}</MenuItem>
+          ))}
+        </TextField>
+        {marketHistoryDays.length > 0 &&
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1 }}>
+              The Forge · {format(marketHistoryDays[marketHistoryDays.length - 1].time, 'd MMM yyyy')}
+            </Typography>
+            <Tooltip title="Days with no trades are gaps in the price line and zero volume.">
+              <Box component="span" sx={{ display: 'inline-flex' }}>
+                <HelpIcon sx={{ fontSize: 16, color: 'text.secondary', position: 'relative', top: -1 }} />
               </Box>
-            }
+            </Tooltip>
           </Box>
-          {error &&
-            <Typography color="error" sx={{ pt: 2, pl: 2 }}>
-              {error}
-            </Typography>
-          }
-          {marketHistoryDays.length > 0 &&
-            <Box
-              sx={{
-                pt: 2,
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-                gap: 1.5,
-              }}
-            >
-              <DashboardPanel title="Summary" help="Windows are calendar days ending on the latest trade date.">
-                <MarketHistorySummaryTable days={marketHistoryDays} />
-              </DashboardPanel>
-              <HistoryCharts days={marketHistoryDays} span={span} />
-            </Box>
-          }
-          {historyData != null && marketHistoryDays.length === 0 &&
-            <Typography sx={{ pt: 2, pl: 2 }}>
-              No market history for this type.
-            </Typography>
-          }
-        </CardContent>
-      </Card>
-    </div>
+        }
+      </Box>
+      {error &&
+        <Typography color="error" sx={{ pt: 2 }}>
+          {error}
+        </Typography>
+      }
+      {marketHistoryDays.length > 0 &&
+        <Box
+          sx={{
+            pt: 2,
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+            gap: 1.5,
+          }}
+        >
+          <DashboardPanel title="Summary" help="Windows are calendar days ending on the latest trade date.">
+            <MarketHistorySummaryTable days={marketHistoryDays} />
+          </DashboardPanel>
+          <HistoryCharts days={marketHistoryDays} span={span} />
+        </Box>
+      }
+      {historyData != null && marketHistoryDays.length === 0 &&
+        <Typography sx={{ pt: 2 }}>
+          No market history for this type.
+        </Typography>
+      }
+    </WorkspacePage>
   );
 }
 
@@ -176,6 +173,7 @@ function DashboardPanel(props: { title: string; help: string; children: ReactNod
       border: 1,
       borderColor: 'divider',
       borderRadius: 1,
+      bgcolor: 'background.paper',
       p: 1,
       minWidth: 0,
     }}>

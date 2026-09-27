@@ -1,9 +1,5 @@
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import useAxios from 'axios-hooks';
 import { formatDistanceToNowStrict } from 'date-fns';
@@ -11,6 +7,7 @@ import { useContext, useState } from 'react';
 import { EveContractsRes } from '@internal/shared';
 import { UserContext } from 'contexts/UserContext';
 import { formatNumberScale } from 'common/format';
+import WorkspacePage, { WorkspaceSection, WorkspaceSpinner } from 'components/util/WorkspacePage';
 
 const FINISHED_STATUS = 'finished';
 
@@ -116,35 +113,21 @@ export default function ContractsPage() {
     },
   );
 
-  return <div>
-    <Box sx={{ pb: 2 }}>
-      <TextField
-        InputProps={{
-          sx: {
-            backgroundColor: 'white',
-          }
-        }}
-        label="Search..."
-        variant="outlined"
-        value={searchText}
-        onChange={e => setSearchText(e.target.value)}
-      />
-    </Box>
-    <Box sx={{ pb: 1, pt: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        Active Contracts
-      </Typography>
-    </Box>
-    <Card>
-      <CardContent>
-        <Box
-          sx={{ height: 'auto', width: '100%' }}
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
+  return (
+    <WorkspacePage>
+      <Box sx={{ pb: 1, flexShrink: 0 }}>
+        <TextField
+          label="Search..."
+          variant="outlined"
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+        />
+      </Box>
+      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <WorkspaceSection title="Active Contracts">
           {activeContracts ?
             <DataGrid
+              autoHeight={false}
               initialState={{
                 sorting: {
                   sortModel: [{ field: 'date_expired', sort: 'asc' }],
@@ -156,26 +139,13 @@ export default function ContractsPage() {
               disableRowSelectionOnClick
               disableColumnMenu
             />
-            : <CircularProgress />
+            : <WorkspaceSpinner />
           }
-        </Box>
-      </CardContent>
-    </Card>
-    <Box sx={{ pb: 1, pt: 4 }}>
-      <Typography variant="h6" gutterBottom>
-        Finished Contracts
-      </Typography>
-    </Box>
-    <Card>
-      <CardContent>
-        <Box
-          sx={{ height: 'auto', width: '100%' }}
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
+        </WorkspaceSection>
+        <WorkspaceSection title="Finished Contracts">
           {finishedContracts ?
             <DataGrid
+              autoHeight={false}
               initialState={{
                 sorting: {
                   sortModel: [{ field: 'date_accepted', sort: 'desc' }],
@@ -186,10 +156,10 @@ export default function ContractsPage() {
               disableRowSelectionOnClick
               disableColumnMenu
             />
-            : <CircularProgress />
+            : <WorkspaceSpinner />
           }
-        </Box>
-      </CardContent>
-    </Card>
-  </div>;
+        </WorkspaceSection>
+      </Box>
+    </WorkspacePage>
+  );
 }

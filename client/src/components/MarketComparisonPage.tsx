@@ -15,8 +15,6 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import axios from 'axios';
 import useAxios from 'axios-hooks';
@@ -28,6 +26,7 @@ import { ColoredNumber } from './util/numbers';
 import { styled } from '@mui/system';
 import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 import CopySnackbar from './util/CopySnackbar';
+import WorkspacePage from './util/WorkspacePage';
 import { sum } from 'mathjs';
 
 type Location = { locationId: number; locationName: string };
@@ -89,42 +88,38 @@ export default function MarketComparisonPage() {
   );
 
   return (
-    <>
-      <Card>
-        <CardContent>
-          <Box sx={{ width: '600px' }}>
-            <StationSelector
-              selectedStations={selectedStations}
-              setSelectedStations={setSelectedStations}
-            />
-          </Box>
-          <TextField
-            sx={{ pt: 2, pb: 2 }}
-            fullWidth
-            rows={12}
-            multiline
-            placeholder={'Items to compare in format: <item name> <volume>.\nE.g. Scimitar 2'}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-          <Box sx={{ pb: 2 }}>
-            <RedTextTypography variant="body2">{first(errors)}</RedTextTypography>
-          </Box>
-          <Button variant="contained" size="medium" onClick={onSubmit} disabled={isLoading}>
-            Submit
-          </Button>
-        </CardContent>
-      </Card>
+    <WorkspacePage scroll>
+      <Box sx={{ width: '600px' }}>
+        <StationSelector
+          selectedStations={selectedStations}
+          setSelectedStations={setSelectedStations}
+        />
+      </Box>
+      <TextField
+        sx={{ pt: 2, pb: 2 }}
+        fullWidth
+        rows={12}
+        multiline
+        placeholder={'Items to compare in format: <item name> <volume>.\nE.g. Scimitar 2'}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <Box sx={{ pb: 2 }}>
+        <RedTextTypography variant="body2">{first(errors)}</RedTextTypography>
+      </Box>
+      <Button variant="contained" size="medium" onClick={onSubmit} disabled={isLoading}>
+        Submit
+      </Button>
       {isLoading ? (
         <Box sx={{ pt: 4, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <CircularProgress />
         </Box>
       ) : data ? (
-        <Box sx={{ pt: 4 }}>
+        <Box sx={{ pt: 2 }}>
           <MarketComparisonDataGrid data={data} />
         </Box>
       ) : null}
-    </>
+    </WorkspacePage>
   );
 }
 
@@ -276,26 +271,24 @@ function MarketComparisonDataGrid({ data }: { data: MarketOrdersComparisonRes })
     ...extraColumns,
   ];
   return (
-    <Card>
-      <CardContent>
-        <ToggleButtonGroup
-          sx={{ pb: 2 }}
-          color="primary"
-          size="small"
-          value={isSingle ? 'single' : 'total'}
-          exclusive
-          onChange={(_, value) => setIsSingle(value === 'single')}
-        >
-          <ToggleButton value="single">Single</ToggleButton>
-          <ToggleButton value="total">Total</ToggleButton>
-        </ToggleButtonGroup>
-        <DataGrid rows={priceData} columns={columns} disableRowSelectionOnClick disableColumnMenu />
-        <Box sx={{ pt: 2 }}>
-          <CombinedPriceDataGrid stationTotals={Object.values(stationTotals)} />
-        </Box>
-        <CopySnackbar open={snackbarOpen} onClose={() => setSnackbarOpen(false)} />
-      </CardContent>
-    </Card>
+    <>
+      <ToggleButtonGroup
+        sx={{ pb: 2 }}
+        color="primary"
+        size="small"
+        value={isSingle ? 'single' : 'total'}
+        exclusive
+        onChange={(_, value) => setIsSingle(value === 'single')}
+      >
+        <ToggleButton value="single">Single</ToggleButton>
+        <ToggleButton value="total">Total</ToggleButton>
+      </ToggleButtonGroup>
+      <DataGrid rows={priceData} columns={columns} disableRowSelectionOnClick disableColumnMenu />
+      <Box sx={{ pt: 2 }}>
+        <CombinedPriceDataGrid stationTotals={Object.values(stationTotals)} />
+      </Box>
+      <CopySnackbar open={snackbarOpen} onClose={() => setSnackbarOpen(false)} />
+    </>
   );
 }
 

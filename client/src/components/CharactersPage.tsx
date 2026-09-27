@@ -1,23 +1,30 @@
 import useAxios from 'axios-hooks';
 import { LinkedCharacterRes } from '@internal/shared';
 import { Box, Card, CardContent, CardMedia, Grid, Typography } from '@mui/material';
+import WorkspacePage, { WorkspaceSpinner } from 'components/util/WorkspacePage';
 
 export default function CharactersPage() {
   const [{ data }] = useAxios<LinkedCharacterRes>('/linked_characters');
 
   if (data === undefined) {
-    return <Box></Box>
+    return (
+      <WorkspacePage>
+        <WorkspaceSpinner />
+      </WorkspacePage>
+    );
   }
 
   return (
-    <Grid container spacing={2}>{
-      data.map(character => (
-        <Grid item width={200} key={character.characterName}>
-          <CharacterCard character={character} />
-        </Grid>
-      ))
-    }
-    </Grid>
+    <WorkspacePage scroll>
+      <Grid container spacing={2}>{
+        data.map(character => (
+          <Grid item width={200} key={character.characterName}>
+            <CharacterCard character={character} />
+          </Grid>
+        ))
+      }
+      </Grid>
+    </WorkspacePage>
   );
 }
 

@@ -106,7 +106,19 @@ export default function HomePage() {
           ?
           <Box sx={{ display: 'flex', flex: 1, minHeight: 0 }}>
             <NavigationDrawer routes={routes} />
-            <Box component="main" sx={{ width: '100%', p: 3, overflow: 'auto' }}>
+            <Box
+              component="main"
+              sx={{
+                flex: 1,
+                minWidth: 0,
+                minHeight: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                p: 1,
+                overflow: 'hidden',
+                bgcolor: 'background.default',
+              }}
+            >
               <Routes>
                 {routes.map((route: any) =>
                   <Route

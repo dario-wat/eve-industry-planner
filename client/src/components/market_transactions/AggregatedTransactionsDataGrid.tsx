@@ -4,7 +4,8 @@ import EveIconAndName from "components/util/EveIconAndName";
 import { ColoredNumber } from "components/util/numbers";
 import { transactionAggregate } from "./transactionAggregate";
 import useAxios from "axios-hooks";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
+import { WorkspaceSpinner } from "components/util/WorkspacePage";
 
 const columns: GridColDef[] = [
   {
@@ -119,12 +120,13 @@ export default function AggregatedTransactionsDataGrid(props: {
   return (
     data
       ? <DataGrid
+        autoHeight={false}
         rows={aggregatedDataWithBuyOrder}
         columns={columns}
         sortModel={[{ field: 'estimatedProfit', sort: 'desc' }]}
         disableRowSelectionOnClick
         disableColumnMenu
       />
-      : <CircularProgress />
+      : <WorkspaceSpinner />
   );
 }

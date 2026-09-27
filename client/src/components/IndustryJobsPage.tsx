@@ -1,12 +1,9 @@
 import useAxios from 'axios-hooks';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CircularProgress from '@mui/material/CircularProgress';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { EveIndustryJobHistoryRes, EveIndustryJobsRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
+import WorkspacePage, { WorkspaceFill, WorkspaceSpinner } from 'components/util/WorkspacePage';
 import { Tab, Tabs } from '@mui/material';
 import { useState } from 'react';
 
@@ -121,35 +118,29 @@ const jobHistoryColumns: GridColDef[] = [
 export default function IndustryJobsPage() {
   const [selectedTab, setSelectedTab] = useState(SelectedTab.ACTIVE);
   return (
-    <Card>
-      <CardContent>
-        <Tabs
-          sx={{
-            mb: 2,
-            borderBottom: 1,
-            borderColor: 'divider',
-          }}
-          value={selectedTab}
-          onChange={(_, newValue) => setSelectedTab(newValue)}
-        >
-          <Tab label="Active" value={SelectedTab.ACTIVE} />
-          <Tab label="History" value={SelectedTab.HISTORY} />
-        </Tabs>
-        <Box
-          sx={{ height: 'auto', width: '100%' }}
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          {selectedTab === SelectedTab.ACTIVE &&
-            <ActiveJobs />
-          }
-          {selectedTab === SelectedTab.HISTORY &&
-            <JobHistory />
-          }
-        </Box>
-      </CardContent>
-    </Card>
+    <WorkspacePage>
+      <Tabs
+        sx={{
+          mb: 1,
+          flexShrink: 0,
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
+        value={selectedTab}
+        onChange={(_, newValue) => setSelectedTab(newValue)}
+      >
+        <Tab label="Active" value={SelectedTab.ACTIVE} />
+        <Tab label="History" value={SelectedTab.HISTORY} />
+      </Tabs>
+      <WorkspaceFill>
+        {selectedTab === SelectedTab.ACTIVE &&
+          <ActiveJobs />
+        }
+        {selectedTab === SelectedTab.HISTORY &&
+          <JobHistory />
+        }
+      </WorkspaceFill>
+    </WorkspacePage>
   );
 }
 
@@ -158,6 +149,7 @@ function ActiveJobs() {
   const activeJobs = data?.filter(job => job.status === 'active');
   return activeJobs ?
     <DataGrid
+      autoHeight={false}
       initialState={{
         sorting: {
           sortModel: [{ field: 'end_date', sort: 'asc' }],
@@ -168,13 +160,14 @@ function ActiveJobs() {
       disableRowSelectionOnClick
       disableColumnMenu
     />
-    : <CircularProgress />
+    : <WorkspaceSpinner />
 }
 
 function JobHistory() {
   const [{ data }] = useAxios<EveIndustryJobHistoryRes>('/industry_job_history');
   return data ?
     <DataGrid
+      autoHeight={false}
       initialState={{
         sorting: {
           sortModel: [{ field: 'end_date', sort: 'asc' }],
@@ -185,5 +178,5 @@ function JobHistory() {
       disableRowSelectionOnClick
       disableColumnMenu
     />
-    : <CircularProgress />
+    : <WorkspaceSpinner />
 }

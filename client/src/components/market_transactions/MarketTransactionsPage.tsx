@@ -1,9 +1,5 @@
 import useAxios from 'axios-hooks';
 import { useState } from 'react';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import { WalletTransactionsRes } from '@internal/shared';
 import { isAfter, isBefore } from 'date-fns';
@@ -18,6 +14,7 @@ import { LoadingButton } from '@mui/lab';
 import FeesAndTaxesDataGrid from './FeesAndTaxesDataGrid';
 import { ALL_CHARACTERS } from './marketTransactionsStore';
 import { useMarketTransactionsStore } from './marketTransactionsStore';
+import WorkspacePage, { WorkspaceFill, WorkspaceSpinner } from 'components/util/WorkspacePage';
 
 enum SelectedTab {
   TRANSACTIONS = 'TRANSACTIONS',
@@ -54,15 +51,10 @@ export default function MarketTransactionsPage() {
   );
 
   return (
-    <div>
-      <Grid container spacing={2} alignItems="center" sx={{ pb: 2 }}>
+    <WorkspacePage>
+      <Grid container spacing={2} alignItems="center" sx={{ pb: 1, flexShrink: 0 }}>
         <Grid item>
           <TextField
-            InputProps={{
-              sx: {
-                backgroundColor: 'white',
-              }
-            }}
             label="Search..."
             variant="outlined"
             value={searchText}
@@ -74,7 +66,6 @@ export default function MarketTransactionsPage() {
             localeText={enUS.components.MuiLocalizationProvider.defaultProps.localeText}
             dateAdapter={AdapterDateFns}>
             <DesktopDatePicker
-              sx={{ backgroundColor: 'white' }}
               label="Start Date"
               value={startDate}
               onChange={newValue => newValue && setStartDate(newValue)}
@@ -86,7 +77,6 @@ export default function MarketTransactionsPage() {
             localeText={enUS.components.MuiLocalizationProvider.defaultProps.localeText}
             dateAdapter={AdapterDateFns}>
             <DesktopDatePicker
-              sx={{ backgroundColor: 'white' }}
               label="End Date"
               value={endDate}
               onChange={newValue => newValue && setEndDate(newValue)}
@@ -95,7 +85,7 @@ export default function MarketTransactionsPage() {
         </Grid>
         <Grid item>
           <Select
-            sx={{ width: 250, backgroundColor: 'white' }}
+            sx={{ width: 250 }}
             value={selectedCharacter}
             onChange={event => setSelectedCharacter(event.target.value)}
             label="Character"
@@ -118,50 +108,42 @@ export default function MarketTransactionsPage() {
           </LoadingButton>
         </Grid>
       </Grid>
-      <Card>
-        <CardContent>
-          <Tabs
-            sx={{
-              mb: 2,
-              borderBottom: 1,
-              borderColor: 'divider',
-            }}
-            value={selectedTab}
-            onChange={(_, newValue) => setSelectedTab(newValue)}
-          >
-            <Tab label="Aggregated" value={SelectedTab.AGGREGATED} />
-            <Tab label="Transactions" value={SelectedTab.TRANSACTIONS} />
-            <Tab label="Overall" value={SelectedTab.OVERALL} />
-            <Tab label="Fees And Taxes" value={SelectedTab.FEES_AND_TAXES} />
-          </Tabs>
-          <Box
-            sx={{ height: 'auto', width: '100%' }}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            {filteredData
-              ? (
-                <>
-                  {selectedTab === SelectedTab.AGGREGATED &&
-                    <AggregatedTransactionsDataGrid data={filteredData} />
-                  }
-                  {selectedTab === SelectedTab.TRANSACTIONS &&
-                    <AllMarketTransactionsDataGrid data={filteredData} />
-                  }
-                  {selectedTab === SelectedTab.OVERALL &&
-                    <OverallTransactionDataGrid data={filteredData} />
-                  }
-                  {selectedTab === SelectedTab.FEES_AND_TAXES &&
-                    <FeesAndTaxesDataGrid />
-                  }
-                </>
-              )
-              : <CircularProgress />
-            }
-          </Box>
-        </CardContent>
-      </Card>
-    </div >
+      <Tabs
+        sx={{
+          mb: 1,
+          flexShrink: 0,
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
+        value={selectedTab}
+        onChange={(_, newValue) => setSelectedTab(newValue)}
+      >
+        <Tab label="Aggregated" value={SelectedTab.AGGREGATED} />
+        <Tab label="Transactions" value={SelectedTab.TRANSACTIONS} />
+        <Tab label="Overall" value={SelectedTab.OVERALL} />
+        <Tab label="Fees And Taxes" value={SelectedTab.FEES_AND_TAXES} />
+      </Tabs>
+      <WorkspaceFill>
+        {filteredData
+          ? (
+            <>
+              {selectedTab === SelectedTab.AGGREGATED &&
+                <AggregatedTransactionsDataGrid data={filteredData} />
+              }
+              {selectedTab === SelectedTab.TRANSACTIONS &&
+                <AllMarketTransactionsDataGrid data={filteredData} />
+              }
+              {selectedTab === SelectedTab.OVERALL &&
+                <OverallTransactionDataGrid data={filteredData} />
+              }
+              {selectedTab === SelectedTab.FEES_AND_TAXES &&
+                <FeesAndTaxesDataGrid />
+              }
+            </>
+          )
+          : <WorkspaceSpinner />
+        }
+      </WorkspaceFill>
+    </WorkspacePage>
   );
 }

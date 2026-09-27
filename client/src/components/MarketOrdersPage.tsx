@@ -2,14 +2,11 @@ import useAxios from 'axios-hooks';
 import { useState } from 'react';
 import { addDays, formatDistanceToNowStrict } from 'date-fns';
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { MarketOrdersRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
+import WorkspacePage, { WorkspaceSection, WorkspaceSpinner } from 'components/util/WorkspacePage';
 
 export default function MarketOrdersPage() {
   const [{ data }] = useAxios<MarketOrdersRes>('/market_orders');
@@ -81,66 +78,41 @@ export default function MarketOrdersPage() {
   ];
 
   return (
-    <div>
-      <Box sx={{ pb: 2 }}>
+    <WorkspacePage>
+      <Box sx={{ pb: 1, flexShrink: 0 }}>
         <TextField
-          InputProps={{
-            sx: {
-              backgroundColor: 'white',
-            }
-          }}
           label="Search..."
           variant="outlined"
           value={searchText}
           onChange={e => setSearchText(e.target.value)}
         />
       </Box>
-      <Card>
-        <CardContent>
-          <Box sx={{ pb: 1 }}>
-            <Typography variant="h6" gutterBottom>
-              Sell Orders
-            </Typography>
-          </Box>
-          <Box
-            sx={{ height: 'auto', width: '100%' }}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            {sellOrders ?
-              <DataGrid
-                rows={sellOrders}
-                columns={columns}
-                disableRowSelectionOnClick
-                disableColumnMenu
-              />
-              : <CircularProgress />
-            }
-          </Box>
-          <Box sx={{ pb: 1, pt: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Buy Orders
-            </Typography>
-          </Box>
-          <Box
-            sx={{ height: 'auto', width: '100%' }}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            {buyOrders ?
-              <DataGrid
-                rows={buyOrders}
-                columns={columns}
-                disableRowSelectionOnClick
-                disableColumnMenu
-              />
-              : <CircularProgress />
-            }
-          </Box>
-        </CardContent>
-      </Card>
-    </div>
+      <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <WorkspaceSection title="Sell Orders">
+          {sellOrders ?
+            <DataGrid
+              autoHeight={false}
+              rows={sellOrders}
+              columns={columns}
+              disableRowSelectionOnClick
+              disableColumnMenu
+            />
+            : <WorkspaceSpinner />
+          }
+        </WorkspaceSection>
+        <WorkspaceSection title="Buy Orders">
+          {buyOrders ?
+            <DataGrid
+              autoHeight={false}
+              rows={buyOrders}
+              columns={columns}
+              disableRowSelectionOnClick
+              disableColumnMenu
+            />
+            : <WorkspaceSpinner />
+          }
+        </WorkspaceSection>
+      </Box>
+    </WorkspacePage>
   );
 }
