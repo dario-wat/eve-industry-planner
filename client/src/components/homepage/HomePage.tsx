@@ -100,6 +100,7 @@ export default function HomePage() {
       label: 'Settings',
       icon: <SettingsIcon />,
       component: SettingsPage,
+      footer: true,
     },
   ];
 

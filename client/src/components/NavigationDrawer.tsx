@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -32,19 +33,24 @@ const SmallerListItemIcon = styled(ListItemIcon)({
   },
 });
 
+type NavRoute = {
+  path: string,
+  label: string,
+  icon: ReactNode,
+  component: React.FC,
+  footer?: boolean,
+};
+
 type Props = {
-  routes: {
-    path: string,
-    label: string,
-    icon: ReactNode,
-    component: React.FC,
-  }[],
+  routes: NavRoute[],
 };
 
 export default function NavigationDrawer(props: Props) {
   const { routes } = props;
   const navigate = useNavigate();
   const location = useLocation();
+  const mainRoutes = routes.filter(route => !route.footer);
+  const footerRoutes = routes.filter(route => route.footer);
 
   return (
     <Drawer
@@ -68,28 +74,50 @@ export default function NavigationDrawer(props: Props) {
       }}>
         <Box sx={{ overflow: 'auto' }}>
           <List dense sx={compactListSx}>
-            {routes.map(route => (
-              <ListItem
+            {mainRoutes.map(route => (
+              <NavRouteListItem
                 key={route.path}
-                disablePadding
-                onClick={() => navigate(route.path)}>
-                <ListItemButton selected={location.pathname === route.path}>
-                  <SmallerListItemIcon>
-                    {route.icon}
-                  </SmallerListItemIcon>
-                  <ListItemText primary={route.label} />
-                </ListItemButton>
-              </ListItem>
+                route={route}
+                selected={location.pathname === route.path}
+                onNavigate={navigate}
+              />
             ))}
           </List>
         </Box>
         <Box>
           <List dense sx={compactListSx}>
+            {footerRoutes.map(route => (
+              <NavRouteListItem
+                key={route.path}
+                route={route}
+                selected={location.pathname === route.path}
+                onNavigate={navigate}
+              />
+            ))}
+            <Divider />
             <LogoutButtonListItem />
           </List>
         </Box>
       </Box>
     </Drawer >
+  );
+}
+
+function NavRouteListItem(props: {
+  route: NavRoute,
+  selected: boolean,
+  onNavigate: (path: string) => void,
+}) {
+  const { route, selected, onNavigate } = props;
+  return (
+    <ListItem disablePadding onClick={() => onNavigate(route.path)}>
+      <ListItemButton selected={selected}>
+        <SmallerListItemIcon>
+          {route.icon}
+        </SmallerListItemIcon>
+        <ListItemText primary={route.label} />
+      </ListItemButton>
+    </ListItem>
   );
 }
 
