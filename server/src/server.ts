@@ -36,12 +36,14 @@ async function init() {
   const sequelize = Container.get(Sequelize);
 
   await connectToDatabase(sequelize);
+  console.log(`DB host: ${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}`);
 
   // Needs to be called after the database init
   console.log('Loading EVE SDE data');
   const sdeData = await EveSdeData.init();
   Container.set(EveSdeData, sdeData);
-  console.log('Done loading EVE SDE data');
+  const sdeMb = Buffer.byteLength(JSON.stringify(sdeData)) / (1024 * 1024);
+  console.log(`SDE data loaded: ${sdeMb.toFixed(1)} MB`);
 
   const app = express();
 
