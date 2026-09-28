@@ -5,6 +5,7 @@ import { EveLoggedInUserRes } from '@internal/shared';
 import { Box, CircularProgress } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
+import ColorModeProvider from 'theme/ColorModeProvider';
 
 const BASE_PATH = '/eve-industry-planner';
 
@@ -18,25 +19,27 @@ function App() {
     : defaultUserContextValue;
 
   return (
-    <RecoilRoot>
-      <UserContext.Provider value={userContext}>
-        {/* This matches the github pages base url */}
-        <BrowserRouter basename={BASE_PATH}>
-          {loading
-            ?
-            <Box
-              sx={{ height: '100vh', width: 1 }}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <CircularProgress />
-            </Box>
-            :
-            <HomePage />}
-        </BrowserRouter>
-      </UserContext.Provider>
-    </RecoilRoot>
+    <ColorModeProvider>
+      <RecoilRoot>
+        <UserContext.Provider value={userContext}>
+          {/* This matches the github pages base url */}
+          <BrowserRouter basename={BASE_PATH}>
+            {loading
+              ?
+              <Box
+                sx={{ height: '100vh', width: 1 }}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <CircularProgress />
+              </Box>
+              :
+              <HomePage />}
+          </BrowserRouter>
+        </UserContext.Provider>
+      </RecoilRoot>
+    </ColorModeProvider>
   );
 }
 

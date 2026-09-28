@@ -69,7 +69,7 @@ export function WorkspaceSection(props: { title: string; children: ReactNode }) 
           flexShrink: 0,
           px: 1,
           py: 0.75,
-          bgcolor: 'grey.200',
+          bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'grey.800' : 'grey.200'),
           borderBottom: 1,
           borderColor: 'divider',
         }}

@@ -1,13 +1,11 @@
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
-import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LogoutIcon from '@mui/icons-material/Logout';
-import CachedIcon from '@mui/icons-material/Cached';
 import axios from 'axios';
 import { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -74,7 +72,7 @@ export default function NavigationDrawer(props: Props) {
               <ListItem
                 key={route.path}
                 disablePadding
-                onClick={_ => navigate(route.path)}>
+                onClick={() => navigate(route.path)}>
                 <ListItemButton selected={location.pathname === route.path}>
                   <SmallerListItemIcon>
                     {route.icon}
@@ -83,8 +81,6 @@ export default function NavigationDrawer(props: Props) {
                 </ListItemButton>
               </ListItem>
             ))}
-            <Divider />
-            <ClearCacheButtonListItem />
           </List>
         </Box>
         <Box>
@@ -94,25 +90,6 @@ export default function NavigationDrawer(props: Props) {
         </Box>
       </Box>
     </Drawer >
-  );
-}
-
-function ClearCacheButtonListItem() {
-  const onClearCacheClick = async () => {
-    const { status } = await axios.delete('/clear_cache');
-    if (status === 200) {
-      window.location.reload();
-    }
-  };
-  return (
-    <ListItem key="clearCache" disablePadding>
-      <ListItemButton onClick={onClearCacheClick}>
-        <SmallerListItemIcon>
-          <CachedIcon />
-        </SmallerListItemIcon>
-        <ListItemText primary="Clear Cache" />
-      </ListItemButton>
-    </ListItem>
   );
 }
 

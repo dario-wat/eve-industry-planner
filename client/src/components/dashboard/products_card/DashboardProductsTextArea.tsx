@@ -15,12 +15,14 @@ import {
 } from '@internal/shared';
 import useProductionPlanState from '../../../recoil/useProductionPlanState';
 import { styled } from '@mui/system';
+import { useColorMode } from 'theme/ColorModeProvider';
 
 export default function DashboardProductsTextArea(props: {
   group: string,
   plannedProducts: PlannedProductsRes,
   onUpdate: () => void,
 }) {
+  const { mode } = useColorMode();
   const [text, setText] = useState('');
   useEffect(
     () => setText(
@@ -99,7 +101,7 @@ export default function DashboardProductsTextArea(props: {
           </Box>
         </Grid>
       </Grid>
-      <ToastContainer />
+      <ToastContainer theme={mode} />
     </Box>
   );
 }

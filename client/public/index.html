@@ -12,6 +12,14 @@
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
   <title>Eve Industry Planner</title>
+  <script>
+    try {
+      if (localStorage.getItem('colorMode') === 'dark') {
+        document.documentElement.style.colorScheme = 'dark';
+        document.documentElement.style.backgroundColor = '#121212';
+      }
+    } catch (e) {}
+  </script>
 </head>
 
 <body>

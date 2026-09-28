@@ -116,20 +116,21 @@ export default function MarketHistoryPage() {
 
 function HistoryCharts(props: { days: MarketHistoryDay[]; span: ChartSpan }) {
   const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   const colors = useMemo<ChartColors>(() => ({
-    band: withAlpha(theme.palette.grey[500], 0.28),
-    edge: theme.palette.grey[600],
-    average: theme.palette.primary.main,
-    median7: theme.palette.warning.dark,
-    median30: theme.palette.secondary.main,
-    orders7: theme.palette.primary.main,
-    orders30: theme.palette.success.main,
+    band: withAlpha(theme.palette.grey[isDark ? 400 : 500], isDark ? 0.35 : 0.28),
+    edge: theme.palette.grey[isDark ? 400 : 600],
+    average: isDark ? theme.palette.primary.light : theme.palette.primary.main,
+    median7: isDark ? theme.palette.warning.light : theme.palette.warning.dark,
+    median30: isDark ? theme.palette.secondary.light : theme.palette.secondary.main,
+    orders7: isDark ? theme.palette.primary.light : theme.palette.primary.main,
+    orders30: isDark ? theme.palette.success.light : theme.palette.success.main,
     text: theme.palette.text.primary,
     muted: theme.palette.text.secondary,
     divider: theme.palette.divider,
     paper: theme.palette.background.paper,
     fontFamily: theme.typography.fontFamily ?? 'sans-serif',
-  }), [theme]);
+  }), [isDark, theme]);
   const priceOption = useMemo(
     () => priceChartOption(props.days, props.span, colors),
     [props.days, props.span, colors],

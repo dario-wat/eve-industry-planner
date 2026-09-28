@@ -112,7 +112,7 @@ function highlightMatch(label: string, query: string) {
       parts.push(label.slice(cursor, matchAt));
     }
     parts.push(
-      <span key={matchAt} style={{ backgroundColor: '#fff3a0' }}>
+      <span key={matchAt} style={{ backgroundColor: '#fff3a0', color: '#1a1a1a' }}>
         {label.slice(matchAt, matchAt + needle.length)}
       </span>,
     );

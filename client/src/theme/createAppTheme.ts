@@ -1,13 +1,31 @@
 import { createTheme } from '@mui/material';
+import type {} from '@mui/x-charts/themeAugmentation';
 import { uniqueId } from 'underscore';
 
 const APP_BAR_HEIGHT = 40;
 
-export default function createAppTheme() {
+export type ColorMode = 'light' | 'dark';
+
+export const COLOR_MODE_STORAGE_KEY = 'colorMode';
+
+export default function createAppTheme(mode: ColorMode = 'light') {
+  const isDark = mode === 'dark';
+  const pageBackground = isDark ? '#121212' : '#dcdcdc';
+  const paperBackground = isDark ? '#1e1e1e' : '#fff';
+  const gridHover = isDark
+    ? 'rgba(255, 255, 255, 0.08)'
+    : 'rgba(220, 220, 220, .5)';
+  const gridStripe = isDark
+    ? 'rgba(255, 255, 255, 0.04)'
+    : 'rgba(240, 240, 240, .5)';
+  const gridHeader = isDark ? '#2a2a2a' : 'rgba(200, 200, 200, 1.0)';
+
   return createTheme({
     palette: {
+      mode,
       background: {
-        default: '#dcdcdc',
+        default: pageBackground,
+        paper: paperBackground,
       },
     },
     mixins: {
@@ -41,7 +59,16 @@ export default function createAppTheme() {
       MuiOutlinedInput: {
         styleOverrides: {
           root: {
-            backgroundColor: '#fff',
+            backgroundColor: paperBackground,
+          },
+        },
+      },
+      MuiChartsLegend: {
+        styleOverrides: {
+          root: {
+            '& text': {
+              fill: isDark ? '#fff' : 'rgba(0, 0, 0, 0.87)',
+            },
           },
         },
       },
@@ -55,20 +82,20 @@ export default function createAppTheme() {
         },
         styleOverrides: {
           root: {
-            backgroundColor: '#fff',
+            backgroundColor: paperBackground,
+            color: isDark ? '#fff' : 'rgba(0, 0, 0, 0.87)',
             '& .MuiDataGrid-row:hover': {
-              backgroundColor: 'rgba(220, 220, 220, .5) !important',
+              backgroundColor: `${gridHover} !important`,
             },
             '& .MuiDataGrid-virtualScrollerRenderZone': {
               '& .MuiDataGrid-row': {
                 '&:nth-of-type(2n)': {
-                  // Every other row is gray
-                  backgroundColor: 'rgba(240, 240, 240, .5)',
+                  backgroundColor: gridStripe,
                 },
               },
             },
             '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: 'rgba(200, 200, 200, 1.0)',
+              backgroundColor: gridHeader,
             },
             '& .MuiDataGrid-columnHeaderTitle': {
               fontWeight: 'bold',
