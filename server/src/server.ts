@@ -36,7 +36,9 @@ async function init() {
   const sequelize = Container.get(Sequelize);
 
   await connectToDatabase(sequelize);
-  console.log(`DB host: ${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}`);
+  console.log(
+    `DB ${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`,
+  );
 
   // Needs to be called after the database init
   console.log('Loading EVE SDE data');

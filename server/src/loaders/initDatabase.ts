@@ -39,6 +39,7 @@ import { walletJournalEntryModelDefine } from '../features/wallet/WalletJournalE
 import { marketHistoryDailyModelDefine } from '../features/market/MarketHistoryDaily';
 
 export function initDatabaseSequelize(): Sequelize {
+  const useSsl = process.env.DATABASE_SSL === '1';
   const sequelize = new Sequelize(
     process.env.DATABASE_NAME!,
     process.env.DATABASE_USERNAME!,
@@ -48,6 +49,14 @@ export function initDatabaseSequelize(): Sequelize {
       port: Number(process.env.DATABASE_PORT!),
       dialect: 'mysql',
       logging: false,
+      dialectOptions: useSsl
+        ? {
+            ssl: {
+              minVersion: 'TLSv1.2',
+              rejectUnauthorized: true,
+            },
+          }
+        : {},
     },
   );
 
