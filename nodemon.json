@@ -1,0 +1,5 @@
+{
+  "execMap": {
+    "ts": "node ./server/node_modules/ts-node/dist/bin.js"
+  }
+}

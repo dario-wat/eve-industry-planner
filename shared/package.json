@@ -1,22 +1,20 @@
 {
   "name": "@internal/shared",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
   "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "engines": {
     "node": ">=26"
   },
-  "dependencies": {
-    "@babel/preset-env": "^7.19.1",
-    "@babel/preset-typescript": "^7.18.6",
-    "babel-jest": "^28.0.0",
-    "jest": "^28.0.0",
-    "ts-jest": "^28.0.8"
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
   },
   "devDependencies": {
-    "@types/jest": "^29.0.3"
-  },
-  "scripts": {
-    "test": "jest"
+    "@types/jest": "^28.1.8",
+    "jest": "^28.0.0",
+    "ts-jest": "^28.0.8",
+    "typescript": "^5.9.3"
   }
 }

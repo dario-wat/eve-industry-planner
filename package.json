@@ -3,28 +3,19 @@
   "engines": {
     "node": ">=26"
   },
-  "dependencies": {
-    "@internal/shared": "file:shared",
-    "@types/node": "^26.5.1",
-    "@types/underscore": "^1.11.4",
-    "date-fns": "^2.29.1",
-    "date-fns-tz": "^1.3.6",
-    "install": "^0.13.0",
-    "npm": "^8.18.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.9.3",
-    "underscore": "^1.13.4"
-  },
   "scripts": {
-    "server-dev": "nodemon ./server/src/server.ts",
-    "server-prod": "ts-node ./server/src/server.ts",
+    "shared-build": "npm run build --prefix shared",
+    "ts-node": "node ./server/node_modules/ts-node/dist/bin.js",
+    "server-dev": "npm run shared-build && node ./server/node_modules/nodemon/bin/nodemon.js ./server/src/server.ts",
+    "server-prod": "npm run shared-build && npm run ts-node -- ./server/src/server.ts",
     "server-test": "cd server && npm run test",
     "eve-sso-build": "npm i --prefix packages/eve-sso && npm run build --prefix packages/eve-sso",
-    "server-build": "npm run eve-sso-build && npm i --prefix server",
-    "client": "cd client && npm start",
-    "client-https": "cd client & npm run start-https",
+    "server-build": "npm run shared-build && npm run eve-sso-build && npm i --prefix server",
+    "client": "npm run shared-build && cd client && npm start",
+    "client-https": "npm run shared-build && cd client && npm run start-https",
     "client-install": "cd client && npm i",
-    "shared-test": "cd shared && npm run test",
-    "sync-market-history": "ts-node ./server/src/scripts/syncMarketHistory.ts"
+    "shared-test": "npm test --prefix shared",
+    "sync-market-history": "npm run shared-build && npm run ts-node -- ./server/src/scripts/syncMarketHistory.ts",
+    "load-sde": "npm run ts-node -- ./server/src/scripts/loadDataIntoMySqlScript.ts"
   }
 }

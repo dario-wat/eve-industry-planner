@@ -10,10 +10,10 @@
  *
  * Note: some files may be quite large so it could take a while.
  * Run like this:
- * ts-node ./server/src/scripts/loadDataIntoMySqlScript.ts
+ * npm run load-sde
  *
  * No logs:
- * SDE_LOAD_QUIET=1 ts-node ./server/src/scripts/loadDataIntoMySqlScript.ts
+ * SDE_LOAD_QUIET=1 npm run load-sde
  */
 import 'reflect-metadata';
 

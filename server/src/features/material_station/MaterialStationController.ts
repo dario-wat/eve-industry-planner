@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import MaterialStationService from './MaterialStationService';
 import Controller from '../../core/controller/Controller';
 import ActorContext from '../../core/actor_context/ActorContext';
-import { MaterialStationsRes } from '@internal/shared';
+import { MaterialStationRes } from '@internal/shared';
 
 @Service()
 export default class MaterialStationController extends Controller {
@@ -28,7 +28,7 @@ export default class MaterialStationController extends Controller {
       async (req: Request, res: Response, actorContext: ActorContext) => {
         const stations = await this.materialStationService.genUpdate(
           actorContext,
-          req.body.stations.map((s: MaterialStationsRes[number]) => s.station_id),
+          req.body.stations.map((s: MaterialStationRes) => s.station_id),
         );
         res.json(stations);
       },

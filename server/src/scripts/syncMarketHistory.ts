@@ -3,8 +3,8 @@
  * then rewrites market_history_summary for the types just fetched.
  *
  * Examples:
- *   ts-node ./server/src/scripts/syncMarketHistory.ts --type-ids 34,44992
- *   ts-node ./server/src/scripts/syncMarketHistory.ts --region 10000002
+ *   npm run sync-market-history -- --type-ids 34,44992
+ *   npm run sync-market-history -- --region 10000002
  */
 import 'reflect-metadata';
 import 'dotenv/config';
@@ -99,7 +99,7 @@ function printIngestProgress(progress: MarketHistoryIngestProgress): void {
 
 function printHelp(): void {
   console.log(`
-Usage: ts-node ./server/src/scripts/syncMarketHistory.ts [options]
+Usage: npm run sync-market-history -- [options]
 
 Options:
   --region <id>           Region id (default: ${THE_FORGE} / The Forge)

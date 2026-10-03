@@ -1,6 +1,3 @@
-// Need this to export util
-export * from './lib/util';
-
 export type EveAssetsRes = {
   character_name: string;
   name: string;
@@ -87,10 +84,12 @@ export type PlannedProductsWithErrorRes = {
   error?: string;
 }[];
 
-export type MaterialStationsRes = {
+export type MaterialStationRes = {
   station_name: string | null;
   station_id: number;
-}[];
+};
+
+export type MaterialStationsRes = MaterialStationRes[];
 
 export type ProductionPlanRes = {
   blueprintRuns: {

@@ -1,7 +1,7 @@
 /*
 * Clears cache. Table esi_cache
 * Run like this:
-* ts-node ./server/src/scripts/clearCache.ts
+* npm run ts-node -- ./server/src/scripts/clearCache.ts
 */
 import { genClearEsiCache } from '../core/esi_cache/EsiCacheAction';
 import { initDatabaseSequelize } from '../loaders/initDatabase';

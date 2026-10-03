@@ -8,7 +8,7 @@ Node `>=26`. TypeScript throughout.
 
 - `client/` — CRA React app (MUI, Recoil, axios-hooks). Router basename is `/eve-industry-planner`. API base URL is set in `client/src/index.tsx`.
 - `server/` — Express + TypeDI + Sequelize (MySQL). ESI via `eve-esi-client` and `packages/eve-sso`.
-- `shared/` — `@internal/shared`. API response types live in `shared/src/index.d.ts`. Do not duplicate those types in client or server.
+- `shared/` — `@internal/shared`. API response types live in `shared/src/api.ts`. Do not duplicate those types in client or server. Build with `npm run shared-build` before the client or server load it.
 - `packages/eve-sso/` — local SSO package used by the server.
 
 ## Commands
@@ -20,7 +20,7 @@ From the repo root, in separate terminals:
 
 Tests: `npm run server-test`, `npm run shared-test`. Client: `cd client && npm test`. Server lint: `cd server && npm run lint`.
 
-Load SDE YAML into MySQL: `ts-node ./server/src/scripts/loadDataIntoMySqlScript.ts`. That script uses `initDatabaseForSdeScript()` and must not go through `initDatabase()` (comment there: it would drop app tables).
+Load SDE YAML into MySQL: `npm run load-sde`. That script uses `initDatabaseForSdeScript()` and must not go through `initDatabase()` (comment there: it would drop app tables).
 
 Local HTTPS is documented in `README.md`. Secrets stay in `.env`; never invent ESI tokens or commit credentials.
 

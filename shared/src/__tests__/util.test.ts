@@ -18,7 +18,7 @@ describe('Test filterNullOrUndef', () => {
   });
 
   test('Empty array should return empty array', () => {
-    const arr: any[] = [];
+    const arr: (number | null | undefined)[] = [];
     expect(filterNullOrUndef(arr)).toEqual([]);
   });
 
