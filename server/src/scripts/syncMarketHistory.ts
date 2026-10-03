@@ -1,5 +1,6 @@
 /*
- * Syncs regional market history from ESI into market_history_daily.
+ * Syncs regional market history from ESI into market_history_daily,
+ * then rewrites market_history_summary for the types just fetched.
  *
  * Examples:
  *   ts-node ./server/src/scripts/syncMarketHistory.ts --type-ids 34,44992
@@ -16,6 +17,7 @@ import { THE_FORGE } from '../const/IDs';
 import MarketHistoryIngestService, {
   MarketHistoryIngestProgress,
 } from '../features/market/MarketHistoryIngestService';
+import MarketHistorySummaryService from '../features/market/MarketHistorySummaryService';
 
 function parsePositiveInt(value: string, flag: string): number {
   const parsed = Number(value);
@@ -129,6 +131,17 @@ async function run(): Promise<void> {
   const result = await ingestService.genIngest(cli.typeIds, cli.regionId, printIngestProgress);
 
   process.stdout.write('\n');
+  console.log('Writing market history summaries...');
+  const summaryService = Container.get(MarketHistorySummaryService);
+  const summary = await summaryService.genRefresh(
+    resolvedTypeIds,
+    cli.regionId,
+    (completed, total) => {
+      process.stdout.write(`\rSummaries ${completed}/${total} types`);
+    },
+  );
+  process.stdout.write('\n');
+  console.log(`Summary rows written: ${summary.rowsWritten}`);
   console.log('Done.');
   console.log(JSON.stringify(result, null, 2));
 
