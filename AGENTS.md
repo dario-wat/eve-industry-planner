@@ -18,7 +18,7 @@ From the repo root, in separate terminals:
 - `npm run server-dev` — nodemon on `server/src/server.ts`
 - `npm run client` — CRA on the client
 
-Tests: `npm run server-test`, `npm run shared-test`. Client: `cd client && npm test`. Server lint: `cd server && npm run lint`.
+Tests: `npm run server-test`. Client: `cd client && npm test`. Server lint: `cd server && npm run lint`.
 
 Load SDE YAML into MySQL: `npm run load-sde`. That script uses `initDatabaseForSdeScript()` and must not go through `initDatabase()` (comment there: it would drop app tables).
 

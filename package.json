@@ -14,7 +14,6 @@
     "client": "npm run shared-build && cd client && npm start",
     "client-https": "npm run shared-build && cd client && npm run start-https",
     "client-install": "cd client && npm i",
-    "shared-test": "npm test --prefix shared",
     "sync-market-history": "npm run shared-build && npm run ts-node -- ./server/src/scripts/syncMarketHistory.ts",
     "load-sde": "npm run ts-node -- ./server/src/scripts/loadDataIntoMySqlScript.ts"
   }

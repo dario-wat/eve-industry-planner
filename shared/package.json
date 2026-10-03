@@ -8,13 +8,9 @@
     "node": ">=26"
   },
   "scripts": {
-    "build": "tsc",
-    "test": "jest"
+    "build": "tsc"
   },
   "devDependencies": {
-    "@types/jest": "^28.1.8",
-    "jest": "^28.0.0",
-    "ts-jest": "^28.0.8",
     "typescript": "^5.9.3"
   }
 }
