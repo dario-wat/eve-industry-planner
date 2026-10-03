@@ -8,7 +8,6 @@
     "ts-node": "node ./server/node_modules/ts-node/dist/bin.js",
     "server-dev": "npm run shared-build && node ./server/node_modules/nodemon/bin/nodemon.js ./server/src/server.ts",
     "server-prod": "npm run shared-build && npm run ts-node -- ./server/src/server.ts",
-    "server-test": "cd server && npm run test",
     "eve-sso-build": "npm i --prefix packages/eve-sso && npm run build --prefix packages/eve-sso",
     "server-build": "npm run shared-build && npm run eve-sso-build && npm i --prefix server",
     "client": "npm run shared-build && cd client && npm start",
