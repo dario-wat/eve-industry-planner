@@ -1,3 +1,5 @@
+import { addIsoDays, toIsoDay } from '@internal/shared';
+
 export const SUMMARY_WINDOWS = [7, 30, 90] as const;
 
 /** Longest window twice over, so price change can use the previous window. */
@@ -70,20 +72,6 @@ export function buildTypeSummaries(input: {
   return summaries;
 }
 
-export function closedUtcDay(now = new Date()): string {
-  return addIsoDays(now.toISOString().slice(0, 10), -1);
-}
-
-export function addIsoDays(isoDate: string, days: number): string {
-  const [year, month, day] = isoDate.slice(0, 10).split('-').map(Number);
-  const utc = new Date(Date.UTC(year, month - 1, day));
-  utc.setUTCDate(utc.getUTCDate() + days);
-  const y = utc.getUTCFullYear();
-  const m = String(utc.getUTCMonth() + 1).padStart(2, '0');
-  const d = String(utc.getUTCDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
 function fillDays(input: {
   rows: SummaryHistoryRow[];
   hasEarlierHistory: boolean;
@@ -93,7 +81,7 @@ function fillDays(input: {
   if (input.rows.length === 0 && !input.hasEarlierHistory) {
     return [];
   }
-  const byDate = new Map(input.rows.map((row) => [row.date.slice(0, 10), row]));
+  const byDate = new Map(input.rows.map((row) => [toIsoDay(row.date), row]));
   const firstRowDate = [...byDate.keys()].sort()[0];
   const start = input.hasEarlierHistory ? input.spanStart : firstRowDate;
   const days: FilledDay[] = [];

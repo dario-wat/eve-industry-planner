@@ -1,5 +1,5 @@
 import { addDays, format } from 'date-fns';
-import type { MarketHistoryRes } from '@internal/shared';
+import { closedUtcDay, toIsoDay, type MarketHistoryRes } from '@internal/shared';
 
 export type MarketHistoryDay = {
   date: string;
@@ -34,18 +34,8 @@ export type WindowSummary = {
 
 type HistoryRow = MarketHistoryRes[number];
 
-/** ESI history dates are UTC days, and the current UTC day is still open. */
-export function closedUtcDay(now = new Date()): string {
-  const utc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  utc.setUTCDate(utc.getUTCDate() - 1);
-  const year = utc.getUTCFullYear();
-  const month = String(utc.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(utc.getUTCDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
 export function parseHistoryDate(isoDate: string): Date {
-  const [year, month, day] = isoDate.slice(0, 10).split('-').map(Number);
+  const [year, month, day] = toIsoDay(isoDate).split('-').map(Number);
   return new Date(year, month - 1, day);
 }
 
@@ -63,7 +53,7 @@ export function buildMarketHistoryDays(
 
   const byDate = new Map<string, HistoryRow>();
   history.forEach(row => {
-    byDate.set(row.date.slice(0, 10), row);
+    byDate.set(toIsoDay(row.date), row);
   });
   const keys = Array.from(byDate.keys()).sort();
   const start = parseHistoryDate(keys[0]);

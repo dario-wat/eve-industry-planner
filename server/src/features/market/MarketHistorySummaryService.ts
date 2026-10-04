@@ -1,14 +1,13 @@
 import { Service } from 'typedi';
 import { Op } from 'sequelize';
 import { chunk } from 'underscore';
+import { addIsoDays, closedUtcDay, toIsoDay } from '@internal/shared';
 import { MarketHistoryDaily } from './MarketHistoryDaily';
 import { MarketHistorySummary } from './MarketHistorySummary';
 import {
   SUMMARY_HISTORY_DAYS,
   SummaryHistoryRow,
-  addIsoDays,
   buildTypeSummaries,
-  closedUtcDay,
 } from './marketHistorySummaryMath';
 
 // How many types to load and rewrite at once, so one query does not pull every daily row.
@@ -158,11 +157,17 @@ function toHistoryRow(record: DailyRecord): SummaryHistoryRow | null {
   const lowest = numberOrNull(record.lowest);
   const volume = numberOrNull(record.volume);
   const orderCount = numberOrNull(record.order_count);
-  if (average === null || highest === null || lowest === null || volume === null || orderCount === null) {
+  if (
+    average === null
+    || highest === null
+    || lowest === null
+    || volume === null
+    || orderCount === null
+  ) {
     return null;
   }
   return {
-    date: isoDate(record.date),
+    date: toIsoDay(record.date),
     average,
     highest,
     lowest,
@@ -177,11 +182,4 @@ function numberOrNull(value: number | string | null): number | null {
   }
   const parsed = typeof value === 'number' ? value : Number(value);
   return Number.isNaN(parsed) ? null : parsed;
-}
-
-function isoDate(value: string | Date): string {
-  if (value instanceof Date) {
-    return value.toISOString().slice(0, 10);
-  }
-  return value.slice(0, 10);
 }
