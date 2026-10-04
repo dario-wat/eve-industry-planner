@@ -1,6 +1,10 @@
 import { Service } from 'typedi';
 import { differenceInSeconds } from 'date-fns';
-import { industryActivity, IndustryActivityKey, MANUFACTURING } from '../../const/IndustryActivity';
+import {
+  industryActivity,
+  IndustryActivityKey,
+  MANUFACTURING,
+} from '../../const/IndustryActivity';
 import { EveIndustryJob } from '../../types/EsiQuery';
 import { EveIndustryJobHistoryRes, EveIndustryJobsRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';

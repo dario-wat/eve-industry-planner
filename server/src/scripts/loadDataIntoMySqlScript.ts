@@ -131,7 +131,9 @@ function extractBlueprintData([key, value]: [string, any]) {
       materialMapper,
     ),
     [BpReactionMaterials.name]: (value.activities.reaction?.materials ?? []).map(materialMapper),
-    [BpMeMaterials.name]: (value.activities.research_material?.materials ?? []).map(materialMapper),
+    [BpMeMaterials.name]: (value.activities.research_material?.materials ?? []).map(
+      materialMapper,
+    ),
     [BpTeMaterials.name]: (value.activities.research_time?.materials ?? []).map(materialMapper),
     [BpInventionProducts.name]: (value.activities.invention?.products ?? []).map(materialMapper),
     [BpManufacturingProducts.name]: (value.activities.manufacturing?.products ?? []).map(

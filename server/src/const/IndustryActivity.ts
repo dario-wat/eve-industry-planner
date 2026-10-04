@@ -26,7 +26,8 @@ export const industryActivity = Object.freeze({
   },
   '9': {
     'activityID': 9,
-    'description': 'The process of combining raw and intermediate materials to create advanced components',
+    'description': 'The process of combining raw and intermediate materials '
+      + 'to create advanced components',
     'activityName': 'Reactions'
   }
 });

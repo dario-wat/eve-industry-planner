@@ -1,4 +1,10 @@
-import { EveAsset, EveContract, EveMarketOrder, EveMarketOrderType, EveWalletJournalEntry } from 'types/EsiQuery';
+import {
+  EveAsset,
+  EveContract,
+  EveMarketOrder,
+  EveMarketOrderType,
+  EveWalletJournalEntry,
+} from 'types/EsiQuery';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { Service } from 'typedi';
 import { range } from 'lodash';

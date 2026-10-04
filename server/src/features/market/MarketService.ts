@@ -145,7 +145,9 @@ export default class MarketService {
           typeId,
           categoryId: this.sdeData.categoryIdFromTypeId(typeId),
           name: this.sdeData.types[typeId].name,
-          price: typeOrders.length === 0 ? null : Math.min(...typeOrders.map(({ price }) => price)),
+          price: typeOrders.length === 0
+            ? null
+            : Math.min(...typeOrders.map(({ price }) => price)),
           quantity,
         };
       })
