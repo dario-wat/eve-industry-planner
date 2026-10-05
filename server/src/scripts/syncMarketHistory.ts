@@ -16,8 +16,8 @@ import EveSdeData from '../core/sde/EveSdeData';
 import { THE_FORGE } from '../const/IDs';
 import MarketHistoryIngestService, {
   MarketHistoryIngestProgress,
-} from '../features/market/MarketHistoryIngestService';
-import MarketHistorySummaryService from '../features/market/MarketHistorySummaryService';
+} from '../features/market_history/MarketHistoryIngestService';
+import MarketHistorySummaryService from '../features/market_history/MarketHistorySummaryService';
 
 function parsePositiveInt(value: string, flag: string): number {
   const parsed = Number(value);

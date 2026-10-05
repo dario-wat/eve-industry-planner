@@ -3,13 +3,11 @@ import { Service } from 'typedi';
 import MarketService from './MarketService';
 import Controller from '../../core/controller/Controller';
 import ActorContext from '../../core/actor_context/ActorContext';
-import MarketabilityService from './MarketabilityService';
 
 @Service()
 export default class MarketController extends Controller {
   constructor(
     private readonly marketService: MarketService,
-    private readonly marketabilityService: MarketabilityService
   ) {
     super();
   }
@@ -28,24 +26,6 @@ export default class MarketController extends Controller {
     // this.appGet(
     //   '/market_orders_region',
     // );
-
-    /** Fetches market history data for a single type id. */
-    this.appGet(
-      '/market_history/:typeId',
-      async (req: Request, res: Response, _actorContext: ActorContext) => {
-        const output = await this.marketService.genMarketHistory(Number(req.params.typeId));
-        res.json(output);
-      }
-    );
-
-    /** Fetches data for item marketability. */
-    this.appGet(
-      '/marketability',
-      async (_req: Request, res: Response, _actorContext: ActorContext) => {
-        const output = await this.marketabilityService.genMarketableItemsForPage();
-        res.json(output);
-      }
-    );
 
     /** Returns prices for given set of stations and items. */
     this.appPost(

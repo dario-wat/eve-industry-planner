@@ -36,8 +36,8 @@ import { industryJobAssocsDefine } from '../features/industry_jobs/IndustryJobAs
 import { industryJobModelDefine } from '../features/industry_jobs/IndustryJob';
 import { walletTransactionAssocsDefine } from '../features/wallet/WalletTransactionAssocs';
 import { walletJournalEntryModelDefine } from '../features/wallet/WalletJournalEntry';
-import { marketHistoryDailyModelDefine } from '../features/market/MarketHistoryDaily';
-import { marketHistorySummaryModelDefine } from '../features/market/MarketHistorySummary';
+import { marketHistoryDailyModelDefine } from '../features/market_history/MarketHistoryDaily';
+import { marketHistorySummaryModelDefine } from '../features/market_history/MarketHistorySummary';
 
 export function initDatabaseSequelize(): Sequelize {
   const useSsl = process.env.DATABASE_SSL === '1';

@@ -1,9 +1,7 @@
 import { Service } from 'typedi';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
-import EsiQueryService from '../../core/esi/EsiQueryService';
 import {
-  MarketHistoryRes,
   MarketOrdersComparisonRes,
   MarketOrdersComparisonWithErrorsRes,
   MarketOrdersRes,
@@ -11,7 +9,6 @@ import {
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatPerCharacter, genQueryResultIfAvailable } from '../../lib/eveUtil';
 import StationService from '../../core/query/StationService';
-import { THE_FORGE } from '../../const/IDs';
 import EsiMultiPageQueryService from '../../core/query/EsiMultiPageQueryService';
 import ItemQuantitiesParserService, {
   ItemQuantity,
@@ -24,7 +21,6 @@ export default class MarketService {
   constructor(
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiTokenlessQueryService,
-    private readonly esiQueryService: EsiQueryService,
     private readonly stationService: StationService,
     private readonly esiMultipageueryService: EsiMultiPageQueryService,
     private readonly itemQuantitiesParser: ItemQuantitiesParserService
@@ -57,18 +53,6 @@ export default class MarketService {
         issuedDate: o.issued,
         duration: o.duration,
       }));
-  }
-
-  /** Fetches The Forge market history for one type. Returns the full ESI series. */
-  public async genMarketHistory(typeId: number): Promise<MarketHistoryRes> {
-    if (this.sdeData.types[typeId] === undefined) {
-      return [];
-    }
-    const history = await this.esiQueryService.genxRegionMarketHistory(
-      THE_FORGE,
-      typeId
-    );
-    return history.slice().sort((a, b) => a.date.localeCompare(b.date));
   }
 
   /**

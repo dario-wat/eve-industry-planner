@@ -14,6 +14,8 @@ import EveLoginController from '../core/controller/EveLoginController';
 import IndustryJobController from '../features/industry_jobs/IndustryJobController';
 import WalletController from '../features/wallet/WalletController';
 import MarketController from '../features/market/MarketController';
+import MarketHistoryController from '../features/market_history/MarketHistoryController';
+import MarketabilityController from '../features/marketability/MarketabilityController';
 
 // NOTE: every new controller needs to be added here
 @Service()
@@ -31,6 +33,8 @@ export default class Controllers {
     private readonly industryJobController: IndustryJobController,
     private readonly walletController: WalletController,
     private readonly marketController: MarketController,
+    private readonly marketHistoryController: MarketHistoryController,
+    private readonly marketabilityController: MarketabilityController,
     private readonly healthController: HealthController,
   ) { }
 
@@ -54,5 +58,7 @@ export default class Controllers {
     this.industryJobController.init(app);
     this.walletController.init(app);
     this.marketController.init(app);
+    this.marketHistoryController.init(app);
+    this.marketabilityController.init(app);
   }
 }
