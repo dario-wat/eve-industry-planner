@@ -144,7 +144,7 @@ function extractBlueprintData([key, value]: [string, any]) {
 }
 
 async function loadBlueprintData() {
-  const fileName = 'sde2/blueprints.yaml';
+  const fileName = 'sde/blueprints.yaml';
   const phases = createPhaseLine();
   logFile(fileName);
 
@@ -198,7 +198,7 @@ async function run() {
   logFileEnd();
 
   await loadDataToDatabase(
-    'sde2/types.yaml',
+    'sde/types.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
       group_id: value.groupID,
@@ -218,7 +218,7 @@ async function run() {
   );
 
   await loadDataToDatabase(
-    'sde2/groups.yaml',
+    'sde/groups.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
       category_id: value.categoryID,
@@ -229,7 +229,7 @@ async function run() {
   );
 
   await loadDataToDatabase(
-    'sde2/icons.yaml',
+    'sde/icons.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
       icon_file: value.iconFile,
@@ -238,7 +238,7 @@ async function run() {
   );
 
   await loadDataToDatabase(
-    'sde2/categories.yaml',
+    'sde/categories.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
       name: value.name.en,
@@ -247,7 +247,7 @@ async function run() {
   );
 
   await loadDataToDatabase(
-    'sde2/mapSolarSystems.yaml',
+    'sde/mapSolarSystems.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
       region_id: value.regionID,
@@ -256,7 +256,7 @@ async function run() {
   );
 
   await loadDataToDatabase(
-    'sde2/npcStations.yaml',
+    'sde/npcStations.yaml',
     ([key, value]: [string, any]) => ({
       id: key,
       solar_system_id: value.solarSystemID,
