@@ -1,4 +1,4 @@
-import { Model } from 'sequelize-typescript';
+import type { Model } from 'sequelize';
 import { groupBy } from 'underscore';
 import { mapify } from '../../lib/util';
 import { Type } from './models/Type';

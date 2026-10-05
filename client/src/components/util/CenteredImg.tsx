@@ -1,18 +1,18 @@
 import Box from '@mui/material/Box';
 
-export default function CenteredImg(
-  props: React.DetailedHTMLProps<
-    React.ImgHTMLAttributes<HTMLImageElement>,
-    HTMLImageElement
-  >,
-) {
+export default function CenteredImg({
+  alt = '',
+  ...props
+}: React.DetailedHTMLProps<
+  React.ImgHTMLAttributes<HTMLImageElement>,
+  HTMLImageElement
+>) {
   return (
     <Box
       display="flex"
       alignItems="center"
       justifyContent="center">
-      {/* eslint-disable-next-line jsx-a11y/alt-text */}
-      <img {...props} />
+      <img {...props} alt={alt} />
     </Box>
   );
 }
