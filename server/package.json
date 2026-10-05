@@ -44,6 +44,6 @@
   },
   "scripts": {
     "postinstall": "patch-package",
-    "lint": "eslint ."
+    "lint": "eslint . --ext .js,.ts"
   }
 }
