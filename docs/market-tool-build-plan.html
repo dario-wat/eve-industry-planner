@@ -15,6 +15,8 @@
     --stroke-2: #d4d4d8;
     --accent: #2563eb;
     --accent-soft: #eff4ff;
+    --done: #15803d;
+    --done-soft: #f0fdf4;
     --danger: #b91c1c;
     --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   }
@@ -29,6 +31,8 @@
       --stroke-2: #3a3a40;
       --accent: #6d9eff;
       --accent-soft: #1a2133;
+      --done: #4ade80;
+      --done-soft: #14241b;
       --danger: #f87171;
     }
   }
@@ -107,6 +111,12 @@
   details.tool[open] > summary::before { transform: rotate(90deg); }
   .tname { font-weight: 560; flex: 1; }
   .ttier { font-size: 11.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+  .tdone {
+    font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--done); background: var(--done-soft);
+    border: 1px solid var(--done); border-radius: 999px; padding: 0 7px;
+  }
+  .status { border-left: 2px solid var(--done); padding-left: 12px; margin: 0 0 10px; font-size: 13.5px; }
   .tbody { padding: 2px 2px 16px 22px; }
   .tbody .one { margin-bottom: 8px; }
   .tbody .why { color: var(--text-2); margin-bottom: 10px; }
@@ -299,7 +309,8 @@ const LAYERS = [
     output: "An order-lifecycle table keyed by `order_id`: first seen, last seen, every price change with timestamp, volume_remain at each observation, and a terminal state of filled / cancelled / expired.",
     math: "Between two polls, an order whose `volume_remain` dropped by n contributed n units of traded volume on its own side of the book. An order that disappeared while `volume_remain > 0` either expired or was cancelled — use `issued + duration` to tell which.",
     trap: "An order that vanishes is ambiguous between 'fully filled' and 'cancelled'. Do not silently count disappearances as trades; carry an explicit `ambiguous` state, because conflating the two is what makes naive volume estimates wrong on illiquid items." },
-  { name: "Daily market-history warehouse", tier: "Foundation",
+  { name: "Daily market-history warehouse", tier: "Foundation", done: true,
+    status: "Done for The Forge tradeable types: daily rows in `market_history_daily`, and 7/30/90-day medians in `market_history_summary`. The sync is run by hand. It refetches the types you pass it, rather than appending one new day on a schedule.",
     one: "Mirror `GET /markets/{region_id}/history/` into your own table, per type per region, and never delete rows.",
     why: "ESI serves history from the start of the previous calendar year and no further. Your own copy accumulates indefinitely, which is what lets you ask multi-year seasonality questions later. It is also dirt cheap: one request per type per region per day, and the route only refreshes once daily at 11:05.",
     inputs: "One request per (region, type) pair per day. Backfill once, then append.",
@@ -556,6 +567,7 @@ function render(tier) {
       const d = document.createElement("details");
       d.className = "tool";
       let body = "<div class='tbody'>";
+      if (t.status) body += "<p class='status'>" + fmt(t.status) + "</p>";
       body += "<p class='one'>" + fmt(t.one) + "</p>";
       body += "<p class='why'>" + fmt(t.why) + "</p>";
       body += "<p class='io'><b>Inputs</b> — " + fmt(t.inputs) + "</p>";
@@ -563,7 +575,8 @@ function render(tier) {
       if (t.math) body += "<p class='math'>" + fmt(t.math) + "</p>";
       if (t.trap) body += "<p class='trap'><b>Gotcha.</b> " + fmt(t.trap) + "</p>";
       body += "</div>";
-      d.innerHTML = "<summary><span class='tname'>" + esc(t.name) + "</span><span class='ttier'>" + esc(t.tier) + "</span></summary>" + body;
+      const done = t.done ? "<span class='tdone'>Done</span>" : "";
+      d.innerHTML = "<summary><span class='tname'>" + esc(t.name) + "</span>" + done + "<span class='ttier'>" + esc(t.tier) + "</span></summary>" + body;
       sec.appendChild(d);
     }
     root.appendChild(sec);
