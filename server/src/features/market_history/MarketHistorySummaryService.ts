@@ -1,7 +1,16 @@
 import { Service } from 'typedi';
 import { Op } from 'sequelize';
 import { chunk } from 'underscore';
-import { addIsoDays, closedUtcDay, toIsoDay } from '@internal/shared';
+import {
+  addIsoDays,
+  closedUtcDay,
+  toIsoDay,
+  type MarketHistoryScanItemRes,
+  type MarketHistoryScanRes,
+  type MarketHistoryScanWindowRes,
+} from '@internal/shared';
+import { THE_FORGE } from '../../const/IDs';
+import EveSdeData from '../../core/sde/EveSdeData';
 import { MarketHistoryDaily } from './MarketHistoryDaily';
 import { MarketHistorySummary } from './MarketHistorySummary';
 import {
@@ -29,7 +38,50 @@ type DailyRecord = {
 
 @Service()
 export default class MarketHistorySummaryService {
-  
+  constructor(
+    private readonly sdeData: EveSdeData,
+  ) {}
+
+  /**
+   * Every stored summary window for one region, joined to type name and category.
+   * Median ISK is daily volume times that day's average, then the median of those days.
+   */
+  public async genMarketHistoryScan(regionId: number = THE_FORGE): Promise<MarketHistoryScanRes> {
+    const records = await MarketHistorySummary.findAll({
+      where: { region_id: regionId },
+    });
+
+    const items = new Map<number, MarketHistoryScanItemRes>();
+    let asOfDate = '';
+    for (const record of records) {
+      const typeId = Number(record.type_id);
+      const type = this.sdeData.types[typeId];
+      if (type === undefined) {
+        continue;
+      }
+      const asOf = toIsoDay(record.as_of_date);
+      if (asOf > asOfDate) {
+        asOfDate = asOf;
+      }
+      const item = items.get(typeId) ?? {
+        typeId,
+        name: type.name,
+        categoryId: this.sdeData.categoryIdFromTypeId(typeId) ?? null,
+        categoryName: this.sdeData.categoryNameFromTypeId(typeId) ?? null,
+        windows: [],
+      };
+      item.windows.push(toScanWindow(record));
+      items.set(typeId, item);
+    }
+
+    const listed = [...items.values()];
+    for (const item of listed) {
+      item.windows.sort((left, right) => left.windowDays - right.windowDays);
+    }
+    listed.sort((left, right) => left.typeId - right.typeId);
+    return { regionId, asOfDate, items: listed };
+  }
+
   /**
    * Rewrites summary rows for these types from stored daily history.
    * Types that were not fetched are left untouched.
@@ -173,6 +225,21 @@ function toHistoryRow(record: DailyRecord): SummaryHistoryRow | null {
     lowest,
     volume,
     orderCount,
+  };
+}
+
+function toScanWindow(record: MarketHistorySummary): MarketHistoryScanWindowRes {
+  return {
+    windowDays: record.window_days,
+    medianPrice: record.median_price,
+    priceChange: record.price_change,
+    medianUnits: record.median_units,
+    medianIsk: record.median_isk,
+    medianOrders: record.median_orders,
+    daysTraded: record.days_traded,
+    medianRange: record.median_range,
+    iskWeightedRange: record.isk_weighted_range,
+    medianPriceInRange: record.median_price_in_range,
   };
 }
 

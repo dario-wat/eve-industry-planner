@@ -153,6 +153,33 @@ export type MarketHistoryRes = {
   volume: number;
 }[];
 
+export type MarketHistoryScanWindowRes = {
+  windowDays: number;
+  medianPrice: number | null;
+  priceChange: number | null;
+  medianUnits: number;
+  medianIsk: number;
+  medianOrders: number;
+  daysTraded: number;
+  medianRange: number | null;
+  iskWeightedRange: number | null;
+  medianPriceInRange: number | null;
+};
+
+export type MarketHistoryScanItemRes = {
+  typeId: number;
+  name: string;
+  categoryId: number | null;
+  categoryName: string | null;
+  windows: MarketHistoryScanWindowRes[];
+};
+
+export type MarketHistoryScanRes = {
+  regionId: number;
+  asOfDate: string;
+  items: MarketHistoryScanItemRes[];
+};
+
 export type LinkedCharacterRes = {
   characterId: number;
   characterName: string | undefined;
