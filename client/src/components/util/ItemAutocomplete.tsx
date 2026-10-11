@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { EveSdeTypesRes } from '@internal/shared';
 import useAxios from 'axios-hooks';
 import Typography from '@mui/material/Typography';
@@ -15,15 +15,27 @@ const filterItems = createFilterOptions<ItemOption>({ matchFrom: 'any', limit: 1
 export default function ItemAutocomplete(props: {
   onSelect: (typeId: number | null) => void;
   width?: number;
+  /** When set, the field shows this type. Leave unset to keep the field uncontrolled. */
+  typeId?: number | null;
 }) {
   const [{ data, loading }] = useAxios<EveSdeTypesRes>('/type_ids_items');
   const [inputValue, setInputValue] = useState('');
   const [recentIds, setRecentIds] = useState(readRecentTypeIds);
-  const autocompleteData =
-    data?.map((t) => ({
-      label: t.name,
-      id: t.id,
-    })) ?? [];
+  const autocompleteData = useMemo(
+    () =>
+      data?.map((t) => ({
+        label: t.name,
+        id: t.id,
+      })) ?? [],
+    [data],
+  );
+  const selected = useMemo(
+    () =>
+      props.typeId == null
+        ? null
+        : (autocompleteData.find((option) => option.id === props.typeId) ?? null),
+    [autocompleteData, props.typeId],
+  );
 
   const remember = (id: number) => {
     setRecentIds((prev) => {
@@ -38,6 +50,7 @@ export default function ItemAutocomplete(props: {
       sx={{ width: props.width ?? 280 }}
       openOnFocus
       loading={loading}
+      {...(props.typeId !== undefined ? { value: selected } : {})}
       options={autocompleteData}
       filterOptions={(options, state) =>
         state.inputValue.trim() ? filterItems(options, state) : recentOptions(options, recentIds)
