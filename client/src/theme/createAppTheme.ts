@@ -101,6 +101,20 @@ export default function createAppTheme(mode: ColorMode = 'light') {
         },
         styleOverrides: {
           root: {
+            // Selected fill is a transparent tint, so on the grey page it reads as grey.
+            // These are that tint painted on white, matching the settings control.
+            ...(!isDark && {
+              backgroundColor: paperBackground,
+              '&:hover': {
+                backgroundColor: '#f6f6f6',
+              },
+              '&.Mui-selected': {
+                backgroundColor: '#edf4fb',
+                '&:hover': {
+                  backgroundColor: '#e3effa',
+                },
+              },
+            }),
             // Match the compact single-line fields (31px).
             '&.MuiToggleButton-sizeSmall': {
               height: 31,

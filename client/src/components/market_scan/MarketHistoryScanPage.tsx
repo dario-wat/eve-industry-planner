@@ -126,6 +126,7 @@ export default function MarketHistoryScanPage() {
         />
         <ToggleButtonGroup
           exclusive
+          color="primary"
           size="small"
           value={windowDays}
           onChange={(_, value: ScanWindowDays | null) => {
