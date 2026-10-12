@@ -4,7 +4,6 @@ import { chunk } from 'underscore';
 import {
   addIsoDays,
   closedUtcDay,
-  toIsoDay,
   type MarketHistoryScanItemRes,
   type MarketHistoryScanRes,
   type MarketHistoryScanWindowRes,
@@ -59,7 +58,7 @@ export default class MarketHistorySummaryService {
       if (type === undefined) {
         continue;
       }
-      const asOf = toIsoDay(record.as_of_date);
+      const asOf = calendarDay(record.as_of_date);
       if (asOf > asOfDate) {
         asOfDate = asOf;
       }
@@ -99,7 +98,13 @@ export default class MarketHistorySummaryService {
       return result;
     }
 
-    const endDate = closedUtcDay();
+    // ESI leaves the current UTC day open, and it does not publish the previous
+    // day until downtime (~11:00 UTC). A sync before that has no row for
+    // yesterday, so ending the window on closedUtcDay() counts one empty day
+    // for every type. Stop on the last day that was actually stored.
+    const closed = closedUtcDay();
+    const latestStored = await this.genLatestStoredDay(regionId);
+    const endDate = latestStored !== null && latestStored <= closed ? latestStored : closed;
     const spanStart = addIsoDays(endDate, -(SUMMARY_HISTORY_DAYS - 1));
     let completedTypes = 0;
     onProgress?.(completedTypes, uniqueTypeIds.length);
@@ -201,6 +206,19 @@ export default class MarketHistorySummaryService {
 
     return summaries.length;
   }
+
+  private async genLatestStoredDay(regionId: number): Promise<string | null> {
+    const row = await MarketHistoryDaily.findOne({
+      attributes: ['date'],
+      where: { region_id: regionId },
+      order: [['date', 'DESC']],
+      raw: true,
+    }) as { date: string | Date } | null;
+    if (row === null) {
+      return null;
+    }
+    return calendarDay(row.date);
+  }
 }
 
 function toHistoryRow(record: DailyRecord): SummaryHistoryRow | null {
@@ -219,7 +237,7 @@ function toHistoryRow(record: DailyRecord): SummaryHistoryRow | null {
     return null;
   }
   return {
-    date: toIsoDay(record.date),
+    date: calendarDay(record.date),
     average,
     highest,
     lowest,
@@ -241,6 +259,21 @@ function toScanWindow(record: MarketHistorySummary): MarketHistoryScanWindowRes 
     iskWeightedRange: record.isk_weighted_range,
     medianPriceInRange: record.median_price_in_range,
   };
+}
+
+/**
+ * Calendar day for a MySQL DATEONLY value.
+ * mysql2 returns DATE as local midnight, so UTC formatting would move the day
+ * backward in timezones ahead of UTC.
+ */
+function calendarDay(value: string | Date): string {
+  if (typeof value === 'string') {
+    return value.slice(0, 10);
+  }
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, '0');
+  const day = String(value.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function numberOrNull(value: number | string | null): number | null {

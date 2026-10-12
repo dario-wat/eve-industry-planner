@@ -91,7 +91,6 @@ export default function MarketHistoryPage() {
         </LoadingButton>
         <TextField
           select
-          size="small"
           label="Range"
           value={span}
           onChange={(event) => setSpan(event.target.value as ChartSpan)}

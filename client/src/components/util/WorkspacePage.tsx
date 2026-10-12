@@ -18,6 +18,7 @@ export default function WorkspacePage({ children, scroll = false }: Props) {
         minHeight: 0,
         display: 'flex',
         flexDirection: 'column',
+        pt: 0.75,
         overflow: scroll ? 'auto' : 'hidden',
       }}
     >

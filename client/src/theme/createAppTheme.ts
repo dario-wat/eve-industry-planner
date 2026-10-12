@@ -56,6 +56,21 @@ export default function createAppTheme(mode: ColorMode = 'light') {
           },
         },
       },
+      MuiTextField: {
+        defaultProps: {
+          size: 'small',
+        },
+      },
+      MuiSelect: {
+        defaultProps: {
+          size: 'small',
+        },
+      },
+      MuiAutocomplete: {
+        defaultProps: {
+          size: 'small',
+        },
+      },
       MuiOutlinedInput: {
         styleOverrides: {
           root: {

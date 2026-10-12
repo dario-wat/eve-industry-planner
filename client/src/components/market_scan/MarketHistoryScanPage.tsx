@@ -90,7 +90,6 @@ export default function MarketHistoryScanPage() {
     <WorkspacePage>
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap', flexShrink: 0, pb: 1 }}>
         <TextField
-          size="small"
           label="Search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
@@ -98,7 +97,6 @@ export default function MarketHistoryScanPage() {
         />
         <TextField
           select
-          size="small"
           label="Category"
           value={categoryValue}
           onChange={(event) => setCategoryName(event.target.value)}
@@ -109,21 +107,18 @@ export default function MarketHistoryScanPage() {
           ))}
         </TextField>
         <TextField
-          size="small"
           label="Days traded %"
           value={minDaysText}
           onChange={(event) => setMinDaysText(event.target.value)}
           sx={{ width: 130 }}
         />
         <TextField
-          size="small"
           label="Min M ISK/day"
           value={minIskText}
           onChange={(event) => setMinIskText(event.target.value)}
           sx={{ width: 160 }}
         />
         <TextField
-          size="small"
           label="Min range %"
           value={minRangeText}
           onChange={(event) => setMinRangeText(event.target.value)}
