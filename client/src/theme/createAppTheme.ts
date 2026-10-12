@@ -76,6 +76,22 @@ export default function createAppTheme(mode: ColorMode = 'light') {
           root: {
             backgroundColor: paperBackground,
           },
+          // MUI small is 40px. 4px of vertical padding brings a single-line field to 31px.
+          input: {
+            '.MuiInputBase-sizeSmall &:not(.MuiInputBase-inputMultiline)': {
+              paddingTop: 4,
+              paddingBottom: 4,
+            },
+          },
+        },
+      },
+      MuiInputLabel: {
+        styleOverrides: {
+          outlined: {
+            '&.MuiInputLabel-sizeSmall:not(.MuiInputLabel-shrink)': {
+              transform: 'translate(14px, 4px) scale(1)',
+            },
+          },
         },
       },
       MuiChartsLegend: {

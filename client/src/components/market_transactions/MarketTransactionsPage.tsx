@@ -55,7 +55,7 @@ export default function MarketTransactionsPage() {
       <Grid container spacing={2} alignItems="center" sx={{ pb: 1, flexShrink: 0 }}>
         <Grid item>
           <TextField
-            label="Search..."
+            label="Search"
             variant="outlined"
             value={searchText}
             onChange={e => setSearchText(e.target.value)}

@@ -55,7 +55,7 @@ export default function AssetsPage() {
     <WorkspacePage>
       <Box sx={{ pb: 1, flexShrink: 0 }}>
         <TextField
-          label="Search..."
+          label="Search"
           variant="outlined"
           value={searchText}
           onChange={e => setSearchText(e.target.value)}
