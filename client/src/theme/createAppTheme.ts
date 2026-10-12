@@ -1,6 +1,7 @@
 import { createTheme } from '@mui/material';
 import type {} from '@mui/lab/themeAugmentation';
 import type {} from '@mui/x-charts/themeAugmentation';
+import type {} from '@mui/x-data-grid/themeAugmentation';
 import { uniqueId } from 'underscore';
 
 const APP_BAR_HEIGHT = 40;
@@ -19,7 +20,10 @@ export default function createAppTheme(mode: ColorMode = 'light') {
   const gridStripe = isDark
     ? 'rgba(255, 255, 255, 0.04)'
     : 'rgba(240, 240, 240, .5)';
-  const gridHeader = isDark ? '#2a2a2a' : 'rgba(200, 200, 200, 1.0)';
+  const gridHeader = isDark ? '#1e3a5f' : '#e8f0fe';
+  const gridHeaderBorder = isDark
+    ? 'rgba(255, 255, 255, 0.16)'
+    : '#7ea0c8';
 
   return createTheme({
     palette: {
@@ -38,6 +42,10 @@ export default function createAppTheme(mode: ColorMode = 'light') {
         '@media (min-width:600px)': {
           minHeight: APP_BAR_HEIGHT,
         },
+      },
+      MuiDataGrid: {
+        containerBackground: gridHeader,
+        pinnedBackground: paperBackground,
       },
     },
     components: {
@@ -146,11 +154,14 @@ export default function createAppTheme(mode: ColorMode = 'light') {
           getRowId: (_) => uniqueId(),
           pageSizeOptions: [100],
           rowHeight: 40,
+          // Compact density multiplies this by 0.7, so the header row is 32px.
+          columnHeaderHeight: 46,
         },
         styleOverrides: {
           root: {
             backgroundColor: paperBackground,
             color: isDark ? '#fff' : 'rgba(0, 0, 0, 0.87)',
+            ...(!isDark && { borderColor: gridHeaderBorder }),
             '& .MuiDataGrid-row:hover': {
               backgroundColor: `${gridHover} !important`,
             },
@@ -161,11 +172,22 @@ export default function createAppTheme(mode: ColorMode = 'light') {
                 },
               },
             },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: gridHeader,
+            '& .MuiDataGrid-columnHeaders, & .MuiDataGrid-container--top [role="row"]': {
+              background: gridHeader,
+              borderBottom: `1px solid ${gridHeaderBorder}`,
             },
             '& .MuiDataGrid-columnHeaderTitle': {
               fontWeight: 'bold',
+            },
+            '& .MuiDataGrid-footerContainer': {
+              minHeight: 32,
+            },
+            // The pagination root scrolls when its content is even 1px too tall.
+            '& .MuiTablePagination-root': {
+              overflow: 'hidden',
+            },
+            '& .MuiTablePagination-toolbar': {
+              minHeight: 32,
             },
           },
         },
