@@ -5,6 +5,8 @@ import useAxios from 'axios-hooks';
 import {
   Box,
   MenuItem,
+  Tab,
+  Tabs,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
@@ -20,17 +22,28 @@ import {
   formatSignedPercent,
 } from 'common/format';
 import EveIcon from 'components/util/EveIcon';
-import WorkspacePage, { WorkspaceFill, WorkspaceSpinner } from 'components/util/WorkspacePage';
+import WorkspacePage, {
+  WorkspaceFill,
+  WorkspaceSection,
+  WorkspaceSpinner,
+} from 'components/util/WorkspacePage';
 import {
   SCAN_WINDOWS,
   ScanRow,
   ScanWindowDays,
+  WeekMove,
   categoryNames,
   filterScanRows,
   parseIskMillions,
   parsePercent,
   rowsForWindow,
+  weekMoves,
 } from './marketHistoryScan';
+
+enum ScanTab {
+  ITEMS = 'ITEMS',
+  WEEK = 'WEEK',
+}
 
 const DEFAULT_WINDOW_DAYS: ScanWindowDays = 30;
 const DEFAULT_CATEGORY_NAME = 'All';
@@ -44,12 +57,7 @@ const columns: GridColDef<ScanRow>[] = [
     flex: 1.4,
     minWidth: 220,
     renderCell: (params) => (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, overflow: 'hidden' }}>
-        <EveIcon typeId={params.row.typeId} categoryId={params.row.categoryId ?? 0} size={24} />
-        <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {params.row.name}
-        </Box>
-      </Box>
+      <ItemCell typeId={params.row.typeId} categoryId={params.row.categoryId} name={params.row.name} />
     ),
   },
   numberColumn('medianIsk', 'Median ISK/day', 140, formatIsk,
@@ -86,6 +94,36 @@ const columns: GridColDef<ScanRow>[] = [
   numberColumn('medianUnits', 'Median units/day', 150, (value) => formatNumber(value)),
 ];
 
+const weekColumns: GridColDef<WeekMove>[] = [
+  {
+    field: 'name',
+    headerName: 'Item',
+    flex: 1,
+    minWidth: 180,
+    renderCell: (params) => (
+      <ItemCell typeId={params.row.typeId} categoryId={params.row.categoryId} name={params.row.name} />
+    ),
+  },
+  {
+    field: 'priceChange',
+    headerName: '7d price change',
+    minWidth: 140,
+    align: 'right',
+    headerAlign: 'right',
+    description: 'Median traded price over the last 7 days compared with the previous 7 days.',
+    renderCell: (params) => <SignedPercent value={params.row.priceChange} />,
+  },
+  {
+    field: 'medianIsk',
+    headerName: '7d median ISK/day',
+    minWidth: 150,
+    align: 'right',
+    headerAlign: 'right',
+    description: 'Median of each day\'s volume times that day\'s average price, over the last 7 days. Days with no trades count as zero.',
+    renderCell: (params) => formatIsk(params.row.medianIsk),
+  },
+];
+
 export default function MarketHistoryScanPage() {
   const navigate = useNavigate();
   const [{ data, loading, error }] = useAxios<MarketHistoryScanRes>('/market_history/scan');
@@ -95,6 +133,7 @@ export default function MarketHistoryScanPage() {
   const [minIskText, setMinIskText] = useState(DEFAULT_MIN_ISK_TEXT);
   const [minRangeText, setMinRangeText] = useState('');
   const [search, setSearch] = useState('');
+  const [tab, setTab] = useState(ScanTab.ITEMS);
 
   const rows = useMemo(
     () => (data == null ? [] : rowsForWindow(data, windowDays)),
@@ -112,6 +151,13 @@ export default function MarketHistoryScanPage() {
     }),
     [rows, categoryValue, minDaysText, minIskText, minRangeText, search],
   );
+  const moves = useMemo(
+    () => (data == null ? { gainers: [], losers: [] } : weekMoves(data, visible)),
+    [data, visible],
+  );
+  const openType = (typeId: number) => {
+    navigate(`/market_history?typeId=${typeId}`);
+  };
 
   if (loading && data == null) {
     return (
@@ -194,29 +240,85 @@ export default function MarketHistoryScanPage() {
             : ` · ${formatNumber(visible.length)} of ${formatNumber(rows.length)} types`}
         </Typography>
       </Box>
-      <WorkspaceFill>
-        <DataGrid
-          rows={visible}
-          columns={columns}
-          getRowId={(row) => row.typeId}
-          autoHeight={false}
-          density="compact"
-          disableRowSelectionOnClick
-          disableColumnMenu
-          pageSizeOptions={[25, 50, 100]}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 100, page: 0 } },
-            sorting: { sortModel: [{ field: 'medianIsk', sort: 'desc' }] },
-          }}
-          onRowClick={(params) => {
-            navigate(`/market_history?typeId=${params.row.typeId}`);
-          }}
-          sx={{
-            '& .MuiDataGrid-row': { cursor: 'pointer' },
-          }}
-        />
-      </WorkspaceFill>
+      <Tabs
+        sx={{ mb: 1, flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}
+        value={tab}
+        onChange={(_, value: ScanTab) => setTab(value)}
+      >
+        <Tab label="Items" value={ScanTab.ITEMS} />
+        <Tab label="This week" value={ScanTab.WEEK} />
+      </Tabs>
+      {tab === ScanTab.ITEMS && (
+        <WorkspaceFill>
+          <DataGrid
+            rows={visible}
+            columns={columns}
+            getRowId={(row) => row.typeId}
+            autoHeight={false}
+            density="compact"
+            disableRowSelectionOnClick
+            disableColumnMenu
+            pageSizeOptions={[25, 50, 100]}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 100, page: 0 } },
+              sorting: { sortModel: [{ field: 'medianIsk', sort: 'desc' }] },
+            }}
+            onRowClick={(params) => openType(params.row.typeId)}
+            sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
+          />
+        </WorkspaceFill>
+      )}
+      {tab === ScanTab.WEEK && (
+        <Box sx={{ flex: 1, minHeight: 0, display: 'flex', gap: 1 }}>
+          <Box sx={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex' }}>
+            <WorkspaceSection title="Gainers">
+              <WeekGrid rows={moves.gainers} priceSort="desc" onOpen={openType} />
+            </WorkspaceSection>
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex' }}>
+            <WorkspaceSection title="Losers">
+              <WeekGrid rows={moves.losers} priceSort="asc" onOpen={openType} />
+            </WorkspaceSection>
+          </Box>
+        </Box>
+      )}
     </WorkspacePage>
+  );
+}
+
+function WeekGrid(props: {
+  rows: WeekMove[];
+  priceSort: 'asc' | 'desc';
+  onOpen: (typeId: number) => void;
+}) {
+  return (
+    <DataGrid
+      rows={props.rows}
+      columns={weekColumns}
+      getRowId={(row) => row.typeId}
+      autoHeight={false}
+      density="compact"
+      disableRowSelectionOnClick
+      disableColumnMenu
+      pageSizeOptions={[25, 50, 100]}
+      initialState={{
+        pagination: { paginationModel: { pageSize: 100, page: 0 } },
+        sorting: { sortModel: [{ field: 'priceChange', sort: props.priceSort }] },
+      }}
+      onRowClick={(params) => props.onOpen(params.row.typeId)}
+      sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
+    />
+  );
+}
+
+function ItemCell(props: { typeId: number; categoryId: number | null; name: string }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, overflow: 'hidden' }}>
+      <EveIcon typeId={props.typeId} categoryId={props.categoryId ?? 0} size={24} />
+      <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {props.name}
+      </Box>
+    </Box>
   );
 }
 
