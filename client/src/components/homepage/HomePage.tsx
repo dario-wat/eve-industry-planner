@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
@@ -27,7 +26,6 @@ import MarketOrdersPage from 'components/MarketOrdersPage';
 import { Route, Routes } from 'react-router-dom';
 import MarketComparisonPage from 'components/MarketComparisonPage';
 import CharactersPage from 'components/CharactersPage';
-import MarketPredictionPage from 'components/market_predictions/MarketPredictionPage';
 import MarketHistoryPage from 'components/market_history/MarketHistoryPage';
 import MarketHistoryScanPage from 'components/market_scan/MarketHistoryScanPage';
 import SettingsPage from 'components/SettingsPage';
@@ -66,12 +64,6 @@ export default function HomePage() {
       label: 'Transactions',
       icon: <LocalGroceryStoreIcon />,
       component: MarketTransactionsPage,
-    },
-    {
-      path: '/market_prediction',
-      label: 'Market Prediction',
-      icon: <AttachMoneyIcon />,
-      component: MarketPredictionPage,
     },
     {
       path: '/market_history',

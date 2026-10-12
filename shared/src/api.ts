@@ -189,13 +189,6 @@ export type LinkedCharacterRes = {
 
 export type EveSdeTypesRes = { id: number; name: string }[];
 
-export type MarketabilityRes = {
-  typeId: number;
-  categoryId: number | undefined;
-  name: string;
-  scores: { name: string; value: number }[];
-}[];
-
 export type MarketOrdersComparisonRes = {
   stationId: number;
   stationName: string;
