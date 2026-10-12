@@ -17,6 +17,7 @@ export default function ItemAutocomplete(props: {
   width?: number;
   /** When set, the field shows this type. Leave unset to keep the field uncontrolled. */
   typeId?: number | null;
+  variant?: 'standard' | 'outlined';
 }) {
   const [{ data, loading }] = useAxios<EveSdeTypesRes>('/type_ids_items');
   const [inputValue, setInputValue] = useState('');
@@ -75,7 +76,12 @@ export default function ItemAutocomplete(props: {
         </li>
       )}
       renderInput={(params) => (
-        <TextField {...params} sx={{ verticalAlign: 'inherit' }} label="Item" variant="standard" />
+        <TextField
+          {...params}
+          sx={{ verticalAlign: 'inherit' }}
+          label="Item"
+          variant={props.variant ?? 'standard'}
+        />
       )}
       onInputChange={(_, value) => {
         setInputValue(value);

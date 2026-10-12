@@ -79,7 +79,7 @@ export default function MarketHistoryPage() {
   return (
     <WorkspacePage scroll>
       <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-        <ItemAutocomplete onSelect={setTypeId} typeId={typeId} width={350} />
+        <ItemAutocomplete onSelect={setTypeId} typeId={typeId} width={350} variant="outlined" />
         <LoadingButton
           loading={isLoading}
           disabled={typeId === null}

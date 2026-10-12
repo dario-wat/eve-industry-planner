@@ -79,6 +79,18 @@ export default function createAppTheme(mode: ColorMode = 'light') {
         defaultProps: {
           size: 'small',
         },
+        styleOverrides: {
+          // Outlined small otherwise stays 40px, and the label sits above the text.
+          inputRoot: {
+            '&.MuiOutlinedInput-root.MuiInputBase-sizeSmall': {
+              paddingTop: 0,
+              paddingBottom: 0,
+              '& .MuiAutocomplete-input': {
+                padding: '4px 4px 4px 8px',
+              },
+            },
+          },
+        },
       },
       MuiButton: {
         defaultProps: {
