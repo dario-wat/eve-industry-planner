@@ -120,6 +120,30 @@ export function filterScanRows(rows: ScanRow[], filters: ScanFilters): ScanRow[]
   });
 }
 
+export type ScatterPoint = {
+  typeId: number;
+  name: string;
+  medianIsk: number;
+  priceChange: number;
+};
+
+/** Points that can sit on a log ISK axis and have a price change. */
+export function scatterPoints(rows: ScanRow[]): ScatterPoint[] {
+  const points: ScatterPoint[] = [];
+  for (const row of rows) {
+    if (row.medianIsk <= 0 || row.priceChange == null) {
+      continue;
+    }
+    points.push({
+      typeId: row.typeId,
+      name: row.name,
+      medianIsk: row.medianIsk,
+      priceChange: row.priceChange,
+    });
+  }
+  return points;
+}
+
 function parseFloor(text: string): number | null {
   const trimmed = text.trim();
   if (trimmed === '') {

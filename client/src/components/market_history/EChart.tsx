@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { ECharts, init, use } from 'echarts/core';
-import { LineChart } from 'echarts/charts';
+import { LineChart, ScatterChart } from 'echarts/charts';
 import {
   GridComponent,
   LegendComponent,
@@ -8,9 +8,11 @@ import {
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { EChartsOption } from './historyChartOptions';
+import type { ScanEChartsOption } from './scanChartOptions';
 
 use([
   LineChart,
+  ScatterChart,
   GridComponent,
   TooltipComponent,
   LegendComponent,
@@ -18,13 +20,16 @@ use([
 ]);
 
 export default function EChart(props: {
-  option: EChartsOption;
-  height: number;
+  option: EChartsOption | ScanEChartsOption;
+  height: number | '100%';
+  onClick?: (data: unknown) => void;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<ECharts | null>(null);
   const optionRef = useRef(props.option);
+  const onClickRef = useRef(props.onClick);
   optionRef.current = props.option;
+  onClickRef.current = props.onClick;
 
   useEffect(() => {
     const host = hostRef.current;
@@ -34,6 +39,9 @@ export default function EChart(props: {
     const chart = init(host);
     chartRef.current = chart;
     chart.setOption(optionRef.current, { notMerge: true });
+    chart.on('click', (params) => {
+      onClickRef.current?.((params as { data?: unknown }).data);
+    });
     const observer = new ResizeObserver(() => chart.resize());
     observer.observe(host);
     return () => {
@@ -47,5 +55,15 @@ export default function EChart(props: {
     chartRef.current?.setOption(props.option, { notMerge: true });
   }, [props.option]);
 
-  return <div ref={hostRef} style={{ width: '100%', height: props.height }} />;
+  return (
+    <div
+      ref={hostRef}
+      style={{
+        width: '100%',
+        height: props.height,
+        flex: props.height === '100%' ? 1 : undefined,
+        minHeight: props.height === '100%' ? 0 : undefined,
+      }}
+    />
+  );
 }

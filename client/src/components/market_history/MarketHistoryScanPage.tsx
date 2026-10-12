@@ -11,7 +11,9 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
+  useTheme,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { MarketHistoryScanRes } from '@internal/shared';
 import {
@@ -22,6 +24,11 @@ import {
   formatSignedPercent,
 } from 'common/format';
 import EveIcon from 'components/util/EveIcon';
+import EChart from './EChart';
+import {
+  ScanChartColors,
+  scatterChartOption,
+} from './scanChartOptions';
 import WorkspacePage, {
   WorkspaceFill,
   WorkspaceSection,
@@ -37,12 +44,14 @@ import {
   parseIskMillions,
   parsePercent,
   rowsForWindow,
+  scatterPoints,
   weekMoves,
 } from './marketHistoryScan';
 
 enum ScanTab {
   ITEMS = 'ITEMS',
   WEEK = 'WEEK',
+  CHART = 'CHART',
 }
 
 const DEFAULT_WINDOW_DAYS: ScanWindowDays = 30;
@@ -247,6 +256,7 @@ export default function MarketHistoryScanPage() {
       >
         <Tab label="Items" value={ScanTab.ITEMS} />
         <Tab label="This week" value={ScanTab.WEEK} />
+        <Tab label="Chart" value={ScanTab.CHART} />
       </Tabs>
       {tab === ScanTab.ITEMS && (
         <WorkspaceFill>
@@ -282,8 +292,80 @@ export default function MarketHistoryScanPage() {
           </Box>
         </Box>
       )}
+      {tab === ScanTab.CHART && (
+        <ScanCharts rows={visible} onOpen={openType} />
+      )}
     </WorkspacePage>
   );
+}
+
+function ScanCharts(props: { rows: ScanRow[]; onOpen: (typeId: number) => void }) {
+  const theme = useTheme();
+  const colors = useMemo<ScanChartColors>(
+    () => ({
+      up: alpha(theme.palette.success.main, 0.85),
+      down: alpha(theme.palette.error.main, 0.85),
+      flat: alpha(theme.palette.text.secondary, 0.7),
+      text: theme.palette.text.primary,
+      muted: theme.palette.text.secondary,
+      divider: theme.palette.divider,
+      paper: theme.palette.background.paper,
+      fontFamily: theme.typography.fontFamily ?? 'sans-serif',
+    }),
+    [theme],
+  );
+  const points = useMemo(() => scatterPoints(props.rows), [props.rows]);
+  const scatter = useMemo(
+    () => (points.length === 0 ? null : scatterChartOption(points, colors)),
+    [points, colors],
+  );
+
+  const openPoint = (data: unknown) => {
+    const typeId = typeIdFromChartData(data);
+    if (typeId != null) {
+      props.onOpen(typeId);
+    }
+  };
+
+  return (
+    <Box sx={{ flex: 1, minHeight: 0, display: 'flex' }}>
+      <ChartPanel
+        title="Liquidity and price change"
+        empty="No price change to plot."
+        option={scatter}
+        onClick={openPoint}
+      />
+    </Box>
+  );
+}
+
+function ChartPanel(props: {
+  title: string;
+  empty: string;
+  option: ReturnType<typeof scatterChartOption> | null;
+  onClick?: (data: unknown) => void;
+}) {
+  return (
+    <Box sx={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex' }}>
+      <WorkspaceSection title={props.title}>
+        {props.option == null ? (
+          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography variant="body2" color="text.secondary">{props.empty}</Typography>
+          </Box>
+        ) : (
+          <EChart option={props.option} height="100%" onClick={props.onClick} />
+        )}
+      </WorkspaceSection>
+    </Box>
+  );
+}
+
+function typeIdFromChartData(data: unknown): number | null {
+  if (data == null || typeof data !== 'object' || !('typeId' in data)) {
+    return null;
+  }
+  const typeId = data.typeId;
+  return typeof typeId === 'number' ? typeId : null;
 }
 
 function WeekGrid(props: {
