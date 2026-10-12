@@ -29,7 +29,7 @@ import MarketComparisonPage from 'components/MarketComparisonPage';
 import CharactersPage from 'components/CharactersPage';
 import MarketPredictionPage from 'components/market_predictions/MarketPredictionPage';
 import MarketHistoryPage from 'components/market_history/MarketHistoryPage';
-import MarketHistoryScanPage from 'components/market_history/MarketHistoryScanPage';
+import MarketHistoryScanPage from 'components/market_scan/MarketHistoryScanPage';
 import SettingsPage from 'components/SettingsPage';
 
 export default function HomePage() {

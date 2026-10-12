@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { WorkspaceSection } from 'components/util/WorkspacePage';
-import EChart from './EChart';
+import EChart from 'components/util/EChart';
 import { ScanRow, scatterPoints } from './marketHistoryScan';
 import { ScanChartColors, scatterChartOption } from './scanChartOptions';
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ECharts, init, use } from 'echarts/core';
+import { ECharts, EChartsCoreOption, init, use } from 'echarts/core';
 import { LineChart, ScatterChart } from 'echarts/charts';
 import {
   GridComponent,
@@ -7,8 +7,6 @@ import {
   TooltipComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
-import type { EChartsOption } from './historyChartOptions';
-import type { ScanEChartsOption } from './scanChartOptions';
 
 use([
   LineChart,
@@ -20,7 +18,7 @@ use([
 ]);
 
 export default function EChart(props: {
-  option: EChartsOption | ScanEChartsOption;
+  option: EChartsCoreOption;
   height: number | '100%';
   onClick?: (data: unknown) => void;
 }) {

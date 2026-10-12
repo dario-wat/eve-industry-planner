@@ -7,7 +7,7 @@ import axios from 'axios';
 import { MarketHistoryRes } from '@internal/shared';
 import { format } from 'date-fns';
 import ItemAutocomplete from 'components/util/ItemAutocomplete';
-import EChart from './EChart';
+import EChart from 'components/util/EChart';
 import {
   CHART_SPANS,
   ChartColors,
