@@ -138,6 +138,23 @@ export default function createAppTheme(mode: ColorMode = 'light') {
           },
         },
       },
+      MuiTabs: {
+        styleOverrides: {
+          root: {
+            minHeight: 32,
+          },
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            backgroundColor: paperBackground,
+            minHeight: 32,
+            paddingTop: 4,
+            paddingBottom: 4,
+          },
+        },
+      },
       MuiChartsLegend: {
         styleOverrides: {
           root: {

@@ -147,7 +147,7 @@ export default function MarketHistoryScanPage() {
         </Typography>
       </Box>
       <Tabs
-        sx={{ mb: 1, flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}
+        sx={{ flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}
         value={tab}
         onChange={(_, value: ScanTab) => setTab(value)}
       >

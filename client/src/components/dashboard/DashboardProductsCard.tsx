@@ -73,13 +73,13 @@ export default function DashboardProductsCard() {
                 scrollButtons="auto">
                 {productGroups.map(group =>
                   <Tab
-                    sx={{ p: 0, minHeight: '36px', alignItems: 'center' }}
+                    sx={{ p: 0, alignItems: 'center' }}
                     label={group}
                     value={group}
                     key={group} />
                 )}
                 <Tab
-                  sx={{ p: 0, minHeight: '36px' }}
+                  sx={{ p: 0 }}
                   icon={<AddIcon />}
                   value={ADD_TAB} />
               </Tabs>

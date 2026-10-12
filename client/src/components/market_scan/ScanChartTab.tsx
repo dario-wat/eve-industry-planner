@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { alpha } from '@mui/material/styles';
-import { WorkspaceSection } from 'components/util/WorkspacePage';
 import EChart from 'components/util/EChart';
 import { ScanRow, scatterPoints } from './marketHistoryScan';
 import { ScanChartColors, scatterChartOption } from './scanChartOptions';
@@ -35,18 +34,30 @@ export default function ScanChartTab(props: { rows: ScanRow[]; onOpen: (typeId: 
   };
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, display: 'flex' }}>
-      <Box sx={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex' }}>
-        <WorkspaceSection title="Liquidity and price change">
-          {scatter == null ? (
-            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography variant="body2" color="text.secondary">No price change to plot.</Typography>
-            </Box>
-          ) : (
-            <EChart option={scatter} height="100%" onClick={openPoint} />
-          )}
-        </WorkspaceSection>
-      </Box>
+    <Box
+      sx={{
+        flex: 1,
+        minWidth: 0,
+        minHeight: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 1,
+        bgcolor: 'background.paper',
+        p: 1,
+      }}
+    >
+      <Typography variant="subtitle2" sx={{ flexShrink: 0, width: 'fit-content', mb: 0.5 }}>
+        Liquidity and price change
+      </Typography>
+      {scatter == null ? (
+        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography variant="body2" color="text.secondary">No price change to plot.</Typography>
+        </Box>
+      ) : (
+        <EChart option={scatter} height="100%" onClick={openPoint} />
+      )}
     </Box>
   );
 }
