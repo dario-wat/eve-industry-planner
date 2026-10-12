@@ -91,6 +91,16 @@ export default function createAppTheme(mode: ColorMode = 'light') {
         defaultProps: {
           size: 'small',
         },
+        styleOverrides: {
+          root: {
+            // Match the compact single-line fields (31px).
+            '&.MuiToggleButton-sizeSmall': {
+              height: 31,
+              padding: '0 10px',
+              boxSizing: 'border-box',
+            },
+          },
+        },
       },
       MuiToggleButtonGroup: {
         defaultProps: {
