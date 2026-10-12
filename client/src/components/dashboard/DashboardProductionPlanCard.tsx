@@ -62,10 +62,8 @@ export default function DashboardProductionPlanCard() {
             <Tab label="Materials" value={SelectedTab.MATERIALS} />
           </Tabs>
           <LoadingButton
-            sx={{ height: '40px' }}
             loading={refreshingAssets}
             variant="contained"
-            size="small"
             onClick={onRefreshAssetsClick}>
             Refresh Assets
           </LoadingButton>

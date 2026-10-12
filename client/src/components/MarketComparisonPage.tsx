@@ -107,7 +107,7 @@ export default function MarketComparisonPage() {
       <Box sx={{ pb: 2 }}>
         <RedTextTypography variant="body2">{first(errors)}</RedTextTypography>
       </Box>
-      <Button variant="contained" size="medium" onClick={onSubmit} disabled={isLoading}>
+      <Button variant="contained" onClick={onSubmit} disabled={isLoading}>
         Submit
       </Button>
       {isLoading ? (

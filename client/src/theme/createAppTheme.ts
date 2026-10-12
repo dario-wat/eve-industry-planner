@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material';
+import type {} from '@mui/lab/themeAugmentation';
 import type {} from '@mui/x-charts/themeAugmentation';
 import { uniqueId } from 'underscore';
 
@@ -67,6 +68,31 @@ export default function createAppTheme(mode: ColorMode = 'light') {
         },
       },
       MuiAutocomplete: {
+        defaultProps: {
+          size: 'small',
+        },
+      },
+      MuiButton: {
+        defaultProps: {
+          size: 'small',
+        },
+      },
+      MuiLoadingButton: {
+        defaultProps: {
+          size: 'small',
+        },
+      },
+      MuiIconButton: {
+        defaultProps: {
+          size: 'small',
+        },
+      },
+      MuiToggleButton: {
+        defaultProps: {
+          size: 'small',
+        },
+      },
+      MuiToggleButtonGroup: {
         defaultProps: {
           size: 'small',
         },

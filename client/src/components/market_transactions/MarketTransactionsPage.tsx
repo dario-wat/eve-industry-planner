@@ -98,10 +98,8 @@ export default function MarketTransactionsPage() {
         </Grid>
         <Grid item>
           <LoadingButton
-            sx={{ height: '40px' }}
             loading={loading}
             variant="contained"
-            size="small"
             onClick={() => refetch()}
           >
             Refresh
