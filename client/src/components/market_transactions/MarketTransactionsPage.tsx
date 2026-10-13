@@ -9,9 +9,8 @@ import { Grid, MenuItem, Select, Tab, Tabs } from '@mui/material';
 import AllMarketTransactionsDataGrid from './AllMarketTransactionsDataGrid';
 import AggregatedTransactionsDataGrid from './AggregatedTransactionsDataGrid';
 import { uniq } from 'underscore';
-import OverallTransactionDataGrid from './OverallTransactionDataGrid';
+import OverallTransactionCharts from './OverallTransactionCharts';
 import { LoadingButton } from '@mui/lab';
-import FeesAndTaxesDataGrid from './FeesAndTaxesDataGrid';
 import { ALL_CHARACTERS } from './marketTransactionsStore';
 import { useMarketTransactionsStore } from './marketTransactionsStore';
 import WorkspacePage, { WorkspaceFill, WorkspaceSpinner } from 'components/util/WorkspacePage';
@@ -20,7 +19,6 @@ enum SelectedTab {
   TRANSACTIONS = 'TRANSACTIONS',
   AGGREGATED = 'AGGREGATED',
   OVERALL = 'OVERALL',
-  FEES_AND_TAXES = 'FEES_AND_TAXES',
 };
 
 export default function MarketTransactionsPage() {
@@ -119,7 +117,6 @@ export default function MarketTransactionsPage() {
         <Tab label="Aggregated" value={SelectedTab.AGGREGATED} />
         <Tab label="Transactions" value={SelectedTab.TRANSACTIONS} />
         <Tab label="Overall" value={SelectedTab.OVERALL} />
-        <Tab label="Fees And Taxes" value={SelectedTab.FEES_AND_TAXES} />
       </Tabs>
       <WorkspaceFill>
         {filteredData
@@ -132,10 +129,7 @@ export default function MarketTransactionsPage() {
                 <AllMarketTransactionsDataGrid data={filteredData} />
               }
               {selectedTab === SelectedTab.OVERALL &&
-                <OverallTransactionDataGrid data={filteredData} />
-              }
-              {selectedTab === SelectedTab.FEES_AND_TAXES &&
-                <FeesAndTaxesDataGrid />
+                <OverallTransactionCharts data={filteredData} />
               }
             </>
           )

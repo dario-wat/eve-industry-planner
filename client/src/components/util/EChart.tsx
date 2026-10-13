@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { ECharts, EChartsCoreOption, init, use } from 'echarts/core';
-import { LineChart, ScatterChart } from 'echarts/charts';
+import { BarChart, LineChart, ScatterChart } from 'echarts/charts';
 import {
   GridComponent,
   LegendComponent,
@@ -9,6 +9,7 @@ import {
 import { CanvasRenderer } from 'echarts/renderers';
 
 use([
+  BarChart,
   LineChart,
   ScatterChart,
   GridComponent,

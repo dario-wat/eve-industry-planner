@@ -1,6 +1,5 @@
 import { createTheme } from '@mui/material';
 import type {} from '@mui/lab/themeAugmentation';
-import type {} from '@mui/x-charts/themeAugmentation';
 import type {} from '@mui/x-data-grid/themeAugmentation';
 import { uniqueId } from 'underscore';
 
@@ -178,15 +177,6 @@ export default function createAppTheme(mode: ColorMode = 'light') {
             minHeight: 32,
             paddingTop: 4,
             paddingBottom: 4,
-          },
-        },
-      },
-      MuiChartsLegend: {
-        styleOverrides: {
-          root: {
-            '& text': {
-              fill: isDark ? '#fff' : 'rgba(0, 0, 0, 0.87)',
-            },
           },
         },
       },
