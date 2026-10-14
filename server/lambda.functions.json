@@ -1,0 +1,13 @@
+{
+  "region": "us-west-2",
+  "roleName": "eve-industry-planner-lambda",
+  "runtime": "nodejs24.x",
+  "functions": [
+    {
+      "name": "eve-industry-planner-ping",
+      "handler": "dist/lambda/ping.handler",
+      "timeout": 30,
+      "memory": 512
+    }
+  ]
+}

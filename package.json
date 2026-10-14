@@ -13,6 +13,9 @@
     "client": "npm run shared-build && cd client && npm start",
     "client-https": "npm run shared-build && cd client && npm run start-https",
     "client-install": "cd client && npm i",
+    "lambda-compile": "npm run shared-build && npm run eve-sso-build && npm run lambda-compile --prefix server",
+    "lambda-package": "npm run lambda-compile && node scripts/packageLambda.mjs",
+    "lambda-deploy": "npm run lambda-package && node scripts/deployLambda.mjs",
     "sync-market-history": "npm run shared-build && npm run ts-node -- ./server/src/scripts/syncMarketHistory.ts",
     "load-sde": "npm run ts-node -- ./server/src/scripts/loadDataIntoMySqlScript.ts"
   }

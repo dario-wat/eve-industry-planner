@@ -44,6 +44,7 @@
   },
   "scripts": {
     "postinstall": "patch-package",
-    "lint": "eslint . --ext .js,.ts"
+    "lint": "eslint . --ext .js,.ts",
+    "lambda-compile": "tsc -p tsconfig.lambda.json"
   }
 }
