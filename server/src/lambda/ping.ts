@@ -1,16 +1,21 @@
 /*
- * Lambda connectivity check. Opens the MySQL pool once per container and
- * returns SELECT 1. Invoke this before any real script.
+ * Lambda connectivity check. Opens the MySQL pool once per process, runs
+ * SELECT 1, and reads public ESI market history for Tritanium in The Forge.
+ * Returns ok only when both calls succeed.
  */
 import 'reflect-metadata';
 import Container from 'typedi';
 import { Sequelize } from 'sequelize';
+import { THE_FORGE } from '../const/IDs';
+import EsiQueryService from '../core/esi/EsiQueryService';
 import { initDatabase } from '../loaders/initDatabase';
+
+const TRITANIUM = 34;
 
 let ready: Promise<void> | null = null;
 
 function ensureReady(): Promise<void> {
-  if (ready != null) {
+  if (ready !== null) {
     return ready;
   }
 
@@ -26,8 +31,9 @@ async function initPool(): Promise<void> {
   await Container.get(Sequelize).authenticate();
 }
 
-export async function handler(): Promise<{ ok: unknown }> {
+export async function handler(): Promise<{ ok: true }> {
   await ensureReady();
-  const [rows] = await Container.get(Sequelize).query('SELECT 1 AS ok');
-  return { ok: rows };
+  await Container.get(Sequelize).query('SELECT 1 AS ok');
+  await Container.get(EsiQueryService).genxRegionMarketHistory(THE_FORGE, TRITANIUM);
+  return { ok: true };
 }

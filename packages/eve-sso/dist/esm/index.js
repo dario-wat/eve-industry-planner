@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import formUrlEncoded from 'form-urlencoded';
-import * as jose from 'jose';
 const { name, version, homepage } = JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf8'));
 export class HTTPFetchError extends Error {
     response;
@@ -26,11 +25,18 @@ export default class SingleSignOn {
         this.endpoint = endpoint ?? ENDPOINT;
         this.host = new URL(this.endpoint).hostname;
         this.userAgent = userAgent ?? `${name}@${version} - nodejs@${process.version} - ${homepage}`;
+    }
+    async #remoteJWKSet() {
+        if (this.#jwks !== undefined) {
+            return this.#jwks;
+        }
+        const jose = await import('jose');
         this.#jwks = jose.createRemoteJWKSet(new URL(`${this.endpoint}/oauth/jwks`), {
             headers: {
                 'User-Agent': this.userAgent
             }
         });
+        return this.#jwks;
     }
     getRedirectUrl(state, scopes) {
         let scope = '';
@@ -74,7 +80,8 @@ export default class SingleSignOn {
         }
         const data = await response.json();
         try {
-            const { payload: decoded } = await jose.jwtVerify(data.access_token, this.#jwks, {
+            const jose = await import('jose');
+            const { payload: decoded } = await jose.jwtVerify(data.access_token, await this.#remoteJWKSet(), {
                 issuer: [this.endpoint, this.host],
                 audience: 'EVE Online',
             });

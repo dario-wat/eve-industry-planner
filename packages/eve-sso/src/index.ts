@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import formUrlEncoded from 'form-urlencoded'
-import * as jose from 'jose'
 
 const { name, version, homepage } = JSON.parse(
   readFileSync(join(__dirname, '../../package.json'), 'utf8')
@@ -43,6 +42,9 @@ export class HTTPFetchError extends Error {
 
 const ENDPOINT = 'https://login.eveonline.com'
 
+type JoseModule = typeof import('jose', { with: { 'resolution-mode': 'import' } })
+type RemoteJWKSet = ReturnType<JoseModule['createRemoteJWKSet']>
+
 export default class SingleSignOn {
   public readonly clientId: string
   public readonly callbackUri: string
@@ -51,7 +53,7 @@ export default class SingleSignOn {
   public readonly userAgent: string
 
   #authorization: string
-  #jwks: ReturnType<typeof jose.createRemoteJWKSet>
+  #jwks: RemoteJWKSet | undefined
 
   public constructor(
     clientId: string,
@@ -69,12 +71,20 @@ export default class SingleSignOn {
     this.endpoint = endpoint ?? ENDPOINT
     this.host = new URL(this.endpoint).hostname
     this.userAgent = userAgent ?? `${name}@${version} - nodejs@${process.version} - ${homepage}`
+  }
 
+  async #remoteJWKSet(): Promise<RemoteJWKSet> {
+    if (this.#jwks !== undefined) {
+      return this.#jwks
+    }
+
+    const jose = await import('jose')
     this.#jwks = jose.createRemoteJWKSet(new URL(`${this.endpoint}/oauth/jwks`), {
       headers: {
         'User-Agent': this.userAgent
       }
     })
+    return this.#jwks
   }
 
   public getRedirectUrl(state: string, scopes?: string | string[]): string {
@@ -126,10 +136,15 @@ export default class SingleSignOn {
     const data = await response.json() as Response;
 
     try {
-      const { payload: decoded } = await jose.jwtVerify(data.access_token, this.#jwks, {
-        issuer: [this.endpoint, this.host],
-        audience: 'EVE Online',
-      })
+      const jose = await import('jose')
+      const { payload: decoded } = await jose.jwtVerify(
+        data.access_token,
+        await this.#remoteJWKSet(),
+        {
+          issuer: [this.endpoint, this.host],
+          audience: 'EVE Online',
+        },
+      )
       data.decoded_access_token = decoded as AccessToken
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)

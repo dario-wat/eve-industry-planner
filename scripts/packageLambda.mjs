@@ -76,6 +76,9 @@ cpSync(path.join(root, 'server', 'patches'), path.join(stageServer, 'patches'), 
 const npmCli = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
 run(process.execPath, [npmCli, 'ci', '--prefix', stageServer]);
 run(process.execPath, [npmCli, 'prune', '--omit=dev', '--prefix', stageServer]);
+run(process.execPath, [
+  npmCli, 'install', '--omit=dev', '--prefix', path.join(stage, 'packages', 'eve-sso'),
+]);
 cpSync(path.join(root, 'server', 'dist'), path.join(stageServer, 'dist'), { recursive: true });
 
 for (const linkPath of [
@@ -90,6 +93,7 @@ for (const linkPath of [
 
 console.log('Checking that the ping handler loads...');
 run(process.execPath, [
+  '--no-require-module',
   '-e',
   "const m = require('./dist/lambda/ping.js'); if (typeof m.handler !== 'function') process.exit(1);",
 ], { cwd: stageServer });
