@@ -1,5 +1,7 @@
 {
   "execMap": {
     "ts": "node ./server/node_modules/ts-node/dist/bin.js"
-  }
+  },
+  "watch": ["server/src"],
+  "ignore": ["build", "client", "server/dist", "server/node_modules"]
 }

@@ -15,6 +15,7 @@ import IndustryJobController from '../features/industry_jobs/IndustryJobControll
 import WalletController from '../features/wallet/WalletController';
 import MarketController from '../features/market/MarketController';
 import MarketHistoryController from '../features/market_history/MarketHistoryController';
+import LambdaJobController from '../features/lambda_jobs/LambdaJobController';
 // NOTE: every new controller needs to be added here
 @Service()
 export default class Controllers {
@@ -32,6 +33,7 @@ export default class Controllers {
     private readonly walletController: WalletController,
     private readonly marketController: MarketController,
     private readonly marketHistoryController: MarketHistoryController,
+    private readonly lambdaJobController: LambdaJobController,
     private readonly healthController: HealthController,
   ) { }
 
@@ -56,5 +58,6 @@ export default class Controllers {
     this.walletController.init(app);
     this.marketController.init(app);
     this.marketHistoryController.init(app);
+    this.lambdaJobController.init(app);
   }
 }

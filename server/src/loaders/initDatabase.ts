@@ -38,6 +38,7 @@ import { walletTransactionAssocsDefine } from '../features/wallet/WalletTransact
 import { walletJournalEntryModelDefine } from '../features/wallet/WalletJournalEntry';
 import { marketHistoryDailyModelDefine } from '../features/market_history/MarketHistoryDaily';
 import { marketHistorySummaryModelDefine } from '../features/market_history/MarketHistorySummary';
+import { lambdaJobRunModelDefine } from '../features/lambda_jobs/LambdaJobRun';
 
 export function initDatabaseSequelize(): Sequelize {
   const useSsl = process.env.DATABASE_SSL === '1';
@@ -102,6 +103,7 @@ export function initDatabase(): void {
   industryJobModelDefine(sequelize);
   marketHistoryDailyModelDefine(sequelize);
   marketHistorySummaryModelDefine(sequelize);
+  lambdaJobRunModelDefine(sequelize);
 
   // Special
   esiCacheModelDefine(sequelize);

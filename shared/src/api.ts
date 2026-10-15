@@ -204,3 +204,19 @@ export type MarketOrdersComparisonRes = {
 export type ParseErrorRes = { name: string; error: string }[];
 
 export type MarketOrdersComparisonWithErrorsRes = MarketOrdersComparisonRes | ParseErrorRes;
+
+export type LambdaJobRunRes = {
+  id: number;
+  time: string;
+  ok: boolean;
+  durationMs: number;
+  errorMessage: string | null;
+};
+
+export type LambdaJobsRes = {
+  name: string;
+  label: string;
+  scheduleLabel: string;
+  consoleUrl: string;
+  runs: LambdaJobRunRes[];
+}[];

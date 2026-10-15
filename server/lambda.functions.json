@@ -1,10 +1,13 @@
 {
+  "comment": "Each function's schedule is a Jobs page label kept in this file. Change it when the EventBridge schedule changes; AWS does not update this file.",
   "region": "us-west-2",
   "roleName": "eve-industry-planner-lambda",
   "runtime": "nodejs26.x",
   "functions": [
     {
       "name": "eve-industry-planner-ping",
+      "label": "Ping",
+      "schedule": "Every hour",
       "handler": "dist/lambda/ping.handler",
       "timeout": 30,
       "memory": 512

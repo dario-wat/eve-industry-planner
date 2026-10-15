@@ -1,7 +1,7 @@
 /*
  * Lambda connectivity check. Opens the MySQL pool once per process, runs
  * SELECT 1, and reads public ESI market history for Tritanium in The Forge.
- * Returns ok only when both calls succeed.
+ * Returns ok only when both calls succeed. recordRun stores that outcome.
  */
 import 'reflect-metadata';
 import Container from 'typedi';
@@ -9,6 +9,7 @@ import { Sequelize } from 'sequelize';
 import { THE_FORGE } from '../const/IDs';
 import EsiQueryService from '../core/esi/EsiQueryService';
 import { initDatabase } from '../loaders/initDatabase';
+import { recordRun } from './recordRun';
 
 const TRITANIUM = 34;
 
@@ -31,9 +32,9 @@ async function initPool(): Promise<void> {
   await Container.get(Sequelize).authenticate();
 }
 
-export async function handler(): Promise<{ ok: true }> {
+export const handler = recordRun(async (): Promise<{ ok: true }> => {
   await ensureReady();
   await Container.get(Sequelize).query('SELECT 1 AS ok');
   await Container.get(EsiQueryService).genxRegionMarketHistory(THE_FORGE, TRITANIUM);
   return { ok: true };
-}
+});
