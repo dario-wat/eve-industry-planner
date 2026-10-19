@@ -14,10 +14,8 @@ import { Sequelize } from 'sequelize';
 import { initDatabase } from '../loaders/initDatabase';
 import EveSdeData from '../core/sde/EveSdeData';
 import { THE_FORGE } from '../const/IDs';
-import MarketHistoryIngestService, {
-  MarketHistoryIngestProgress,
-} from '../features/market_history/MarketHistoryIngestService';
-import MarketHistorySummaryService from '../features/market_history/MarketHistorySummaryService';
+import { MarketHistoryIngestProgress } from '../features/market_history/MarketHistoryIngestService';
+import MarketHistorySyncService from '../features/market_history/MarketHistorySyncService';
 
 function parsePositiveInt(value: string, flag: string): number {
   const parsed = Number(value);
@@ -121,29 +119,33 @@ async function run(): Promise<void> {
   const sdeData = await EveSdeData.init();
   Container.set(EveSdeData, sdeData);
 
-  const ingestService = Container.get(MarketHistoryIngestService);
-  const resolvedTypeIds = ingestService.resolveTypeIds(cli.typeIds);
+  const syncService = Container.get(MarketHistorySyncService);
+  const resolvedTypeIds = syncService.resolveTypeIds(cli.typeIds);
 
   console.log(`Region: ${cli.regionId}`);
   console.log(`Type ids: ${cli.typeIds === null ? 'all tradeable' : cli.typeIds.join(',')}`);
   console.log(`Types to fetch: ${resolvedTypeIds.length}`);
 
-  const result = await ingestService.genIngest(cli.typeIds, cli.regionId, printIngestProgress);
-
-  process.stdout.write('\n');
-  console.log('Writing market history summaries...');
-  const summaryService = Container.get(MarketHistorySummaryService);
-  const summary = await summaryService.genRefresh(
+  const result = await syncService.genSync(
     resolvedTypeIds,
     cli.regionId,
+    printIngestProgress,
     (completed, total) => {
+      if (completed === 0) {
+        process.stdout.write('\n');
+        console.log('Writing market history summaries...');
+      }
       process.stdout.write(`\rSummaries ${completed}/${total} types`);
     },
   );
+  if (resolvedTypeIds.length === 0) {
+    process.stdout.write('\n');
+    console.log('Writing market history summaries...');
+  }
   process.stdout.write('\n');
-  console.log(`Summary rows written: ${summary.rowsWritten}`);
+  console.log(`Summary rows written: ${result.summaryRowsWritten}`);
   console.log('Done.');
-  console.log(JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(result.ingest, null, 2));
 
   await sequelize.close();
 }

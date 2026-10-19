@@ -18,7 +18,7 @@ export type MarketHistoryIngestProgress = {
   elapsedMs: number;
 };
 
-type MarketHistoryIngestResult = {
+export type MarketHistoryIngestResult = {
   regionId: number;
   typeCount: number;
   typesSucceeded: number;
@@ -41,6 +41,7 @@ export default class MarketHistoryIngestService {
       : [...new Set(typeIds)].sort((a, b) => a - b);
   }
 
+  /** Fetches regional market history from ESI and stores the daily rows. */
   public async genIngest(
     typeIds: number[] | null = null,
     regionId: number = THE_FORGE,

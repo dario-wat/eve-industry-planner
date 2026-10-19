@@ -91,12 +91,14 @@ for (const linkPath of [
   }
 }
 
-console.log('Checking that the ping handler loads...');
-run(process.execPath, [
-  '--no-require-module',
-  '-e',
-  "const m = require('./dist/lambda/ping.js'); if (typeof m.handler !== 'function') process.exit(1);",
-], { cwd: stageServer });
+for (const handlerFile of ['ping.js', 'syncCandidatesMarketHistory.js', 'syncTradeableMarketHistory.js']) {
+  console.log(`Checking that ${handlerFile} loads...`);
+  run(process.execPath, [
+    '--no-require-module',
+    '-e',
+    `const m = require('./dist/lambda/${handlerFile}'); if (typeof m.handler !== 'function') process.exit(1);`,
+  ], { cwd: stageServer });
+}
 
 console.log('Zipping...');
 rmSync(zipPath, { force: true });

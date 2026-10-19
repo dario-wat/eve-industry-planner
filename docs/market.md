@@ -20,8 +20,8 @@ Tradeable items worth keeping up to date. Built at the end of the monthly histor
 
 An item is a candidate when both are true:
 
-- It traded on at least 15 of those 30 days.
-- Its typical daily ISK traded is above a floor. Days with no trades count as zero. The floor is not chosen yet.
+- It traded on at least 27 of those 30 days.
+- Its typical daily ISK traded is above 1B. Days with no trades count as zero. The floor is not chosen yet.
 
 An item that falls under the line stays on the list for about a week.
 

@@ -340,6 +340,16 @@ function upsertEnvKeys(envPath, entries) {
   fs.writeFileSync(envPath, text);
 }
 
+function sslOptions() {
+  if (process.env.DATABASE_SSL !== '1') {
+    return undefined;
+  }
+  return {
+    minVersion: 'TLSv1.2',
+    rejectUnauthorized: true,
+  };
+}
+
 async function connectReadOnly(mysql, cfg) {
   const connection = await mysql.createConnection({
     host: cfg.host,
@@ -347,10 +357,17 @@ async function connectReadOnly(mysql, cfg) {
     user: cfg.user,
     password: cfg.password,
     database: cfg.database,
+    ssl: sslOptions(),
     multipleStatements: false,
   });
   const rawQuery = connection.query.bind(connection);
-  await rawQuery('SET SESSION TRANSACTION READ ONLY');
+  try {
+    await rawQuery('SET SESSION TRANSACTION READ ONLY');
+  } catch (err) {
+    if (!/READ ONLY has only noop implementation in tidb/i.test(err.message || '')) {
+      throw err;
+    }
+  }
   const [grants] = await rawQuery('SHOW GRANTS');
   assertSelectOnlyGrants(grants);
   lockConnectionReadOnly(connection);

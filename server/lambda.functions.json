@@ -11,6 +11,22 @@
       "handler": "dist/lambda/ping.handler",
       "timeout": 30,
       "memory": 512
+    },
+    {
+      "name": "eve-industry-planner-sync-market-history",
+      "label": "Candidate market history",
+      "schedule": "Every Tuesday, 3pm PT",
+      "handler": "dist/lambda/syncCandidatesMarketHistory.handler",
+      "timeout": 300,
+      "memory": 1024
+    },
+    {
+      "name": "eve-industry-planner-sync-tradeable-market-history",
+      "label": "Tradeable market history",
+      "schedule": "Second Thursday, 3pm PT",
+      "handler": "dist/lambda/syncTradeableMarketHistory.handler",
+      "timeout": 900,
+      "memory": 1024
     }
   ]
 }

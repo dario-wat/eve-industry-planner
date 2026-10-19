@@ -82,6 +82,35 @@ export default class MarketHistorySummaryService {
   }
 
   /**
+   * Candidate type ids from a summary window. A type must be tradeable and meet
+   * the traded-day and median-ISK floors. Median ISK counts days with no trades as zero.
+   */
+  public async genCandidateTypeIds(
+    regionId: number,
+    windowDays: number,
+    minDaysTraded: number,
+    minMedianDailyIsk: number,
+  ): Promise<number[]> {
+    const rows = await MarketHistorySummary.findAll({
+      attributes: ['type_id'],
+      where: {
+        region_id: regionId,
+        window_days: windowDays,
+        days_traded: { [Op.gte]: minDaysTraded },
+        median_isk: { [Op.gte]: minMedianDailyIsk },
+      },
+      raw: true,
+    });
+
+    const tradeable = new Set(this.sdeData.tradeableTypeIds());
+    const typeIds = (rows as unknown as { type_id: number }[])
+      .map((row) => Number(row.type_id))
+      .filter((typeId) => tradeable.has(typeId));
+    typeIds.sort((a, b) => a - b);
+    return typeIds;
+  }
+
+  /**
    * Rewrites summary rows for these types from stored daily history.
    * Types that were not fetched are left untouched.
    */

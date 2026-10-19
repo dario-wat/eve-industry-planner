@@ -13,8 +13,8 @@ import WorkspacePage, { WorkspaceSection, WorkspaceSpinner } from 'components/ut
 type JobRow = LambdaJobsRes[number] & { id: string };
 
 const jobColumns: GridColDef<JobRow>[] = [
-  { field: 'label', headerName: 'Job', width: 160 },
-  { field: 'scheduleLabel', headerName: 'Schedule', width: 150 },
+  { field: 'label', headerName: 'Job', width: 240 },
+  { field: 'scheduleLabel', headerName: 'Schedule', width: 220 },
   {
     field: 'lastRun',
     headerName: 'Last run',
