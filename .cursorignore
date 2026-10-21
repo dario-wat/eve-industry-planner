@@ -1,4 +1,7 @@
-﻿node_modules/
-sde/
+node_modules/
+/sde/
 sde2/
 client/build/
+
+!server/src/core/sde/
+!server/src/core/sde/**
