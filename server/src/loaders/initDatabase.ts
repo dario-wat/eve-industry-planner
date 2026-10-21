@@ -38,6 +38,8 @@ import { walletTransactionAssocsDefine } from '../features/wallet/WalletTransact
 import { walletJournalEntryModelDefine } from '../features/wallet/WalletJournalEntry';
 import { marketHistoryDailyModelDefine } from '../features/market_history/MarketHistoryDaily';
 import { marketHistorySummaryModelDefine } from '../features/market_history/MarketHistorySummary';
+import { marketOrderOpenModelDefine } from '../features/market_order_book/MarketOrderOpen';
+import { marketOrderEventModelDefine } from '../features/market_order_book/MarketOrderEvent';
 import { lambdaJobRunModelDefine } from '../features/lambda_jobs/LambdaJobRun';
 
 export function initDatabaseSequelize(): Sequelize {
@@ -103,6 +105,8 @@ export function initDatabase(): void {
   industryJobModelDefine(sequelize);
   marketHistoryDailyModelDefine(sequelize);
   marketHistorySummaryModelDefine(sequelize);
+  marketOrderOpenModelDefine(sequelize);
+  marketOrderEventModelDefine(sequelize);
   lambdaJobRunModelDefine(sequelize);
 
   // Special
