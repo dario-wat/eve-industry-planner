@@ -41,6 +41,47 @@ export type OrderBookDiff = {
   events: OrderBookEvent[];
 };
 
+export type OpenOrderChanges = {
+  inserted: OpenOrder[];
+  updated: OpenOrder[];
+  deletedIds: number[];
+};
+
+/** Rows to insert, update, or delete so the stored book matches `next`. */
+export function openOrderChanges(
+  stored: readonly OpenOrder[],
+  next: readonly OpenOrder[],
+): OpenOrderChanges {
+  const previousById = firstById(stored);
+  const nextIds = new Set<number>();
+  const inserted: OpenOrder[] = [];
+  const updated: OpenOrder[] = [];
+
+  for (const order of next) {
+    if (nextIds.has(order.orderId)) {
+      continue;
+    }
+    nextIds.add(order.orderId);
+    const prior = previousById.get(order.orderId);
+    if (prior === undefined) {
+      inserted.push(order);
+      continue;
+    }
+    if (!sameOpenOrder(prior, order)) {
+      updated.push(order);
+    }
+  }
+
+  const deletedIds: number[] = [];
+  for (const order of stored) {
+    if (!nextIds.has(order.orderId)) {
+      deletedIds.push(order.orderId);
+    }
+  }
+
+  return { inserted, updated, deletedIds };
+}
+
 /**
  * Compare the previous open orders to a new book.
  * An order that is absent once stays open and is marked missing.
@@ -95,6 +136,21 @@ export function diffOrderBook(
   }
 
   return { openOrders, events };
+}
+
+function sameOpenOrder(left: OpenOrder, right: OpenOrder): boolean {
+  return left.typeId === right.typeId
+    && left.locationId === right.locationId
+    && left.systemId === right.systemId
+    && left.isBuy === right.isBuy
+    && left.price === right.price
+    && left.volumeRemain === right.volumeRemain
+    && left.volumeTotal === right.volumeTotal
+    && left.minVolume === right.minVolume
+    && left.range === right.range
+    && left.duration === right.duration
+    && left.missing === right.missing
+    && Date.parse(left.issued) === Date.parse(right.issued);
 }
 
 function firstById<T extends { orderId: number }>(orders: readonly T[]): Map<number, T> {

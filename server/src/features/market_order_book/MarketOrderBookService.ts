@@ -1,16 +1,50 @@
 import { Service } from 'typedi';
+import { Op } from 'sequelize';
 import { range } from 'lodash';
+import { chunk } from 'underscore';
 import { EveMarketOrder } from 'types/EsiQuery';
 import EsiQueryService from '../../core/esi/EsiQueryService';
+import {
+  OpenOrder,
+  OrderBookEntry,
+  OrderBookEvent,
+  OrderBookEventKind,
+  diffOrderBook,
+  openOrderChanges,
+} from './diffOrderBook';
+import { MarketOrderEvent } from './MarketOrderEvent';
+import { MarketOrderOpen } from './MarketOrderOpen';
 
 /** How many region-book pages to request at once. */
 const REGION_ORDER_PAGE_CONCURRENCY = 8;
+
+/** Rows per insert, so one statement does not carry the whole book. */
+const WRITE_CHUNK = 1000;
+
+const EVENT_KINDS: readonly OrderBookEventKind[] = [
+  'appeared',
+  'traded',
+  'repriced',
+  'expired',
+  'ambiguous',
+];
 
 export type RegionOrderBookProgress = {
   completedPages: number;
   totalPages: number;
   orders: number;
   elapsedMs: number;
+};
+
+export type RegionOrderBookSyncResult = {
+  regionId: number;
+  fetchedOrders: number;
+  eventsWritten: number;
+  openOrdersInserted: number;
+  openOrdersUpdated: number;
+  openOrdersDeleted: number;
+  eventCounts: Record<OrderBookEventKind, number>;
+  observedAt: string;
 };
 
 @Service()
@@ -111,7 +145,123 @@ export default class MarketOrderBookService {
 
     return byPage.flat();
   }
+
+  /**
+   * Fetch the region book, diff it against the stored open orders, and write
+   * the result. A failed fetch writes nothing.
+   */
+  public async genxSyncRegionOrderBook(
+    regionId: number,
+    onProgress?: (progress: RegionOrderBookProgress) => void,
+  ): Promise<RegionOrderBookSyncResult> {
+    const fetched = await this.genxRegionOrderBook(regionId, onProgress);
+    const observedAt = new Date();
+    const stored = await this.genOpenOrders(regionId);
+    const diff = diffOrderBook(stored, fetched.map(bookEntryFromEsi), observedAt);
+    const changes = openOrderChanges(stored, diff.openOrders);
+    await this.genApplyDiff(regionId, observedAt, diff.events, changes);
+    return {
+      regionId,
+      fetchedOrders: fetched.length,
+      eventsWritten: diff.events.length,
+      openOrdersInserted: changes.inserted.length,
+      openOrdersUpdated: changes.updated.length,
+      openOrdersDeleted: changes.deletedIds.length,
+      eventCounts: countEvents(diff.events),
+      observedAt: observedAt.toISOString(),
+    };
+  }
+
+  private async genOpenOrders(regionId: number): Promise<OpenOrder[]> {
+    const rows = await MarketOrderOpen.findAll({
+      where: { region_id: regionId },
+      raw: true,
+    }) as unknown as OpenOrderRow[];
+    return rows.map(openOrderFromRow);
+  }
+
+  private async genApplyDiff(
+    regionId: number,
+    observedAt: Date,
+    events: readonly OrderBookEvent[],
+    changes: ReturnType<typeof openOrderChanges>,
+  ): Promise<void> {
+    const sequelize = MarketOrderOpen.sequelize;
+    if (sequelize === undefined) {
+      throw new Error('Market order models are not initialized');
+    }
+
+    const eventRows = events.map((item) => ({
+      region_id: regionId,
+      observed_at: observedAt,
+      kind: item.kind,
+      order_id: item.orderId,
+      type_id: item.typeId,
+      location_id: item.locationId,
+      is_buy: item.isBuy,
+      price: item.price,
+      previous_price: item.previousPrice,
+      volume_remain: item.volumeRemain,
+      previous_volume_remain: item.previousVolumeRemain,
+      volume_delta: item.volumeDelta,
+    }));
+    const openRows = [...changes.inserted, ...changes.updated].map((order) => ({
+      order_id: order.orderId,
+      region_id: regionId,
+      type_id: order.typeId,
+      location_id: order.locationId,
+      system_id: order.systemId,
+      is_buy: order.isBuy,
+      price: order.price,
+      volume_remain: order.volumeRemain,
+      volume_total: order.volumeTotal,
+      min_volume: order.minVolume,
+      range: order.range,
+      issued: order.issued,
+      duration: order.duration,
+      missing: order.missing,
+      observed_at: observedAt,
+    }));
+
+    await sequelize.transaction(async (transaction) => {
+      for (const rows of chunk(eventRows, WRITE_CHUNK)) {
+        await MarketOrderEvent.bulkCreate(rows, { transaction });
+      }
+      for (const rows of chunk(openRows, WRITE_CHUNK)) {
+        await MarketOrderOpen.bulkCreate(rows, {
+          updateOnDuplicate: OPEN_ORDER_UPDATE_FIELDS,
+          transaction,
+        });
+      }
+      for (const orderIds of chunk(changes.deletedIds, WRITE_CHUNK)) {
+        await MarketOrderOpen.destroy({
+          where: {
+            region_id: regionId,
+            order_id: { [Op.in]: orderIds },
+          },
+          transaction,
+        });
+      }
+    });
+  }
 }
+
+const OPEN_ORDER_UPDATE_FIELDS = [
+  'region_id',
+  'type_id',
+  'location_id',
+  'system_id',
+  'is_buy',
+  'price',
+  'volume_remain',
+  'volume_total',
+  'min_volume',
+  'range',
+  'issued',
+  'duration',
+  'missing',
+  'observed_at',
+];
 
 function pageErrorMessage(error: unknown): string {
   if (typeof error === 'object' && error !== null && 'statusCode' in error) {
@@ -123,4 +273,91 @@ function pageErrorMessage(error: unknown): string {
     return error.message;
   }
   return String(error);
+}
+
+type OpenOrderRow = {
+  order_id: number | string;
+  type_id: number;
+  location_id: number | string;
+  system_id: number;
+  is_buy: boolean | number;
+  price: number;
+  volume_remain: number | string;
+  volume_total: number | string;
+  min_volume: number | string;
+  range: string;
+  issued: Date | string;
+  duration: number;
+  missing: boolean | number | null;
+};
+
+function bookEntryFromEsi(order: EveMarketOrder): OrderBookEntry {
+  if (
+    order.system_id === undefined
+    || order.min_volume === undefined
+    || order.is_buy_order === undefined
+  ) {
+    throw new Error(`Order ${order.order_id} is missing book fields`);
+  }
+  return {
+    orderId: order.order_id,
+    typeId: order.type_id,
+    locationId: order.location_id,
+    systemId: order.system_id,
+    isBuy: order.is_buy_order,
+    price: order.price,
+    volumeRemain: order.volume_remain,
+    volumeTotal: order.volume_total,
+    minVolume: order.min_volume,
+    range: order.range,
+    issued: order.issued,
+    duration: order.duration,
+  };
+}
+
+function openOrderFromRow(row: OpenOrderRow): OpenOrder {
+  return {
+    orderId: asNumber(row.order_id),
+    typeId: row.type_id,
+    locationId: asNumber(row.location_id),
+    systemId: row.system_id,
+    isBuy: Boolean(row.is_buy),
+    price: row.price,
+    volumeRemain: asNumber(row.volume_remain),
+    volumeTotal: asNumber(row.volume_total),
+    minVolume: asNumber(row.min_volume),
+    range: row.range,
+    issued: issuedToIso(row.issued),
+    duration: row.duration,
+    missing: Boolean(row.missing),
+  };
+}
+
+function asNumber(value: number | string): number {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Expected a number, received ${String(value)}`);
+  }
+  return parsed;
+}
+
+function issuedToIso(value: Date | string): string {
+  const parsed = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(`Bad issued time: ${String(value)}`);
+  }
+  return parsed.toISOString();
+}
+
+function countEvents(
+  events: readonly { kind: OrderBookEventKind }[],
+): Record<OrderBookEventKind, number> {
+  const counts = Object.fromEntries(EVENT_KINDS.map((kind) => [kind, 0])) as Record<
+    OrderBookEventKind,
+    number
+  >;
+  for (const item of events) {
+    counts[item.kind] += 1;
+  }
+  return counts;
 }

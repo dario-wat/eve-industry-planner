@@ -167,6 +167,8 @@ export interface EveMarketOrder {
   volume_remain: number;
   volume_total: number;
   is_buy_order?: boolean;
+  min_volume?: number;
+  system_id?: number;
 }
 
 export type EveMarketOrderType = 'all' | 'buy' | 'sell';
