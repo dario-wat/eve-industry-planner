@@ -588,16 +588,16 @@ export default class EsiQueryService {
   */
   public async genxRegionMarketOrders(
     regionId: number,
-    typeId: number,
+    typeId: number | null = null,
     orderType: EveMarketOrderType = 'all',
     page: number = 1,
   ): Promise<EsiMultiPageResult<EveMarketOrder>> {
     const response = await this.esi.request(
       `/markets/${regionId}/orders/`,
       {
-        type_id: typeId,
         page,
-        order_type: orderType
+        order_type: orderType,
+        ...(typeId === null ? {} : { type_id: typeId }),
       },
     );
     return {
@@ -608,7 +608,7 @@ export default class EsiQueryService {
 
   public async genRegionMarketOrders(
     regionId: number,
-    typeId: number,
+    typeId: number | null = null,
     orderType: EveMarketOrderType = 'all',
     page: number = 1,
   ): Promise<EsiMultiPageResult<EveMarketOrder> | null> {

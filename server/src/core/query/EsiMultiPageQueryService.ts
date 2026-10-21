@@ -67,7 +67,7 @@ export default class EsiMultiPageQueryService {
     );
   }
 
-  /** Fetches all market orders for the given region. */
+  /** Fetches all market orders for the given region and type. */
   public async genxAllRegionMarketOrders(
     regionId: number,
     typeId: number,

@@ -17,6 +17,7 @@
     "lambda-package": "npm run lambda-compile && node scripts/packageLambda.mjs",
     "lambda-deploy": "npm run lambda-package && node scripts/deployLambda.mjs",
     "sync-market-history": "npm run shared-build && npm run ts-node -- ./server/src/scripts/syncMarketHistory.ts",
+    "fetch-region-market-orders": "npm run ts-node -- ./server/src/scripts/fetchRegionMarketOrders.ts",
     "load-sde": "npm run ts-node -- ./server/src/scripts/loadDataIntoMySqlScript.ts"
   }
 }
