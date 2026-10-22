@@ -111,12 +111,20 @@
   details.tool[open] > summary::before { transform: rotate(90deg); }
   .tname { font-weight: 560; flex: 1; }
   .ttier { font-size: 11.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
-  .tdone {
+  .tdone, .tlater {
     font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
+    border-radius: 999px; padding: 0 7px;
+  }
+  .tdone {
     color: var(--done); background: var(--done-soft);
-    border: 1px solid var(--done); border-radius: 999px; padding: 0 7px;
+    border: 1px solid var(--done);
+  }
+  .tlater {
+    color: var(--text-2); background: var(--bg-sunk);
+    border: 1px solid var(--stroke-2);
   }
   .status { border-left: 2px solid var(--done); padding-left: 12px; margin: 0 0 10px; font-size: 13.5px; }
+  .status.later { border-left-color: var(--stroke-2); }
   .tbody { padding: 2px 2px 16px 22px; }
   .tbody .one { margin-bottom: 8px; }
   .tbody .why { color: var(--text-2); margin-bottom: 10px; }
@@ -259,7 +267,7 @@
 <table>
   <thead><tr><th>Phase</th><th>Focus</th><th>Contents and rationale</th></tr></thead>
   <tbody>
-    <tr><td>1</td><td>Substrate only</td><td>Book snapshotter and differ, history warehouse, quote series, SDE service. Ship no UI. Every week you delay is a week of history you can never recover.</td></tr>
+    <tr><td>1</td><td>Substrate only</td><td>Book snapshotter and differ, history warehouse, SDE service. Quote series is deferred. Ship no UI. Every week you delay the differ is a week of history you can never recover.</td></tr>
     <tr><td>2</td><td>Fee engine and item page</td><td>Fee resolver, profitability calculator, depth-aware pricer, item deep-dive workbench. First genuinely useful screen, and it validates that the substrate is correct.</td></tr>
     <tr><td>3</td><td>Scanners</td><td>Liquidity classifier, station-trading scanner, competition meter, volume-balance screen, spike detector. By now you have enough stored history for these to be meaningful.</td></tr>
     <tr><td>4</td><td>Workflow and P&amp;L</td><td>Order monitor, relist decision engine, FIFO cost basis, realized P&amp;L, daily worklist. This is where the tool starts saving you hours rather than just informing you.</td></tr>
@@ -316,7 +324,8 @@ const LAYERS = [
     inputs: "One request per (region, type) pair per day. Backfill once, then append.",
     output: "Daily rows of `date, region_id, type_id, average, highest, lowest, order_count, volume`.",
     trap: "`highest` and `lowest` are executed trade prices for the day, not order-book quotes, and `order_count` is trades executed, not open orders. CCP does not document whether `average` is volume-weighted, so do not treat `average × volume` as exact ISK turnover." },
-  { name: "Quote and depth time series", tier: "Foundation",
+  { name: "Quote and depth time series", tier: "Foundation", later: true,
+    status: "Deferred. A Forge poll wrote 72,918 rows, one per type and location, and every later poll would insert another full set. Not building this now. Add it later as its own step, or as part of the order-book sync, once each poll writes a bounded number of rows.",
     one: "Roll each book snapshot into one compact row per (type, location, interval).",
     why: "The raw diff table is for forensics; this is the table your charts and scanners actually read. Collapsing a 400,000-row book into a few thousand quote rows per interval is the difference between a scan that returns in milliseconds and one that times out.",
     inputs: "Each order-book poll, grouped by type and location.",
@@ -567,7 +576,7 @@ function render(tier) {
       const d = document.createElement("details");
       d.className = "tool";
       let body = "<div class='tbody'>";
-      if (t.status) body += "<p class='status'>" + fmt(t.status) + "</p>";
+      if (t.status) body += "<p class='status" + (t.later ? " later" : "") + "'>" + fmt(t.status) + "</p>";
       body += "<p class='one'>" + fmt(t.one) + "</p>";
       body += "<p class='why'>" + fmt(t.why) + "</p>";
       body += "<p class='io'><b>Inputs</b> — " + fmt(t.inputs) + "</p>";
@@ -576,7 +585,8 @@ function render(tier) {
       if (t.trap) body += "<p class='trap'><b>Gotcha.</b> " + fmt(t.trap) + "</p>";
       body += "</div>";
       const done = t.done ? "<span class='tdone'>Done</span>" : "";
-      d.innerHTML = "<summary><span class='tname'>" + esc(t.name) + "</span>" + done + "<span class='ttier'>" + esc(t.tier) + "</span></summary>" + body;
+      const later = t.later ? "<span class='tlater'>Later</span>" : "";
+      d.innerHTML = "<summary><span class='tname'>" + esc(t.name) + "</span>" + done + later + "<span class='ttier'>" + esc(t.tier) + "</span></summary>" + body;
       sec.appendChild(d);
     }
     root.appendChild(sec);
