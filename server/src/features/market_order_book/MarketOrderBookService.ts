@@ -18,6 +18,16 @@ import { MarketOrderOpen } from './MarketOrderOpen';
 /** How many region-book pages to request at once. */
 const REGION_ORDER_PAGE_CONCURRENCY = 8;
 
+/**
+ * Player structures whose orders are not owned by the regional diff.
+ * Their buy orders stay as stored until a structure fetch updates them.
+ * Perimeter — 0.0% Neutral States Market HQ, and Tranquility Trading Tower.
+ */
+const STRUCTURE_LOCATION_IDS = new Set<number>([
+  1044752365771,
+  1042508032148,
+]);
+
 /** Rows per insert, so one statement does not carry the whole book. */
 const WRITE_CHUNK = 1000;
 
@@ -148,7 +158,8 @@ export default class MarketOrderBookService {
 
   /**
    * Fetch the region book, diff it against the stored open orders, and write
-   * the result. A failed fetch writes nothing.
+   * the result. Orders at the two Perimeter structures are left unchanged.
+   * A failed fetch writes nothing.
    */
   public async genxSyncRegionOrderBook(
     regionId: number,
@@ -156,8 +167,12 @@ export default class MarketOrderBookService {
   ): Promise<RegionOrderBookSyncResult> {
     const fetched = await this.genxRegionOrderBook(regionId, onProgress);
     const observedAt = new Date();
-    const stored = await this.genOpenOrders(regionId);
-    const diff = diffOrderBook(stored, fetched.map(bookEntryFromEsi), observedAt);
+    const stored = (await this.genOpenOrders(regionId))
+      .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
+    const listed = fetched
+      .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.location_id))
+      .map(bookEntryFromEsi);
+    const diff = diffOrderBook(stored, listed, observedAt);
     const changes = openOrderChanges(stored, diff.openOrders);
     await this.genApplyDiff(regionId, observedAt, diff.events, changes);
     return {
