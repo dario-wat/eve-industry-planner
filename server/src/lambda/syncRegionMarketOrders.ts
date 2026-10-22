@@ -62,7 +62,13 @@ export const handler = recordRun(async () => {
   );
   for (const structure of result.structureFetches) {
     if (structure.error === null) {
-      console.log(`Structure ${structure.locationId} fetched ${structure.fetchedOrders}`);
+      console.log(
+        `Structure ${structure.locationId} fetched ${structure.fetchedOrders} ` +
+        `inserted ${structure.openOrdersInserted} ` +
+        `updated ${structure.openOrdersUpdated} ` +
+        `deleted ${structure.openOrdersDeleted} ` +
+        `appeared ${structure.eventCounts.appeared}`,
+      );
     } else {
       console.log(`Structure ${structure.locationId} fetch failed: ${structure.error}`);
     }

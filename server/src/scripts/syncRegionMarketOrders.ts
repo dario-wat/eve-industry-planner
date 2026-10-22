@@ -95,7 +95,15 @@ async function run(): Promise<void> {
   for (const structure of result.structureFetches) {
     if (structure.error === null) {
       console.log(
-        `Structure ${structure.locationId} fetched orders: ${structure.fetchedOrders}`,
+        `Structure ${structure.locationId} fetched ${structure.fetchedOrders} ` +
+        `inserted ${structure.openOrdersInserted} ` +
+        `updated ${structure.openOrdersUpdated} ` +
+        `deleted ${structure.openOrdersDeleted} ` +
+        `appeared ${structure.eventCounts.appeared} ` +
+        `traded ${structure.eventCounts.traded} ` +
+        `repriced ${structure.eventCounts.repriced} ` +
+        `expired ${structure.eventCounts.expired} ` +
+        `ambiguous ${structure.eventCounts.ambiguous}`,
       );
     } else {
       console.log(`Structure ${structure.locationId} fetch failed: ${structure.error}`);

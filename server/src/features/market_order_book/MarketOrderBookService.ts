@@ -32,6 +32,11 @@ const STRUCTURE_LOCATION_IDS = new Set<number>([
 /** Can dock at both Perimeter structures. Her token is refreshed on use. */
 const TRADING_LADY = 1688205171;
 
+/**
+ * Structure orders omit system_id. Both structures are in Perimeter.
+ */
+const PERIMETER = 30000144;
+
 /** Rows per insert, so one statement does not carry the whole book. */
 const WRITE_CHUNK = 1000;
 
@@ -54,6 +59,11 @@ export type StructureOrderBookFetch = {
   locationId: number;
   fetchedOrders: number;
   error: string | null;
+  eventsWritten: number;
+  openOrdersInserted: number;
+  openOrdersUpdated: number;
+  openOrdersDeleted: number;
+  eventCounts: Record<OrderBookEventKind, number>;
 };
 
 export type RegionOrderBookSyncResult = {
@@ -110,51 +120,86 @@ export default class MarketOrderBookService {
   }
 
   /**
-   * Fetch the region book, then both Perimeter structure books, then diff
-   * the regional orders and write them. Structure orders are not stored.
-   * Orders at the two structures are left unchanged. A failed region fetch
-   * writes nothing. A failed structure fetch does not cancel the region write.
+   * Fetch the region book and both Perimeter structure books, then write
+   * every successful diff in one transaction. A structure that failed to
+   * fetch is left unchanged. A failed region fetch writes nothing.
    */
   public async genxSyncRegionOrderBook(
     regionId: number,
     onProgress?: (progress: RegionOrderBookProgress) => void,
   ): Promise<RegionOrderBookSyncResult> {
     const fetched = await this.genxRegionOrderBook(regionId, onProgress);
+    const structureBooks: { locationId: number; orders: EveMarketOrder[] }[] = [];
     const structureFetches: StructureOrderBookFetch[] = [];
     for (const locationId of STRUCTURE_LOCATION_IDS) {
       try {
         const orders = await this.genxStructureOrderBook(locationId, onProgress);
-        structureFetches.push({
-          locationId,
-          fetchedOrders: orders.length,
-          error: null,
-        });
+        structureBooks.push({ locationId, orders });
       } catch (error) {
-        structureFetches.push({
+        structureFetches.push(structureFetch(
           locationId,
-          fetchedOrders: 0,
-          error: error instanceof Error ? error.message : String(error),
-        });
+          0,
+          error instanceof Error ? error.message : String(error),
+        ));
       }
     }
+
     const observedAt = new Date();
-    const stored = (await this.genOpenOrders(regionId))
+    const stored = await this.genOpenOrders(regionId);
+    const storedRegion = stored
       .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
     const listed = fetched
       .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.location_id))
-      .map(bookEntryFromEsi);
-    const diff = diffOrderBook(stored, listed, observedAt);
-    const changes = openOrderChanges(stored, diff.openOrders);
-    await this.genApplyDiff(regionId, observedAt, diff.events, changes);
+      // Not a bare map: the index would be passed as systemId.
+      .map((order) => bookEntryFromEsi(order));
+    const regionDiff = diffOrderBook(storedRegion, listed, observedAt);
+    const regionChanges = openOrderChanges(storedRegion, regionDiff.openOrders);
+    const events = [...regionDiff.events];
+    const inserted = [...regionChanges.inserted];
+    const updated = [...regionChanges.updated];
+    const deletedIds = [...regionChanges.deletedIds];
+
+    for (const book of structureBooks) {
+      const storedHere = stored.filter((order) => order.locationId === book.locationId);
+      const diff = diffOrderBook(
+        storedHere,
+        book.orders.map((order) => bookEntryFromEsi(
+          order,
+          order.system_id ?? PERIMETER,
+        )),
+        observedAt,
+      );
+      const changes = openOrderChanges(storedHere, diff.openOrders);
+      events.push(...diff.events);
+      inserted.push(...changes.inserted);
+      updated.push(...changes.updated);
+      deletedIds.push(...changes.deletedIds);
+      structureFetches.push({
+        locationId: book.locationId,
+        fetchedOrders: book.orders.length,
+        error: null,
+        eventsWritten: diff.events.length,
+        openOrdersInserted: changes.inserted.length,
+        openOrdersUpdated: changes.updated.length,
+        openOrdersDeleted: changes.deletedIds.length,
+        eventCounts: countEvents(diff.events),
+      });
+    }
+
+    await this.genApplyDiff(regionId, observedAt, events, {
+      inserted,
+      updated,
+      deletedIds,
+    });
     return {
       regionId,
       fetchedOrders: fetched.length,
       structureFetches,
-      eventsWritten: diff.events.length,
-      openOrdersInserted: changes.inserted.length,
-      openOrdersUpdated: changes.updated.length,
-      openOrdersDeleted: changes.deletedIds.length,
-      eventCounts: countEvents(diff.events),
+      eventsWritten: events.length,
+      openOrdersInserted: inserted.length,
+      openOrdersUpdated: updated.length,
+      openOrdersDeleted: deletedIds.length,
+      eventCounts: countEvents(events),
       observedAt: observedAt.toISOString(),
     };
   }
@@ -363,19 +408,27 @@ type OpenOrderRow = {
   missing: boolean | number | null;
 };
 
-function bookEntryFromEsi(order: EveMarketOrder): OrderBookEntry {
+function bookEntryFromEsi(
+  order: EveMarketOrder,
+  systemId: number | undefined = order.system_id,
+): OrderBookEntry {
   if (
-    order.system_id === undefined
+    systemId === undefined
     || order.min_volume === undefined
     || order.is_buy_order === undefined
   ) {
-    throw new Error(`Order ${order.order_id} is missing book fields`);
+    const missing = [
+      systemId === undefined ? 'system_id' : '',
+      order.min_volume === undefined ? 'min_volume' : '',
+      order.is_buy_order === undefined ? 'is_buy_order' : '',
+    ].filter((field) => field !== '').join(', ');
+    throw new Error(`Order ${order.order_id} is missing ${missing}`);
   }
   return {
     orderId: order.order_id,
     typeId: order.type_id,
     locationId: order.location_id,
-    systemId: order.system_id,
+    systemId,
     isBuy: order.is_buy_order,
     price: order.price,
     volumeRemain: order.volume_remain,
@@ -419,6 +472,23 @@ function issuedToIso(value: Date | string): string {
     throw new Error(`Bad issued time: ${String(value)}`);
   }
   return parsed.toISOString();
+}
+
+function structureFetch(
+  locationId: number,
+  fetchedOrders: number,
+  error: string | null,
+): StructureOrderBookFetch {
+  return {
+    locationId,
+    fetchedOrders,
+    error,
+    eventsWritten: 0,
+    openOrdersInserted: 0,
+    openOrdersUpdated: 0,
+    openOrdersDeleted: 0,
+    eventCounts: countEvents([]),
+  };
 }
 
 function countEvents(
