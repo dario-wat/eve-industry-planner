@@ -27,6 +27,14 @@
       "handler": "dist/lambda/syncTradeableMarketHistory.handler",
       "timeout": 900,
       "memory": 1024
+    },
+    {
+      "name": "eve-industry-planner-sync-region-market-orders",
+      "label": "Forge order book",
+      "schedule": "Every 5 minutes",
+      "handler": "dist/lambda/syncRegionMarketOrders.handler",
+      "timeout": 240,
+      "memory": 1024
     }
   ]
 }
