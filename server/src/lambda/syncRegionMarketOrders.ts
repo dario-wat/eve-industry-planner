@@ -60,5 +60,16 @@ export const handler = recordRun(async () => {
     `updated ${result.openOrdersUpdated} ` +
     `deleted ${result.openOrdersDeleted}`,
   );
+  for (const structure of result.structureFetches) {
+    if (structure.error === null) {
+      console.log(`Structure ${structure.locationId} fetched ${structure.fetchedOrders}`);
+    } else {
+      console.log(`Structure ${structure.locationId} fetch failed: ${structure.error}`);
+    }
+  }
+  const structureFailure = result.structureFetches.find((structure) => structure.error !== null);
+  if (structureFailure !== undefined) {
+    throw new Error(structureFailure.error ?? 'Structure fetch failed');
+  }
   return result;
 });

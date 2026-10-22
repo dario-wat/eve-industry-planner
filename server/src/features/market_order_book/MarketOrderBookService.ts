@@ -3,7 +3,8 @@ import { Op } from 'sequelize';
 import { range } from 'lodash';
 import { chunk } from 'underscore';
 import { EveMarketOrder } from 'types/EsiQuery';
-import EsiQueryService from '../../core/esi/EsiQueryService';
+import EsiQueryService, { EsiMultiPageResult } from '../../core/esi/EsiQueryService';
+import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
 import {
   OpenOrder,
   OrderBookEntry,
@@ -28,6 +29,9 @@ const STRUCTURE_LOCATION_IDS = new Set<number>([
   1042508032148,
 ]);
 
+/** Can dock at both Perimeter structures. Her token is refreshed on use. */
+const TRADING_LADY = 1688205171;
+
 /** Rows per insert, so one statement does not carry the whole book. */
 const WRITE_CHUNK = 1000;
 
@@ -46,9 +50,16 @@ export type RegionOrderBookProgress = {
   elapsedMs: number;
 };
 
+export type StructureOrderBookFetch = {
+  locationId: number;
+  fetchedOrders: number;
+  error: string | null;
+};
+
 export type RegionOrderBookSyncResult = {
   regionId: number;
   fetchedOrders: number;
+  structureFetches: StructureOrderBookFetch[];
   eventsWritten: number;
   openOrdersInserted: number;
   openOrdersUpdated: number;
@@ -61,6 +72,7 @@ export type RegionOrderBookSyncResult = {
 export default class MarketOrderBookService {
   constructor(
     private readonly esiQueryService: EsiQueryService,
+    private readonly esiTokenlessQueryService: EsiTokenlessQueryService,
   ) {}
 
   /**
@@ -71,19 +83,100 @@ export default class MarketOrderBookService {
     regionId: number,
     onProgress?: (progress: RegionOrderBookProgress) => void,
   ): Promise<EveMarketOrder[]> {
+    return await this.genxPagedOrderBook(
+      `Region ${regionId} order book`,
+      (page) => this.esiQueryService.genxRegionMarketOrders(regionId, null, 'all', page),
+      onProgress,
+    );
+  }
+
+  /**
+   * Every order in one structure, as Trading Lady.
+   * Pages run a few at a time. A failed page aborts this structure.
+   */
+  public async genxStructureOrderBook(
+    structureId: number,
+    onProgress?: (progress: RegionOrderBookProgress) => void,
+  ): Promise<EveMarketOrder[]> {
+    return await this.genxPagedOrderBook(
+      `Structure ${structureId} order book`,
+      (page) => this.esiTokenlessQueryService.genxStructureMarketOrders(
+        TRADING_LADY,
+        structureId,
+        page,
+      ),
+      onProgress,
+    );
+  }
+
+  /**
+   * Fetch the region book, then both Perimeter structure books, then diff
+   * the regional orders and write them. Structure orders are not stored.
+   * Orders at the two structures are left unchanged. A failed region fetch
+   * writes nothing. A failed structure fetch does not cancel the region write.
+   */
+  public async genxSyncRegionOrderBook(
+    regionId: number,
+    onProgress?: (progress: RegionOrderBookProgress) => void,
+  ): Promise<RegionOrderBookSyncResult> {
+    const fetched = await this.genxRegionOrderBook(regionId, onProgress);
+    const structureFetches: StructureOrderBookFetch[] = [];
+    for (const locationId of STRUCTURE_LOCATION_IDS) {
+      try {
+        const orders = await this.genxStructureOrderBook(locationId, onProgress);
+        structureFetches.push({
+          locationId,
+          fetchedOrders: orders.length,
+          error: null,
+        });
+      } catch (error) {
+        structureFetches.push({
+          locationId,
+          fetchedOrders: 0,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+    const observedAt = new Date();
+    const stored = (await this.genOpenOrders(regionId))
+      .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
+    const listed = fetched
+      .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.location_id))
+      .map(bookEntryFromEsi);
+    const diff = diffOrderBook(stored, listed, observedAt);
+    const changes = openOrderChanges(stored, diff.openOrders);
+    await this.genApplyDiff(regionId, observedAt, diff.events, changes);
+    return {
+      regionId,
+      fetchedOrders: fetched.length,
+      structureFetches,
+      eventsWritten: diff.events.length,
+      openOrdersInserted: changes.inserted.length,
+      openOrdersUpdated: changes.updated.length,
+      openOrdersDeleted: changes.deletedIds.length,
+      eventCounts: countEvents(diff.events),
+      observedAt: observedAt.toISOString(),
+    };
+  }
+
+  private async genxPagedOrderBook(
+    description: string,
+    fetchPage: (page: number) => Promise<EsiMultiPageResult<EveMarketOrder>>,
+    onProgress?: (progress: RegionOrderBookProgress) => void,
+  ): Promise<EveMarketOrder[]> {
     const startedAt = Date.now();
     let first;
     try {
-      first = await this.esiQueryService.genxRegionMarketOrders(regionId, null, 'all', 1);
+      first = await fetchPage(1);
     } catch (error) {
       throw new Error(
-        `Region ${regionId} order book page 1 failed: ${pageErrorMessage(error)}`,
+        `${description} page 1 failed: ${pageErrorMessage(error)}`,
       );
     }
 
     const totalPages = first.pages;
     if (!Number.isInteger(totalPages) || totalPages < 1) {
-      throw new Error(`Region ${regionId} order book page 1 returned no page count`);
+      throw new Error(`${description} page 1 returned no page count`);
     }
 
     const byPage: EveMarketOrder[][] = new Array(totalPages);
@@ -118,12 +211,7 @@ export default class MarketOrderBookService {
         }
         const page = pages[index];
         try {
-          const result = await this.esiQueryService.genxRegionMarketOrders(
-            regionId,
-            null,
-            'all',
-            page,
-          );
+          const result = await fetchPage(page);
           if (failure !== null) {
             return;
           }
@@ -149,42 +237,11 @@ export default class MarketOrderBookService {
 
     if (failure !== null) {
       throw new Error(
-        `Region ${regionId} order book page ${failedPage} failed: ${pageErrorMessage(failure)}`,
+        `${description} page ${failedPage} failed: ${pageErrorMessage(failure)}`,
       );
     }
 
     return byPage.flat();
-  }
-
-  /**
-   * Fetch the region book, diff it against the stored open orders, and write
-   * the result. Orders at the two Perimeter structures are left unchanged.
-   * A failed fetch writes nothing.
-   */
-  public async genxSyncRegionOrderBook(
-    regionId: number,
-    onProgress?: (progress: RegionOrderBookProgress) => void,
-  ): Promise<RegionOrderBookSyncResult> {
-    const fetched = await this.genxRegionOrderBook(regionId, onProgress);
-    const observedAt = new Date();
-    const stored = (await this.genOpenOrders(regionId))
-      .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
-    const listed = fetched
-      .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.location_id))
-      .map(bookEntryFromEsi);
-    const diff = diffOrderBook(stored, listed, observedAt);
-    const changes = openOrderChanges(stored, diff.openOrders);
-    await this.genApplyDiff(regionId, observedAt, diff.events, changes);
-    return {
-      regionId,
-      fetchedOrders: fetched.length,
-      eventsWritten: diff.events.length,
-      openOrdersInserted: changes.inserted.length,
-      openOrdersUpdated: changes.updated.length,
-      openOrdersDeleted: changes.deletedIds.length,
-      eventCounts: countEvents(diff.events),
-      observedAt: observedAt.toISOString(),
-    };
   }
 
   private async genOpenOrders(regionId: number): Promise<OpenOrder[]> {

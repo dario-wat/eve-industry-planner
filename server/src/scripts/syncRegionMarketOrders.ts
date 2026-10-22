@@ -92,6 +92,15 @@ async function run(): Promise<void> {
   );
   process.stdout.write('\n');
   console.log(`Fetched orders: ${result.fetchedOrders}`);
+  for (const structure of result.structureFetches) {
+    if (structure.error === null) {
+      console.log(
+        `Structure ${structure.locationId} fetched orders: ${structure.fetchedOrders}`,
+      );
+    } else {
+      console.log(`Structure ${structure.locationId} fetch failed: ${structure.error}`);
+    }
+  }
   console.log(`Events written: ${result.eventsWritten}`);
   console.log(
     `Open orders inserted ${result.openOrdersInserted} ` +
@@ -107,8 +116,12 @@ async function run(): Promise<void> {
   );
   console.log(`Observed at: ${result.observedAt}`);
   console.log(`Elapsed: ${formatDuration(Date.now() - startedAt)}`);
-
   await sequelize.close();
+
+  const structureFailure = result.structureFetches.find((structure) => structure.error !== null);
+  if (structureFailure !== undefined) {
+    throw new Error(`Structure ${structureFailure.locationId} fetch failed`);
+  }
 }
 
 run().catch((error: unknown) => {
