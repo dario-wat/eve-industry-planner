@@ -1,6 +1,6 @@
 /*
- * Fetches the public regional order book, diffs it against the stored open
- * orders, and writes events plus the next open book. A failed page writes nothing.
+ * Fetches the public regional order book, diffs it against the S3 snapshot,
+ * and writes events plus the next snapshot. A failed page writes nothing.
  *
  * Examples:
  *   npm run sync-region-market-orders

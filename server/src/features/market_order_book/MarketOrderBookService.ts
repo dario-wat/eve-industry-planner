@@ -1,5 +1,4 @@
 import { Service } from 'typedi';
-import { Op } from 'sequelize';
 import { range } from 'lodash';
 import { chunk } from 'underscore';
 import { EveMarketOrder } from 'types/EsiQuery';
@@ -15,6 +14,10 @@ import {
 } from './diffOrderBook';
 import { MarketOrderEvent } from './MarketOrderEvent';
 import { MarketOrderOpen } from './MarketOrderOpen';
+import {
+  genLoadOpenOrderSnapshot,
+  genSaveOpenOrderSnapshot,
+} from './OpenOrderSnapshot';
 
 /** How many region-book pages to request at once. */
 const REGION_ORDER_PAGE_CONCURRENCY = 8;
@@ -120,9 +123,10 @@ export default class MarketOrderBookService {
   }
 
   /**
-   * Fetch the region book and both Perimeter structure books, then write
-   * every successful diff in one transaction. A structure that failed to
-   * fetch is left unchanged. A failed region fetch writes nothing.
+   * Fetch the region book and both Perimeter structure books, write the
+   * events, then replace the S3 snapshot. A structure that failed to fetch
+   * keeps its previous orders in that snapshot. A failed region fetch
+   * writes nothing.
    */
   public async genxSyncRegionOrderBook(
     regionId: number,
@@ -158,6 +162,7 @@ export default class MarketOrderBookService {
     const inserted = [...regionChanges.inserted];
     const updated = [...regionChanges.updated];
     const deletedIds = [...regionChanges.deletedIds];
+    const nextOpenOrders = [...regionDiff.openOrders];
 
     for (const book of structureBooks) {
       const storedHere = stored.filter((order) => order.locationId === book.locationId);
@@ -174,6 +179,7 @@ export default class MarketOrderBookService {
       inserted.push(...changes.inserted);
       updated.push(...changes.updated);
       deletedIds.push(...changes.deletedIds);
+      nextOpenOrders.push(...diff.openOrders);
       structureFetches.push({
         locationId: book.locationId,
         fetchedOrders: book.orders.length,
@@ -186,11 +192,19 @@ export default class MarketOrderBookService {
       });
     }
 
-    await this.genApplyDiff(regionId, observedAt, events, {
-      inserted,
-      updated,
-      deletedIds,
-    });
+    for (const structure of structureFetches) {
+      if (structure.error === null) {
+        continue;
+      }
+      for (const order of stored) {
+        if (order.locationId === structure.locationId) {
+          nextOpenOrders.push(order);
+        }
+      }
+    }
+
+    await this.genApplyEvents(regionId, observedAt, events);
+    await genSaveOpenOrderSnapshot(regionId, nextOpenOrders);
     return {
       regionId,
       fetchedOrders: fetched.length,
@@ -289,7 +303,15 @@ export default class MarketOrderBookService {
     return byPage.flat();
   }
 
+  /**
+   * S3 is the live book. The database copy is used once, when the snapshot
+   * does not exist yet, so the first poll continues the book already stored.
+   */
   private async genOpenOrders(regionId: number): Promise<OpenOrder[]> {
+    const snapshot = await genLoadOpenOrderSnapshot(regionId);
+    if (snapshot !== null) {
+      return snapshot;
+    }
     const rows = await MarketOrderOpen.findAll({
       where: { region_id: regionId },
       raw: true,
@@ -297,13 +319,12 @@ export default class MarketOrderBookService {
     return rows.map(openOrderFromRow);
   }
 
-  private async genApplyDiff(
+  private async genApplyEvents(
     regionId: number,
     observedAt: Date,
     events: readonly OrderBookEvent[],
-    changes: ReturnType<typeof openOrderChanges>,
   ): Promise<void> {
-    const sequelize = MarketOrderOpen.sequelize;
+    const sequelize = MarketOrderEvent.sequelize;
     if (sequelize === undefined) {
       throw new Error('Market order models are not initialized');
     }
@@ -322,63 +343,14 @@ export default class MarketOrderBookService {
       previous_volume_remain: item.previousVolumeRemain,
       volume_delta: item.volumeDelta,
     }));
-    const openRows = [...changes.inserted, ...changes.updated].map((order) => ({
-      order_id: order.orderId,
-      region_id: regionId,
-      type_id: order.typeId,
-      location_id: order.locationId,
-      system_id: order.systemId,
-      is_buy: order.isBuy,
-      price: order.price,
-      volume_remain: order.volumeRemain,
-      volume_total: order.volumeTotal,
-      min_volume: order.minVolume,
-      range: order.range,
-      issued: order.issued,
-      duration: order.duration,
-      missing: order.missing,
-      observed_at: observedAt,
-    }));
 
     await sequelize.transaction(async (transaction) => {
       for (const rows of chunk(eventRows, WRITE_CHUNK)) {
         await MarketOrderEvent.bulkCreate(rows, { transaction });
       }
-      for (const rows of chunk(openRows, WRITE_CHUNK)) {
-        await MarketOrderOpen.bulkCreate(rows, {
-          updateOnDuplicate: OPEN_ORDER_UPDATE_FIELDS,
-          transaction,
-        });
-      }
-      for (const orderIds of chunk(changes.deletedIds, WRITE_CHUNK)) {
-        await MarketOrderOpen.destroy({
-          where: {
-            region_id: regionId,
-            order_id: { [Op.in]: orderIds },
-          },
-          transaction,
-        });
-      }
     });
   }
 }
-
-const OPEN_ORDER_UPDATE_FIELDS = [
-  'region_id',
-  'type_id',
-  'location_id',
-  'system_id',
-  'is_buy',
-  'price',
-  'volume_remain',
-  'volume_total',
-  'min_volume',
-  'range',
-  'issued',
-  'duration',
-  'missing',
-  'observed_at',
-];
 
 function pageErrorMessage(error: unknown): string {
   if (typeof error === 'object' && error !== null && 'statusCode' in error) {

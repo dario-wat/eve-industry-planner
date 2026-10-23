@@ -310,7 +310,8 @@ const LAYERS = [
 { title: "1. Data substrate",
   blurb: "Everything else in this document is a query against these tables. If you build only this layer and nothing else, you can still answer most questions with SQL. If you skip it and call ESI live per page load, you permanently cap yourself at what the in-game market window already shows.",
   tools: [
-  { name: "Order-book snapshotter and differ", tier: "Foundation",
+  { name: "Order-book snapshotter and differ", tier: "Foundation", done: true,
+    status: "Done for The Forge. `eve-industry-planner-sync-region-market-orders` polls every 5 minutes and writes the diff: open orders in `market_order_open`, and `appeared`, `traded`, `repriced`, `expired`, and `ambiguous` events in `market_order_event`. An order missing from one poll stays open until a second miss. Perimeter sells come from Neutral States Market HQ and Tranquility Trading Tower. Quote rows stay deferred.",
     one: "Poll the regional order book on a fixed cadence and persist the diff between consecutive polls, not the snapshot.",
     why: "This is the keystone. ESI gives you a live book and a daily summary, with nothing in between. Diffing consecutive books reconstructs the middle: when each order appeared, every price change it made, how much volume drained out of it, and when it vanished. Almost every genuinely useful metric further down this page is derived from this one table, and none of them can be computed after the fact — if you did not record it at the time, that information is gone forever.",
     inputs: "`GET /markets/{region_id}/orders/` paged via `X-Pages`, plus `GET /markets/structures/{structure_id}/` for each citadel you have docking rights in.",

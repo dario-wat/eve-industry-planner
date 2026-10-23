@@ -3,6 +3,7 @@
     "node": ">=26"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1156.0",
     "@internal/shared": "file:../shared",
     "connect-session-sequelize": "^7.1.5",
     "cookie-parser": "^1.4.6",

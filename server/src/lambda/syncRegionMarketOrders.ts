@@ -1,6 +1,6 @@
 /*
- * Fetches The Forge public order book, diffs it against the stored open
- * orders, and writes the changes. recordRun stores the outcome.
+ * Fetches The Forge public order book, diffs it against the S3 snapshot,
+ * writes events, and replaces that snapshot. recordRun stores the outcome.
  */
 import 'reflect-metadata';
 import Container from 'typedi';
