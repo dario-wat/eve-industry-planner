@@ -5,6 +5,7 @@ import {
   formatIsk,
   formatMaybe,
   formatNumber,
+  formatNumberScale,
   formatShare,
   formatSignedPercent,
 } from 'common/format';
@@ -79,7 +80,7 @@ export default function MarketHistorySummaryTable(props: { days: MarketHistoryDa
     metricRow('priceChange', 'Price change', summaries, summary =>
       formatMaybe(summary.priceChange, formatSignedPercent)),
     metricRow('medianUnits', 'Median units / day', summaries, summary =>
-      formatNumber(summary.medianUnits)),
+      formatNumberScale(summary.medianUnits)),
     metricRow('medianIsk', 'Median ISK / day', summaries, summary =>
       formatIsk(summary.medianIsk)),
     metricRow('medianOrders', 'Median orders', summaries, summary =>

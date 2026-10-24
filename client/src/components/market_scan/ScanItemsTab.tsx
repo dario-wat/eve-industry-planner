@@ -3,6 +3,7 @@ import {
   formatIsk,
   formatMaybe,
   formatNumber,
+  formatNumberScale,
   formatShare,
 } from 'common/format';
 import { WorkspaceFill } from 'components/util/WorkspacePage';
@@ -50,7 +51,7 @@ const columns: GridColDef<ScanRow>[] = [
     description: 'Each day\'s high minus its low, divided by that day\'s high. The cell is the median of those days.',
     renderCell: (params) => formatMaybe(params.row.medianRange, formatShare),
   },
-  numberColumn('medianUnits', 'Median units/day', 150, (value) => formatNumber(value)),
+  numberColumn('medianUnits', 'Median units/day', 150, formatNumberScale),
 ];
 
 export default function ScanItemsTab(props: { rows: ScanRow[]; onOpen: (typeId: number) => void }) {

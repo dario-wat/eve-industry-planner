@@ -9,13 +9,18 @@ export function formatNumber(
   });
 }
 
-/** formatNumberScale(2500000) -> "2.5M" */
+/** formatNumberScale(2500000) -> "2.5 M" */
 export function formatNumberScale(number: number): string {
-  return number > 1000000
-    ? (number / 1000000).toFixed(1) + 'M'
-    : number > 1000
-      ? (number / 1000) + 'K'
-      : formatNumber(number);
+  if (number >= 1e9) {
+    return `${(number / 1e9).toFixed(1)} B`;
+  }
+  if (number >= 1e6) {
+    return `${(number / 1e6).toFixed(1)} M`;
+  }
+  if (number >= 1e3) {
+    return `${(number / 1e3).toFixed(1)} K`;
+  }
+  return formatNumber(number);
 }
 
 /** formatMaybe(null, formatNumber) -> "—" */
