@@ -2,8 +2,8 @@
  * The previous open book, gzipped in S3. The next poll diffs against this
  * object instead of reading every open order back out of TiDB.
  */
-import { once } from 'events';
-import { createGzip, gunzipSync } from 'zlib';
+import { promisify } from 'util';
+import { gzip, gunzipSync } from 'zlib';
 import {
   GetObjectCommand,
   NoSuchKey,
@@ -14,6 +14,7 @@ import { OpenOrder } from './diffOrderBook';
 
 const SNAPSHOT_VERSION = 'v1';
 const TUPLE_LENGTH = 13;
+const gzipAsync = promisify(gzip);
 
 let client: S3Client | null = null;
 
@@ -43,10 +44,11 @@ export async function genSaveOpenOrderSnapshot(
   orders: readonly OpenOrder[],
 ): Promise<void> {
   const body = await gzipLines(snapshotLines(orders));
+  assertCompleteGzip(body.gzipped, body.plainBytes);
   await s3().send(new PutObjectCommand({
     Bucket: bucket(),
     Key: snapshotKey(regionId),
-    Body: body,
+    Body: body.gzipped,
     ContentType: 'application/gzip',
   }));
 }
@@ -92,21 +94,36 @@ function* snapshotLines(orders: readonly OpenOrder[]): Generator<string> {
   }
 }
 
-async function gzipLines(lines: Iterable<string>): Promise<Buffer> {
-  const gzip = createGzip();
+/**
+ * zlib.gzip() emits one complete member. The old stream collector waited
+ * on 'finish' and sometimes uploaded the bytes it had before the tail
+ * arrived. A short gzip then fails every later read, before a new one
+ * can be saved.
+ */
+async function gzipLines(
+  lines: Iterable<string>,
+): Promise<{ gzipped: Buffer; plainBytes: number }> {
   const parts: Buffer[] = [];
-  gzip.on('data', (part: Buffer) => {
-    parts.push(part);
-  });
-  const finished = once(gzip, 'finish');
+  let plainBytes = 0;
   for (const line of lines) {
-    if (!gzip.write(line)) {
-      await once(gzip, 'drain');
-    }
+    const part = Buffer.from(line);
+    parts.push(part);
+    plainBytes += part.length;
   }
-  gzip.end();
-  await finished;
-  return Buffer.concat(parts);
+  return {
+    gzipped: await gzipAsync(Buffer.concat(parts)),
+    plainBytes,
+  };
+}
+
+function assertCompleteGzip(body: Buffer, plainBytes: number): void {
+  if (body.length < 18 || body[0] !== 0x1f || body[1] !== 0x8b) {
+    throw new Error('Order book snapshot gzip is incomplete');
+  }
+  const isize = body.readUInt32LE(body.length - 4);
+  if (isize !== (plainBytes >>> 0)) {
+    throw new Error('Order book snapshot gzip is incomplete');
+  }
 }
 
 function parseSnapshot(regionId: number, text: string): OpenOrder[] {
