@@ -49,7 +49,7 @@ export default function MarketHistoryPage() {
         return;
       }
       setHistoryData(null);
-      setError('Could not load market history.');
+      setError('Could not load item history.');
     } finally {
       if (current === requestId.current) {
         setIsLoading(false);
@@ -142,7 +142,7 @@ export default function MarketHistoryPage() {
         </Box>
       )}
       {historyData != null && marketHistoryDays.length === 0 && (
-        <Typography sx={{ pt: 2 }}>No market history for this type.</Typography>
+        <Typography sx={{ pt: 2 }}>No item history for this type.</Typography>
       )}
     </WorkspacePage>
   );

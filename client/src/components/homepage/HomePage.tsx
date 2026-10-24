@@ -69,13 +69,13 @@ export default function HomePage() {
     },
     {
       path: '/market_history',
-      label: 'Market History',
+      label: 'Item History',
       icon: <ShowChartIcon />,
       component: MarketHistoryPage,
     },
     {
       path: '/market_scan',
-      label: 'Market Scan',
+      label: 'Market Screener',
       icon: <QueryStatsIcon />,
       component: MarketHistoryScanPage,
     },

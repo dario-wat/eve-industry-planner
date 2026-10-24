@@ -81,7 +81,7 @@ export default function MarketHistoryScanPage() {
   if (error != null || data == null) {
     return (
       <WorkspacePage>
-        <Typography color="error" sx={{ p: 1 }}>Could not load the market scan.</Typography>
+        <Typography color="error" sx={{ p: 1 }}>Could not load the market screener.</Typography>
       </WorkspacePage>
     );
   }
