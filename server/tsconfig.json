@@ -27,7 +27,7 @@
   "ts-node": {
     "ignore": [
       "(?:^|/)node_modules/",
-      "(?:^|/)packages/eve-esi/"
+      "(?:^|/)libs/eve-esi/"
     ]
   },
   "include": [

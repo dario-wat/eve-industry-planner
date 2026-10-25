@@ -5,7 +5,7 @@
 /server/node_modules
 /client/node_modules
 /shared/node_modules
-/packages/eve-esi/node_modules
+/libs/eve-esi/node_modules
 /.pnp
 .pnp.js
 

@@ -64,8 +64,8 @@ console.log('Staging production dependencies...');
 rmSync(stage, { recursive: true, force: true });
 copyPublishedPackage(path.join(root, 'shared'), path.join(stage, 'shared'));
 copyPublishedPackage(
-  path.join(root, 'packages', 'eve-esi'),
-  path.join(stage, 'packages', 'eve-esi'),
+  path.join(root, 'libs', 'eve-esi'),
+  path.join(stage, 'libs', 'eve-esi'),
 );
 mkdirSync(stageServer, { recursive: true });
 cpSync(path.join(root, 'server', 'package.json'), path.join(stageServer, 'package.json'));

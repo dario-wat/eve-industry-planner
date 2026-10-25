@@ -38,7 +38,7 @@ If EVE SSO rotates refresh tokens, the process that saves last can leave the oth
 
 Possible fixes: a row lock or compare-and-swap in `genxSaveTokenSet`, re-reading the row before refreshing, or running Trading Lady's calls in one place only.
 
-Where: `server/src/core/esi/EsiTokenStore.ts` (`genLoadTokenSet`, `genxSaveTokenSet`), `packages/eve-esi/src/tokenManager.ts`.
+Where: `server/src/core/esi/EsiTokenStore.ts` (`genLoadTokenSet`, `genxSaveTokenSet`), `libs/eve-esi/src/tokenManager.ts`.
 
 ### A revoked or invalid refresh token is not handled
 

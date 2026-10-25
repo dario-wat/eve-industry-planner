@@ -7,9 +7,9 @@ Node `>=26`. TypeScript throughout.
 ## Layout
 
 - `client/` — CRA React app (MUI, Recoil, axios-hooks). Router basename is `/eve-industry-planner`. API base URL is set in `client/src/index.tsx`.
-- `server/` — Express + TypeDI + Sequelize (MySQL). ESI and EVE SSO via `packages/eve-esi`.
+- `server/` — Express + TypeDI + Sequelize (MySQL). ESI and EVE SSO via `libs/eve-esi`.
 - `shared/` — `@internal/shared`. API response types live in `shared/src/api.ts`. Do not duplicate those types in client or server. Build with `npm run shared-build` before the client or server load it.
-- `packages/eve-esi/` — local ESM-only library (`eve-esi`) for EVE SSO auth and every ESI endpoint the app uses. It stores nothing: the app supplies `tokens.load` / `tokens.save` hooks (see `server/src/core/esi/EsiTokenStore.ts`). Build with `npm run eve-esi-build` before the server loads it. ESI types are `Esi*` and live in the library.
+- `libs/eve-esi/` — local ESM-only library (`eve-esi`) for EVE SSO auth and every ESI endpoint the app uses. It stores nothing: the app supplies `tokens.load` / `tokens.save` hooks (see `server/src/core/esi/EsiTokenStore.ts`). Build with `npm run eve-esi-build` before the server loads it. ESI types are `Esi*` and live in the library.
 
 ## Commands
 
@@ -45,5 +45,5 @@ Do not start the frontend server (`npm run client` or similar) and do not open t
 
 - Put API DTO types anywhere except `shared/`
 - Call ESI or dump SDE from the client
-- Edit `packages/eve-esi/dist/` by hand
+- Edit `libs/eve-esi/dist/` by hand
 - Widen SDE loading to `initDatabase()`
