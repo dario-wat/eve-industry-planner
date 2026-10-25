@@ -20,6 +20,18 @@ export interface EsiTokenSet {
   scopes: string[];
 }
 
+/**
+ * How the library reads and writes a character's tokens. Both are supplied
+ * by the app, which owns storage and decides which stored token to use
+ * (e.g. by scope).
+ */
+export interface EsiTokenHooks {
+  /** Returns the stored tokens, or null if the character has none. */
+  load(characterId: number): Promise<EsiTokenSet | null>;
+  /** Called after every refresh with the new tokens. Must persist them. */
+  save(characterId: number, tokens: EsiTokenSet): Promise<void>;
+}
+
 /** Result of a successful login. The library stores nothing; the app does. */
 export interface EsiLoginResult {
   characterId: number;
