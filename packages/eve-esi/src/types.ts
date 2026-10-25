@@ -3,6 +3,32 @@
  * are not a full copy of CCP's schema.
  */
 
+/** OAuth settings for the CCP application, from developers.eveonline.com. */
+export interface EsiSsoConfig {
+  clientId: string;
+  secretKey: string;
+  callbackUri: string;
+  /** Defaults to https://login.eveonline.com */
+  endpoint?: string;
+}
+
+/** The tokens for one character. This is what the app stores. */
+export interface EsiTokenSet {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: Date;
+  scopes: string[];
+}
+
+/** Result of a successful login. The library stores nothing; the app does. */
+export interface EsiLoginResult {
+  characterId: number;
+  characterName: string;
+  /** Changes if the character is transferred to another EVE account. */
+  ownerHash: string;
+  tokens: EsiTokenSet;
+}
+
 /** One page of a paged ESI endpoint. `pages` is the `x-pages` header. */
 export interface EsiPage<T> {
   data: T[];
