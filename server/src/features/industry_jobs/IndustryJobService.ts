@@ -5,11 +5,11 @@ import {
   IndustryActivityKey,
   MANUFACTURING,
 } from '../../const/IndustryActivity';
-import { EveIndustryJob } from '../../types/EsiQuery';
+import type { EsiIndustryJob } from 'eve-esi';
 import { EveIndustryJobHistoryRes, EveIndustryJobsRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EveQueryService from '../../core/query/EveQueryService';
-import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
@@ -23,7 +23,7 @@ export default class IndustryJobService {
 
   constructor(
     private readonly eveQuery: EveQueryService,
-    private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQuery: EsiQueryService,
     private readonly sdeData: EveSdeData,
     private readonly stationService: StationService,
   ) { }
@@ -58,7 +58,7 @@ export default class IndustryJobService {
   /** Returns data for a single industry job for the Industry Jobs page. */
   private async genSingleActiveJobData(
     character: EsiCharacter,
-    industryJob: EveIndustryJob,
+    industryJob: EsiIndustryJob,
   ): Promise<EveIndustryJobsRes[number]> {
     const remainingSeconds = Math.max(
       0,  // this is to eliminate negative time
@@ -76,7 +76,7 @@ export default class IndustryJobService {
     return {
       character_name: character.characterName,
       activity:
-        industryActivity[industryJob.activity_id as IndustryActivityKey]
+        industryActivity[String(industryJob.activity_id) as IndustryActivityKey]
           .activityName,
       blueprint_name: this.sdeData.types[industryJob.blueprint_type_id].name,
       progress: 1 - remainingSeconds / industryJob.duration,

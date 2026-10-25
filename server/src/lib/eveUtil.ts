@@ -1,3 +1,4 @@
+import { EsiError } from 'eve-esi';
 import { EsiCharacter } from '../core/esi/models/EsiCharacter';
 import ActorContext from '../core/actor_context/ActorContext';
 
@@ -73,4 +74,20 @@ export async function genQueryResultIfAvailable<T>(
   const characters = await actorContext.genLoggedInLinkedCharacters();
   const results = await Promise.all(characters.map((character) => fn(character)));
   return results.find((result) => result !== null) ?? null;
+}
+
+/**
+ * Runs an ESI query and returns null if ESI answered with an error status
+ * (e.g. 403/404 for a structure the character cannot access). Anything else
+ * (network failure, missing token, refresh failure, a bug) still throws.
+ */
+export async function genNullOnEsiError<T>(fn: () => Promise<T>): Promise<T | null> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (error instanceof EsiError) {
+      return null;
+    }
+    throw error;
+  }
 }

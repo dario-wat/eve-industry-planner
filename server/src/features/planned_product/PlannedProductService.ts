@@ -4,7 +4,7 @@ import { isEmpty } from 'underscore';
 import { PlannedProduct } from './PlannedProduct';
 import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
-import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 import AssetsService from '../eve_data/AssetsService';
 import { MANUFACTURING } from '../../const/IndustryActivity';
 import ActorContext from '../../core/actor_context/ActorContext';
@@ -16,7 +16,7 @@ export default class PlannedProductService {
   constructor(
     private readonly sdeData: EveSdeData,
     private readonly assetService: AssetsService,
-    private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQuery: EsiQueryService,
     private readonly itemQuantitiesParser: ItemQuantitiesParserService,
   ) {}
 

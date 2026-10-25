@@ -4,6 +4,7 @@ import ActorContext from '../actor_context/ActorContext';
 import Controller from '../controller/Controller';
 import { EsiCharacter } from '../esi/models/EsiCharacter';
 import EsiQueryService from '../esi/EsiQueryService';
+import { genNullOnEsiError } from '../../lib/eveUtil';
 
 @Service()
 export default class AccountController extends Controller {
@@ -25,7 +26,9 @@ export default class AccountController extends Controller {
         const characters = await actorContext.genLinkedCharacters();
 
         const genData = async (character: EsiCharacter) => {
-          const portrait = await this.esiQuery.genPortrait(character.characterId);
+          const portrait = await genNullOnEsiError(
+            () => this.esiQuery.genxPortrait(character.characterId),
+          );
           const isLoggedIn = await character.isLoggedIn();
           return {
             characterId: character.characterId,

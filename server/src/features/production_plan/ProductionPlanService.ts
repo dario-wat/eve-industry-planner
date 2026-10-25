@@ -4,11 +4,11 @@ import { PlannedProduct } from '../planned_product/PlannedProduct';
 import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
 import AssetsService, { mergeAssetQuantities } from '../eve_data/AssetsService';
-import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 import { MaterialPlan } from './MaterialPlan';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
-import { EveIndustryJob } from '../../types/EsiQuery';
+import type { EsiIndustryJob } from 'eve-esi';
 import { MANUFACTURING, REACTION } from '../../const/IndustryActivity';
 import { isEmpty, sum } from 'lodash';
 import { MetaGroup } from '../../const/MetaGroups';
@@ -24,7 +24,7 @@ const HOURS_IN_DAY = 24;
 type ProductionPlanCreationData = {
   plannedProducts: PlannedProduct[];
   assets: Record<number, number>;
-  activeIndustryJobs: EveIndustryJob[];
+  activeIndustryJobs: EsiIndustryJob[];
 };
 
 @Service()
@@ -32,7 +32,7 @@ export default class ProductionPlanService {
   constructor(
     private readonly sdeData: EveSdeData,
     private readonly assetService: AssetsService,
-    private readonly esiQuery: EsiTokenlessQueryService
+    private readonly esiQuery: EsiQueryService
   ) {}
 
   /**
@@ -235,14 +235,14 @@ export default class ProductionPlanService {
   }
 }
 
-function activeManufacturingRuns(typeId: number, industryJobs: EveIndustryJob[]): number {
+function activeManufacturingRuns(typeId: number, industryJobs: EsiIndustryJob[]): number {
   const qualifiedJobs = industryJobs.filter(
     (j) => j.activity_id === MANUFACTURING && j.product_type_id === typeId
   );
   return sum(qualifiedJobs.map((job) => job.runs));
 }
 
-function activeReactionRuns(typeId: number, industryJobs: EveIndustryJob[]): number {
+function activeReactionRuns(typeId: number, industryJobs: EsiIndustryJob[]): number {
   const qualifiedJobs = industryJobs.filter(
     (j) => j.activity_id === REACTION && j.product_type_id === typeId
   );

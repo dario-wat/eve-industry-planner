@@ -3,14 +3,14 @@ import { EveContractsRes } from '@internal/shared';
 import EveQueryService from '../../core/query/EveQueryService';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';
-import EsiMultiPageQueryService from '../../core/query/EsiMultiPageQueryService';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 
 @Service()
 export default class ContractsService {
 
   constructor(
     private readonly eveQuery: EveQueryService,
-    private readonly esiMultiPageQuery: EsiMultiPageQueryService,
+    private readonly esiQuery: EsiQueryService,
   ) { }
 
   /** Data for the Contracts page. */
@@ -19,7 +19,7 @@ export default class ContractsService {
   ): Promise<EveContractsRes> {
     const contracts = await genQueryFlatResultPerCharacter(
       actorContext,
-      character => this.esiMultiPageQuery.genxAllContracts(character),
+      character => this.esiQuery.genxAllContracts(character.characterId),
     );
 
     const names = await this.eveQuery.genAllNames(

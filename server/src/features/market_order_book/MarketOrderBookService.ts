@@ -1,9 +1,8 @@
 import { Service } from 'typedi';
 import { range } from 'lodash';
 import { chunk } from 'underscore';
-import { EveMarketOrder } from 'types/EsiQuery';
-import EsiQueryService, { EsiMultiPageResult } from '../../core/esi/EsiQueryService';
-import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import type { EsiMarketOrder, EsiPage } from 'eve-esi';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 import {
   OpenOrder,
   OrderBookEntry,
@@ -83,10 +82,7 @@ export type RegionOrderBookSyncResult = {
 
 @Service()
 export default class MarketOrderBookService {
-  constructor(
-    private readonly esiQueryService: EsiQueryService,
-    private readonly esiTokenlessQueryService: EsiTokenlessQueryService,
-  ) {}
+  constructor(private readonly esiQueryService: EsiQueryService) {}
 
   /**
    * Every public order in the region.
@@ -95,10 +91,10 @@ export default class MarketOrderBookService {
   public async genxRegionOrderBook(
     regionId: number,
     onProgress?: (progress: RegionOrderBookProgress) => void,
-  ): Promise<EveMarketOrder[]> {
+  ): Promise<EsiMarketOrder[]> {
     return await this.genxPagedOrderBook(
       `Region ${regionId} order book`,
-      (page) => this.esiQueryService.genxRegionMarketOrders(regionId, null, 'all', page),
+      (page) => this.esiQueryService.genxRegionMarketOrders(regionId, { page }),
       onProgress,
     );
   }
@@ -110,10 +106,10 @@ export default class MarketOrderBookService {
   public async genxStructureOrderBook(
     structureId: number,
     onProgress?: (progress: RegionOrderBookProgress) => void,
-  ): Promise<EveMarketOrder[]> {
+  ): Promise<EsiMarketOrder[]> {
     return await this.genxPagedOrderBook(
       `Structure ${structureId} order book`,
-      (page) => this.esiTokenlessQueryService.genxStructureMarketOrders(
+      (page) => this.esiQueryService.genxStructureMarketOrders(
         TRADING_LADY,
         structureId,
         page,
@@ -133,7 +129,7 @@ export default class MarketOrderBookService {
     onProgress?: (progress: RegionOrderBookProgress) => void,
   ): Promise<RegionOrderBookSyncResult> {
     const fetched = await this.genxRegionOrderBook(regionId, onProgress);
-    const structureBooks: { locationId: number; orders: EveMarketOrder[] }[] = [];
+    const structureBooks: { locationId: number; orders: EsiMarketOrder[] }[] = [];
     const structureFetches: StructureOrderBookFetch[] = [];
     for (const locationId of STRUCTURE_LOCATION_IDS) {
       try {
@@ -220,9 +216,9 @@ export default class MarketOrderBookService {
 
   private async genxPagedOrderBook(
     description: string,
-    fetchPage: (page: number) => Promise<EsiMultiPageResult<EveMarketOrder>>,
+    fetchPage: (page: number) => Promise<EsiPage<EsiMarketOrder>>,
     onProgress?: (progress: RegionOrderBookProgress) => void,
-  ): Promise<EveMarketOrder[]> {
+  ): Promise<EsiMarketOrder[]> {
     const startedAt = Date.now();
     let first;
     try {
@@ -238,7 +234,7 @@ export default class MarketOrderBookService {
       throw new Error(`${description} page 1 returned no page count`);
     }
 
-    const byPage: EveMarketOrder[][] = new Array(totalPages);
+    const byPage: EsiMarketOrder[][] = new Array(totalPages);
     byPage[0] = first.data;
     let completedPages = 1;
     let orderCount = first.data.length;
@@ -353,11 +349,6 @@ export default class MarketOrderBookService {
 }
 
 function pageErrorMessage(error: unknown): string {
-  if (typeof error === 'object' && error !== null && 'statusCode' in error) {
-    const status = (error as { statusCode?: number }).statusCode;
-    const message = error instanceof Error ? error.message : '';
-    return `${status ?? ''} ${message}`.trim();
-  }
   if (error instanceof Error) {
     return error.message;
   }
@@ -381,7 +372,7 @@ type OpenOrderRow = {
 };
 
 function bookEntryFromEsi(
-  order: EveMarketOrder,
+  order: EsiMarketOrder,
   systemId: number | undefined = order.system_id,
 ): OrderBookEntry {
   if (

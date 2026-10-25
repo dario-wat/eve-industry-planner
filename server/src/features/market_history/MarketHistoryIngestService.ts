@@ -3,7 +3,7 @@ import { chunk } from 'underscore';
 import { THE_FORGE } from '../../const/IDs';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EsiQueryService from '../../core/esi/EsiQueryService';
-import { EveMarketHistory } from '../../types/EsiQuery';
+import type { EsiMarketHistory } from 'eve-esi';
 import { MarketHistoryDaily } from './MarketHistoryDaily';
 
 const CHUNK_SIZE = 50;
@@ -132,7 +132,7 @@ export default class MarketHistoryIngestService {
   private async genUpsertHistoryRows(
     regionId: number,
     typeId: number,
-    history: EveMarketHistory[],
+    history: EsiMarketHistory[],
   ): Promise<number> {
     if (history.length === 0) {
       return 0;

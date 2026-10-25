@@ -1,12 +1,12 @@
 import { Service } from 'typedi';
+import type { EsiStation, EsiStructure } from 'eve-esi';
 import EsiQueryService from '../esi/EsiQueryService';
-import EsiTokenlessQueryService from './EsiTokenlessQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { uniq, zip } from 'underscore';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { combineMapsWithNulls } from '../../lib/util';
-import { EveStation, EveStructure } from 'types/EsiQuery';
+import { genNullOnEsiError } from '../../lib/eveUtil';
 import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
 import { hoursToSeconds } from 'date-fns';
 
@@ -14,7 +14,6 @@ import { hoursToSeconds } from 'date-fns';
 export default class StationService {
   constructor(
     private readonly esiQuery: EsiQueryService,
-    private readonly esiTokenlessQuery: EsiTokenlessQueryService,
     private readonly sdeData: EveSdeData
   ) {}
 
@@ -70,24 +69,25 @@ export default class StationService {
   private async genStructureCached(
     character: EsiCharacter,
     stationId: number
-  ): Promise<EveStructure | null> {
+  ): Promise<EsiStructure | null> {
     return await genQueryEsiCache(
       stationId.toString(),
       EsiCacheItem.STRUCTURE,
       hoursToSeconds(24),
-      async () => await this.esiTokenlessQuery.genStructure(character.characterId, stationId)
+      async () =>
+        await genNullOnEsiError(() => this.esiQuery.genxStructure(character.characterId, stationId))
     );
   }
 
   /** Cached version of genStation. NPC station names never change. */
   private async genStationCached(
     stationId: number
-  ): Promise<EveStation | null> {
+  ): Promise<EsiStation | null> {
     return await genQueryEsiCache(
       stationId.toString(),
       EsiCacheItem.STATION,
       hoursToSeconds(24 * 30),
-      async () => await this.esiQuery.genStation(stationId)
+      async () => await genNullOnEsiError(() => this.esiQuery.genxStation(stationId))
     );
   }
 }

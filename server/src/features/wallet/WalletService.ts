@@ -3,11 +3,10 @@ import ActorContext from '../../core/actor_context/ActorContext';
 import { Service } from 'typedi';
 import { WalletTransaction } from './WalletTransaction';
 import EveSdeData from '../../core/sde/EveSdeData';
-import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 import { genQueryFlatPerCharacter } from '../../lib/eveUtil';
 import StationService from '../../core/query/StationService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
-import EsiMultiPageQueryService from '../../core/query/EsiMultiPageQueryService';
 import { WalletJournalEntry } from './WalletJournalEntry';
 
 @Service()
@@ -15,9 +14,8 @@ export default class WalletService {
 
   constructor(
     private readonly sdeData: EveSdeData,
-    private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQuery: EsiQueryService,
     private readonly stationService: StationService,
-    private readonly esiMultiPageQueryService: EsiMultiPageQueryService,
   ) { }
 
   /** Wallet transactions data for Market page. */
@@ -103,8 +101,8 @@ export default class WalletService {
     await Promise.all(allCharacters.map(async character => {
       let journal;
       try {
-        journal = await this.esiMultiPageQueryService.genxAllWalletJournal(
-          character,
+        journal = await this.esiQuery.genxAllWalletJournal(
+          character.characterId,
         );
       } catch (_error) {
         return;

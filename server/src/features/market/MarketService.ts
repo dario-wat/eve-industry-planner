@@ -1,28 +1,30 @@
 import { Service } from 'typedi';
 import EveSdeData from '../../core/sde/EveSdeData';
-import EsiTokenlessQueryService from '../../core/query/EsiTokenlessQueryService';
+import type { EsiMarketOrder } from 'eve-esi';
+import EsiQueryService from '../../core/esi/EsiQueryService';
 import {
   MarketOrdersComparisonRes,
   MarketOrdersComparisonWithErrorsRes,
   MarketOrdersRes,
 } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
-import { genQueryFlatPerCharacter, genQueryResultIfAvailable } from '../../lib/eveUtil';
+import {
+  genNullOnEsiError,
+  genQueryFlatPerCharacter,
+  genQueryResultIfAvailable,
+} from '../../lib/eveUtil';
 import StationService from '../../core/query/StationService';
-import EsiMultiPageQueryService from '../../core/query/EsiMultiPageQueryService';
 import ItemQuantitiesParserService, {
   ItemQuantity,
 } from '../item_quantities/ItemQuantitiesParserService';
 import { chain } from 'underscore';
-import { EveMarketOrder } from 'types/EsiQuery';
 
 @Service()
 export default class MarketService {
   constructor(
     private readonly sdeData: EveSdeData,
-    private readonly esiQuery: EsiTokenlessQueryService,
+    private readonly esiQuery: EsiQueryService,
     private readonly stationService: StationService,
-    private readonly esiMultipageueryService: EsiMultiPageQueryService,
     private readonly itemQuantitiesParser: ItemQuantitiesParserService
   ) {}
 
@@ -75,11 +77,13 @@ export default class MarketService {
         const stationData = this.sdeData.stations[stationId];
         if (stationData === undefined) {
           const structure = await genQueryResultIfAvailable(actorContext, ({ characterId }) =>
-            this.esiQuery.genStructure(characterId, stationId)
+            genNullOnEsiError(() => this.esiQuery.genxStructure(characterId, stationId))
           );
           const orders =
-            (await genQueryResultIfAvailable(actorContext, (character) =>
-              this.esiMultipageueryService.genAllStructureMarketOrders(character, stationId)
+            (await genQueryResultIfAvailable(actorContext, ({ characterId }) =>
+              genNullOnEsiError(() =>
+                this.esiQuery.genxAllStructureMarketOrders(characterId, stationId)
+              )
             )) ?? [];
           return {
             stationId,
@@ -92,10 +96,9 @@ export default class MarketService {
         const types = itemQuantities.map(({ name }) => this.sdeData.typeByName[name]);
         const orders = await Promise.all(
           types.map(async ({ id }) => {
-            const orders = await this.esiMultipageueryService.genxAllRegionMarketOrders(
-              regionId!,
-              id
-            );
+            const orders = await this.esiQuery.genxAllRegionMarketOrders(regionId!, {
+              typeId: id,
+            });
             return orders;
           })
         );
@@ -110,7 +113,7 @@ export default class MarketService {
 
   /** Finds the lowest price from the orders for each item. */
   private async genLowestItemPrices(
-    orders: EveMarketOrder[],
+    orders: EsiMarketOrder[],
     itemQuantities: ItemQuantity[]
   ): Promise<MarketOrdersComparisonRes[number]['items']> {
     const typeQuantities = Object.fromEntries(

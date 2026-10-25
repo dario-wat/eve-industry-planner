@@ -5,7 +5,7 @@ import EveQueryService from '../../core/query/EveQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
 import { EveAssetsLocationsRes, EveAssetsRes } from '@internal/shared';
 import { SHIP } from '../../const/Categories';
-import { EveAsset } from '../../types/EsiQuery';
+import type { EsiAsset } from 'eve-esi';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { groupBy, mapValues, mergeWith, sum } from 'lodash';
@@ -26,8 +26,8 @@ type AssetsData = {
 
 /** Assets can have parents (e.g. ammo in a ship). */
 type AssetWithParent = {
-  self: EveAsset;
-  parent: EveAsset | null
+  self: EsiAsset;
+  parent: EsiAsset | null
 };
 
 // It's important to note that this service queries all assets except
