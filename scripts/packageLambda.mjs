@@ -1,7 +1,8 @@
 /*
  * Builds build/lambda.zip for every handler under server/src/lambda.
- * shared and eve-sso are copied in as real directories. Lambda will not
- * follow the links npm creates for file: dependencies.
+ * shared and eve-esi are copied in as real directories. Lambda will not
+ * follow the links npm creates for file: dependencies. eve-esi has no
+ * runtime dependencies, so package.json and dist are all it needs.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import {
@@ -63,26 +64,20 @@ console.log('Staging production dependencies...');
 rmSync(stage, { recursive: true, force: true });
 copyPublishedPackage(path.join(root, 'shared'), path.join(stage, 'shared'));
 copyPublishedPackage(
-  path.join(root, 'packages', 'eve-sso'),
-  path.join(stage, 'packages', 'eve-sso'),
+  path.join(root, 'packages', 'eve-esi'),
+  path.join(stage, 'packages', 'eve-esi'),
 );
 mkdirSync(stageServer, { recursive: true });
 cpSync(path.join(root, 'server', 'package.json'), path.join(stageServer, 'package.json'));
 cpSync(path.join(root, 'server', 'package-lock.json'), path.join(stageServer, 'package-lock.json'));
-cpSync(path.join(root, 'server', 'patches'), path.join(stageServer, 'patches'), {
-  recursive: true,
-});
 
 const npmCli = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
 run(process.execPath, [npmCli, 'ci', '--prefix', stageServer]);
 run(process.execPath, [npmCli, 'prune', '--omit=dev', '--prefix', stageServer]);
-run(process.execPath, [
-  npmCli, 'install', '--omit=dev', '--prefix', path.join(stage, 'packages', 'eve-sso'),
-]);
 cpSync(path.join(root, 'server', 'dist'), path.join(stageServer, 'dist'), { recursive: true });
 
 for (const linkPath of [
-  path.join(stageServer, 'node_modules', 'eve-sso'),
+  path.join(stageServer, 'node_modules', 'eve-esi'),
   path.join(stageServer, 'node_modules', '@internal', 'shared'),
 ]) {
   if (isRedirect(linkPath)) {
@@ -94,7 +89,6 @@ for (const linkPath of [
 for (const handlerFile of ['ping.js', 'syncCandidatesMarketHistory.js', 'syncTradeableMarketHistory.js']) {
   console.log(`Checking that ${handlerFile} loads...`);
   run(process.execPath, [
-    '--no-require-module',
     '-e',
     `const m = require('./dist/lambda/${handlerFile}'); if (typeof m.handler !== 'function') process.exit(1);`,
   ], { cwd: stageServer });
