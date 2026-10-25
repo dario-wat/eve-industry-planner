@@ -1,2 +1,7 @@
-// Public entry point. Real exports are added in later steps.
-export const EVE_ESI_PACKAGE = 'eve-esi';
+export {
+  EsiConfigError,
+  EsiError,
+  EsiMissingTokenError,
+  EsiSsoError,
+} from './errors.js';
+export type * from './types.js';
