@@ -24,6 +24,12 @@
     "jsx": "react-jsx",
     "baseUrl": "src"
   },
+  "ts-node": {
+    "ignore": [
+      "(?:^|/)node_modules/",
+      "(?:^|/)packages/eve-esi/"
+    ]
+  },
   "include": [
     "src",
   ]
