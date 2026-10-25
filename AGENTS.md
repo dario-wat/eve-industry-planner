@@ -7,9 +7,10 @@ Node `>=26`. TypeScript throughout.
 ## Layout
 
 - `client/` — CRA React app (MUI, Recoil, axios-hooks). Router basename is `/eve-industry-planner`. API base URL is set in `client/src/index.tsx`.
-- `server/` — Express + TypeDI + Sequelize (MySQL). ESI via `eve-esi-client` and `packages/eve-sso`.
+- `server/` — Express + TypeDI + Sequelize (MySQL). ESI via `packages/eve-esi-client` and `packages/eve-sso`.
 - `shared/` — `@internal/shared`. API response types live in `shared/src/api.ts`. Do not duplicate those types in client or server. Build with `npm run shared-build` before the client or server load it.
 - `packages/eve-sso/` — local SSO package used by the server.
+- `packages/eve-esi-client/` — local ESI HTTP + SSO registration client used by the server.
 
 ## Commands
 
@@ -45,5 +46,5 @@ Do not start the frontend server (`npm run client` or similar) and do not open t
 
 - Put API DTO types anywhere except `shared/`
 - Call ESI or dump SDE from the client
-- Edit `packages/eve-sso/dist/` by hand
+- Edit `packages/eve-sso/dist/` or `packages/eve-esi-client/dist/` by hand
 - Widen SDE loading to `initDatabase()`
