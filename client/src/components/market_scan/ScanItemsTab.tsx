@@ -51,6 +51,17 @@ const columns: GridColDef<ScanRow>[] = [
     description: 'Each day\'s high minus its low, divided by that day\'s high. The cell is the median of those days.',
     renderCell: (params) => formatMaybe(params.row.medianRange, formatShare),
   },
+  {
+    field: 'medianPriceInRange',
+    headerName: 'Price in range',
+    minWidth: 140,
+    align: 'right',
+    headerAlign: 'right',
+    description: 'Where the day\'s average price sat between that day\'s low and high. '
+      + '0 is the low and 1 is the high. The cell is the median of those days. '
+      + 'Days with no trades, and days where the high and low were the same, are left out.',
+    renderCell: (params) => formatMaybe(params.row.medianPriceInRange, formatUnitInterval),
+  },
   numberColumn('medianUnits', 'Median units/day', 150, formatNumberScale),
 ];
 
@@ -79,6 +90,10 @@ export default function ScanItemsTab(props: { rows: ScanRow[]; onOpen: (typeId: 
 
 function formatCount(value: number): string {
   return formatNumber(value, value >= 100 ? 0 : 1);
+}
+
+function formatUnitInterval(value: number): string {
+  return formatNumber(value, 2);
 }
 
 function numberColumn(

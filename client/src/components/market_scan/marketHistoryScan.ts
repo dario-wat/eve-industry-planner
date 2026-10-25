@@ -16,6 +16,7 @@ export type ScanRow = {
   daysTraded: number;
   daysShare: number;
   medianRange: number | null;
+  medianPriceInRange: number | null;
 };
 
 type ScanFilters = {
@@ -46,6 +47,7 @@ export function rowsForWindow(data: MarketHistoryScanRes, windowDays: ScanWindow
       daysTraded: window.daysTraded,
       daysShare: window.daysTraded / windowDays,
       medianRange: window.medianRange,
+      medianPriceInRange: window.medianPriceInRange,
     });
   }
   return rows;
