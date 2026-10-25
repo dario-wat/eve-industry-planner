@@ -1,4 +1,3 @@
-import { Character } from 'eve-esi-client';
 import {
   Sequelize,
   DataTypes,
@@ -18,7 +17,7 @@ import { WalletJournalEntry } from 'features/wallet/WalletJournalEntry';
  * of an EveAccount. But for the purposes of this app we can group as many
  * EsiCharacters from as many EsiAccounts into a single Account.
  */
-export class EsiCharacter extends Model implements Character {
+export class EsiCharacter extends Model {
 
   declare characterId: number;
   declare characterName: string;
@@ -29,25 +28,6 @@ export class EsiCharacter extends Model implements Character {
   declare getAccount: BelongsToGetAssociationMixin<Account | null>;
   declare getWalletTransactions: HasManyGetAssociationsMixin<WalletTransaction>;
   declare getWalletJournalEntries: HasManyGetAssociationsMixin<WalletJournalEntry>;
-
-  /** Updates this EsiCharacter in the DB. */
-  public async updateCharacter(
-    owner: string,
-    characterName: string
-  ): Promise<void> {
-    await this.update({ characterName, owner });
-  }
-
-  /** Deletes this EsiCharacter from the DB. */
-  public async deleteCharacter(): Promise<void> {
-    await this.destroy();
-  }
-
-  /** Deletes tokens associated with this EsiCharacter from the DB. */
-  public async deleteTokens(): Promise<void> {
-    const tokens = await this.getEsiTokens();
-    await Promise.all(tokens.map(async t => await t.destroy()));
-  }
 
   /** 
    * Returns related account or throws if not attached

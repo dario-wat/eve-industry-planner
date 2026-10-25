@@ -1,4 +1,3 @@
-import { Token } from 'eve-esi-client';
 import {
   Sequelize,
   DataTypes,
@@ -10,39 +9,15 @@ import { EsiCharacter } from './EsiCharacter';
 
 /**
  * This is the model representation of an ESI Token. This is stored in the
- * DB and used to fetch data from ESI.
- * It needs to implement Token to work with EVE ESI SSO service.
+ * DB and used to fetch data from ESI. EsiTokenStore reads and writes it.
  */
-export class EsiToken extends Model implements Token {
+export class EsiToken extends Model {
 
   declare accessToken: string;
   declare refreshToken: string;
   declare expires: Date;
   declare scopes: CreationOptional<string[]>;
   declare characterId: ForeignKey<EsiCharacter['characterId']>;
-
-  /** Updates token in the DB. */
-  public async updateToken(
-    accessToken: string,
-    refreshToken: string,
-    expires: Date,
-    scopes?: string | string[]
-  ): Promise<void> {
-    if (!scopes) {
-      await this.update({ accessToken, refreshToken, expires });
-      return;
-    }
-
-    if (typeof scopes === 'string') {
-      scopes = scopes.split(' ');
-    }
-    await this.update({ accessToken, refreshToken, expires, scopes });
-  }
-
-  /** Deletes token from the DB. */
-  public async deleteToken(): Promise<void> {
-    await this.destroy();
-  }
 }
 
 export const esiTokenModelDefine = (sequelize: Sequelize) => EsiToken.init(

@@ -10,6 +10,7 @@
     "cors": "^2.8.5",
     "date-fns": "^2.29.1",
     "dotenv": "^16.3.1",
+    "eve-esi": "file:../packages/eve-esi",
     "eve-esi-client": "file:../packages/eve-esi-client",
     "eve-sso": "file:../packages/eve-sso",
     "express": "^4.18.1",

@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { Service } from 'typedi';
 import { requiredScopes } from '../../const/EveScopes';
-import EsiProviderService from '../esi/EsiProviderService';
-import { EsiCharacter } from '../esi/models/EsiCharacter';
+import EsiClientService from '../esi/EsiClientService';
+import EsiTokenStore from '../esi/EsiTokenStore';
 import ActorContext from '../actor_context/ActorContext';
 import AccountService from '../account/AccountService';
 import Controller from './Controller';
@@ -11,7 +11,8 @@ import Controller from './Controller';
 export default class EveLoginController extends Controller {
 
   constructor(
-    private readonly esi: EsiProviderService,
+    private readonly esiClientService: EsiClientService,
+    private readonly esiTokenStore: EsiTokenStore,
     private readonly accountService: AccountService,
   ) {
     super();
@@ -24,7 +25,10 @@ export default class EveLoginController extends Controller {
       async (_req: Request, res: Response, _actorContext: ActorContext) => {
         res.send(
           // TODO use generated SSO state on callback
-          this.esi.get().getRedirectUrl(process.env.ESI_SSO_STATE!, requiredScopes)
+          this.esiClientService.get().auth.getLoginUrl(
+            process.env.ESI_SSO_STATE!,
+            requiredScopes,
+          )
         );
       },
     );
@@ -38,9 +42,9 @@ export default class EveLoginController extends Controller {
       '/sso_callback',
       async (req: Request, res: Response, actorContext: ActorContext) => {
         const code = req.query.code as string;
-        const { character } = await this.esi.get().register(code);
+        const login = await this.esiClientService.get().auth.exchangeCode(code);
+        const esiCharacter = await this.esiTokenStore.genxSaveLogin(login);
 
-        const esiCharacter = (await EsiCharacter.findByPk(character.characterId))!;
         const account = await this.accountService.genLink(
           actorContext,
           esiCharacter,
