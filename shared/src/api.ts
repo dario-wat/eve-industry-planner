@@ -184,6 +184,7 @@ export type LinkedCharacterRes = {
   characterId: number;
   characterName: string | undefined;
   portrait: string | null;
+  /** The character has no usable login and has to log in again. */
   tokenExpired: boolean;
 }[];
 

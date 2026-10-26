@@ -19,7 +19,10 @@ export function esiAssocsDefine() {
     },
   );
 
-  /** Each character can have multiple tokens. */
+  /**
+   * Each character has one login token, kept that way by EsiTokenStore. This
+   * stays hasMany because the table does not enforce it (see EsiToken).
+   */
   EsiCharacter.hasMany(
     EsiToken,
     {

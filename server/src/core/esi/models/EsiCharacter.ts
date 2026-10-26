@@ -18,35 +18,36 @@ import { WalletJournalEntry } from 'features/wallet/WalletJournalEntry';
  * EsiCharacters from as many EsiAccounts into a single Account.
  */
 export class EsiCharacter extends Model {
-
   declare characterId: number;
   declare characterName: string;
   declare owner: ForeignKey<EsiAccount['owner']>;
   declare accountId: ForeignKey<Account['id']>;
 
-  declare getEsiTokens: HasManyGetAssociationsMixin<EsiToken>;
   declare getAccount: BelongsToGetAssociationMixin<Account | null>;
   declare getWalletTransactions: HasManyGetAssociationsMixin<WalletTransaction>;
   declare getWalletJournalEntries: HasManyGetAssociationsMixin<WalletJournalEntry>;
 
-  /** 
+  /**
    * Returns related account or throws if not attached
-   * (it should alwasy be thought). 
+   * (it should alwasy be thought).
    */
   public async genxAccount(): Promise<Account> {
     return (await this.getAccount())!;
   }
 
-  /** Checks if the EsiCharacter has a valid refresh token (i.e. logged in). */
+  /**
+   * Checks if the EsiCharacter has a stored token with every required scope
+   * (i.e. logged in). That is the token EsiTokenStore hands to eve-esi, which
+   * refreshes an expired access token on demand, so the expiry of the access
+   * token does not matter here.
+   */
   public async isLoggedIn(): Promise<boolean> {
-    const tokens = await this.getEsiTokens();
-    const now = new Date();
-    return tokens.some(token => token.expires.getTime() > now.getTime());
+    return (await EsiToken.genForCharacter(this.characterId)) !== null;
   }
 }
 
-export const esiCharacterModelDefine =
-  (sequelize: Sequelize) => EsiCharacter.init(
+export const esiCharacterModelDefine = (sequelize: Sequelize) =>
+  EsiCharacter.init(
     {
       characterId: {
         type: DataTypes.INTEGER,
@@ -62,5 +63,5 @@ export const esiCharacterModelDefine =
       modelName: EsiCharacter.name,
       tableName: 'esi_characters',
       timestamps: false,
-    }
+    },
   );

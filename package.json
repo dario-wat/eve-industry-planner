@@ -20,5 +20,24 @@
     "sync-market-history": "npm run shared-build && npm run ts-node -- ./server/src/scripts/syncMarketHistory.ts",
     "sync-region-market-orders": "npm run ts-node -- ./server/src/scripts/syncRegionMarketOrders.ts",
     "load-sde": "npm run ts-node -- ./server/src/scripts/loadDataIntoMySqlScript.ts"
-  }
+  },
+  "name": "eve-industry-planner",
+  "version": "1.0.0",
+  "description": "To run call in separate terminals:",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dario-wat/eve-industry-planner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dario-wat/eve-industry-planner/issues"
+  },
+  "homepage": "https://github.com/dario-wat/eve-industry-planner#readme"
 }

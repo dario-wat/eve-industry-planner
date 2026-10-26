@@ -3,7 +3,8 @@ import { Service } from 'typedi';
 import EsiTokenStore from './EsiTokenStore';
 
 /** Identifies this app on every ESI request. CCP uses it to contact the developer. */
-const USER_AGENT = 'eve-industry-planner/0.1.0 (daki1133@gmail.com; +https://github.com/dario-wat/eve-industry-planner)';
+const USER_AGENT =
+  'eve-industry-planner/0.1.0 (daki1133@gmail.com; +https://github.com/dario-wat/eve-industry-planner)';
 
 /**
  * Builds the one EsiClient the app uses. Tokens are stored by EsiTokenStore.
