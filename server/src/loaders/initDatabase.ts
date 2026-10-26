@@ -22,7 +22,6 @@ import { solarSystemModelDefine } from '../core/sde/models/SolarSystem';
 import { plannedProductModelDefine } from '../features/planned_product/PlannedProduct';
 import { esiCacheModelDefine } from '../core/esi_cache/EsiCache';
 import { materialStationModelDefine } from '../features/material_station/MaterialStation';
-import { appLogModelDefine } from '../core/logger/AppLog';
 import { esiAccountModelDefine } from '../core/esi/models/EsiAccount';
 import { esiCharacterModelDefine } from '../core/esi/models/EsiCharacter';
 import { esiTokenModelDefine } from '../core/esi/models/EsiToken';
@@ -111,7 +110,6 @@ export function initDatabase(): void {
 
   // Special
   esiCacheModelDefine(sequelize);
-  appLogModelDefine(sequelize);
 
   // Esi
   esiAccountModelDefine(sequelize);
