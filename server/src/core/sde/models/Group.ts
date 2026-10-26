@@ -14,7 +14,6 @@ export const groupModelDefine = (sequelize: Sequelize) =>
         primaryKey: true,
       },
       category_id: DataTypes.INTEGER,
-      icon_id: DataTypes.INTEGER,
       name: DataTypes.STRING,
     },
     {

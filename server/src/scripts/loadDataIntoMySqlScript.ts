@@ -24,7 +24,6 @@ import Container from 'typedi';
 import { Sequelize } from 'sequelize';
 import { Model, ModelStatic } from 'sequelize/types';
 import { Group } from '../core/sde/models/Group';
-import { Icon } from '../core/sde/models/Icon';
 import { Type } from '../core/sde/models/Type';
 import { Category } from '../core/sde/models/Category';
 import { Station } from '../core/sde/models/Station';
@@ -222,19 +221,9 @@ async function run() {
     ([key, value]: [string, any]) => ({
       id: key,
       category_id: value.categoryID,
-      icon_id: value.iconID,
       name: value.name.en,
     }),
     Group,
-  );
-
-  await loadDataToDatabase(
-    'sde/icons.yaml',
-    ([key, value]: [string, any]) => ({
-      id: key,
-      icon_file: value.iconFile,
-    }),
-    Icon,
   );
 
   await loadDataToDatabase(

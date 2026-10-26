@@ -14,7 +14,6 @@ import {
   bpReactionProductsDefine,
 } from '../core/sde/models/Blueprint';
 import { groupModelDefine } from '../core/sde/models/Group';
-import { iconModelDefine } from '../core/sde/models/Icon';
 import { typeModelDefine } from '../core/sde/models/Type';
 import { categoryModelDefine } from '../core/sde/models/Category';
 import { stationModelDefine } from '../core/sde/models/Station';
@@ -77,7 +76,6 @@ export function initDatabase(): void {
   // Eve SDE
   typeModelDefine(sequelize);
   groupModelDefine(sequelize);
-  iconModelDefine(sequelize);
   categoryModelDefine(sequelize);
   stationModelDefine(sequelize);
   solarSystemModelDefine(sequelize);
@@ -132,7 +130,6 @@ export function initDatabaseForSdeScript(): void {
   // Eve SDE
   typeModelDefine(sequelize);
   groupModelDefine(sequelize);
-  iconModelDefine(sequelize);
   categoryModelDefine(sequelize);
   stationModelDefine(sequelize);
   solarSystemModelDefine(sequelize);
