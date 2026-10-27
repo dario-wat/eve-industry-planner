@@ -28,18 +28,7 @@ import { Type } from '../core/sde/models/Type';
 import { Category } from '../core/sde/models/Category';
 import { Station } from '../core/sde/models/Station';
 import { SolarSystem } from '../core/sde/models/SolarSystem';
-import {
-  Blueprint,
-  BpCopyingMaterials,
-  BpInventionMaterials,
-  BpManufacturingMaterials,
-  BpMeMaterials,
-  BpTeMaterials,
-  BpInventionProducts,
-  BpManufacturingProducts,
-  BpReactionMaterials,
-  BpReactionProducts,
-} from '../core/sde/models/Blueprint';
+import { Blueprint } from '../core/sde/models/Blueprint';
 import { initDatabaseForSdeScript } from '../loaders/initDatabase';
 
 const SEQUELIZE_LOG = false;
@@ -102,80 +91,6 @@ async function loadDataToDatabase<MS extends ModelStatic<Model>>(
 
   phases.step('insert');
   await model.bulkCreate(records, { logging: SEQUELIZE_LOG });
-
-  phases.end();
-  logFileEnd();
-}
-
-function extractBlueprintData([key, value]: [string, any]) {
-  const materialMapper = (o: any) => ({
-    blueprint_id: key,
-    type_id: o.typeID,
-    quantity: o.quantity,
-  });
-
-  return {
-    [Blueprint.name]: {
-      id: key,
-      copying_time: value.activities.copying?.time,
-      invention_time: value.activities.invention?.time,
-      manufacturing_time: value.activities.manufacturing?.time,
-      research_material_time: value.activities.research_material?.time,
-      research_time_time: value.activities.research_time?.time,
-      reaction_time: value.activities.reaction?.time,
-    },
-    [BpCopyingMaterials.name]: (value.activities.copying?.materials ?? []).map(materialMapper),
-    [BpInventionMaterials.name]: (value.activities.invention?.materials ?? []).map(materialMapper),
-    [BpManufacturingMaterials.name]: (value.activities.manufacturing?.materials ?? []).map(
-      materialMapper,
-    ),
-    [BpReactionMaterials.name]: (value.activities.reaction?.materials ?? []).map(materialMapper),
-    [BpMeMaterials.name]: (value.activities.research_material?.materials ?? []).map(
-      materialMapper,
-    ),
-    [BpTeMaterials.name]: (value.activities.research_time?.materials ?? []).map(materialMapper),
-    [BpInventionProducts.name]: (value.activities.invention?.products ?? []).map(materialMapper),
-    [BpManufacturingProducts.name]: (value.activities.manufacturing?.products ?? []).map(
-      materialMapper,
-    ),
-    [BpReactionProducts.name]: (value.activities.reaction?.products ?? []).map(materialMapper),
-  };
-}
-
-async function loadBlueprintData() {
-  const fileName = 'sde/blueprints.yaml';
-  const phases = createPhaseLine();
-  logFile(fileName);
-
-  phases.step('read');
-  const fileContent = fs.readFileSync(fileName, 'utf8');
-
-  phases.step('parse');
-  const result: any = yaml.load(fileContent);
-
-  phases.step('transform');
-  const records = Object.entries(result).map(extractBlueprintData);
-
-  phases.step('insert');
-  await Blueprint.bulkCreate(
-    records.map((o: any) => o[Blueprint.name]),
-    { logging: SEQUELIZE_LOG },
-  );
-
-  const bulkCreateHelper = async <MS extends ModelStatic<Model>>(model: MS) =>
-    await model.bulkCreate(records.map((o: any) => o[model.name]).flat(), {
-      logging: SEQUELIZE_LOG,
-    });
-
-  await bulkCreateHelper(BpCopyingMaterials);
-  await bulkCreateHelper(BpInventionMaterials);
-  await bulkCreateHelper(BpManufacturingMaterials);
-  await bulkCreateHelper(BpReactionMaterials);
-  await bulkCreateHelper(BpMeMaterials);
-  await bulkCreateHelper(BpTeMaterials);
-  await bulkCreateHelper(BpInventionProducts);
-  await bulkCreateHelper(BpManufacturingProducts);
-  await bulkCreateHelper(BpReactionProducts);
 
   phases.end();
   logFileEnd();
@@ -253,7 +168,14 @@ async function run() {
     Station,
   );
 
-  await loadBlueprintData();
+  await loadDataToDatabase(
+    'sde/blueprints.yaml',
+    ([key, value]: [string, any]) => ({
+      id: key,
+      activities: value.activities ?? {},
+    }),
+    Blueprint,
+  );
 
   logFile('SDE load complete');
 }

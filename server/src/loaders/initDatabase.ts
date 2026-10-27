@@ -1,18 +1,7 @@
 import 'dotenv/config';
 import { Sequelize } from 'sequelize';
 import Container from 'typedi';
-import {
-  blueprintModelDefine,
-  bpCopyingMaterialsDefine,
-  bpInventionMaterialsDefine,
-  bpManufacturingMaterialsDefine,
-  bpMeMaterialsDefine,
-  bpTeMaterialsDefine,
-  bpInventionProductsDefine,
-  bpManufacturingProductsDefine,
-  bpReactionMaterialsDefine,
-  bpReactionProductsDefine,
-} from '../core/sde/models/Blueprint';
+import { blueprintModelDefine } from '../core/sde/models/Blueprint';
 import { groupModelDefine } from '../core/sde/models/Group';
 import { typeModelDefine } from '../core/sde/models/Type';
 import { categoryModelDefine } from '../core/sde/models/Category';
@@ -82,17 +71,6 @@ export function initDatabase(): void {
 
   blueprintModelDefine(sequelize);
 
-  // Blueprint related SDE
-  bpCopyingMaterialsDefine(sequelize);
-  bpInventionMaterialsDefine(sequelize);
-  bpManufacturingMaterialsDefine(sequelize);
-  bpReactionMaterialsDefine(sequelize);
-  bpMeMaterialsDefine(sequelize);
-  bpTeMaterialsDefine(sequelize);
-  bpInventionProductsDefine(sequelize);
-  bpManufacturingProductsDefine(sequelize);
-  bpReactionProductsDefine(sequelize);
-
   // App models (non-SDE)
   accountModelDefine(sequelize);
   plannedProductModelDefine(sequelize);
@@ -135,15 +113,4 @@ export function initDatabaseForSdeScript(): void {
   solarSystemModelDefine(sequelize);
 
   blueprintModelDefine(sequelize);
-
-  // Blueprint related SDE
-  bpCopyingMaterialsDefine(sequelize);
-  bpInventionMaterialsDefine(sequelize);
-  bpManufacturingMaterialsDefine(sequelize);
-  bpReactionMaterialsDefine(sequelize);
-  bpMeMaterialsDefine(sequelize);
-  bpTeMaterialsDefine(sequelize);
-  bpInventionProductsDefine(sequelize);
-  bpManufacturingProductsDefine(sequelize);
-  bpReactionProductsDefine(sequelize);
 }

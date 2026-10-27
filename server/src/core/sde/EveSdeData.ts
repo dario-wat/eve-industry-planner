@@ -1,17 +1,10 @@
 import type { Model } from 'sequelize';
-import { groupBy } from 'underscore';
 import { mapify } from '../../lib/util';
 import { Type } from './models/Type';
 import { Group } from './models/Group';
 import { Station } from './models/Station';
 import { SolarSystem } from './models/SolarSystem';
-import {
-  Blueprint,
-  BpManufacturingMaterials,
-  BpManufacturingProducts,
-  BpReactionMaterials,
-  BpReactionProducts,
-} from './models/Blueprint';
+import { Blueprint } from './models/Blueprint';
 import { Category } from './models/Category';
 import { TRADE_UNIVERSE_EXCLUDED_CATEGORY_IDS } from '../../const/Categories';
 
@@ -165,11 +158,8 @@ export default class EveSdeData {
     const categoriesData = await Category.findAll();
     const stationsData = await Station.findAll();
     const solarSystemsData = await SolarSystem.findAll();
-    const bpManufactureMaterialsData = await BpManufacturingMaterials.findAll();
-    const bpManufactureProductsData = await BpManufacturingProducts.findAll();
-    const bpReactionMaterialsData = await BpReactionMaterials.findAll();
-    const bpReactionProductsData = await BpReactionProducts.findAll();
     const blueprintData = await Blueprint.findAll();
+    const blueprintIndexes = indexesFromBlueprints(blueprintData);
 
     return new EveSdeData(
       mapifySequelize(typesData, 'id'),
@@ -178,14 +168,43 @@ export default class EveSdeData {
       mapifySequelize(categoriesData, 'id'),
       mapifySequelize(stationsData, 'id'),
       mapifySequelize(solarSystemsData, 'id'),
-      mapifyMultiSequelize(bpManufactureMaterialsData, 'blueprint_id'),
-      mapifySequelize(bpManufactureProductsData, 'type_id'),
-      mapifyMultiSequelize(bpReactionMaterialsData, 'blueprint_id'),
-      mapifySequelize(bpReactionProductsData, 'type_id'),
-      mapifySequelize(blueprintData, 'id'),
+      blueprintIndexes.manufactureMaterialsByBlueprint,
+      blueprintIndexes.manufactureProductsByProduct,
+      blueprintIndexes.reactionMaterialsByBlueprint,
+      blueprintIndexes.reactionProductsByProduct,
+      blueprintIndexes.blueprints,
     );
   }
 }
+
+type BlueprintActivityLine = {
+  typeID: number;
+  quantity: number;
+};
+
+type BlueprintActivity = {
+  time?: number;
+  materials?: BlueprintActivityLine[];
+  products?: BlueprintActivityLine[];
+};
+
+/** Activities kept on the blueprint row. EveSdeData indexes manufacturing and reaction. */
+type BlueprintActivities = {
+  copying?: BlueprintActivity;
+  invention?: BlueprintActivity;
+  manufacturing?: BlueprintActivity;
+  research_material?: BlueprintActivity;
+  research_time?: BlueprintActivity;
+  reaction?: BlueprintActivity;
+};
+
+type BlueprintIndexes = {
+  manufactureMaterialsByBlueprint: { [blueprint_id: number]: EveSdeBlueprintMaterial[] };
+  manufactureProductsByProduct: { [type_id: number]: EveSdeBlueprintMaterial };
+  reactionMaterialsByBlueprint: { [blueprint_id: number]: EveSdeBlueprintMaterial[] };
+  reactionProductsByProduct: { [type_id: number]: EveSdeBlueprintMaterial };
+  blueprints: { [blueprint_id: number]: EveSdeBlueprint };
+};
 
 /** Helper function to create mapping from ID to data. */
 function mapifySequelize<TOut>(ds: Pick<Model, 'get'>[], key: string): Record<string, TOut> {
@@ -195,10 +214,72 @@ function mapifySequelize<TOut>(ds: Pick<Model, 'get'>[], key: string): Record<st
   );
 }
 
-/** Similar as mapifySequelize, but the returned result is an array. */
-function mapifyMultiSequelize<TOut>(ds: Pick<Model, 'get'>[], key: string): Record<string, TOut[]> {
-  return groupBy(
-    ds.map((d) => d.get()),
-    (elem) => elem[key],
-  );
+function blueprintActivities(value: unknown): BlueprintActivities {
+  if (typeof value === 'string') {
+    return JSON.parse(value) as BlueprintActivities;
+  }
+  return (value ?? {}) as BlueprintActivities;
+}
+
+function blueprintLines(
+  blueprintId: number,
+  lines: BlueprintActivityLine[] | undefined,
+): EveSdeBlueprintMaterial[] {
+  return (lines ?? []).map((line) => ({
+    blueprint_id: blueprintId,
+    type_id: line.typeID,
+    quantity: line.quantity,
+  }));
+}
+
+function activityTime(activity: BlueprintActivity | undefined): number | null {
+  return activity?.time ?? null;
+}
+
+/** Builds the manufacturing and reaction indexes from each blueprint's activities JSON. */
+function indexesFromBlueprints(rows: Blueprint[]): BlueprintIndexes {
+  const manufactureMaterialsByBlueprint: BlueprintIndexes['manufactureMaterialsByBlueprint'] = {};
+  const manufactureProductsByProduct: BlueprintIndexes['manufactureProductsByProduct'] = {};
+  const reactionMaterialsByBlueprint: BlueprintIndexes['reactionMaterialsByBlueprint'] = {};
+  const reactionProductsByProduct: BlueprintIndexes['reactionProductsByProduct'] = {};
+  const blueprints: BlueprintIndexes['blueprints'] = {};
+
+  for (const row of rows) {
+    const id = row.get('id') as number;
+    const activities = blueprintActivities(row.get('activities'));
+
+    const manufacturingMaterials = blueprintLines(id, activities.manufacturing?.materials);
+    if (manufacturingMaterials.length > 0) {
+      manufactureMaterialsByBlueprint[id] = manufacturingMaterials;
+    }
+    for (const product of blueprintLines(id, activities.manufacturing?.products)) {
+      manufactureProductsByProduct[product.type_id] = product;
+    }
+
+    const reactionMaterials = blueprintLines(id, activities.reaction?.materials);
+    if (reactionMaterials.length > 0) {
+      reactionMaterialsByBlueprint[id] = reactionMaterials;
+    }
+    for (const product of blueprintLines(id, activities.reaction?.products)) {
+      reactionProductsByProduct[product.type_id] = product;
+    }
+
+    blueprints[id] = {
+      id,
+      copying_time: activityTime(activities.copying),
+      invention_time: activityTime(activities.invention),
+      manufacturing_time: activityTime(activities.manufacturing),
+      research_material_time: activityTime(activities.research_material),
+      research_time_time: activityTime(activities.research_time),
+      reaction_time: activityTime(activities.reaction),
+    };
+  }
+
+  return {
+    manufactureMaterialsByBlueprint,
+    manufactureProductsByProduct,
+    reactionMaterialsByBlueprint,
+    reactionProductsByProduct,
+    blueprints,
+  };
 }
