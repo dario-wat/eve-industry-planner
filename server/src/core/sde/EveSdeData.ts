@@ -177,35 +177,6 @@ export default class EveSdeData {
   }
 }
 
-type BlueprintActivityLine = {
-  typeID: number;
-  quantity: number;
-};
-
-type BlueprintActivity = {
-  time?: number;
-  materials?: BlueprintActivityLine[];
-  products?: BlueprintActivityLine[];
-};
-
-/** Activities kept on the blueprint row. EveSdeData indexes manufacturing and reaction. */
-type BlueprintActivities = {
-  copying?: BlueprintActivity;
-  invention?: BlueprintActivity;
-  manufacturing?: BlueprintActivity;
-  research_material?: BlueprintActivity;
-  research_time?: BlueprintActivity;
-  reaction?: BlueprintActivity;
-};
-
-type BlueprintIndexes = {
-  manufactureMaterialsByBlueprint: { [blueprint_id: number]: EveSdeBlueprintMaterial[] };
-  manufactureProductsByProduct: { [type_id: number]: EveSdeBlueprintMaterial };
-  reactionMaterialsByBlueprint: { [blueprint_id: number]: EveSdeBlueprintMaterial[] };
-  reactionProductsByProduct: { [type_id: number]: EveSdeBlueprintMaterial };
-  blueprints: { [blueprint_id: number]: EveSdeBlueprint };
-};
-
 /** Helper function to create mapping from ID to data. */
 function mapifySequelize<TOut>(ds: Pick<Model, 'get'>[], key: string): Record<string, TOut> {
   return mapify(
@@ -214,16 +185,18 @@ function mapifySequelize<TOut>(ds: Pick<Model, 'get'>[], key: string): Record<st
   );
 }
 
-function blueprintActivities(value: unknown): BlueprintActivities {
-  if (typeof value === 'string') {
-    return JSON.parse(value) as BlueprintActivities;
-  }
-  return (value ?? {}) as BlueprintActivities;
+function blueprintActivities(value: unknown) {
+  const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+  return (parsed ?? {}) as Record<string, {
+    time?: number;
+    materials?: { typeID: number; quantity: number }[];
+    products?: { typeID: number; quantity: number }[];
+  } | undefined>;
 }
 
 function blueprintLines(
   blueprintId: number,
-  lines: BlueprintActivityLine[] | undefined,
+  lines: { typeID: number; quantity: number }[] | undefined,
 ): EveSdeBlueprintMaterial[] {
   return (lines ?? []).map((line) => ({
     blueprint_id: blueprintId,
@@ -232,17 +205,17 @@ function blueprintLines(
   }));
 }
 
-function activityTime(activity: BlueprintActivity | undefined): number | null {
+function activityTime(activity: { time?: number } | undefined): number | null {
   return activity?.time ?? null;
 }
 
 /** Builds the manufacturing and reaction indexes from each blueprint's activities JSON. */
-function indexesFromBlueprints(rows: Blueprint[]): BlueprintIndexes {
-  const manufactureMaterialsByBlueprint: BlueprintIndexes['manufactureMaterialsByBlueprint'] = {};
-  const manufactureProductsByProduct: BlueprintIndexes['manufactureProductsByProduct'] = {};
-  const reactionMaterialsByBlueprint: BlueprintIndexes['reactionMaterialsByBlueprint'] = {};
-  const reactionProductsByProduct: BlueprintIndexes['reactionProductsByProduct'] = {};
-  const blueprints: BlueprintIndexes['blueprints'] = {};
+function indexesFromBlueprints(rows: Blueprint[]) {
+  const manufactureMaterialsByBlueprint: { [blueprint_id: number]: EveSdeBlueprintMaterial[] } = {};
+  const manufactureProductsByProduct: { [type_id: number]: EveSdeBlueprintMaterial } = {};
+  const reactionMaterialsByBlueprint: { [blueprint_id: number]: EveSdeBlueprintMaterial[] } = {};
+  const reactionProductsByProduct: { [type_id: number]: EveSdeBlueprintMaterial } = {};
+  const blueprints: { [blueprint_id: number]: EveSdeBlueprint } = {};
 
   for (const row of rows) {
     const id = row.get('id') as number;
