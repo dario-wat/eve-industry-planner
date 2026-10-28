@@ -21,15 +21,22 @@ export interface EsiTokenSet {
 }
 
 /**
- * How the library reads and writes a character's tokens. Both are supplied
+ * How the library reads and writes a character's tokens. These are supplied
  * by the app, which owns storage and decides which stored token to use
- * (e.g. by scope).
+ * (e.g. by scope). Only `load` and `save` are required.
  */
 export interface EsiTokenHooks {
   /** Returns the stored tokens, or null if the character has none. */
   load(characterId: number): Promise<EsiTokenSet | null>;
   /** Called after every refresh with the new tokens. Must persist them. */
   save(characterId: number, tokens: EsiTokenSet): Promise<void>;
+  /**
+   * Optional. Called when SSO rejects the refresh token with `invalid_grant`.
+   * The refresh token passed here is the one EVE rejected. The app should
+   * delete that stored token so the character counts as logged out. The
+   * original SSO error is still thrown afterwards.
+   */
+  onRefreshRejected?(characterId: number, refreshToken: string): Promise<void>;
 }
 
 /** Result of a successful login. The library stores nothing; the app does. */

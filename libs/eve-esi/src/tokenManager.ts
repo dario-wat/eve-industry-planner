@@ -1,5 +1,5 @@
 import type { EsiAuth } from './auth.js';
-import { EsiMissingTokenError } from './errors.js';
+import { EsiMissingTokenError, EsiSsoError } from './errors.js';
 import type { EsiTokenHooks, EsiTokenSet } from './types.js';
 
 /** A token that expires within this long is refreshed before use. */
@@ -30,7 +30,8 @@ export class TokenManager {
   /**
    * A valid access token for the character.
    * Throws EsiMissingTokenError if nothing is stored, EsiSsoError if the
-   * refresh is rejected, and whatever `load` / `save` throw.
+   * refresh is rejected (after `onRefreshRejected`, when the token is dead),
+   * and whatever `load` / `save` throw.
    */
   async getAccessToken(characterId: number): Promise<string> {
     for (;;) {
@@ -65,7 +66,19 @@ export class TokenManager {
 
   #startRefresh(characterId: number, tokens: EsiTokenSet): Promise<string> {
     const refresh = (async () => {
-      const fresh = await this.#auth.refreshTokens(tokens.refreshToken);
+      let fresh: EsiTokenSet;
+      try {
+        fresh = await this.#auth.refreshTokens(tokens.refreshToken);
+      } catch (error) {
+        if (error instanceof EsiSsoError && error.oauthError === 'invalid_grant') {
+          try {
+            await this.#hooks.onRefreshRejected?.(characterId, tokens.refreshToken);
+          } catch {
+            // The SSO error is the one to report. The next refresh tries again.
+          }
+        }
+        throw error;
+      }
       await this.#hooks.save(characterId, fresh);
       return fresh.accessToken;
     })().finally(() => {

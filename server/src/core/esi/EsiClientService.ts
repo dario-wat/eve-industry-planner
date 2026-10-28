@@ -25,6 +25,8 @@ export default class EsiClientService {
       tokens: {
         load: (characterId) => tokenStore.genLoadTokenSet(characterId),
         save: (characterId, tokens) => tokenStore.genxSaveTokenSet(characterId, tokens),
+        onRefreshRejected: (characterId, refreshToken) =>
+          tokenStore.genDeleteRejectedRefreshToken(characterId, refreshToken),
       },
     });
   }

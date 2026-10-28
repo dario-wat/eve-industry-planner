@@ -58,6 +58,19 @@ export default class EsiTokenStore {
   }
 
   /**
+   * Drops the stored token EVE just rejected, so the character counts as
+   * logged out. A newer login, with a different refresh token, is left alone.
+   */
+  public async genDeleteRejectedRefreshToken(
+    characterId: number,
+    refreshToken: string,
+  ): Promise<void> {
+    await EsiToken.destroy({
+      where: { characterId, refreshToken },
+    });
+  }
+
+  /**
    * Creates or updates the account, character and token rows for a character
    * that just logged in, and returns the character. The character ends up
    * with exactly one token row, holding the tokens and scopes of this login.
