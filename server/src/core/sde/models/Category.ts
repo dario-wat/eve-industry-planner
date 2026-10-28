@@ -18,7 +18,7 @@ export const categoryModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: Category.name,
-      tableName: 'categories',
+      tableName: 'sde_categories',
       timestamps: false,
     },
   );

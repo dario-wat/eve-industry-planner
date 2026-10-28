@@ -25,7 +25,7 @@ export const blueprintModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: Blueprint.name,
-      tableName: 'blueprints',
+      tableName: 'sde_blueprints',
       timestamps: false,
     },
   );

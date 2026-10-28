@@ -23,7 +23,7 @@ export const typeModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: Type.name,
-      tableName: 'types',
+      tableName: 'sde_types',
       timestamps: false,
     },
   );

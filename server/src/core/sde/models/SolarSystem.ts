@@ -18,7 +18,7 @@ export const solarSystemModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: SolarSystem.name,
-      tableName: 'solar_systems',
+      tableName: 'sde_solar_systems',
       timestamps: false,
     },
   );

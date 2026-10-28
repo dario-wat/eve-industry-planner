@@ -19,7 +19,7 @@ export const groupModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: Group.name,
-      tableName: 'groups',
+      tableName: 'sde_groups',
       timestamps: false,
     },
   );

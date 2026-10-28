@@ -18,7 +18,7 @@ export const stationModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: Station.name,
-      tableName: 'stations',
+      tableName: 'sde_stations',
       timestamps: false,
     },
   );
