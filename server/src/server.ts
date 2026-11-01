@@ -71,7 +71,6 @@ async function init() {
   app.use(express.json());
 
   // Enable trust for the X-Forwarded-Proto header
-  // This is needed for AWS App Runner
   app.set('trust proxy', true);
 
   // Initialize all controllers.
