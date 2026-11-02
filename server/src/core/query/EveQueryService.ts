@@ -4,8 +4,6 @@ import { mapify } from '../../lib/util';
 import type { EsiAsset, EsiName } from 'eve-esi';
 import { filterNullOrUndef } from '@internal/shared';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
-import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
-import { hoursToSeconds } from 'date-fns';
 import EsiQueryService from '../esi/EsiQueryService';
 
 /** More complex EVE queries built on top of the ESI query services. */
@@ -13,15 +11,9 @@ import EsiQueryService from '../esi/EsiQueryService';
 export default class EveQueryService {
   constructor(private readonly esiQuery: EsiQueryService) {}
 
-  // TODO Do I still need to cache this now that multipage is fixed
-  /** Queries all assets for the given user and caches the result. */
-  public async genAllAssets(character: EsiCharacter): Promise<EsiAsset[] | null> {
-    return await genQueryEsiCache(
-      character.characterId.toString(),
-      EsiCacheItem.ASSETS,
-      hoursToSeconds(1),
-      async () => await this.esiQuery.genxAllAssets(character.characterId)
-    );
+  /** Queries all assets for the given character. */
+  public async genAllAssets(character: EsiCharacter): Promise<EsiAsset[]> {
+    return await this.esiQuery.genxAllAssets(character.characterId);
   }
 
   /**

@@ -1,5 +1,4 @@
 import { Service } from 'typedi';
-import type { EsiStation, EsiStructure } from 'eve-esi';
 import EsiQueryService from '../esi/EsiQueryService';
 import EveSdeData from '../../core/sde/EveSdeData';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
@@ -7,8 +6,6 @@ import { uniq, zip } from 'underscore';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { combineMapsWithNulls } from '../../lib/util';
 import { genNullOnEsiError } from '../../lib/eveUtil';
-import { EsiCacheItem, genQueryEsiCache } from '../../core/esi_cache/EsiCacheAction';
-import { hoursToSeconds } from 'date-fns';
 
 @Service()
 export default class StationService {
@@ -25,11 +22,13 @@ export default class StationService {
   public async genStationName(character: EsiCharacter, stationId: number): Promise<string | null> {
     const isNpcStation = this.sdeData.stations[stationId] !== undefined;
     if (isNpcStation) {
-      const station = await this.genStationCached(stationId);
+      const station = await genNullOnEsiError(() => this.esiQuery.genxStation(stationId));
       return station?.name ?? null;
     }
 
-    const structure = await this.genStructureCached(character, stationId);
+    const structure = await genNullOnEsiError(() =>
+      this.esiQuery.genxStructure(character.characterId, stationId),
+    );
     return structure?.name ?? null;
   }
 
@@ -63,31 +62,5 @@ export default class StationService {
     );
 
     return combineMapsWithNulls(stationNamesList);
-  }
-
-  /** Cached version of genStructure */
-  private async genStructureCached(
-    character: EsiCharacter,
-    stationId: number
-  ): Promise<EsiStructure | null> {
-    return await genQueryEsiCache(
-      stationId.toString(),
-      EsiCacheItem.STRUCTURE,
-      hoursToSeconds(24),
-      async () =>
-        await genNullOnEsiError(() => this.esiQuery.genxStructure(character.characterId, stationId))
-    );
-  }
-
-  /** Cached version of genStation. NPC station names never change. */
-  private async genStationCached(
-    stationId: number
-  ): Promise<EsiStation | null> {
-    return await genQueryEsiCache(
-      stationId.toString(),
-      EsiCacheItem.STATION,
-      hoursToSeconds(24 * 30),
-      async () => await genNullOnEsiError(() => this.esiQuery.genxStation(stationId))
-    );
   }
 }
