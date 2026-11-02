@@ -3,7 +3,6 @@ import { Service } from 'typedi';
 import loggedOutMiddleware from '../core/controller/loggedOutMiddleware';
 import actorContextMiddleware from '../core/controller/actorContextMiddleware';
 import AccountController from '../core/account/AccountController';
-import EsiCacheController from '../core/esi_cache/EsiCacheController';
 import EveSdeDataController from '../core/sde/EveSdeDataController';
 import HealthController from '../core/controller/HealthController';
 import MaterialStationController from '../features/material_station/MaterialStationController';
@@ -25,7 +24,6 @@ export default class Controllers {
     private readonly plannedProductController: PlannedProductController,
     private readonly materialStationController: MaterialStationController,
     private readonly productionPlanController: ProductionPlanController,
-    private readonly esiCacheController: EsiCacheController,
     private readonly accountController: AccountController,
     private readonly eveSdeDataController: EveSdeDataController,
     private readonly industryJobController: IndustryJobController,
@@ -49,7 +47,6 @@ export default class Controllers {
     this.plannedProductController.init(app);
     this.materialStationController.init(app);
     this.productionPlanController.init(app);
-    this.esiCacheController.init(app);
     this.accountController.init(app);
     this.eveSdeDataController.init(app);
     this.industryJobController.init(app);

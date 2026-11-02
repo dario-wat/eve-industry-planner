@@ -8,7 +8,6 @@ import { categoryModelDefine } from '../core/sde/models/Category';
 import { stationModelDefine } from '../core/sde/models/Station';
 import { solarSystemModelDefine } from '../core/sde/models/SolarSystem';
 import { plannedProductModelDefine } from '../features/planned_product/PlannedProduct';
-import { esiCacheModelDefine } from '../core/esi_cache/EsiCache';
 import { materialStationModelDefine } from '../features/material_station/MaterialStation';
 import { esiAccountModelDefine } from '../core/esi/models/EsiAccount';
 import { esiCharacterModelDefine } from '../core/esi/models/EsiCharacter';
@@ -81,9 +80,6 @@ export function initDatabase(): void {
   marketHistorySummaryModelDefine(sequelize);
   marketOrderOpenModelDefine(sequelize);
   marketOrderEventModelDefine(sequelize);
-
-  // Special
-  esiCacheModelDefine(sequelize);
 
   // Esi
   esiAccountModelDefine(sequelize);
