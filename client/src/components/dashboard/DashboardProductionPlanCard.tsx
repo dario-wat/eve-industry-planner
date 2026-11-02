@@ -9,7 +9,6 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { LoadingButton } from '@mui/lab';
 import { groupBy, uniqueId } from 'underscore';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { ProductionPlanRes } from '@internal/shared';
 import EveIconAndName from 'components/util/EveIconAndName';
 import useProductionPlanState from '../../recoil/useProductionPlanState';
@@ -34,16 +33,6 @@ export default function DashboardProductionPlanCard() {
 
   const [selectedTab, setSelectedTab] = useState(SelectedTab.RUNS);
 
-  const [refreshingAssets, setRefreshingAssets] = useState(false);
-  const onRefreshAssetsClick = async () => {
-    setRefreshingAssets(true);
-    const { status } = await axios.delete('/clear_assets_cache');
-    if (status === 200) {
-      await fetchProductionPlan();
-    }
-    setRefreshingAssets(false);
-  };
-
   return (
     <Card>
       <CardContent>
@@ -61,12 +50,6 @@ export default function DashboardProductionPlanCard() {
             <Tab label="Runs" value={SelectedTab.RUNS} />
             <Tab label="Materials" value={SelectedTab.MATERIALS} />
           </Tabs>
-          <LoadingButton
-            loading={refreshingAssets}
-            variant="contained"
-            onClick={onRefreshAssetsClick}>
-            Refresh Assets
-          </LoadingButton>
         </Box>
         {selectedTab === SelectedTab.MATERIALS
           ? <MaterialsTab
