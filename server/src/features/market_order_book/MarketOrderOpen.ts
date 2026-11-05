@@ -43,7 +43,7 @@ export const marketOrderOpenModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: MarketOrderOpen.name,
-      tableName: 'market_order_open',
+      tableName: 'esi_market_order_open',
       timestamps: false,
       indexes: [
         { fields: ['region_id'] },

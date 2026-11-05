@@ -34,7 +34,7 @@ export const industryJobModelDefine = (sequelize: Sequelize) => IndustryJob.init
   {
     sequelize,
     modelName: IndustryJob.name,
-    tableName: 'industry_jobs',
+    tableName: 'esi_industry_jobs',
     timestamps: false,
   }
 );

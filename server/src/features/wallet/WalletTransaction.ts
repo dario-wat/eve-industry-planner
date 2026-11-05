@@ -42,7 +42,7 @@ export const walletTransactionModelDefine =
     {
       sequelize,
       modelName: WalletTransaction.name,
-      tableName: 'wallet_transactions',
+      tableName: 'esi_wallet_transactions',
       timestamps: false,
     },
   );

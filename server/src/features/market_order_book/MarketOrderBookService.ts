@@ -288,7 +288,7 @@ export default class MarketOrderBookService {
     return byPage.flat();
   }
 
-  /** The previous open book stored in market_order_open. */
+  /** The previous open book stored in esi_market_order_open. */
   private async genOpenOrders(regionId: number): Promise<OpenOrder[]> {
     const rows = await MarketOrderOpen.findAll({
       where: { region_id: regionId },

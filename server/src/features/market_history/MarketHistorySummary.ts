@@ -45,7 +45,7 @@ export const marketHistorySummaryModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: MarketHistorySummary.name,
-      tableName: 'market_history_summary',
+      tableName: 'derived_market_history_summary',
       timestamps: false,
     },
   );

@@ -38,7 +38,7 @@ export const plannedProductModelDefine =
     {
       sequelize,
       modelName: PlannedProduct.name,
-      tableName: 'planned_products',
+      tableName: 'app_planned_products',
       timestamps: false,
     }
   );

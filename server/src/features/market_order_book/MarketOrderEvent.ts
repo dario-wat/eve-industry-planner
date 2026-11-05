@@ -49,7 +49,7 @@ export const marketOrderEventModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: MarketOrderEvent.name,
-      tableName: 'market_order_event',
+      tableName: 'derived_market_order_event',
       timestamps: false,
       indexes: [
         { fields: ['region_id', 'observed_at'] },

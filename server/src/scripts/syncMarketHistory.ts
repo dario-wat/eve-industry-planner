@@ -1,6 +1,6 @@
 /*
- * Syncs regional market history from ESI into market_history_daily,
- * then rewrites market_history_summary for the types just fetched.
+ * Syncs regional market history from ESI into esi_market_history_daily,
+ * then rewrites derived_market_history_summary for the types just fetched.
  *
  * Examples:
  *   npm run sync-market-history -- --type-ids 34,44992

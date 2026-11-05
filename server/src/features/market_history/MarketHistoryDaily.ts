@@ -35,7 +35,7 @@ export const marketHistoryDailyModelDefine = (sequelize: Sequelize) =>
     {
       sequelize,
       modelName: MarketHistoryDaily.name,
-      tableName: 'market_history_daily',
+      tableName: 'esi_market_history_daily',
       timestamps: false,
     },
   );

@@ -45,7 +45,7 @@ export const walletJournalEntryModelDefine =
     {
       sequelize,
       modelName: WalletJournalEntry.name,
-      tableName: 'wallet_journal',
+      tableName: 'esi_wallet_journal',
       timestamps: false,
     },
   );

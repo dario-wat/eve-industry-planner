@@ -40,7 +40,7 @@ export const accountModelDefine = (sequelize: Sequelize) => {
     {
       sequelize,
       modelName: Account.name,
-      tableName: 'accounts',
+      tableName: 'app_accounts',
     }
   );
 };

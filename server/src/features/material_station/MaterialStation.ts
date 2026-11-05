@@ -26,7 +26,7 @@ export const materialStationModelDefine =
     {
       sequelize,
       modelName: MaterialStation.name,
-      tableName: 'material_stations',
+      tableName: 'app_material_stations',
       timestamps: false,
     }
   );
