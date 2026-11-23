@@ -26,6 +26,7 @@ import { marketHistoryDailyModelDefine } from '../features/market_history/Market
 import { marketHistorySummaryModelDefine } from '../features/market_history/MarketHistorySummary';
 import { marketOrderOpenModelDefine } from '../features/market_order_book/MarketOrderOpen';
 import { marketOrderEventModelDefine } from '../features/market_order_book/MarketOrderEvent';
+import { jobRunModelDefine } from '../core/job/JobRun';
 
 export function initDatabaseSequelize(): Sequelize {
   const useSsl = process.env.DATABASE_SSL === '1';
@@ -80,6 +81,7 @@ export function initDatabase(): void {
   marketHistorySummaryModelDefine(sequelize);
   marketOrderOpenModelDefine(sequelize);
   marketOrderEventModelDefine(sequelize);
+  jobRunModelDefine(sequelize);
 
   // Esi
   esiAccountModelDefine(sequelize);

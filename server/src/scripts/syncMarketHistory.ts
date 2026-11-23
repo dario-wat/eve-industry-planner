@@ -16,6 +16,7 @@ import EveSdeData from '../core/sde/EveSdeData';
 import { THE_FORGE } from '../const/IDs';
 import { MarketHistoryIngestProgress } from '../features/market_history/MarketHistoryIngestService';
 import MarketHistorySyncService from '../features/market_history/MarketHistorySyncService';
+import { genxRunJob } from '../core/job/runJob';
 
 function parsePositiveInt(value: string, flag: string): number {
   const parsed = Number(value);
@@ -115,6 +116,15 @@ async function run(): Promise<void> {
   const sequelize = Container.get(Sequelize);
   await sequelize.authenticate();
 
+  const jobName = cli.typeIds === null ? 'market_history_all' : 'market_history_types';
+  try {
+    await genxRunJob(jobName, () => genxSync(cli));
+  } finally {
+    await sequelize.close();
+  }
+}
+
+async function genxSync(cli: { regionId: number; typeIds: number[] | null }) {
   const sdeData = await EveSdeData.init();
   Container.set(EveSdeData, sdeData);
 
@@ -125,10 +135,14 @@ async function run(): Promise<void> {
   console.log(`Type ids: ${cli.typeIds === null ? 'all tradeable' : cli.typeIds.join(',')}`);
   console.log(`Types to fetch: ${resolvedTypeIds.length}`);
 
+  let lastProgress: MarketHistoryIngestProgress | null = null;
   const result = await syncService.genSync(
     resolvedTypeIds,
     cli.regionId,
-    printIngestProgress,
+    (progress) => {
+      lastProgress = progress;
+      printIngestProgress(progress);
+    },
     (completed, total) => {
       if (completed === 0) {
         process.stdout.write('\n');
@@ -146,7 +160,20 @@ async function run(): Promise<void> {
   console.log('Done.');
   console.log(JSON.stringify(result.ingest, null, 2));
 
-  await sequelize.close();
+  const { ingest } = result;
+  const progress = lastProgress as MarketHistoryIngestProgress | null;
+  return {
+    regionId: ingest.regionId,
+    typeCount: ingest.typeCount,
+    typesSucceeded: ingest.typesSucceeded,
+    typesFailed: ingest.typesFailed,
+    requests: progress?.completedRequests ?? 0,
+    mbFetched: Number(((progress?.bytesFetched ?? 0) / (1024 * 1024)).toFixed(1)),
+    rowsUpserted: ingest.rowsUpserted,
+    summaryRowsWritten: result.summaryRowsWritten,
+    failedTypeIds: ingest.failedTypeIds,
+    errors: ingest.errors.slice(0, 10),
+  };
 }
 
 run().catch((error) => {

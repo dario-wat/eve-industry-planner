@@ -17,6 +17,7 @@ import { initDatabase } from '../loaders/initDatabase';
 import MarketOrderBookService, {
   RegionOrderBookProgress,
 } from '../features/market_order_book/MarketOrderBookService';
+import { genxRunJob, JobFailure } from '../core/job/runJob';
 
 function parsePositiveInt(value: string, flag: string): number {
   const parsed = Number(value);
@@ -84,11 +85,25 @@ async function run(): Promise<void> {
   const sequelize = Container.get(Sequelize);
   await sequelize.authenticate();
 
-  console.log(`Syncing public order book for region ${cli.regionId}`);
+  try {
+    await genxRunJob('region_order_book', () => genxSync(cli.regionId));
+  } finally {
+    await sequelize.close();
+  }
+}
+
+async function genxSync(regionId: number) {
+  console.log(`Syncing public order book for region ${regionId}`);
   const startedAt = Date.now();
+  let pages = 0;
   const result = await Container.get(MarketOrderBookService).genxSyncRegionOrderBook(
-    cli.regionId,
-    printProgress,
+    regionId,
+    (progress) => {
+      if (progress.completedPages === progress.totalPages) {
+        pages += progress.totalPages;
+      }
+      printProgress(progress);
+    },
   );
   process.stdout.write('\n');
   console.log(`Fetched orders: ${result.fetchedOrders}`);
@@ -124,12 +139,27 @@ async function run(): Promise<void> {
   );
   console.log(`Observed at: ${result.observedAt}`);
   console.log(`Elapsed: ${formatDuration(Date.now() - startedAt)}`);
-  await sequelize.close();
 
+  const summary = {
+    regionId: result.regionId,
+    pages,
+    fetchedOrders: result.fetchedOrders,
+    eventsWritten: result.eventsWritten,
+    openOrdersInserted: result.openOrdersInserted,
+    openOrdersUpdated: result.openOrdersUpdated,
+    openOrdersDeleted: result.openOrdersDeleted,
+    eventCounts: result.eventCounts,
+    structures: result.structureFetches.map((structure) => ({
+      locationId: structure.locationId,
+      fetchedOrders: structure.fetchedOrders,
+      error: structure.error,
+    })),
+  };
   const structureFailure = result.structureFetches.find((structure) => structure.error !== null);
   if (structureFailure !== undefined) {
-    throw new Error(`Structure ${structureFailure.locationId} fetch failed`);
+    throw new JobFailure(`Structure ${structureFailure.locationId} fetch failed`, summary);
   }
+  return summary;
 }
 
 run().catch((error: unknown) => {

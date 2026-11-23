@@ -86,6 +86,7 @@ To add an ESI endpoint: add the method and types to `libs/eve-esi/src` (`EsiClie
 - There are no migrations. `sequelize.sync({ alter: true })` runs on every server start, so editing a model changes the live table the next time the server starts. Be deliberate with column renames and drops: `alter` will drop data.
 - Table prefixes: `sde_*` (static data), `esi_*` (raw ESI data and tokens), `app_*` (user-created data), `derived_*` (computed from other tables). Set `tableName` explicitly and follow the prefix.
 - Sessions live in the table that `connect-session-sequelize` creates.
+- Scheduled job scripts never call `sync()`; the server owns the schema. Wrap the job body in `genxRunJob(name, fn)` (`server/src/core/job/runJob.ts`), which records status, error, summary, elapsed time, and peak memory in `app_job_runs`. `fn` returns the summary object; throw `JobFailure` to fail with a partial summary.
 - `load-sde` uses `initDatabaseForSdeScript()` and `sync({ force: true })`, which drops and recreates the SDE tables. Never point it at `initDatabase()`: every app table would be dropped.
 - To inspect data, use the read-only skill: `node .claude/skills/query-mysql/scripts/query.cjs --tables | --describe <t> | --stdin <<'SQL' ... SQL`. Read `.claude/skills/query-mysql/SKILL.md` first. SELECT only, never print tokens or `.env`.
 
