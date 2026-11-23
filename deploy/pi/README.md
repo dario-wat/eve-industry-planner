@@ -65,4 +65,4 @@ Rough RAM use on 4 GB: OS ~150 MB, Docker ~80 MB, MySQL ~1.3 GB, Node ~300-500 M
 
 - There are no automated backups.
 - `my.cnf` uses `innodb_flush_log_at_trx_commit=2` to reduce disk writes. A power cut can lose about the last second of writes. Set it to `1` for full durability.
-- The query-mysql skill needs `--allow-remote` while `DATABASE_HOST` points at the Pi.
+- The query-mysql skill (`.claude/skills/query-mysql`) treats LAN hosts like the Pi as allowed; only public hosts need `--allow-remote`.

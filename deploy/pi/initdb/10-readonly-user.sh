@@ -1,5 +1,5 @@
 # Creates a second MySQL user, MYSQL_READONLY_USER, with SELECT-only access to MYSQL_DATABASE.
-# This is the DATABASE_READONLY_* login that .cursor/skills/query-mysql uses for ad-hoc queries.
+# This is the DATABASE_READONLY_* login that .claude/skills/query-mysql uses for ad-hoc queries.
 # The mysql image creates root and MYSQL_USER itself but has no option for a read-only user.
 #
 # docker-compose.yml mounts ./initdb at /docker-entrypoint-initdb.d. The image's entrypoint

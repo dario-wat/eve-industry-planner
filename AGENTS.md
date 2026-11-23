@@ -2,7 +2,7 @@
 
 Personal EVE Online industry and trading tool. It reads character data from ESI (assets, industry jobs, contracts, wallet, market orders), keeps static game data (SDE) in MySQL, and builds production plans and market views on top.
 
-Node `>=26` (`.nvmrc` / `.node-version`). TypeScript everywhere. Windows dev machine, local MySQL 8 (`MySQL80` service).
+Node `>=26` (`.nvmrc` / `.node-version`). TypeScript everywhere. Windows dev machine. The database is MySQL 8.4 in Docker on a Raspberry Pi on the LAN (`deploy/pi/`); the repo-root `.env` points at it.
 
 ## Layout
 
@@ -13,7 +13,8 @@ Node `>=26` (`.nvmrc` / `.node-version`). TypeScript everywhere. Windows dev mac
 | `shared/` | `@internal/shared`: API response types (`src/api.ts`) plus small helpers (`util.ts`, `date.ts`). Compiled to `shared/dist`. |
 | `libs/eve-esi/` | Local ESM-only library `eve-esi`: EVE SSO, token refresh, and every ESI endpoint the app uses. Stores nothing itself. Compiled to `libs/eve-esi/dist`. |
 | `docs/` | Design notes (`market.md`: the market catalog → tradeable → candidates plan). |
-| `.cursor/rules/`, `.cursor/skills/query-mysql/` | Agent rules (mirrored in this file) and the read-only MySQL query skill. |
+| `.cursor/rules/` | Agent rules (mirrored in this file). |
+| `.claude/skills/query-mysql/` | Read-only MySQL query skill (Cursor loads `.claude/skills` too). |
 | `sde/` | Gitignored. Raw SDE YAML files read by `npm run load-sde`. |
 | `server/dist/` | Gitignored, stale leftovers (old lambda code). Ignore it. |
 
@@ -29,7 +30,7 @@ From the repo root:
 - `npm run load-sde`: load SDE YAML from `sde/` into the `sde_*` tables (`SDE_LOAD_QUIET=1` to silence).
 - `npm run sync-market-history -- [--region <id>] [--type-ids 34,44992]`: ESI market history → `esi_market_history_daily`, then rebuilds `derived_market_history_summary` (default region The Forge).
 - `npm run sync-region-market-orders`: snapshot regional orders and diff into the order book tables.
-- `run.ps1`: starts MySQL80, server, and client (for the user, not agents).
+- `run.ps1`: starts the local MySQL80 service (a leftover from before the Pi move), then server and client (for the user, not agents).
 
 ### Verifying changes
 
@@ -84,7 +85,7 @@ To add an ESI endpoint: add the method and types to `libs/eve-esi/src` (`EsiClie
 - Table prefixes: `sde_*` (static data), `esi_*` (raw ESI data and tokens), `app_*` (user-created data), `derived_*` (computed from other tables). Set `tableName` explicitly and follow the prefix.
 - Sessions live in the table that `connect-session-sequelize` creates.
 - `load-sde` uses `initDatabaseForSdeScript()` and `sync({ force: true })`, which drops and recreates the SDE tables. Never point it at `initDatabase()`: every app table would be dropped.
-- To inspect data, use the read-only skill: `node .cursor/skills/query-mysql/scripts/query.cjs --tables | --describe <t> | --sql "..."`. Read `.cursor/skills/query-mysql/SKILL.md` first. SELECT only, always with `LIMIT`, never print tokens or `.env`.
+- To inspect data, use the read-only skill: `node .claude/skills/query-mysql/scripts/query.cjs --tables | --describe <t> | --stdin <<'SQL' ... SQL`. Read `.claude/skills/query-mysql/SKILL.md` first. SELECT only, never print tokens or `.env`.
 
 ## Server conventions
 
