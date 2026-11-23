@@ -4,6 +4,8 @@ Personal EVE Online industry and trading tool. It reads character data from ESI 
 
 Node `>=26` (`.nvmrc` / `.node-version`). TypeScript everywhere. Windows dev machine. The database is MySQL 8.4 in Docker on a Raspberry Pi on the LAN (`deploy/pi/`); the repo-root `.env` points at it.
 
+**Never commit or push.** The user reviews every change and commits it themselves. When work needs code on the Pi or GitHub, stop and say what is ready for review.
+
 **Comments: less is more.** Add a code comment only for something the code cannot say: a non-obvious reason, a gotcha, an external quirk. No comments that restate the code, label sections, or describe the change you just made. When in doubt, leave it out.
 
 ## Layout

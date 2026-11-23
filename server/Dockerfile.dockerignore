@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+.git
+.env
+**/.env
+*.key
+*.crt
+*.csr
+client
+sde
+deploy
+docs
+.claude
+.cursor
