@@ -41,6 +41,7 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "lint": "eslint . --ext .js,.ts"
+    "lint": "eslint . --ext .js,.ts",
+    "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json"
   }
 }

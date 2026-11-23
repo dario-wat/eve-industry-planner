@@ -16,7 +16,8 @@
     "client-install": "cd client && npm i",
     "sync-market-history": "npm run shared-build && npm run ts-node -- ./server/src/scripts/syncMarketHistory.ts",
     "sync-region-market-orders": "npm run ts-node -- ./server/src/scripts/syncRegionMarketOrders.ts",
-    "load-sde": "npm run ts-node -- ./server/src/scripts/loadDataIntoMySqlScript.ts"
+    "load-sde": "npm run ts-node -- ./server/src/scripts/loadDataIntoMySqlScript.ts",
+    "server-compile": "npm run shared-build && npm run build --prefix server"
   },
   "name": "eve-industry-planner",
   "version": "1.0.0",
