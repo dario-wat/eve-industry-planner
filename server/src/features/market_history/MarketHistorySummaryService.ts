@@ -245,6 +245,8 @@ export default class MarketHistorySummaryService {
       attributes: ['date'],
       where: { region_id: regionId },
       order: [['date', 'DESC']],
+      // findOne skips LIMIT 1 when `where` has region_id (first column of the composite PK).
+      limit: 1,
       raw: true,
     }) as { date: string | Date } | null;
     if (row === null) {

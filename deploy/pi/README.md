@@ -55,8 +55,8 @@ On an empty database:
 
 One image, `eip-server`, built on the Pi from `server/Dockerfile`. Two compose services use it:
 
-- `server`: the API on port 8080 (memory cap 1 GB).
-- `jobs`: never started by `up`. Each job is a one-off container from the same image (memory cap 1.2 GB), so it runs whatever version is deployed and does not need `server` running.
+- `server`: the API on port 8080 (memory cap 768 MB).
+- `jobs`: never started by `up`. Each job is a one-off container from the same image (memory cap 768 MB), so it runs whatever version is deployed and does not need `server` running.
 
 The app's database settings come from the `MYSQL_*` values in `.env`. The app keys (`SESSION_SECRET`, `ESI_*`, `CLIENT_DOMAIN`) must be set there too. Compose refuses to start if one is missing.
 
@@ -76,7 +76,7 @@ Login through the Pi server does not work yet: `ESI_CALLBACK_URI` points at the 
 
 If you no longer need DB access from the PC, set `MYSQL_BIND=127.0.0.1` in `.env` and run `docker compose up -d`.
 
-Rough RAM use on 4 GB: OS ~150 MB, Docker ~80 MB, MySQL ~1.3 GB, server up to 1 GB, one job up to ~1 GB.
+Rough RAM use on 4 GB: OS ~150 MB, Docker ~80 MB, MySQL ~1.3 GB, server ~200 MB (cap 768 MB), one job up to ~500 MB (cap 768 MB).
 
 ## Notes
 

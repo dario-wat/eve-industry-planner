@@ -6,7 +6,6 @@ import type { EsiMarketOrder, EsiPage } from 'eve-esi';
 import EsiQueryService from '../../core/esi/EsiQueryService';
 import {
   OpenOrder,
-  OrderBookEntry,
   OrderBookEvent,
   OrderBookEventKind,
   diffOrderBook,
@@ -38,6 +37,7 @@ const PERIMETER = 30000144;
 
 /** Rows per insert, so one statement does not carry the whole book. */
 const WRITE_CHUNK = 1000;
+const READ_CHUNK = 50_000;
 
 const EVENT_KINDS: readonly OrderBookEventKind[] = [
   'appeared',
@@ -88,10 +88,12 @@ export default class MarketOrderBookService {
   public async genxRegionOrderBook(
     regionId: number,
     onProgress?: (progress: RegionOrderBookProgress) => void,
-  ): Promise<EsiMarketOrder[]> {
+  ): Promise<OpenOrder[]> {
     return await this.genxPagedOrderBook(
       `Region ${regionId} order book`,
       (page) => this.esiQueryService.genxRegionMarketOrders(regionId, { page }),
+      // Not a bare map: the index would be passed as systemId.
+      (order) => bookEntryFromEsi(order),
       onProgress,
     );
   }
@@ -103,7 +105,7 @@ export default class MarketOrderBookService {
   public async genxStructureOrderBook(
     structureId: number,
     onProgress?: (progress: RegionOrderBookProgress) => void,
-  ): Promise<EsiMarketOrder[]> {
+  ): Promise<OpenOrder[]> {
     return await this.genxPagedOrderBook(
       `Structure ${structureId} order book`,
       (page) => this.esiQueryService.genxStructureMarketOrders(
@@ -111,6 +113,7 @@ export default class MarketOrderBookService {
         structureId,
         page,
       ),
+      (order) => bookEntryFromEsi(order, order.system_id ?? PERIMETER),
       onProgress,
     );
   }
@@ -125,7 +128,7 @@ export default class MarketOrderBookService {
     onProgress?: (progress: RegionOrderBookProgress) => void,
   ): Promise<RegionOrderBookSyncResult> {
     const fetched = await this.genxRegionOrderBook(regionId, onProgress);
-    const structureBooks: { locationId: number; orders: EsiMarketOrder[] }[] = [];
+    const structureBooks: { locationId: number; orders: OpenOrder[] }[] = [];
     const structureFetches: StructureOrderBookFetch[] = [];
     for (const locationId of STRUCTURE_LOCATION_IDS) {
       try {
@@ -144,10 +147,7 @@ export default class MarketOrderBookService {
     const stored = await this.genOpenOrders(regionId);
     const storedRegion = stored
       .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
-    const listed = fetched
-      .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.location_id))
-      // Not a bare map: the index would be passed as systemId.
-      .map((order) => bookEntryFromEsi(order));
+    const listed = fetched.filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
     const regionDiff = diffOrderBook(storedRegion, listed, observedAt);
     const regionChanges = openOrderChanges(storedRegion, regionDiff.openOrders);
     const events = [...regionDiff.events];
@@ -157,14 +157,7 @@ export default class MarketOrderBookService {
 
     for (const book of structureBooks) {
       const storedHere = stored.filter((order) => order.locationId === book.locationId);
-      const diff = diffOrderBook(
-        storedHere,
-        book.orders.map((order) => bookEntryFromEsi(
-          order,
-          order.system_id ?? PERIMETER,
-        )),
-        observedAt,
-      );
+      const diff = diffOrderBook(storedHere, book.orders, observedAt);
       const changes = openOrderChanges(storedHere, diff.openOrders);
       events.push(...diff.events);
       inserted.push(...changes.inserted);
@@ -206,8 +199,9 @@ export default class MarketOrderBookService {
   private async genxPagedOrderBook(
     description: string,
     fetchPage: (page: number) => Promise<EsiPage<EsiMarketOrder>>,
+    toEntry: (order: EsiMarketOrder) => OpenOrder,
     onProgress?: (progress: RegionOrderBookProgress) => void,
-  ): Promise<EsiMarketOrder[]> {
+  ): Promise<OpenOrder[]> {
     const startedAt = Date.now();
     let first;
     try {
@@ -223,8 +217,8 @@ export default class MarketOrderBookService {
       throw new Error(`${description} page 1 returned no page count`);
     }
 
-    const byPage: EsiMarketOrder[][] = new Array(totalPages);
-    byPage[0] = first.data;
+    const byPage: OpenOrder[][] = new Array(totalPages);
+    byPage[0] = first.data.map(toEntry);
     let completedPages = 1;
     let orderCount = first.data.length;
     const report = (): void => {
@@ -238,7 +232,7 @@ export default class MarketOrderBookService {
     report();
 
     if (totalPages === 1) {
-      return first.data;
+      return byPage[0];
     }
 
     const pages = range(2, totalPages + 1);
@@ -259,7 +253,7 @@ export default class MarketOrderBookService {
           if (failure !== null) {
             return;
           }
-          byPage[page - 1] = result.data;
+          byPage[page - 1] = result.data.map(toEntry);
           completedPages += 1;
           orderCount += result.data.length;
           report();
@@ -290,11 +284,23 @@ export default class MarketOrderBookService {
 
   /** The previous open book stored in esi_market_order_open. */
   private async genOpenOrders(regionId: number): Promise<OpenOrder[]> {
-    const rows = await MarketOrderOpen.findAll({
-      where: { region_id: regionId },
-      raw: true,
-    }) as unknown as OpenOrderRow[];
-    return rows.map(openOrderFromRow);
+    const orders: OpenOrder[] = [];
+    let afterOrderId = 0;
+    for (;;) {
+      const rows = await MarketOrderOpen.findAll({
+        where: { region_id: regionId, order_id: { [Op.gt]: afterOrderId } },
+        order: [['order_id', 'ASC']],
+        limit: READ_CHUNK,
+        raw: true,
+      }) as unknown as OpenOrderRow[];
+      if (rows.length === 0) {
+        return orders;
+      }
+      for (const row of rows) {
+        orders.push(openOrderFromRow(row));
+      }
+      afterOrderId = asNumber(rows[rows.length - 1].order_id);
+    }
   }
 
   private async genApplyEvents(
@@ -391,7 +397,7 @@ type OpenOrderRow = {
 function bookEntryFromEsi(
   order: EsiMarketOrder,
   systemId: number | undefined = order.system_id,
-): OrderBookEntry {
+): OpenOrder {
   if (
     systemId === undefined
     || order.min_volume === undefined
@@ -417,6 +423,7 @@ function bookEntryFromEsi(
     range: order.range,
     issued: order.issued,
     duration: order.duration,
+    missing: false,
   };
 }
 

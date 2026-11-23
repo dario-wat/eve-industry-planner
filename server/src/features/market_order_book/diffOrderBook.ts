@@ -89,7 +89,7 @@ export function openOrderChanges(
  */
 export function diffOrderBook(
   previous: readonly OpenOrder[],
-  next: readonly OrderBookEntry[],
+  next: readonly OpenOrder[],
   observedAt: Date,
 ): OrderBookDiff {
   const previousById = firstById(previous);
@@ -97,34 +97,31 @@ export function diffOrderBook(
   const events: OrderBookEvent[] = [];
   const openOrders: OpenOrder[] = [];
 
-  const orderIds = [...new Set([...previousById.keys(), ...nextById.keys()])];
-  orderIds.sort((left, right) => left - right);
-
-  for (const orderId of orderIds) {
+  for (const [orderId, current] of nextById) {
+    const listed = current.missing ? { ...current, missing: false } : current;
     const prior = previousById.get(orderId);
-    const current = nextById.get(orderId);
-    if (current !== undefined && prior === undefined) {
-      events.push(event('appeared', current, null, null));
-      openOrders.push({ ...current, missing: false });
-      continue;
-    }
-    if (current !== undefined && prior !== undefined) {
-      if (current.price !== prior.price) {
-        events.push(event('repriced', current, prior.price, null));
-      }
-      if (current.volumeRemain < prior.volumeRemain) {
-        events.push(event(
-          'traded',
-          current,
-          null,
-          prior.volumeRemain - current.volumeRemain,
-          prior.volumeRemain,
-        ));
-      }
-      openOrders.push({ ...current, missing: false });
-      continue;
-    }
     if (prior === undefined) {
+      events.push(event('appeared', listed, null, null));
+      openOrders.push(listed);
+      continue;
+    }
+    if (listed.price !== prior.price) {
+      events.push(event('repriced', listed, prior.price, null));
+    }
+    if (listed.volumeRemain < prior.volumeRemain) {
+      events.push(event(
+        'traded',
+        listed,
+        null,
+        prior.volumeRemain - listed.volumeRemain,
+        prior.volumeRemain,
+      ));
+    }
+    openOrders.push(listed);
+  }
+
+  for (const [orderId, prior] of previousById) {
+    if (nextById.has(orderId)) {
       continue;
     }
     if (!prior.missing) {
@@ -135,6 +132,7 @@ export function diffOrderBook(
     events.push(event(kind, prior, null, null));
   }
 
+  events.sort((left, right) => left.orderId - right.orderId);
   return { openOrders, events };
 }
 

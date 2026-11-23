@@ -20,6 +20,8 @@ x-app: &app
     ESI_SECRET: ${ESI_SECRET:?set in .env}
     ESI_CALLBACK_URI: ${ESI_CALLBACK_URI:?set in .env}
     CLIENT_DOMAIN: ${CLIENT_DOMAIN:?set in .env}
+    # Without this, Node sizes its heap at about half of mem_limit.
+    NODE_OPTIONS: --max-old-space-size=512
 
 services:
   mysql:
@@ -60,7 +62,7 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
-    mem_limit: 1g
+    mem_limit: 768m
     healthcheck:
       test:
         - CMD
@@ -76,4 +78,4 @@ services:
   jobs:
     <<: *app
     profiles: ["jobs"]
-    mem_limit: 1200m
+    mem_limit: 768m
