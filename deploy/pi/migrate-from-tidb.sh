@@ -97,9 +97,12 @@ fi
 mkdir -p migration
 DUMP="migration/tidb-$(date +%Y%m%d-%H%M%S).sql"
 echo "Dumping from TiDB to $DUMP ..."
+# No --single-transaction: mysqldump uses savepoints with it, which TiDB
+# rejects ("SAVEPOINT sp does not exist"). Nothing should write to TiDB during
+# the migration, so per-table reads are consistent enough.
 tidb_run mysqldump \
   --no-create-info --complete-insert --skip-triggers \
-  --single-transaction --skip-lock-tables --no-tablespaces \
+  --skip-lock-tables --no-tablespaces \
   --set-gtid-purged=OFF --column-statistics=0 \
   --hex-blob --default-character-set=utf8mb4 \
   "$TIDB_DATABASE" "${TABLES[@]}" > "$DUMP"
