@@ -83,7 +83,6 @@ async function run(): Promise<void> {
   initDatabase();
   const sequelize = Container.get(Sequelize);
   await sequelize.authenticate();
-  await sequelize.sync({ alter: true });
 
   console.log(`Syncing public order book for region ${cli.regionId}`);
   const startedAt = Date.now();

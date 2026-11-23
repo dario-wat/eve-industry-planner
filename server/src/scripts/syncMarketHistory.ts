@@ -114,7 +114,6 @@ async function run(): Promise<void> {
   initDatabase();
   const sequelize = Container.get(Sequelize);
   await sequelize.authenticate();
-  await sequelize.sync({ alter: true });
 
   const sdeData = await EveSdeData.init();
   Container.set(EveSdeData, sdeData);

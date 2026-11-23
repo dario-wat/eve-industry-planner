@@ -370,6 +370,8 @@ async function connectReadOnly(mysql, cfg, timeoutSec) {
     ssl: sslOptions(),
     multipleStatements: false,
     connectTimeout: 10000,
+    // Return DATE/DATETIME as stored, without local-timezone conversion.
+    dateStrings: true,
   });
   const rawQuery = connection.query.bind(connection);
   try {

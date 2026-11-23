@@ -1,0 +1,8 @@
+---
+description: Keep code comments rare
+alwaysApply: true
+---
+
+# Comments: less is more
+
+Add a code comment only for something the code cannot say: a non-obvious reason, a gotcha, an external quirk. No comments that restate the code, label sections, or describe the change you just made. When in doubt, leave it out.
