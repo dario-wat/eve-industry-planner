@@ -1,12 +1,38 @@
-# MySQL for EVE Industry Planner on a Raspberry Pi (64-bit OS). See README.md.
+# EVE Industry Planner on a Raspberry Pi (64-bit OS). See README.md.
 name: eve-industry-planner
+
+x-app: &app
+  image: eip-server:latest
+  depends_on:
+    mysql:
+      condition: service_healthy
+  # Listed explicitly so the MySQL root password never reaches the app.
+  environment:
+    DATABASE_HOST: mysql
+    DATABASE_PORT: "3306"
+    DATABASE_NAME: ${MYSQL_DATABASE}
+    DATABASE_USERNAME: ${MYSQL_USER}
+    DATABASE_PASSWORD: ${MYSQL_PASSWORD}
+    DATABASE_SSL: "0"
+    SERVER_PORT: "8080"
+    SESSION_SECRET: ${SESSION_SECRET:?set in .env}
+    ESI_CLIENT_ID: ${ESI_CLIENT_ID:?set in .env}
+    ESI_SECRET: ${ESI_SECRET:?set in .env}
+    ESI_CALLBACK_URI: ${ESI_CALLBACK_URI:?set in .env}
+    CLIENT_DOMAIN: ${CLIENT_DOMAIN:?set in .env}
 
 services:
   mysql:
     image: mysql:8.4
     container_name: eip-mysql
     restart: unless-stopped
-    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_READONLY_USER: ${MYSQL_READONLY_USER}
+      MYSQL_READONLY_PASSWORD: ${MYSQL_READONLY_PASSWORD}
     ports:
       # 0.0.0.0 = reachable from the LAN / Tailscale. Set MYSQL_BIND=127.0.0.1
       # once the backend also runs on the Pi and you no longer need remote access.
@@ -24,3 +50,30 @@ services:
       timeout: 5s
       retries: 5
       start_period: 60s
+
+  server:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: server/Dockerfile
+    container_name: eip-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    mem_limit: 1g
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/health_check_it_out').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+
+  # Never started by `up`. Scheduled jobs: docker compose run --rm jobs node dist/scripts/<job>.js
+  jobs:
+    <<: *app
+    profiles: ["jobs"]
+    mem_limit: 1200m

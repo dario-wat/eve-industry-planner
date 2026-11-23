@@ -1,11 +1,11 @@
-# MySQL on a Raspberry Pi
+# EVE Industry Planner on a Raspberry Pi
 
-The app database runs as MySQL 8.4 in Docker on a 4 GB Pi.
+MySQL 8.4, the API server, and the scheduled jobs run in Docker on a 4 GB Pi.
 
-- **Phase 1 (current):** database on the Pi, backend on the dev PC.
-- **Phase 2:** backend on the Pi too.
+- **Phase 1:** database on the Pi, backend on the dev PC.
+- **Phase 2 (in progress):** backend and jobs on the Pi too. The dev PC keeps running its own server against the same database.
 
-The server reads all DB settings from the repo-root `.env`, so no code changes are needed.
+All Pi settings live in one git-ignored file, `deploy/pi/.env` (template: `.env.example`).
 
 ## 0. Prepare the Pi
 
@@ -24,8 +24,8 @@ The server reads all DB settings from the repo-root `.env`, so no code changes a
 
 ```sh
 git clone <repo> && cd eve-industry-planner/deploy/pi
-cp .env.example .env        # fill in passwords; set MYSQL_DATA_DIR to the SSD path
-docker compose up -d
+cp .env.example .env        # fill in everything; set MYSQL_DATA_DIR to the SSD path
+docker compose up -d mysql
 docker compose ps           # wait for "healthy"
 ```
 
@@ -51,15 +51,32 @@ On an empty database:
 1. Run `npm run server-dev` once. `sequelize.sync` creates all tables.
 2. Run `npm run load-sde` to load the SDE from the local `sde/` folder.
 
-## Phase 2: backend on the Pi
+## 3. Server and jobs on the Pi
 
-- Install Node 26 on the Pi. Run `npm run server-build`, then `npm run server-prod`. Use a systemd unit, or add a `server` service to `docker-compose.yml`.
-- In the repo-root `.env` on the Pi, set `DATABASE_HOST=127.0.0.1`.
-- Limit Node's heap with `NODE_OPTIONS=--max-old-space-size=512`.
-- Schedule `sync-market-history` and `sync-region-market-orders` with cron or systemd timers.
-- If you no longer need DB access from the PC, set `MYSQL_BIND=127.0.0.1` in `deploy/pi/.env` and run `docker compose up -d`.
+One image, `eip-server`, built on the Pi from `server/Dockerfile`. Two compose services use it:
 
-Rough RAM use on 4 GB: OS ~150 MB, Docker ~80 MB, MySQL ~1.3 GB, Node ~300-500 MB.
+- `server`: the API on port 8080 (memory cap 1 GB).
+- `jobs`: never started by `up`. Each job is a one-off container from the same image (memory cap 1.2 GB), so it runs whatever version is deployed and does not need `server` running.
+
+The app's database settings come from the `MYSQL_*` values in `.env`. The app keys (`SESSION_SECRET`, `ESI_*`, `CLIENT_DOMAIN`) must be set there too. Compose refuses to start if one is missing.
+
+```sh
+docker compose build server
+docker compose up -d server
+docker compose ps                                   # server becomes "healthy"
+docker compose run --rm jobs node dist/scripts/syncRegionMarketOrders.js
+docker compose run --rm jobs node dist/scripts/syncMarketHistory.js --candidates
+```
+
+Each job run is recorded in `app_job_runs`.
+
+The server runs against the same database as the dev PC, and both run `sequelize.sync({ alter: true })` on start. Keep model changes additive until they are deployed.
+
+Login through the Pi server does not work yet: `ESI_CALLBACK_URI` points at the dev PC.
+
+If you no longer need DB access from the PC, set `MYSQL_BIND=127.0.0.1` in `.env` and run `docker compose up -d`.
+
+Rough RAM use on 4 GB: OS ~150 MB, Docker ~80 MB, MySQL ~1.3 GB, server up to 1 GB, one job up to ~1 GB.
 
 ## Notes
 
