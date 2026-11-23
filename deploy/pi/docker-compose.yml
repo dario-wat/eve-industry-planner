@@ -1,0 +1,26 @@
+# MySQL for EVE Industry Planner on a Raspberry Pi (64-bit OS). See README.md.
+name: eve-industry-planner
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: eip-mysql
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      # 0.0.0.0 = reachable from the LAN / Tailscale. Set MYSQL_BIND=127.0.0.1
+      # once the backend also runs on the Pi and you no longer need remote access.
+      - "${MYSQL_BIND:-0.0.0.0}:3306:3306"
+    volumes:
+      - ${MYSQL_DATA_DIR:-./data/mysql}:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/pi.cnf:ro
+      # Runs only on first start (empty data dir).
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    # Hard cap so MySQL can never starve the OS / backend. my.cnf keeps it ~1.2-1.4 GB.
+    mem_limit: 1536m
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_ROOT_PASSWORD\" mysqladmin ping -uroot --silent"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s

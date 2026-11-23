@@ -38,3 +38,9 @@ yarn-error.log*
 localhost.crt
 localhost.csr
 localhost.key
+# Pi deployment secrets and data
+/deploy/pi/.env
+/deploy/pi/tidb.env
+/deploy/pi/data/
+/deploy/pi/backups/
+/deploy/pi/migration/

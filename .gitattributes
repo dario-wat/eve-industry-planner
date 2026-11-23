@@ -1,0 +1,5 @@
+# Files that run on the Pi (Linux) must keep LF line endings, even in a Windows checkout with
+# core.autocrlf=true. With CRLF, bash fails on scripts ("$'\r': command not found") and the
+# mysql entrypoint breaks on initdb/*.sh.
+deploy/pi/**/*.sh text eol=lf
+deploy/pi/*.cnf text eol=lf
