@@ -21,6 +21,10 @@ import {
 // How many types to load and rewrite at once, so one query does not pull every daily row.
 const TYPE_CHUNK = 100;
 
+export const CANDIDATE_WINDOW_DAYS = 30;
+export const CANDIDATE_MIN_DAYS_TRADED = 27;
+export const CANDIDATE_MIN_MEDIAN_DAILY_ISK = 1_000_000_000;
+
 type MarketHistorySummaryRefreshResult = {
   rowsWritten: number;
 };

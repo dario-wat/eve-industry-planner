@@ -4,6 +4,7 @@
  *
  * Examples:
  *   npm run sync-market-history -- --type-ids 34,44992
+ *   npm run sync-market-history -- --candidates
  *   npm run sync-market-history -- --region 10000002
  */
 import 'reflect-metadata';
@@ -17,6 +18,11 @@ import { THE_FORGE } from '../const/IDs';
 import { MarketHistoryIngestProgress } from '../features/market_history/MarketHistoryIngestService';
 import MarketHistorySyncService from '../features/market_history/MarketHistorySyncService';
 import { genxRunJob } from '../core/job/runJob';
+import MarketHistorySummaryService, {
+  CANDIDATE_MIN_DAYS_TRADED,
+  CANDIDATE_MIN_MEDIAN_DAILY_ISK,
+  CANDIDATE_WINDOW_DAYS,
+} from '../features/market_history/MarketHistorySummaryService';
 
 function parsePositiveInt(value: string, flag: string): number {
   const parsed = Number(value);
@@ -37,9 +43,12 @@ function parseIdList(value: string, flag: string): number[] {
   return ids.map((id) => parsePositiveInt(id, flag));
 }
 
-function parseArgs(argv: string[]): { regionId: number; typeIds: number[] | null } {
+type Cli = { regionId: number; typeIds: number[] | null; candidates: boolean };
+
+function parseArgs(argv: string[]): Cli {
   let regionId = THE_FORGE;
   let typeIds: number[] | null = null;
+  let candidates = false;
 
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -49,6 +58,9 @@ function parseArgs(argv: string[]): { regionId: number; typeIds: number[] | null
         break;
       case '--type-ids':
         typeIds = parseIdList(argv[++i] ?? '', '--type-ids');
+        break;
+      case '--candidates':
+        candidates = true;
         break;
       case '--help':
       case '-h':
@@ -60,7 +72,17 @@ function parseArgs(argv: string[]): { regionId: number; typeIds: number[] | null
     }
   }
 
-  return { regionId, typeIds };
+  if (candidates && typeIds !== null) {
+    throw new Error('--candidates and --type-ids cannot be combined');
+  }
+  return { regionId, typeIds, candidates };
+}
+
+function jobName(cli: Cli): string {
+  if (cli.candidates) {
+    return 'market_history_candidates';
+  }
+  return cli.typeIds === null ? 'market_history_all' : 'market_history_types';
 }
 
 function formatBytes(bytes: number): string {
@@ -103,6 +125,7 @@ Usage: npm run sync-market-history -- [options]
 Options:
   --region <id>           Region id (default: ${THE_FORGE} / The Forge)
   --type-ids <id,...>     Fetch only these type ids (default: all tradeable types)
+  --candidates            Fetch only candidate types (from the 30-day summaries)
 
 History is fetched from public ESI (no login required).
 `);
@@ -116,23 +139,36 @@ async function run(): Promise<void> {
   const sequelize = Container.get(Sequelize);
   await sequelize.authenticate();
 
-  const jobName = cli.typeIds === null ? 'market_history_all' : 'market_history_types';
   try {
-    await genxRunJob(jobName, () => genxSync(cli));
+    await genxRunJob(jobName(cli), () => genxSync(cli));
   } finally {
     await sequelize.close();
   }
 }
 
-async function genxSync(cli: { regionId: number; typeIds: number[] | null }) {
+async function genxSync(cli: Cli) {
   const sdeData = await EveSdeData.init();
   Container.set(EveSdeData, sdeData);
 
+  let typeIds = cli.typeIds;
+  if (cli.candidates) {
+    typeIds = await Container.get(MarketHistorySummaryService).genCandidateTypeIds(
+      cli.regionId,
+      CANDIDATE_WINDOW_DAYS,
+      CANDIDATE_MIN_DAYS_TRADED,
+      CANDIDATE_MIN_MEDIAN_DAILY_ISK,
+    );
+    if (typeIds.length === 0) {
+      throw new Error('No candidate types. Run the full sync first to build summaries.');
+    }
+  }
+
   const syncService = Container.get(MarketHistorySyncService);
-  const resolvedTypeIds = syncService.resolveTypeIds(cli.typeIds);
+  const resolvedTypeIds = syncService.resolveTypeIds(typeIds);
 
   console.log(`Region: ${cli.regionId}`);
-  console.log(`Type ids: ${cli.typeIds === null ? 'all tradeable' : cli.typeIds.join(',')}`);
+  const typeLabel = cli.candidates ? 'candidates' : cli.typeIds?.join(',') ?? 'all tradeable';
+  console.log(`Type ids: ${typeLabel}`);
   console.log(`Types to fetch: ${resolvedTypeIds.length}`);
 
   let lastProgress: MarketHistoryIngestProgress | null = null;
