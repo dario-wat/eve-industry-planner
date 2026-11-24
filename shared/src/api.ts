@@ -205,3 +205,24 @@ export type MarketOrdersComparisonRes = {
 export type ParseErrorRes = { name: string; error: string }[];
 
 export type MarketOrdersComparisonWithErrorsRes = MarketOrdersComparisonRes | ParseErrorRes;
+
+export type JobRunStatusRes = 'running' | 'success' | 'failure';
+
+export type JobRunRes = {
+  id: number;
+  status: JobRunStatusRes;
+  startedAt: string;
+  finishedAt: string | null;
+  elapsedMs: number | null;
+  peakRssMb: number | null;
+  error: string | null;
+  summary: Record<string, unknown> | null;
+};
+
+export type JobsRes = {
+  jobName: string;
+  /** Null for jobs that only run by hand. */
+  schedule: string | null;
+  /** Newest first. */
+  runs: JobRunRes[];
+}[];
