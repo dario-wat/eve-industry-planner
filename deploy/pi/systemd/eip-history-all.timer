@@ -1,0 +1,10 @@
+[Unit]
+Description=Market history for all tradeable types, monthly
+
+[Timer]
+OnCalendar=*-*-01 11:30:00 UTC
+Persistent=true
+Unit=eip-job@history-all.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Market history for candidate types, daily except the 1st
+
+[Timer]
+OnCalendar=*-*-02..31 11:30:00 UTC
+Persistent=true
+Unit=eip-job@history-candidates.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,6 @@
+[Unit]
+Description=EVE Industry Planner job %i
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh %h/eve-industry-planner/deploy/pi/run-job.sh %i

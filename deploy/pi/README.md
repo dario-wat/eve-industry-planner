@@ -70,13 +70,37 @@ docker compose run --rm jobs node dist/scripts/syncMarketHistory.js --candidates
 
 Each job run is recorded in `app_job_runs`.
 
+## 4. Scheduled jobs
+
+systemd user timers run the jobs through `run-job.sh`. No sudo is needed; it relies on linger being on (`loginctl show-user $USER -p Linger`, else `sudo loginctl enable-linger $USER`).
+
+| Timer | Job | When (UTC) |
+| --- | --- | --- |
+| `eip-order-book` | region order book | every 5 minutes |
+| `eip-history-all` | market history, all tradeable types | 1st of the month, 11:30 |
+| `eip-history-candidates` | market history, candidates only | 2nd–31st, 11:30 |
+
+The history timers catch up on a missed run after downtime. A job never overlaps itself: systemd skips a tick while the previous run is still going.
+
+Install, and again after a pull that changes `systemd/`:
+
+```sh
+mkdir -p ~/.config/systemd/user
+cp ~/eve-industry-planner/deploy/pi/systemd/* ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now eip-order-book.timer eip-history-all.timer eip-history-candidates.timer
+systemctl --user list-timers 'eip-*'
+```
+
+Run a job now: `systemctl --user start eip-job@history-candidates`. Logs: `journalctl --user-unit eip-job@order-book -n 50`. Stop all schedules: `systemctl --user disable --now eip-order-book.timer eip-history-all.timer eip-history-candidates.timer`.
+
 The server runs against the same database as the dev PC, and both run `sequelize.sync({ alter: true })` on start. Keep model changes additive until they are deployed.
 
 Login through the Pi server does not work yet: `ESI_CALLBACK_URI` points at the dev PC.
 
 If you no longer need DB access from the PC, set `MYSQL_BIND=127.0.0.1` in `.env` and run `docker compose up -d`.
 
-Rough RAM use on 4 GB: OS ~150 MB, Docker ~80 MB, MySQL ~1.3 GB, server ~200 MB (cap 768 MB), one job up to ~500 MB (cap 768 MB).
+Rough RAM use on 4 GB: OS ~150 MB, Docker ~80 MB, MySQL ~1.3 GB, server ~100 MB (cap 768 MB), the order book job ~450 MB and history jobs ~150–200 MB (cap 768 MB each).
 
 ## Notes
 

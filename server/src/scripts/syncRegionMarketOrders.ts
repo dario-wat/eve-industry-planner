@@ -18,6 +18,7 @@ import MarketOrderBookService, {
   RegionOrderBookProgress,
 } from '../features/market_order_book/MarketOrderBookService';
 import { genxRunJob, JobFailure } from '../core/job/runJob';
+import { writeProgress } from '../lib/progress';
 
 function parsePositiveInt(value: string, flag: string): number {
   const parsed = Number(value);
@@ -65,7 +66,7 @@ function printProgress(progress: RegionOrderBookProgress): void {
     `${progress.completedPages}/${progress.totalPages} pages (${pct}%) | ` +
     `${progress.orders} orders | ` +
     formatDuration(progress.elapsedMs);
-  process.stdout.write(`\r${line}`);
+  writeProgress(`\r${line}`);
 }
 
 function printHelp(): void {
@@ -105,7 +106,7 @@ async function genxSync(regionId: number) {
       printProgress(progress);
     },
   );
-  process.stdout.write('\n');
+  writeProgress('\n');
   console.log(`Fetched orders: ${result.fetchedOrders}`);
   for (const structure of result.structureFetches) {
     if (structure.error === null) {
@@ -163,7 +164,7 @@ async function genxSync(regionId: number) {
 }
 
 run().catch((error: unknown) => {
-  process.stdout.write('\n');
+  writeProgress('\n');
   const message = error instanceof Error ? error.message : String(error);
   console.error(`Aborted. ${message}`);
   process.exit(1);

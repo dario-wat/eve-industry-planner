@@ -17,6 +17,7 @@ import EveSdeData from '../core/sde/EveSdeData';
 import { THE_FORGE } from '../const/IDs';
 import { MarketHistoryIngestProgress } from '../features/market_history/MarketHistoryIngestService';
 import MarketHistorySyncService from '../features/market_history/MarketHistorySyncService';
+import { writeProgress } from '../lib/progress';
 import { genxRunJob } from '../core/job/runJob';
 import MarketHistorySummaryService, {
   CANDIDATE_MIN_DAYS_TRADED,
@@ -115,7 +116,7 @@ function printIngestProgress(progress: MarketHistoryIngestProgress): void {
     `${formatBytes(progress.bytesFetched)} fetched | ` +
     `${progress.rowsUpserted} rows | ` +
     `${formatDuration(progress.elapsedMs)}`;
-  process.stdout.write(`\r${line}`);
+  writeProgress(`\r${line}`);
 }
 
 function printHelp(): void {
@@ -181,17 +182,17 @@ async function genxSync(cli: Cli) {
     },
     (completed, total) => {
       if (completed === 0) {
-        process.stdout.write('\n');
+        writeProgress('\n');
         console.log('Writing market history summaries...');
       }
-      process.stdout.write(`\rSummaries ${completed}/${total} types`);
+      writeProgress(`\rSummaries ${completed}/${total} types`);
     },
   );
   if (resolvedTypeIds.length === 0) {
-    process.stdout.write('\n');
+    writeProgress('\n');
     console.log('Writing market history summaries...');
   }
-  process.stdout.write('\n');
+  writeProgress('\n');
   console.log(`Summary rows written: ${result.summaryRowsWritten}`);
   console.log('Done.');
   console.log(JSON.stringify(result.ingest, null, 2));
