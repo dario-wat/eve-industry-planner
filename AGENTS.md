@@ -33,7 +33,7 @@ From the repo root:
 - `npm run eve-esi-build`: rebuild `libs/eve-esi/dist` after editing `libs/eve-esi/src`.
 - `npm run load-sde`: load SDE YAML from `sde/` into the `sde_*` tables (`SDE_LOAD_QUIET=1` to silence).
 - `npm run sync-market-history -- [--region <id>] [--type-ids 34,44992 | --candidates]`: ESI market history → `esi_market_history_daily`, then rebuilds `derived_market_history_summary` (default region The Forge, default all tradeable types). `--candidates` limits it to candidates (see `docs/market.md`).
-- `npm run sync-region-market-orders`: snapshot regional orders and diff into the order book tables.
+- `npm run sync-region-market-orders`: snapshot the Jita and Perimeter order books, diff against `esi_market_order_open`, and add traded volume per day, type and side to `derived_market_trade_daily`.
 - `npm run deploy-pi`: after a push, deploys `main` to the Pi (`deploy/pi/deploy.sh`: pull, check `.env` keys, rebuild, restart the server, install job timers). Scheduled jobs run only on the Pi (`deploy/pi/README.md`).
 - `run.ps1`: starts server and client (for the user, not agents).
 

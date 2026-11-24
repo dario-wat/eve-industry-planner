@@ -25,7 +25,7 @@ import { walletJournalEntryModelDefine } from '../features/wallet/WalletJournalE
 import { marketHistoryDailyModelDefine } from '../features/market_history/MarketHistoryDaily';
 import { marketHistorySummaryModelDefine } from '../features/market_history/MarketHistorySummary';
 import { marketOrderOpenModelDefine } from '../features/market_order_book/MarketOrderOpen';
-import { marketOrderEventModelDefine } from '../features/market_order_book/MarketOrderEvent';
+import { marketTradeDailyModelDefine } from '../features/market_order_book/MarketTradeDaily';
 import { jobRunModelDefine } from '../core/job/JobRun';
 
 export function initDatabaseSequelize(): Sequelize {
@@ -80,7 +80,7 @@ export function initDatabase(): void {
   marketHistoryDailyModelDefine(sequelize);
   marketHistorySummaryModelDefine(sequelize);
   marketOrderOpenModelDefine(sequelize);
-  marketOrderEventModelDefine(sequelize);
+  marketTradeDailyModelDefine(sequelize);
   jobRunModelDefine(sequelize);
 
   // Esi

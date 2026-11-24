@@ -1,18 +1,15 @@
 /*
- * Fetches the public regional order book, diffs it against the stored open
- * orders, and writes events plus those open-order changes. A failed page
- * writes nothing.
+ * Fetches The Forge order book and the Perimeter structure books, keeps Jita and
+ * the structures, diffs them against the stored open orders, and adds the traded
+ * volume to the daily rollup. A failed page writes nothing.
  *
- * Examples:
  *   npm run sync-region-market-orders
- *   npm run sync-region-market-orders -- --region 10000002
  */
 import 'reflect-metadata';
 import 'dotenv/config';
 
 import Container from 'typedi';
 import { Sequelize } from 'sequelize';
-import { THE_FORGE } from '../const/IDs';
 import { initDatabase } from '../loaders/initDatabase';
 import MarketOrderBookService, {
   RegionOrderBookProgress,
@@ -20,34 +17,14 @@ import MarketOrderBookService, {
 import { genxRunJob, JobFailure } from '../core/job/runJob';
 import { writeProgress } from '../lib/progress';
 
-function parsePositiveInt(value: string, flag: string): number {
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    throw new Error(`${flag} must be a positive integer`);
-  }
-  return parsed;
-}
-
-function parseArgs(argv: string[]): { regionId: number } {
-  let regionId = THE_FORGE;
-
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    switch (arg) {
-      case '--region':
-        regionId = parsePositiveInt(argv[++i] ?? '', '--region');
-        break;
-      case '--help':
-      case '-h':
-        printHelp();
-        process.exit(0);
-        break;
-      default:
-        throw new Error(`Unknown argument: ${arg}`);
+function parseArgs(argv: string[]): void {
+  for (const arg of argv) {
+    if (arg === '--help' || arg === '-h') {
+      printHelp();
+      process.exit(0);
     }
+    throw new Error(`Unknown argument: ${arg}`);
   }
-
-  return { regionId };
 }
 
 function formatDuration(elapsedMs: number): string {
@@ -71,34 +48,30 @@ function printProgress(progress: RegionOrderBookProgress): void {
 
 function printHelp(): void {
   console.log(`
-Usage: npm run sync-region-market-orders -- [options]
+Usage: npm run sync-region-market-orders
 
-Options:
-  --region <id>    Region id (default: ${THE_FORGE} / The Forge)
-
-Fetches the public order book and stores the diff.
+Fetches the Jita and Perimeter order books and adds the day's traded volume to the rollup.
 `);
 }
 
 async function run(): Promise<void> {
-  const cli = parseArgs(process.argv.slice(2));
+  parseArgs(process.argv.slice(2));
   initDatabase();
   const sequelize = Container.get(Sequelize);
   await sequelize.authenticate();
 
   try {
-    await genxRunJob('region_order_book', () => genxSync(cli.regionId));
+    await genxRunJob('region_order_book', () => genxSync());
   } finally {
     await sequelize.close();
   }
 }
 
-async function genxSync(regionId: number) {
-  console.log(`Syncing public order book for region ${regionId}`);
+async function genxSync() {
+  console.log('Syncing Jita and Perimeter order books');
   const startedAt = Date.now();
   let pages = 0;
   const result = await Container.get(MarketOrderBookService).genxSyncRegionOrderBook(
-    regionId,
     (progress) => {
       if (progress.completedPages === progress.totalPages) {
         pages += progress.totalPages;
@@ -107,7 +80,7 @@ async function genxSync(regionId: number) {
     },
   );
   writeProgress('\n');
-  console.log(`Fetched orders: ${result.fetchedOrders}`);
+  console.log(`Fetched orders: ${result.fetchedOrders}, kept in Jita: ${result.keptOrders}`);
   for (const structure of result.structureFetches) {
     if (structure.error === null) {
       console.log(
@@ -125,7 +98,7 @@ async function genxSync(regionId: number) {
       console.log(`Structure ${structure.locationId} fetch failed: ${structure.error}`);
     }
   }
-  console.log(`Events written: ${result.eventsWritten}`);
+  console.log(`Daily rollup rows written: ${result.dailyRowsWritten}`);
   console.log(
     `Open orders inserted ${result.openOrdersInserted} ` +
     `updated ${result.openOrdersUpdated} ` +
@@ -145,7 +118,8 @@ async function genxSync(regionId: number) {
     regionId: result.regionId,
     pages,
     fetchedOrders: result.fetchedOrders,
-    eventsWritten: result.eventsWritten,
+    keptOrders: result.keptOrders,
+    dailyRowsWritten: result.dailyRowsWritten,
     openOrdersInserted: result.openOrdersInserted,
     openOrdersUpdated: result.openOrdersUpdated,
     openOrdersDeleted: result.openOrdersDeleted,

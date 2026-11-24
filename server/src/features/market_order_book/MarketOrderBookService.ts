@@ -4,14 +4,15 @@ import { Op } from 'sequelize';
 import { chunk } from 'underscore';
 import type { EsiMarketOrder, EsiPage } from 'eve-esi';
 import EsiQueryService from '../../core/esi/EsiQueryService';
+import { JITA, THE_FORGE } from '../../const/IDs';
 import {
   OpenOrder,
   OrderBookEvent,
   OrderBookEventKind,
   diffOrderBook,
 } from './diffOrderBook';
-import { MarketOrderEvent } from './MarketOrderEvent';
 import { MarketOrderOpen } from './MarketOrderOpen';
+import { MarketTradeDaily } from './MarketTradeDaily';
 
 /** How many region-book pages to request at once. */
 const REGION_ORDER_PAGE_CONCURRENCY = 8;
@@ -38,6 +39,25 @@ const PERIMETER = 30000144;
 const WRITE_CHUNK = 1000;
 const READ_CHUNK = 50_000;
 
+// VALUES() rather than a row alias so the TiDB fallback accepts it too.
+// LEAST/GREATEST return NULL if either side is NULL, hence the COALESCE pairs.
+const DAILY_UPSERT_SQL = (rowCount: number): string =>
+  `INSERT INTO ${MarketTradeDaily.tableName} (day, type_id, is_buy, ` +
+  'traded_volume, traded_isk, min_price, max_price, fill_count, ' +
+  'closed_volume, closed_isk, closed_count) VALUES ' +
+  Array.from({ length: rowCount }, () => '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').join(', ') +
+  ' ON DUPLICATE KEY UPDATE ' +
+  'traded_volume = traded_volume + VALUES(traded_volume), ' +
+  'traded_isk = traded_isk + VALUES(traded_isk), ' +
+  'min_price = LEAST(COALESCE(min_price, VALUES(min_price)), ' +
+  'COALESCE(VALUES(min_price), min_price)), ' +
+  'max_price = GREATEST(COALESCE(max_price, VALUES(max_price)), ' +
+  'COALESCE(VALUES(max_price), max_price)), ' +
+  'fill_count = fill_count + VALUES(fill_count), ' +
+  'closed_volume = closed_volume + VALUES(closed_volume), ' +
+  'closed_isk = closed_isk + VALUES(closed_isk), ' +
+  'closed_count = closed_count + VALUES(closed_count)';
+
 const EVENT_KINDS: readonly OrderBookEventKind[] = [
   'appeared',
   'traded',
@@ -57,7 +77,6 @@ export type StructureOrderBookFetch = {
   locationId: number;
   fetchedOrders: number;
   error: string | null;
-  eventsWritten: number;
   openOrdersInserted: number;
   openOrdersUpdated: number;
   openOrdersDeleted: number;
@@ -67,8 +86,9 @@ export type StructureOrderBookFetch = {
 export type RegionOrderBookSyncResult = {
   regionId: number;
   fetchedOrders: number;
+  keptOrders: number;
   structureFetches: StructureOrderBookFetch[];
-  eventsWritten: number;
+  dailyRowsWritten: number;
   openOrdersInserted: number;
   openOrdersUpdated: number;
   openOrdersDeleted: number;
@@ -118,14 +138,15 @@ export default class MarketOrderBookService {
   }
 
   /**
-   * Fetch the region book and both Perimeter structure books, then write
-   * the events and the open-order changes. A structure that failed to fetch
-   * keeps its previous orders. A failed region fetch writes nothing.
+   * Fetch The Forge book and both Perimeter structure books, keep Jita and the
+   * structures, then write the daily trade rollup and the open-order changes.
+   * A structure that failed to fetch keeps its previous orders. A failed region
+   * fetch writes nothing.
    */
   public async genxSyncRegionOrderBook(
-    regionId: number,
     onProgress?: (progress: RegionOrderBookProgress) => void,
   ): Promise<RegionOrderBookSyncResult> {
+    const regionId = THE_FORGE;
     const fetched = await this.genxRegionOrderBook(regionId, onProgress);
     const structureBooks: { locationId: number; orders: OpenOrder[] }[] = [];
     const structureFetches: StructureOrderBookFetch[] = [];
@@ -146,12 +167,16 @@ export default class MarketOrderBookService {
     const stored = await this.genOpenOrders(regionId);
     const storedRegion = stored
       .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
-    const listed = fetched.filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
+    const listed = fetched.filter(isJitaStationOrder);
     const { events, inserted, updated, deletedIds } = diffOrderBook(
-      storedRegion,
+      storedRegion.filter(isJitaStationOrder),
       listed,
       observedAt,
     );
+    // Stored before the book was limited to Jita: removed without counting as closes.
+    deletedIds.push(...storedRegion
+      .filter((order) => !isJitaStationOrder(order))
+      .map((order) => order.orderId));
 
     for (const book of structureBooks) {
       const storedHere = stored.filter((order) => order.locationId === book.locationId);
@@ -164,7 +189,6 @@ export default class MarketOrderBookService {
         locationId: book.locationId,
         fetchedOrders: book.orders.length,
         error: null,
-        eventsWritten: diff.events.length,
         openOrdersInserted: diff.inserted.length,
         openOrdersUpdated: diff.updated.length,
         openOrdersDeleted: diff.deletedIds.length,
@@ -172,10 +196,11 @@ export default class MarketOrderBookService {
       });
     }
 
-    await this.genApplyEvents(
+    const dailyRows = dailyTradeRows(events);
+    await this.genApplyChanges(
       regionId,
       observedAt,
-      events,
+      dailyRows,
       inserted,
       updated,
       deletedIds,
@@ -183,8 +208,9 @@ export default class MarketOrderBookService {
     return {
       regionId,
       fetchedOrders: fetched.length,
+      keptOrders: listed.length,
       structureFetches,
-      eventsWritten: events.length,
+      dailyRowsWritten: dailyRows.length,
       openOrdersInserted: inserted.length,
       openOrdersUpdated: updated.length,
       openOrdersDeleted: deletedIds.length,
@@ -300,39 +326,41 @@ export default class MarketOrderBookService {
     }
   }
 
-  private async genApplyEvents(
+  private async genApplyChanges(
     regionId: number,
     observedAt: Date,
-    events: readonly OrderBookEvent[],
+    dailyRows: readonly DailyTradeRow[],
     inserted: readonly OpenOrder[],
     updated: readonly OpenOrder[],
     deletedIds: readonly number[],
   ): Promise<void> {
-    const sequelize = MarketOrderEvent.sequelize;
+    const sequelize = MarketOrderOpen.sequelize;
     if (sequelize === undefined) {
       throw new Error('Market order models are not initialized');
     }
 
-    const eventRows = events.map((item) => ({
-      region_id: regionId,
-      observed_at: observedAt,
-      kind: item.kind,
-      order_id: item.orderId,
-      type_id: item.typeId,
-      location_id: item.locationId,
-      is_buy: item.isBuy,
-      price: item.price,
-      previous_price: item.previousPrice,
-      volume_remain: item.volumeRemain,
-      previous_volume_remain: item.previousVolumeRemain,
-      volume_delta: item.volumeDelta,
-    }));
+    const day = observedAt.toISOString().slice(0, 10);
     const insertedRows = inserted.map((order) => openOrderRow(regionId, observedAt, order));
     const updatedRows = updated.map((order) => openOrderRow(regionId, observedAt, order));
 
     await sequelize.transaction(async (transaction) => {
-      for (const rows of chunk(eventRows, WRITE_CHUNK)) {
-        await MarketOrderEvent.bulkCreate(rows, { transaction });
+      for (const rows of chunk([...dailyRows], WRITE_CHUNK)) {
+        await sequelize.query(DAILY_UPSERT_SQL(rows.length), {
+          replacements: rows.flatMap((row) => [
+            day,
+            row.typeId,
+            row.isBuy,
+            row.tradedVolume,
+            row.tradedIsk,
+            row.minPrice,
+            row.maxPrice,
+            row.fillCount,
+            row.closedVolume,
+            row.closedIsk,
+            row.closedCount,
+          ]),
+          transaction,
+        });
       }
       for (const rows of chunk(insertedRows, WRITE_CHUNK)) {
         await MarketOrderOpen.bulkCreate(rows, { transaction });
@@ -499,7 +527,6 @@ function structureFetch(
     locationId,
     fetchedOrders,
     error,
-    eventsWritten: 0,
     openOrdersInserted: 0,
     openOrdersUpdated: 0,
     openOrdersDeleted: 0,
@@ -518,4 +545,61 @@ function countEvents(
     counts[item.kind] += 1;
   }
   return counts;
+}
+
+function isJitaStationOrder(order: OpenOrder): boolean {
+  return order.systemId === JITA && !STRUCTURE_LOCATION_IDS.has(order.locationId);
+}
+
+type DailyTradeRow = {
+  typeId: number;
+  isBuy: boolean;
+  tradedVolume: number;
+  tradedIsk: number;
+  minPrice: number | null;
+  maxPrice: number | null;
+  fillCount: number;
+  closedVolume: number;
+  closedIsk: number;
+  closedCount: number;
+};
+
+/** Leftover volume on expired orders is not counted anywhere. */
+function dailyTradeRows(events: readonly OrderBookEvent[]): DailyTradeRow[] {
+  const byKey = new Map<string, DailyTradeRow>();
+  for (const item of events) {
+    if (item.kind !== 'traded' && item.kind !== 'ambiguous') {
+      continue;
+    }
+    const key = `${item.typeId}:${item.isBuy ? 1 : 0}`;
+    let row = byKey.get(key);
+    if (row === undefined) {
+      row = {
+        typeId: item.typeId,
+        isBuy: item.isBuy,
+        tradedVolume: 0,
+        tradedIsk: 0,
+        minPrice: null,
+        maxPrice: null,
+        fillCount: 0,
+        closedVolume: 0,
+        closedIsk: 0,
+        closedCount: 0,
+      };
+      byKey.set(key, row);
+    }
+    if (item.kind === 'traded') {
+      const volume = item.volumeDelta ?? 0;
+      row.tradedVolume += volume;
+      row.tradedIsk += volume * item.price;
+      row.minPrice = row.minPrice === null ? item.price : Math.min(row.minPrice, item.price);
+      row.maxPrice = row.maxPrice === null ? item.price : Math.max(row.maxPrice, item.price);
+      row.fillCount += 1;
+    } else {
+      row.closedVolume += item.volumeRemain;
+      row.closedIsk += item.volumeRemain * item.price;
+      row.closedCount += 1;
+    }
+  }
+  return [...byKey.values()];
 }
