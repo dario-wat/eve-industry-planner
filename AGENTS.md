@@ -13,14 +13,14 @@ Node `>=26` (`.nvmrc` / `.node-version`). TypeScript everywhere. Windows dev mac
 | Path | What it is |
 | --- | --- |
 | `client/` | CRA React 18 app (MUI 5 + MUI X DataGrid, Recoil, axios-hooks, ECharts). Router basename `/eve-industry-planner` (matches GitHub Pages). API base URL is hard-coded in `client/src/index.tsx` (`http://localhost:8080`). |
-| `server/` | Express + TypeDI + Sequelize (MySQL), CommonJS, run with ts-node (no build step). |
+| `server/` | Express + TypeDI + Sequelize (MySQL), CommonJS, run with ts-node in dev; compiled to `server/dist` (`npm run build --prefix server`) for the Docker image. |
 | `shared/` | `@internal/shared`: API response types (`src/api.ts`) plus small helpers (`util.ts`, `date.ts`). Compiled to `shared/dist`. |
 | `libs/eve-esi/` | Local ESM-only library `eve-esi`: EVE SSO, token refresh, and every ESI endpoint the app uses. Stores nothing itself. Compiled to `libs/eve-esi/dist`. |
 | `docs/` | Design notes (`market.md`: the market catalog → tradeable → candidates plan). |
 | `.cursor/rules/` | Agent rules (mirrored in this file). |
 | `.claude/skills/query-mysql/` | Read-only MySQL query skill (Cursor loads `.claude/skills` too). |
 | `sde/` | Gitignored. Raw SDE YAML files read by `npm run load-sde`. |
-| `server/dist/` | Gitignored, stale leftovers (old lambda code). Ignore it. |
+| `server/dist/` | Gitignored build output. Don't edit it. |
 
 ## Commands
 
@@ -35,7 +35,7 @@ From the repo root:
 - `npm run sync-market-history -- [--region <id>] [--type-ids 34,44992 | --candidates]`: ESI market history → `esi_market_history_daily`, then rebuilds `derived_market_history_summary` (default region The Forge, default all tradeable types). `--candidates` limits it to candidates (see `docs/market.md`).
 - `npm run sync-region-market-orders`: snapshot regional orders and diff into the order book tables.
 - `npm run deploy-pi`: after a push, deploys `main` to the Pi (`deploy/pi/deploy.sh`: pull, check `.env` keys, rebuild, restart the server, install job timers). Scheduled jobs run only on the Pi (`deploy/pi/README.md`).
-- `run.ps1`: starts the local MySQL80 service (a leftover from before the Pi move), then server and client (for the user, not agents).
+- `run.ps1`: starts server and client (for the user, not agents).
 
 ### Verifying changes
 
@@ -43,7 +43,7 @@ There are no automated tests. Check work with:
 
 - `cd server && npx tsc --noEmit -p .` (clean today)
 - `cd client && npx tsc --noEmit -p .` (clean today)
-- `cd server && npm run lint` / `cd shared && npm run lint`. Server lint currently has 2 known errors in `ScheduledJobsService.ts` (unused imports kept for the commented-out jobs). Don't add more.
+- `cd server && npm run lint` / `cd shared && npm run lint`. Both are clean today.
 
 Rebuild `shared` / `eve-esi` first if you changed them, or the type-check sees the old `dist`.
 
@@ -51,7 +51,7 @@ Rebuild `shared` / `eve-esi` first if you changed them, or the type-check sees t
 
 ### Request flow
 
-`server/src/server.ts`: `initDatabase()` → `sequelize.sync({ alter: true })` → `EveSdeData.init()` (all SDE loaded into memory, stored in the TypeDI container) → session (`connect-session-sequelize`, stored in MySQL) → CORS for `CLIENT_DOMAIN` → `Controllers.init(app)` → `ScheduledJobsService.init()` (all jobs currently commented out).
+`server/src/server.ts`: `initDatabase()` → `sequelize.sync({ alter: true })` → `EveSdeData.init()` (all SDE loaded into memory, stored in the TypeDI container) → session (`connect-session-sequelize`, stored in MySQL) → CORS for `CLIENT_DOMAIN` → `Controllers.init(app)`. The server runs no scheduled work; jobs are scripts in `server/src/scripts/` run by systemd timers on the Pi.
 
 `server/src/loaders/Controllers.ts`:
 

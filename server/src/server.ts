@@ -14,7 +14,6 @@ import Controllers from './loaders/Controllers';
 import EveSdeData from './core/sde/EveSdeData';
 import { hoursToMilliseconds } from 'date-fns';
 import initSessionStore from './loaders/initSessionStore';
-import ScheduledJobsService from './core/schedule/ScheduledJobsService';
 
 async function connectToDatabase(
   sequelize: Sequelize,
@@ -80,8 +79,6 @@ async function init() {
   process.on('unhandledRejection', (reason: string) => {
     console.error('Unhandled Promise Rejection:', reason);
   });
-
-  Container.get(ScheduledJobsService).init();
 
   const port = process.env.PORT || process.env.SERVER_PORT!;
   if (useHttps) {

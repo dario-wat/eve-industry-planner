@@ -99,5 +99,6 @@ function isSameState(expected: string, received: unknown): boolean {
   }
   const expectedBytes = Buffer.from(expected);
   const receivedBytes = Buffer.from(received);
-  return expectedBytes.length === receivedBytes.length && timingSafeEqual(expectedBytes, receivedBytes);
+  return expectedBytes.length === receivedBytes.length
+    && timingSafeEqual(expectedBytes, receivedBytes);
 }

@@ -1,13 +1,5 @@
 $Root = $PSScriptRoot
 
-try {
-  Start-Service -Name MySQL80 -ErrorAction Stop
-  Write-Host "MySQL80 service started successfully."
-}
-catch {
-  Write-Host "Error starting MySQL80 service: $_" -ForegroundColor Red
-}
-
 $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
 
 try {
