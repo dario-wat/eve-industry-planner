@@ -12,7 +12,8 @@ export type OrderBookEntry = {
   volumeTotal: number;
   minVolume: number;
   range: string;
-  issued: string;
+  /** Epoch milliseconds. */
+  issued: number;
   duration: number;
 };
 
@@ -37,53 +38,15 @@ export type OrderBookEvent = {
 };
 
 export type OrderBookDiff = {
-  openOrders: OpenOrder[];
   events: OrderBookEvent[];
-};
-
-export type OpenOrderChanges = {
   inserted: OpenOrder[];
   updated: OpenOrder[];
   deletedIds: number[];
 };
 
-/** Rows to insert, update, or delete so the stored book matches `next`. */
-export function openOrderChanges(
-  stored: readonly OpenOrder[],
-  next: readonly OpenOrder[],
-): OpenOrderChanges {
-  const previousById = firstById(stored);
-  const nextIds = new Set<number>();
-  const inserted: OpenOrder[] = [];
-  const updated: OpenOrder[] = [];
-
-  for (const order of next) {
-    if (nextIds.has(order.orderId)) {
-      continue;
-    }
-    nextIds.add(order.orderId);
-    const prior = previousById.get(order.orderId);
-    if (prior === undefined) {
-      inserted.push(order);
-      continue;
-    }
-    if (!sameOpenOrder(prior, order)) {
-      updated.push(order);
-    }
-  }
-
-  const deletedIds: number[] = [];
-  for (const order of stored) {
-    if (!nextIds.has(order.orderId)) {
-      deletedIds.push(order.orderId);
-    }
-  }
-
-  return { inserted, updated, deletedIds };
-}
-
 /**
- * Compare the previous open orders to a new book.
+ * Compare the stored open orders to a new book: the events, and the rows to insert,
+ * update, or delete so the stored book matches.
  * An order that is absent once stays open and is marked missing.
  * It closes only when it is still absent. Leftover volume on a close is not a trade.
  */
@@ -95,14 +58,16 @@ export function diffOrderBook(
   const previousById = firstById(previous);
   const nextById = firstById(next);
   const events: OrderBookEvent[] = [];
-  const openOrders: OpenOrder[] = [];
+  const inserted: OpenOrder[] = [];
+  const updated: OpenOrder[] = [];
+  const deletedIds: number[] = [];
 
   for (const [orderId, current] of nextById) {
     const listed = current.missing ? { ...current, missing: false } : current;
     const prior = previousById.get(orderId);
     if (prior === undefined) {
       events.push(event('appeared', listed, null, null));
-      openOrders.push(listed);
+      inserted.push(listed);
       continue;
     }
     if (listed.price !== prior.price) {
@@ -117,7 +82,9 @@ export function diffOrderBook(
         prior.volumeRemain,
       ));
     }
-    openOrders.push(listed);
+    if (!sameOpenOrder(prior, listed)) {
+      updated.push(listed);
+    }
   }
 
   for (const [orderId, prior] of previousById) {
@@ -125,15 +92,16 @@ export function diffOrderBook(
       continue;
     }
     if (!prior.missing) {
-      openOrders.push({ ...prior, missing: true });
+      updated.push({ ...prior, missing: true });
       continue;
     }
     const kind = isExpired(prior, observedAt) ? 'expired' : 'ambiguous';
     events.push(event(kind, prior, null, null));
+    deletedIds.push(orderId);
   }
 
   events.sort((left, right) => left.orderId - right.orderId);
-  return { openOrders, events };
+  return { events, inserted, updated, deletedIds };
 }
 
 function sameOpenOrder(left: OpenOrder, right: OpenOrder): boolean {
@@ -148,7 +116,7 @@ function sameOpenOrder(left: OpenOrder, right: OpenOrder): boolean {
     && left.range === right.range
     && left.duration === right.duration
     && left.missing === right.missing
-    && Date.parse(left.issued) === Date.parse(right.issued);
+    && left.issued === right.issued;
 }
 
 function firstById<T extends { orderId: number }>(orders: readonly T[]): Map<number, T> {
@@ -162,8 +130,7 @@ function firstById<T extends { orderId: number }>(orders: readonly T[]): Map<num
 }
 
 function isExpired(order: OrderBookEntry, observedAt: Date): boolean {
-  const issuedMs = Date.parse(order.issued);
-  return issuedMs + order.duration * DAY_MS <= observedAt.getTime();
+  return order.issued + order.duration * DAY_MS <= observedAt.getTime();
 }
 
 function event(

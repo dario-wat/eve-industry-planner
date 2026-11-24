@@ -9,7 +9,6 @@ import {
   OrderBookEvent,
   OrderBookEventKind,
   diffOrderBook,
-  openOrderChanges,
 } from './diffOrderBook';
 import { MarketOrderEvent } from './MarketOrderEvent';
 import { MarketOrderOpen } from './MarketOrderOpen';
@@ -148,29 +147,27 @@ export default class MarketOrderBookService {
     const storedRegion = stored
       .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
     const listed = fetched.filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
-    const regionDiff = diffOrderBook(storedRegion, listed, observedAt);
-    const regionChanges = openOrderChanges(storedRegion, regionDiff.openOrders);
-    const events = [...regionDiff.events];
-    const inserted = [...regionChanges.inserted];
-    const updated = [...regionChanges.updated];
-    const deletedIds = [...regionChanges.deletedIds];
+    const { events, inserted, updated, deletedIds } = diffOrderBook(
+      storedRegion,
+      listed,
+      observedAt,
+    );
 
     for (const book of structureBooks) {
       const storedHere = stored.filter((order) => order.locationId === book.locationId);
       const diff = diffOrderBook(storedHere, book.orders, observedAt);
-      const changes = openOrderChanges(storedHere, diff.openOrders);
       events.push(...diff.events);
-      inserted.push(...changes.inserted);
-      updated.push(...changes.updated);
-      deletedIds.push(...changes.deletedIds);
+      inserted.push(...diff.inserted);
+      updated.push(...diff.updated);
+      deletedIds.push(...diff.deletedIds);
       structureFetches.push({
         locationId: book.locationId,
         fetchedOrders: book.orders.length,
         error: null,
         eventsWritten: diff.events.length,
-        openOrdersInserted: changes.inserted.length,
-        openOrdersUpdated: changes.updated.length,
-        openOrdersDeleted: changes.deletedIds.length,
+        openOrdersInserted: diff.inserted.length,
+        openOrdersUpdated: diff.updated.length,
+        openOrdersDeleted: diff.deletedIds.length,
         eventCounts: countEvents(diff.events),
       });
     }
@@ -420,8 +417,8 @@ function bookEntryFromEsi(
     volumeRemain: order.volume_remain,
     volumeTotal: order.volume_total,
     minVolume: order.min_volume,
-    range: order.range,
-    issued: order.issued,
+    range: internRange(order.range),
+    issued: issuedMs(order.issued),
     duration: order.duration,
     missing: false,
   };
@@ -458,8 +455,8 @@ function openOrderFromRow(row: OpenOrderRow): OpenOrder {
     volumeRemain: asNumber(row.volume_remain),
     volumeTotal: asNumber(row.volume_total),
     minVolume: asNumber(row.min_volume),
-    range: row.range,
-    issued: issuedToIso(row.issued),
+    range: internRange(row.range),
+    issued: issuedMs(row.issued),
     duration: row.duration,
     missing: Boolean(row.missing),
   };
@@ -473,12 +470,24 @@ function asNumber(value: number | string): number {
   return parsed;
 }
 
-function issuedToIso(value: Date | string): string {
-  const parsed = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
+function issuedMs(value: Date | string): number {
+  const parsed = value instanceof Date ? value.getTime() : Date.parse(value);
+  if (Number.isNaN(parsed)) {
     throw new Error(`Bad issued time: ${String(value)}`);
   }
-  return parsed.toISOString();
+  return parsed;
+}
+
+const RANGES = new Map<string, string>();
+
+/** Every parsed order gets its own copy of a range string; a book has only a few values. */
+function internRange(range: string): string {
+  const known = RANGES.get(range);
+  if (known !== undefined) {
+    return known;
+  }
+  RANGES.set(range, range);
+  return range;
 }
 
 function structureFetch(
