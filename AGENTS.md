@@ -34,6 +34,7 @@ From the repo root:
 - `npm run load-sde`: load SDE YAML from `sde/` into the `sde_*` tables (`SDE_LOAD_QUIET=1` to silence).
 - `npm run sync-market-history -- [--region <id>] [--type-ids 34,44992 | --candidates]`: ESI market history → `esi_market_history_daily`, then rebuilds `derived_market_history_summary` (default region The Forge, default all tradeable types). `--candidates` limits it to candidates (see `docs/market.md`).
 - `npm run sync-region-market-orders`: snapshot regional orders and diff into the order book tables.
+- `npm run deploy-pi`: after a push, deploys `main` to the Pi (`deploy/pi/deploy.sh`: pull, check `.env` keys, rebuild, restart the server, install job timers). Scheduled jobs run only on the Pi (`deploy/pi/README.md`).
 - `run.ps1`: starts the local MySQL80 service (a leftover from before the Pi move), then server and client (for the user, not agents).
 
 ### Verifying changes

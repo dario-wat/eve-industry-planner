@@ -70,6 +70,14 @@ docker compose run --rm jobs node dist/scripts/syncMarketHistory.js --candidates
 
 Each job run is recorded in `app_job_runs`.
 
+### Deploying
+
+Push to GitHub, then from the PC run `npm run deploy-pi` (or `bash deploy.sh` on the Pi). It pulls `main`, checks that every key in `.env.example` is set in `.env`, rebuilds the image, restarts the server and waits for it to become healthy, then copies the timer units and enables any new timers. Running jobs finish on the old image.
+
+The previous image is kept as `eip-server:previous`. To roll back: `docker tag eip-server:previous eip-server:latest && docker compose up -d server`.
+
+A deploy never restarts MySQL. If `docker-compose.yml` or `my.cnf` changed, it says so; run `docker compose up -d mysql` when convenient.
+
 ## 4. Scheduled jobs
 
 systemd user timers run the jobs through `run-job.sh`. No sudo is needed; it relies on linger being on (`loginctl show-user $USER -p Linger`, else `sudo loginctl enable-linger $USER`).
@@ -82,7 +90,7 @@ systemd user timers run the jobs through `run-job.sh`. No sudo is needed; it rel
 
 The history timers catch up on a missed run after downtime. A job never overlaps itself: systemd skips a tick while the previous run is still going.
 
-Install, and again after a pull that changes `systemd/`:
+Deploys install the timers. To install them by hand:
 
 ```sh
 mkdir -p ~/.config/systemd/user
