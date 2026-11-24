@@ -1,4 +1,3 @@
-import type { Model } from 'sequelize';
 import { mapify } from '../../lib/util';
 import { Type } from './models/Type';
 import { Group } from './models/Group';
@@ -153,21 +152,27 @@ export default class EveSdeData {
       throw new Error('EveSdeData is already initialized!');
     }
 
-    const typesData = await Type.findAll();
-    const groupsData = await Group.findAll();
-    const categoriesData = await Category.findAll();
-    const stationsData = await Station.findAll();
-    const solarSystemsData = await SolarSystem.findAll();
-    const blueprintData = await Blueprint.findAll();
+    // Raw rows: model instances for every SDE row roughly double the peak memory of a load.
+    const typesData = await Type.findAll({ raw: true }) as unknown as EveSdeType[];
+    for (const type of typesData) {
+      // MySQL returns BOOLEAN as 0/1 on raw rows.
+      type.published = type.published === null ? null : Boolean(type.published);
+    }
+    const groupsData = await Group.findAll({ raw: true }) as unknown as EveSdeGroup[];
+    const categoriesData = await Category.findAll({ raw: true }) as unknown as EveSdeCategory[];
+    const stationsData = await Station.findAll({ raw: true }) as unknown as EveSdeStation[];
+    const solarSystemsData = await SolarSystem.findAll({ raw: true }) as unknown as
+      EveSdeSolarSystem[];
+    const blueprintData = await Blueprint.findAll({ raw: true }) as unknown as BlueprintRow[];
     const blueprintIndexes = indexesFromBlueprints(blueprintData);
 
     return new EveSdeData(
-      mapifySequelize(typesData, 'id'),
-      mapifySequelize(typesData, 'name'),
-      mapifySequelize(groupsData, 'id'),
-      mapifySequelize(categoriesData, 'id'),
-      mapifySequelize(stationsData, 'id'),
-      mapifySequelize(solarSystemsData, 'id'),
+      mapify(typesData, 'id'),
+      mapify(typesData, 'name'),
+      mapify(groupsData, 'id'),
+      mapify(categoriesData, 'id'),
+      mapify(stationsData, 'id'),
+      mapify(solarSystemsData, 'id'),
       blueprintIndexes.manufactureMaterialsByBlueprint,
       blueprintIndexes.manufactureProductsByProduct,
       blueprintIndexes.reactionMaterialsByBlueprint,
@@ -177,13 +182,7 @@ export default class EveSdeData {
   }
 }
 
-/** Helper function to create mapping from ID to data. */
-function mapifySequelize<TOut>(ds: Pick<Model, 'get'>[], key: string): Record<string, TOut> {
-  return mapify(
-    ds.map((d) => d.get()),
-    key,
-  );
-}
+type BlueprintRow = { id: number; activities: unknown };
 
 function blueprintActivities(value: unknown) {
   const parsed = typeof value === 'string' ? JSON.parse(value) : value;
@@ -210,7 +209,7 @@ function activityTime(activity: { time?: number } | undefined): number | null {
 }
 
 /** Builds the manufacturing and reaction indexes from each blueprint's activities JSON. */
-function indexesFromBlueprints(rows: Blueprint[]) {
+function indexesFromBlueprints(rows: BlueprintRow[]) {
   const manufactureMaterialsByBlueprint: { [blueprint_id: number]: EveSdeBlueprintMaterial[] } = {};
   const manufactureProductsByProduct: { [type_id: number]: EveSdeBlueprintMaterial } = {};
   const reactionMaterialsByBlueprint: { [blueprint_id: number]: EveSdeBlueprintMaterial[] } = {};
@@ -218,8 +217,8 @@ function indexesFromBlueprints(rows: Blueprint[]) {
   const blueprints: { [blueprint_id: number]: EveSdeBlueprint } = {};
 
   for (const row of rows) {
-    const id = row.get('id') as number;
-    const activities = blueprintActivities(row.get('activities'));
+    const id = row.id;
+    const activities = blueprintActivities(row.activities);
 
     const manufacturingMaterials = blueprintLines(id, activities.manufacturing?.materials);
     if (manufacturingMaterials.length > 0) {
