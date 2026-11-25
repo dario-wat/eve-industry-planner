@@ -52,6 +52,8 @@ export interface EsiLoginResult {
 export interface EsiPage<T> {
   data: T[];
   pages: number;
+  /** The `last-modified` header. Pages of one snapshot share it. */
+  lastModified: string | null;
 }
 
 export interface EsiPosition {

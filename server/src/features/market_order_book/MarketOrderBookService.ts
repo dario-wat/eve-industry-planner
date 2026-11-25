@@ -11,6 +11,9 @@ import {
   OrderBookEventKind,
   diffOrderBook,
 } from './diffOrderBook';
+import { CloseEvidence, closeEvidence } from './closeEvidence';
+import { MarketOrderClose, MarketOrderCloseStatus } from './MarketOrderClose';
+import { MarketOrderEvent } from './MarketOrderEvent';
 import { MarketOrderOpen } from './MarketOrderOpen';
 import { MarketTradeDaily } from './MarketTradeDaily';
 
@@ -38,6 +41,14 @@ const PERIMETER = 30000144;
 /** Rows per insert, so one statement does not carry the whole book. */
 const WRITE_CHUNK = 1000;
 const READ_CHUNK = 50_000;
+
+const SNAPSHOT_ATTEMPTS = 3;
+
+const EVENT_RETENTION_DAYS = 30;
+const CLOSE_RETENTION_DAYS = 365;
+/** Per run and table. A run adds far fewer, so this keeps up. */
+const PRUNE_ROWS = 10_000;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 // VALUES() rather than a row alias so the TiDB fallback accepts it too.
 // LEAST/GREATEST return NULL if either side is NULL, hence the COALESCE pairs.
@@ -73,6 +84,29 @@ export type RegionOrderBookProgress = {
   elapsedMs: number;
 };
 
+type OrderBookSnapshot = {
+  orders: OpenOrder[];
+  lastModified: string | null;
+  mixedAttempts: number;
+};
+
+type StoredBook = {
+  orders: OpenOrder[];
+  /** Newest observed_at per book, keyed by bookIdOf. */
+  changedAt: Map<number, Date>;
+};
+
+type CloseRecord = { evidence: CloseEvidence; bookChangedAt: Date | null };
+
+type OrderBookChanges = {
+  events: OrderBookEvent[];
+  inserted: OpenOrder[];
+  updated: OpenOrder[];
+  deletedIds: number[];
+  closes: CloseRecord[];
+  reappearedIds: number[];
+};
+
 export type StructureOrderBookFetch = {
   locationId: number;
   fetchedOrders: number;
@@ -88,7 +122,16 @@ export type RegionOrderBookSyncResult = {
   fetchedOrders: number;
   keptOrders: number;
   structureFetches: StructureOrderBookFetch[];
+  /** Last-Modified of the region book. */
+  snapshotAt: string | null;
+  /** Books fetched again because their pages came from different snapshots. */
+  mixedSnapshots: number;
   dailyRowsWritten: number;
+  eventsWritten: number;
+  closesOpened: number;
+  closesReappeared: number;
+  eventsPruned: number;
+  closesPruned: number;
   openOrdersInserted: number;
   openOrdersUpdated: number;
   openOrdersDeleted: number;
@@ -107,8 +150,8 @@ export default class MarketOrderBookService {
   public async genxRegionOrderBook(
     regionId: number,
     onProgress?: (progress: RegionOrderBookProgress) => void,
-  ): Promise<OpenOrder[]> {
-    return await this.genxPagedOrderBook(
+  ): Promise<OrderBookSnapshot> {
+    return await this.genxConsistentOrderBook(
       `Region ${regionId} order book`,
       (page) => this.esiQueryService.genxRegionMarketOrders(regionId, { page }),
       // Not a bare map: the index would be passed as systemId.
@@ -124,8 +167,8 @@ export default class MarketOrderBookService {
   public async genxStructureOrderBook(
     structureId: number,
     onProgress?: (progress: RegionOrderBookProgress) => void,
-  ): Promise<OpenOrder[]> {
-    return await this.genxPagedOrderBook(
+  ): Promise<OrderBookSnapshot> {
+    return await this.genxConsistentOrderBook(
       `Structure ${structureId} order book`,
       (page) => this.esiQueryService.genxStructureMarketOrders(
         TRADING_LADY,
@@ -139,7 +182,8 @@ export default class MarketOrderBookService {
 
   /**
    * Fetch The Forge book and both Perimeter structure books, keep Jita and the
-   * structures, then write the daily trade rollup and the open-order changes.
+   * structures, then write the events, closes, daily trade rollup, and
+   * open-order changes.
    * A structure that failed to fetch keeps its previous orders. A failed region
    * fetch writes nothing.
    */
@@ -147,13 +191,16 @@ export default class MarketOrderBookService {
     onProgress?: (progress: RegionOrderBookProgress) => void,
   ): Promise<RegionOrderBookSyncResult> {
     const regionId = THE_FORGE;
-    const fetched = await this.genxRegionOrderBook(regionId, onProgress);
+    const region = await this.genxRegionOrderBook(regionId, onProgress);
+    const fetched = region.orders;
+    let mixedSnapshots = region.mixedAttempts;
     const structureBooks: { locationId: number; orders: OpenOrder[] }[] = [];
     const structureFetches: StructureOrderBookFetch[] = [];
     for (const locationId of STRUCTURE_LOCATION_IDS) {
       try {
-        const orders = await this.genxStructureOrderBook(locationId, onProgress);
-        structureBooks.push({ locationId, orders });
+        const book = await this.genxStructureOrderBook(locationId, onProgress);
+        structureBooks.push({ locationId, orders: book.orders });
+        mixedSnapshots += book.mixedAttempts;
       } catch (error) {
         structureFetches.push(structureFetch(
           locationId,
@@ -163,16 +210,18 @@ export default class MarketOrderBookService {
       }
     }
 
+    // MySQL DATETIME has no fraction and rounds, so drop it before comparing dates.
     const observedAt = new Date();
-    const stored = await this.genOpenOrders(regionId);
+    observedAt.setMilliseconds(0);
+    const { orders: stored, changedAt } = await this.genOpenOrders(regionId);
     const storedRegion = stored
       .filter((order) => !STRUCTURE_LOCATION_IDS.has(order.locationId));
     const listed = fetched.filter(isJitaStationOrder);
-    const { events, inserted, updated, deletedIds } = diffOrderBook(
-      storedRegion.filter(isJitaStationOrder),
-      listed,
-      observedAt,
-    );
+    const storedJita = storedRegion.filter(isJitaStationOrder);
+    const regionDiff = diffOrderBook(storedJita, listed, observedAt);
+    const { events, inserted, updated, deletedIds, reappearedIds } = regionDiff;
+    const closes: CloseRecord[] = closeEvidence(storedJita, listed, regionDiff)
+      .map((evidence) => ({ evidence, bookChangedAt: changedAt.get(REGION_BOOK) ?? null }));
     // Stored before the book was limited to Jita: removed without counting as closes.
     deletedIds.push(...storedRegion
       .filter((order) => !isJitaStationOrder(order))
@@ -185,6 +234,11 @@ export default class MarketOrderBookService {
       inserted.push(...diff.inserted);
       updated.push(...diff.updated);
       deletedIds.push(...diff.deletedIds);
+      reappearedIds.push(...diff.reappearedIds);
+      closes.push(...closeEvidence(storedHere, book.orders, diff).map((evidence) => ({
+        evidence,
+        bookChangedAt: changedAt.get(book.locationId) ?? null,
+      })));
       structureFetches.push({
         locationId: book.locationId,
         fetchedOrders: book.orders.length,
@@ -201,22 +255,58 @@ export default class MarketOrderBookService {
       regionId,
       observedAt,
       dailyRows,
-      inserted,
-      updated,
-      deletedIds,
+      { events, inserted, updated, deletedIds, closes, reappearedIds },
     );
+    const pruned = await this.genPruneOldRows(observedAt);
     return {
       regionId,
       fetchedOrders: fetched.length,
       keptOrders: listed.length,
       structureFetches,
+      snapshotAt: region.lastModified,
+      mixedSnapshots,
       dailyRowsWritten: dailyRows.length,
+      eventsWritten: events.length,
+      closesOpened: closes.length,
+      closesReappeared: reappearedIds.length,
+      ...pruned,
       openOrdersInserted: inserted.length,
       openOrdersUpdated: updated.length,
       openOrdersDeleted: deletedIds.length,
       eventCounts: countEvents(events),
       observedAt: observedAt.toISOString(),
     };
+  }
+
+  /**
+   * ESI can rebuild the book while its pages are being read, which makes orders
+   * that moved between pages look absent. Such a pull is thrown away and repeated.
+   */
+  private async genxConsistentOrderBook(
+    description: string,
+    fetchPage: (page: number) => Promise<EsiPage<EsiMarketOrder>>,
+    toEntry: (order: EsiMarketOrder) => OpenOrder,
+    onProgress?: (progress: RegionOrderBookProgress) => void,
+  ): Promise<OrderBookSnapshot> {
+    for (let attempt = 0; attempt < SNAPSHOT_ATTEMPTS; attempt += 1) {
+      const seen = new Set<string | null>();
+      const orders = await this.genxPagedOrderBook(
+        description,
+        async (page) => {
+          const result = await fetchPage(page);
+          seen.add(result.lastModified);
+          return result;
+        },
+        toEntry,
+        onProgress,
+      );
+      if (seen.size === 1) {
+        return { orders, lastModified: [...seen][0], mixedAttempts: attempt };
+      }
+    }
+    throw new Error(
+      `${description} mixed snapshots in all ${SNAPSHOT_ATTEMPTS} attempts`,
+    );
   }
 
   private async genxPagedOrderBook(
@@ -306,8 +396,9 @@ export default class MarketOrderBookService {
   }
 
   /** The previous open book stored in esi_market_order_open. */
-  private async genOpenOrders(regionId: number): Promise<OpenOrder[]> {
+  private async genOpenOrders(regionId: number): Promise<StoredBook> {
     const orders: OpenOrder[] = [];
+    const changedAt = new Map<number, Date>();
     let afterOrderId = 0;
     for (;;) {
       const rows = await MarketOrderOpen.findAll({
@@ -317,23 +408,44 @@ export default class MarketOrderBookService {
         raw: true,
       }) as unknown as OpenOrderRow[];
       if (rows.length === 0) {
-        return orders;
+        return { orders, changedAt };
       }
       for (const row of rows) {
-        orders.push(openOrderFromRow(row));
+        const order = openOrderFromRow(row);
+        orders.push(order);
+        const bookId = bookIdOf(order);
+        const observedAt = new Date(row.observed_at);
+        const newest = changedAt.get(bookId);
+        if (newest === undefined || observedAt > newest) {
+          changedAt.set(bookId, observedAt);
+        }
       }
       afterOrderId = asNumber(rows[rows.length - 1].order_id);
     }
+  }
+
+  private async genPruneOldRows(
+    now: Date,
+  ): Promise<{ eventsPruned: number; closesPruned: number }> {
+    const daysAgo = (days: number): Date => new Date(now.getTime() - days * DAY_MS);
+    const eventsPruned = await MarketOrderEvent.destroy({
+      where: { observed_at: { [Op.lt]: daysAgo(EVENT_RETENTION_DAYS) } },
+      limit: PRUNE_ROWS,
+    });
+    const closesPruned = await MarketOrderClose.destroy({
+      where: { first_missed_at: { [Op.lt]: daysAgo(CLOSE_RETENTION_DAYS) } },
+      limit: PRUNE_ROWS,
+    });
+    return { eventsPruned, closesPruned };
   }
 
   private async genApplyChanges(
     regionId: number,
     observedAt: Date,
     dailyRows: readonly DailyTradeRow[],
-    inserted: readonly OpenOrder[],
-    updated: readonly OpenOrder[],
-    deletedIds: readonly number[],
+    changes: OrderBookChanges,
   ): Promise<void> {
+    const { events, inserted, updated, deletedIds, closes, reappearedIds } = changes;
     const sequelize = MarketOrderOpen.sequelize;
     if (sequelize === undefined) {
       throw new Error('Market order models are not initialized');
@@ -342,8 +454,29 @@ export default class MarketOrderBookService {
     const day = observedAt.toISOString().slice(0, 10);
     const insertedRows = inserted.map((order) => openOrderRow(regionId, observedAt, order));
     const updatedRows = updated.map((order) => openOrderRow(regionId, observedAt, order));
+    const eventRows = events.map((item) => eventRow(observedAt, item));
+    const closeRows = closes.map((close) => closeRow(observedAt, close));
+    const resolved: [MarketOrderCloseStatus, number[]][] = [
+      ['reappeared', reappearedIds],
+      ['expired', eventOrderIds(events, 'expired')],
+      ['ambiguous', eventOrderIds(events, 'ambiguous')],
+    ];
 
     await sequelize.transaction(async (transaction) => {
+      for (const rows of chunk(eventRows, WRITE_CHUNK)) {
+        await MarketOrderEvent.bulkCreate(rows, { transaction });
+      }
+      for (const [status, orderIds] of resolved) {
+        for (const ids of chunk(orderIds, WRITE_CHUNK)) {
+          await MarketOrderClose.update(
+            { status, resolved_at: observedAt },
+            { where: { order_id: { [Op.in]: ids }, status: 'pending' }, transaction },
+          );
+        }
+      }
+      for (const rows of chunk(closeRows, WRITE_CHUNK)) {
+        await MarketOrderClose.bulkCreate(rows, { transaction });
+      }
       for (const rows of chunk([...dailyRows], WRITE_CHUNK)) {
         await sequelize.query(DAILY_UPSERT_SQL(rows.length), {
           replacements: rows.flatMap((row) => [
@@ -396,6 +529,61 @@ export default class MarketOrderBookService {
   }
 }
 
+function eventOrderIds(
+  events: readonly OrderBookEvent[],
+  kind: OrderBookEventKind,
+): number[] {
+  return events.filter((item) => item.kind === kind).map((item) => item.orderId);
+}
+
+function eventRow(observedAt: Date, item: OrderBookEvent) {
+  return {
+    observed_at: observedAt,
+    kind: item.kind,
+    order_id: item.orderId,
+    type_id: item.typeId,
+    location_id: item.locationId,
+    is_buy: item.isBuy,
+    price: item.price,
+    previous_price: item.previousPrice,
+    volume_remain: item.volumeRemain,
+    previous_volume_remain: item.previousVolumeRemain,
+    volume_delta: item.volumeDelta,
+  };
+}
+
+function closeRow(firstMissedAt: Date, { evidence, bookChangedAt }: CloseRecord) {
+  const { order, survivor, relist } = evidence;
+  return {
+    order_id: order.orderId,
+    first_missed_at: firstMissedAt,
+    status: 'pending',
+    book_changed_at: bookChangedAt,
+    type_id: order.typeId,
+    location_id: order.locationId,
+    is_buy: order.isBuy,
+    price: order.price,
+    volume_remain: order.volumeRemain,
+    volume_total: order.volumeTotal,
+    min_volume: order.minVolume,
+    range: order.range,
+    issued: new Date(order.issued),
+    duration: order.duration,
+    better_orders_before: evidence.betterOrdersBefore,
+    better_volume_before: evidence.betterVolumeBefore,
+    best_price_after: evidence.bestPriceAfter,
+    best_opposite_price_after: evidence.bestOppositePriceAfter,
+    survivor_order_id: survivor?.orderId ?? null,
+    survivor_price: survivor?.price ?? null,
+    relist_order_id: relist?.orderId ?? null,
+    relist_price: relist?.price ?? null,
+    relist_volume: relist?.volumeTotal ?? null,
+    poll_traded_volume: evidence.pollTradedVolume,
+    nearest_traded_price: evidence.nearestTradedPrice,
+    poll_missed_count: evidence.pollMissedCount,
+  };
+}
+
 function pageErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
@@ -417,6 +605,7 @@ type OpenOrderRow = {
   issued: Date | string;
   duration: number;
   missing: boolean | number | null;
+  observed_at: Date | string;
 };
 
 function bookEntryFromEsi(
@@ -545,6 +734,13 @@ function countEvents(
     counts[item.kind] += 1;
   }
   return counts;
+}
+
+const REGION_BOOK = 0;
+
+/** Each structure is fetched as its own book. Everything else is the region book. */
+function bookIdOf(order: OpenOrder): number {
+  return STRUCTURE_LOCATION_IDS.has(order.locationId) ? order.locationId : REGION_BOOK;
 }
 
 function isJitaStationOrder(order: OpenOrder): boolean {

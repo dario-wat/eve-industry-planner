@@ -1,7 +1,8 @@
 /*
  * Fetches The Forge order book and the Perimeter structure books, keeps Jita and
- * the structures, diffs them against the stored open orders, and adds the traded
- * volume to the daily rollup. A failed page writes nothing.
+ * the structures, diffs them against the stored open orders, and records events
+ * (30 days), closes with evidence (1 year), and the daily trade rollup. A failed
+ * page writes nothing.
  *
  *   npm run sync-region-market-orders
  */
@@ -119,7 +120,14 @@ async function genxSync() {
     pages,
     fetchedOrders: result.fetchedOrders,
     keptOrders: result.keptOrders,
+    snapshotAt: result.snapshotAt,
+    mixedSnapshots: result.mixedSnapshots,
     dailyRowsWritten: result.dailyRowsWritten,
+    eventsWritten: result.eventsWritten,
+    closesOpened: result.closesOpened,
+    closesReappeared: result.closesReappeared,
+    eventsPruned: result.eventsPruned,
+    closesPruned: result.closesPruned,
     openOrdersInserted: result.openOrdersInserted,
     openOrdersUpdated: result.openOrdersUpdated,
     openOrdersDeleted: result.openOrdersDeleted,

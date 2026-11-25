@@ -42,6 +42,10 @@ export type OrderBookDiff = {
   inserted: OpenOrder[];
   updated: OpenOrder[];
   deletedIds: number[];
+  /** Absent for the first time. */
+  missed: OpenOrder[];
+  /** Absent last time, listed again. */
+  reappearedIds: number[];
 };
 
 /**
@@ -61,6 +65,8 @@ export function diffOrderBook(
   const inserted: OpenOrder[] = [];
   const updated: OpenOrder[] = [];
   const deletedIds: number[] = [];
+  const missed: OpenOrder[] = [];
+  const reappearedIds: number[] = [];
 
   for (const [orderId, current] of nextById) {
     const listed = current.missing ? { ...current, missing: false } : current;
@@ -69,6 +75,9 @@ export function diffOrderBook(
       events.push(event('appeared', listed, null, null));
       inserted.push(listed);
       continue;
+    }
+    if (prior.missing) {
+      reappearedIds.push(orderId);
     }
     if (listed.price !== prior.price) {
       events.push(event('repriced', listed, prior.price, null));
@@ -93,6 +102,7 @@ export function diffOrderBook(
     }
     if (!prior.missing) {
       updated.push({ ...prior, missing: true });
+      missed.push(prior);
       continue;
     }
     const kind = isExpired(prior, observedAt) ? 'expired' : 'ambiguous';
@@ -101,7 +111,7 @@ export function diffOrderBook(
   }
 
   events.sort((left, right) => left.orderId - right.orderId);
-  return { events, inserted, updated, deletedIds };
+  return { events, inserted, updated, deletedIds, missed, reappearedIds };
 }
 
 function sameOpenOrder(left: OpenOrder, right: OpenOrder): boolean {

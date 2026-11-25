@@ -128,5 +128,6 @@ export async function esiRequestPage<T>(
   return {
     data: response.data,
     pages: pages !== null && pages >= 1 ? pages : 1,
+    lastModified: response.headers.get('last-modified'),
   };
 }
