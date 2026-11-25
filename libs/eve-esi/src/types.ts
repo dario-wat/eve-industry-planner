@@ -232,6 +232,27 @@ export interface EsiMarketOrder {
   system_id?: number;
 }
 
+export interface EsiSkill {
+  /** Level that applies now. Below the trained level on an Alpha clone. */
+  active_skill_level: number;
+  skill_id: number;
+  skillpoints_in_skill: number;
+  trained_skill_level: number;
+}
+
+export interface EsiCharacterSkills {
+  skills: EsiSkill[];
+  total_sp: number;
+  unallocated_sp?: number;
+}
+
+export interface EsiStanding {
+  from_id: number;
+  from_type: 'agent' | 'npc_corp' | 'faction';
+  /** Unmodified by Connections and Diplomacy. */
+  standing: number;
+}
+
 export type EsiMarketOrderType = 'all' | 'buy' | 'sell';
 
 export interface EsiMarketHistory {

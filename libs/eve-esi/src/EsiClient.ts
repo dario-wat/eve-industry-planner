@@ -12,6 +12,7 @@ import { TokenManager } from './tokenManager.js';
 import type {
   EsiAsset,
   EsiAssetName,
+  EsiCharacterSkills,
   EsiConstellation,
   EsiContract,
   EsiIndustryJob,
@@ -23,6 +24,7 @@ import type {
   EsiPortrait,
   EsiSolarSystem,
   EsiSsoConfig,
+  EsiStanding,
   EsiStation,
   EsiStructure,
   EsiTokenHooks,
@@ -141,6 +143,21 @@ export class EsiClient {
   /** Every page of contracts. */
   getAllContracts(characterId: number, options: EsiGetAllOptions = {}): Promise<EsiContract[]> {
     return fetchAllPages((page) => this.getContracts(characterId, page), options.concurrency);
+  }
+
+  /** Needs esi-skills.read_skills.v1 */
+  getSkills(characterId: number): Promise<EsiCharacterSkills> {
+    return this.#getAs<EsiCharacterSkills>(characterId, `/characters/${characterId}/skills/`);
+  }
+
+  /** Needs esi-characters.read_standings.v1 */
+  getStandings(characterId: number): Promise<EsiStanding[]> {
+    return this.#getAs<EsiStanding[]>(characterId, `/characters/${characterId}/standings/`);
+  }
+
+  /** ISK balance. Needs esi-wallet.read_character_wallet.v1 */
+  getWalletBalance(characterId: number): Promise<number> {
+    return this.#getAs<number>(characterId, `/characters/${characterId}/wallet/`);
   }
 
   /** Needs esi-wallet.read_character_wallet.v1 */

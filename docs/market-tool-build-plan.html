@@ -111,10 +111,11 @@
   details.tool[open] > summary::before { transform: rotate(90deg); }
   .tname { font-weight: 560; flex: 1; }
   .ttier { font-size: 11.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
-  .tdone, .tlater, .twip {
+  .tdone, .tlater, .twip, .tpartial {
     font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
     border-radius: 999px; padding: 0 7px;
   }
+  .tpartial { color: var(--done); border: 1px dashed var(--done); }
   .tdone {
     color: var(--done); background: var(--done-soft);
     border: 1px solid var(--done);
@@ -345,8 +346,8 @@ const LAYERS = [
     output: "Per type, location, and day: `buy_side_units, sell_side_units, balance_ratio`.",
     math: "balance_ratio = buy_side_units / total_units. Values near 0.5 indicate an item that genuinely changes hands in both directions, which is the precondition for market making.",
     trap: "Polling undercounts fast markets, where an order can be created and fully consumed between polls. Treat this as a lower bound and calibrate it against the daily `volume` field, which is ground truth for the total." },
-  { name: "Static data service", tier: "Foundation", wip: true,
-    status: "In progress. `EveSdeData` holds types (with packaged volume and meta group ID), groups, categories, the market group tree, stations with their owner corporation, NPC corporations with their faction, solar systems with their region, and blueprints. Deferred: the stargate graph (needed for jump-range buy orders and hauling), and the type diff on reload (no saved watchlists need it yet).",
+  { name: "Static data service", tier: "Foundation", partial: true,
+    status: "Partially done. `EveSdeData` holds types (with packaged volume and meta group ID), groups, categories, the market group tree, stations with their owner corporation, NPC corporations with their faction, solar systems with their region, and blueprints. Deferred: the stargate graph (needed for jump-range buy orders and hauling), and the type diff on reload (no saved watchlists need it yet).",
     one: "Load the SDE and expose types, packaged volume, the market group tree, meta groups, and the region/system/station graph.",
     why: "Packaged volume in m³ gates every hauling calculation. The market group tree is how a human actually navigates 15,000 items — 'scan only Ships and Modules' is the first filter anyone reaches for. Meta groups let you compare an item against its tech-2 and faction siblings.",
     inputs: "SDE YAML, reloaded on each expansion.",
@@ -358,7 +359,8 @@ const LAYERS = [
     inputs: "SDE stations, `GET /universe/structures/`, and manually recorded owner fee rates for structures you use.",
     output: "`location_id → { broker_rate, tax_rate, is_npc, owner_fee, docking_ok }`.",
     trap: "Structure owner fees can change without notice and there is no ESI endpoint that exposes them. Reconcile periodically against the broker fees actually charged in your wallet journal." },
-  { name: "Character context service", tier: "Foundation",
+  { name: "Character context service", tier: "Foundation", wip: true,
+    status: "In progress. `CharacterContextService` reads trade skill levels, raw standings, wallet balance, order slots and open orders live from ESI for each logged-in character. Unit-tested but not yet checked against a live character: that needs a new login with `esi-characters.read_standings.v1`. Nothing uses it yet.",
     one: "Per character: trade skill levels, raw standings, order slot count, wallet balance, and current orders.",
     why: "Every profitability number downstream is a function of your real fee rates, and every capital number is a function of your real slots and balance. Tools that assume max skills tell you about a character you may not have. Order slots in particular are a hard scarce resource — 305 at full training — and they are the actual binding constraint on a mature trading operation, not ISK.",
     inputs: "Character skills, standings, `GET /characters/{id}/orders/`, wallet balance.",
@@ -595,7 +597,8 @@ function render(tier) {
       const done = t.done ? "<span class='tdone'>Done</span>" : "";
       const later = t.later ? "<span class='tlater'>Later</span>" : "";
       const wip = t.wip ? "<span class='twip'>In progress</span>" : "";
-      d.innerHTML = "<summary><span class='tname'>" + esc(t.name) + "</span>" + done + wip + later + "<span class='ttier'>" + esc(t.tier) + "</span></summary>" + body;
+      const partial = t.partial ? "<span class='tpartial'>Partially done</span>" : "";
+      d.innerHTML = "<summary><span class='tname'>" + esc(t.name) + "</span>" + done + partial + wip + later + "<span class='ttier'>" + esc(t.tier) + "</span></summary>" + body;
       sec.appendChild(d);
     }
     root.appendChild(sec);

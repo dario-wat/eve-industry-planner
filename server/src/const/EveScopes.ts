@@ -90,6 +90,7 @@ export const requiredScopes = [
   'esi-industry.read_character_jobs.v1',
   'esi-markets.read_character_orders.v1',
   'esi-characters.read_blueprints.v1',
+  'esi-characters.read_standings.v1',
   'esi-location.read_online.v1',
   'esi-contracts.read_character_contracts.v1',
   'esi-clones.read_implants.v1',

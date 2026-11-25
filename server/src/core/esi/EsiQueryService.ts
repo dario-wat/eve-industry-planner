@@ -1,6 +1,7 @@
 import type {
   EsiAsset,
   EsiAssetName,
+  EsiCharacterSkills,
   EsiClient,
   EsiConstellation,
   EsiContract,
@@ -13,6 +14,7 @@ import type {
   EsiPortrait,
   EsiRegionMarketOrdersOptions,
   EsiSolarSystem,
+  EsiStanding,
   EsiStation,
   EsiStructure,
   EsiWalletJournalEntry,
@@ -87,6 +89,18 @@ export default class EsiQueryService {
     options?: EsiGetAllOptions,
   ): Promise<EsiContract[]> {
     return await this.esi.getAllContracts(characterId, options);
+  }
+
+  public async genxSkills(characterId: number): Promise<EsiCharacterSkills> {
+    return await this.esi.getSkills(characterId);
+  }
+
+  public async genxStandings(characterId: number): Promise<EsiStanding[]> {
+    return await this.esi.getStandings(characterId);
+  }
+
+  public async genxWalletBalance(characterId: number): Promise<number> {
+    return await this.esi.getWalletBalance(characterId);
   }
 
   public async genxWalletTransactions(
