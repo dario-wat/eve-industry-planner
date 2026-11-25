@@ -3,6 +3,8 @@ import { Type } from './models/Type';
 import { Group } from './models/Group';
 import { Station } from './models/Station';
 import { SolarSystem } from './models/SolarSystem';
+import { MarketGroup } from './models/MarketGroup';
+import { NpcCorporation } from './models/NpcCorporation';
 import { Blueprint } from './models/Blueprint';
 import { Category } from './models/Category';
 import { TRADE_UNIVERSE_EXCLUDED_CATEGORY_IDS } from '../../const/Categories';
@@ -15,6 +17,7 @@ export type EveSdeType = {
   published: boolean | null;
   market_group_id: number | null;
   volume: number | null;
+  packaged_volume: number | null;
 };
 
 export type EveSdeGroup = {
@@ -31,6 +34,19 @@ export type EveSdeCategory = {
 export type EveSdeStation = {
   id: number;
   solar_system_id: number;
+  owner_id: number | null;
+};
+
+export type EveSdeNpcCorporation = {
+  id: number;
+  name: string;
+  faction_id: number | null;
+};
+
+export type EveSdeMarketGroup = {
+  id: number;
+  name: string;
+  parent_group_id: number | null;
 };
 
 export type EveSdeSolarSystem = {
@@ -75,6 +91,8 @@ export default class EveSdeData {
     public readonly categories: { [category_id: number]: EveSdeCategory },
     public readonly stations: { [station_id: number]: EveSdeStation },
     public readonly solarSystems: { [solar_system_id: number]: EveSdeSolarSystem },
+    public readonly npcCorporations: { [corporation_id: number]: EveSdeNpcCorporation },
+    public readonly marketGroups: { [market_group_id: number]: EveSdeMarketGroup },
     public readonly bpManufactureMaterialsByBlueprint: {
       [blueprint_id: number]: EveSdeBlueprintMaterial[];
     },
@@ -163,6 +181,10 @@ export default class EveSdeData {
     const stationsData = await Station.findAll({ raw: true }) as unknown as EveSdeStation[];
     const solarSystemsData = await SolarSystem.findAll({ raw: true }) as unknown as
       EveSdeSolarSystem[];
+    const npcCorporationsData = await NpcCorporation.findAll({ raw: true }) as unknown as
+      EveSdeNpcCorporation[];
+    const marketGroupsData = await MarketGroup.findAll({ raw: true }) as unknown as
+      EveSdeMarketGroup[];
     const blueprintData = await Blueprint.findAll({ raw: true }) as unknown as BlueprintRow[];
     const blueprintIndexes = indexesFromBlueprints(blueprintData);
 
@@ -173,6 +195,8 @@ export default class EveSdeData {
       mapify(categoriesData, 'id'),
       mapify(stationsData, 'id'),
       mapify(solarSystemsData, 'id'),
+      mapify(npcCorporationsData, 'id'),
+      mapify(marketGroupsData, 'id'),
       blueprintIndexes.manufactureMaterialsByBlueprint,
       blueprintIndexes.manufactureProductsByProduct,
       blueprintIndexes.reactionMaterialsByBlueprint,

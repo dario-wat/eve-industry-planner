@@ -14,6 +14,7 @@ export const stationModelDefine = (sequelize: Sequelize) =>
         primaryKey: true,
       },
       solar_system_id: DataTypes.INTEGER,
+      owner_id: DataTypes.INTEGER,
     },
     {
       sequelize,

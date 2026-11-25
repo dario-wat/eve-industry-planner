@@ -83,7 +83,7 @@ To add an ESI endpoint: add the method and types to `libs/eve-esi/src` (`EsiClie
 
 ### SDE
 
-`EveSdeData` (`server/src/core/sde/EveSdeData.ts`) is an in-memory snapshot built at startup: `types`, `typeByName`, `groups`, `categories`, `stations`, `solarSystems`, `blueprints`, and manufacturing/reaction material and product maps, plus lookups like `categoryIdFromTypeId`, `regionIdFromStationId`, `productBlueprintFromTypeId`. Inject it and read from it. Don't query `sde_*` tables per request. IDs worth reusing live in `server/src/const/` (`IDs.ts`, `Categories.ts`, `IndustryActivity.ts`, `MetaGroups.ts`).
+`EveSdeData` (`server/src/core/sde/EveSdeData.ts`) is an in-memory snapshot built at startup: `types`, `typeByName`, `groups`, `categories`, `stations`, `solarSystems`, `npcCorporations`, `marketGroups`, `blueprints`, and manufacturing/reaction material and product maps, plus lookups like `categoryIdFromTypeId`, `regionIdFromStationId`, `productBlueprintFromTypeId`. Inject it and read from it. Don't query `sde_*` tables per request. IDs worth reusing live in `server/src/const/` (`IDs.ts`, `Categories.ts`, `IndustryActivity.ts`, `MetaGroups.ts`).
 
 ### Database
 

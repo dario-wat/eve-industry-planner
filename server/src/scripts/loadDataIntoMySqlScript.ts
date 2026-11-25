@@ -28,6 +28,8 @@ import { Type } from '../core/sde/models/Type';
 import { Category } from '../core/sde/models/Category';
 import { Station } from '../core/sde/models/Station';
 import { SolarSystem } from '../core/sde/models/SolarSystem';
+import { MarketGroup } from '../core/sde/models/MarketGroup';
+import { NpcCorporation } from '../core/sde/models/NpcCorporation';
 import { Blueprint } from '../core/sde/models/Blueprint';
 import { initDatabaseForSdeScript } from '../loaders/initDatabase';
 
@@ -121,6 +123,7 @@ async function run() {
       published: value.published,
       market_group_id: value.marketGroupID,
       volume: value.volume,
+      packaged_volume: value.packagedVolume,
     }),
     Type,
     {
@@ -164,8 +167,29 @@ async function run() {
     ([key, value]: [string, any]) => ({
       id: key,
       solar_system_id: value.solarSystemID,
+      owner_id: value.ownerID,
     }),
     Station,
+  );
+
+  await loadDataToDatabase(
+    'sde/npcCorporations.yaml',
+    ([key, value]: [string, any]) => ({
+      id: key,
+      faction_id: value.factionID,
+      name: value.name.en,
+    }),
+    NpcCorporation,
+  );
+
+  await loadDataToDatabase(
+    'sde/marketGroups.yaml',
+    ([key, value]: [string, any]) => ({
+      id: key,
+      parent_group_id: value.parentGroupID,
+      name: value.name.en,
+    }),
+    MarketGroup,
   );
 
   await loadDataToDatabase(

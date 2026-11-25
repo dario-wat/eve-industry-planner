@@ -19,6 +19,7 @@ export const typeModelDefine = (sequelize: Sequelize) =>
       published: DataTypes.BOOLEAN,
       market_group_id: DataTypes.INTEGER,
       volume: DataTypes.DOUBLE,
+      packaged_volume: DataTypes.DOUBLE,
     },
     {
       sequelize,

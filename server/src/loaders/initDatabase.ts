@@ -6,6 +6,8 @@ import { groupModelDefine } from '../core/sde/models/Group';
 import { typeModelDefine } from '../core/sde/models/Type';
 import { categoryModelDefine } from '../core/sde/models/Category';
 import { stationModelDefine } from '../core/sde/models/Station';
+import { marketGroupModelDefine } from '../core/sde/models/MarketGroup';
+import { npcCorporationModelDefine } from '../core/sde/models/NpcCorporation';
 import { solarSystemModelDefine } from '../core/sde/models/SolarSystem';
 import { plannedProductModelDefine } from '../features/planned_product/PlannedProduct';
 import { materialStationModelDefine } from '../features/material_station/MaterialStation';
@@ -69,6 +71,8 @@ export function initDatabase(): void {
   categoryModelDefine(sequelize);
   stationModelDefine(sequelize);
   solarSystemModelDefine(sequelize);
+  marketGroupModelDefine(sequelize);
+  npcCorporationModelDefine(sequelize);
 
   blueprintModelDefine(sequelize);
 
@@ -111,6 +115,8 @@ export function initDatabaseForSdeScript(): void {
   categoryModelDefine(sequelize);
   stationModelDefine(sequelize);
   solarSystemModelDefine(sequelize);
+  marketGroupModelDefine(sequelize);
+  npcCorporationModelDefine(sequelize);
 
   blueprintModelDefine(sequelize);
 }
