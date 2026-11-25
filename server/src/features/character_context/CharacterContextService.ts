@@ -1,3 +1,4 @@
+import { CharacterContextRes, CharacterSummaryRes } from '@internal/shared';
 import type { EsiMarketOrder } from 'eve-esi';
 import { Service } from 'typedi';
 import ActorContext from '../../core/actor_context/ActorContext';
@@ -8,6 +9,7 @@ import {
   NpcStandings,
   npcStandings,
   orderSlots,
+  orderValues,
   TradeSkills,
   tradeSkills,
 } from './characterTrading';
@@ -31,10 +33,11 @@ export default class CharacterContextService {
     private readonly esiQuery: EsiQueryService,
   ) { }
 
-  public async genxForAccount(actorContext: ActorContext): Promise<CharacterContext[]> {
+  /** One character's failure does not hide the others. */
+  public async genSummaries(actorContext: ActorContext): Promise<CharacterContextRes> {
     return await genQueryResultPerCharacter(
       actorContext,
-      (character) => this.genxForCharacter(character),
+      (character) => this.genSummary(character),
     );
   }
 
@@ -56,5 +59,30 @@ export default class CharacterContextService {
       orderSlotsUsed: orders.length,
       orders,
     };
+  }
+
+  private async genSummary(character: EsiCharacter): Promise<CharacterSummaryRes> {
+    const { characterId, characterName } = character;
+    try {
+      const context = await this.genxForCharacter(character);
+      const values = orderValues(context.orders);
+      return {
+        characterId,
+        characterName,
+        error: null,
+        walletBalance: context.walletBalance,
+        orderSlots: context.orderSlots,
+        orderSlotsUsed: context.orderSlotsUsed,
+        buyOrderValue: values.buy,
+        sellOrderValue: values.sell,
+      };
+    } catch (error) {
+      console.error(`Character context failed for ${characterId}`, error);
+      return {
+        characterId,
+        characterName,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
   }
 }

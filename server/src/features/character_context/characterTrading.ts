@@ -1,4 +1,4 @@
-import type { EsiSkill, EsiStanding } from 'eve-esi';
+import type { EsiMarketOrder, EsiSkill, EsiStanding } from 'eve-esi';
 import {
   ACCOUNTING,
   ADVANCED_BROKER_RELATIONS,
@@ -50,6 +50,17 @@ export function npcStandings(standings: readonly EsiStanding[]): NpcStandings {
       .filter((standing) => standing.from_type === type)
       .map((standing) => [standing.from_id, standing.standing]));
   return { byCorporation: ofType('npc_corp'), byFaction: ofType('faction') };
+}
+
+/** Price x remaining volume of the character's own orders. */
+export function orderValues(orders: readonly EsiMarketOrder[]): { buy: number; sell: number } {
+  const values = { buy: 0, sell: 0 };
+  for (const order of orders) {
+    if (!order.is_corporation) {
+      values[order.is_buy_order ? 'buy' : 'sell'] += order.price * order.volume_remain;
+    }
+  }
+  return values;
 }
 
 function activeLevel(skills: readonly EsiSkill[], skillId: number): number {

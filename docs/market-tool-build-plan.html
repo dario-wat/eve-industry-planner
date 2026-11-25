@@ -360,7 +360,7 @@ const LAYERS = [
     output: "`location_id → { broker_rate, tax_rate, is_npc, owner_fee, docking_ok }`.",
     trap: "Structure owner fees can change without notice and there is no ESI endpoint that exposes them. Reconcile periodically against the broker fees actually charged in your wallet journal." },
   { name: "Character context service", tier: "Foundation", wip: true,
-    status: "In progress. `CharacterContextService` reads trade skill levels, raw standings, wallet balance, order slots and open orders live from ESI for each logged-in character. Unit-tested but not yet checked against a live character: that needs a new login with `esi-characters.read_standings.v1`. Nothing uses it yet.",
+    status: "In progress. `CharacterContextService` reads trade skill levels, raw standings, wallet balance, order slots and open orders live from ESI for each logged-in character. The Market Orders page shows slots, wallet balance and order values per character (`/character_context`). Still to do: check the numbers against the game client.",
     one: "Per character: trade skill levels, raw standings, order slot count, wallet balance, and current orders.",
     why: "Every profitability number downstream is a function of your real fee rates, and every capital number is a function of your real slots and balance. Tools that assume max skills tell you about a character you may not have. Order slots in particular are a hard scarce resource — 305 at full training — and they are the actual binding constraint on a mature trading operation, not ISK.",
     inputs: "Character skills, standings, `GET /characters/{id}/orders/`, wallet balance.",

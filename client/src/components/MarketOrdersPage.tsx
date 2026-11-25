@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { MarketOrdersRes } from '@internal/shared';
+import CharacterSummaryStrip from 'components/CharacterSummaryStrip';
 import EveIconAndName from 'components/util/EveIconAndName';
 import WorkspacePage, { WorkspaceSection, WorkspaceSpinner } from 'components/util/WorkspacePage';
 
@@ -79,6 +80,7 @@ export default function MarketOrdersPage() {
 
   return (
     <WorkspacePage>
+      <CharacterSummaryStrip />
       <Box sx={{ pb: 1, flexShrink: 0 }}>
         <TextField
           label="Search"

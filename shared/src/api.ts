@@ -144,6 +144,24 @@ export type MarketOrdersRes = {
   duration: number;
 }[];
 
+export type CharacterSummaryRes = {
+  characterId: number;
+  characterName: string;
+} & ({
+  error: null;
+  walletBalance: number;
+  orderSlots: number;
+  /** Counts corporation orders too. */
+  orderSlotsUsed: number;
+  /** Price x remaining volume, without corporation orders. */
+  buyOrderValue: number;
+  sellOrderValue: number;
+} | {
+  error: string;
+});
+
+export type CharacterContextRes = CharacterSummaryRes[];
+
 export type MarketHistoryRes = {
   average: number;
   date: string;

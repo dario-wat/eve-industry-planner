@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import type { EsiSkill } from 'eve-esi';
-import { npcStandings, orderSlots, tradeSkills } from './characterTrading';
+import type { EsiMarketOrder, EsiSkill } from 'eve-esi';
+import { npcStandings, orderSlots, orderValues, tradeSkills } from './characterTrading';
 
 function skill(skillId: number, active: number, trained: number = active): EsiSkill {
   return {
@@ -11,6 +11,35 @@ function skill(skillId: number, active: number, trained: number = active): EsiSk
     skillpoints_in_skill: 0,
   };
 }
+
+function order(overrides: Partial<EsiMarketOrder>): EsiMarketOrder {
+  return {
+    duration: 90,
+    is_corporation: false,
+    issued: '2026-01-01T00:00:00Z',
+    location_id: 60003760,
+    order_id: 1,
+    price: 10,
+    range: 'station',
+    region_id: 10000002,
+    type_id: 34,
+    volume_remain: 5,
+    volume_total: 100,
+    ...overrides,
+  };
+}
+
+test('order values use the remaining volume and skip corporation orders', () => {
+  assert.deepEqual(
+    orderValues([
+      order({ is_buy_order: true }),
+      order({ is_buy_order: false, price: 3 }),
+      order({ price: 2 }),
+      order({ is_buy_order: true, is_corporation: true }),
+    ]),
+    { buy: 50, sell: 25 },
+  );
+});
 
 test('an untrained character has five order slots', () => {
   assert.equal(orderSlots([]), 5);
