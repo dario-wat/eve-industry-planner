@@ -1,0 +1,10 @@
+[Unit]
+Description=Wallet journal and transactions per character, daily before net worth
+
+[Timer]
+OnCalendar=*-*-* 14:30:00 UTC
+Persistent=true
+Unit=eip-job@wallet-sync.service
+
+[Install]
+WantedBy=timers.target

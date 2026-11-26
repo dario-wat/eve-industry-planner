@@ -12,6 +12,8 @@ export class WalletJournalEntry extends Model {
   declare amount: number;
   declare date: string;
   declare ref_type: string;
+  declare first_party_id: number;
+  declare second_party_id: number;
 
   declare characterId: ForeignKey<EsiCharacter['characterId']>;
 

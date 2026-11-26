@@ -184,6 +184,9 @@ export type NetWorthHistoryRes = {
     /** Personal assets at the best Jita 4-4 buy and sell order. */
     assetsBuy: number;
     assetsSell: number;
+    /** Donations and corp wallet withdrawals from outside the selected characters since the
+     * character's previous snapshot. 0 on its first snapshot. */
+    inOut: number;
   }[];
 };
 

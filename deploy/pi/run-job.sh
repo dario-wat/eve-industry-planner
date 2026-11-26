@@ -9,8 +9,9 @@ case "$job" in
   history-all) set -- node dist/scripts/syncMarketHistory.js ;;
   history-candidates) set -- node dist/scripts/syncMarketHistory.js --candidates ;;
   net-worth) set -- node dist/scripts/snapshotNetWorth.js ;;
+  wallet-sync) set -- node dist/scripts/syncWallets.js ;;
   *)
-    echo "usage: $0 order-book|history-all|history-candidates|net-worth" >&2
+    echo "usage: $0 order-book|history-all|history-candidates|net-worth|wallet-sync" >&2
     exit 2
     ;;
 esac

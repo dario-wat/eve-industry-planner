@@ -9,6 +9,13 @@ import StationService from '../../core/query/StationService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { WalletJournalEntry } from './WalletJournalEntry';
 
+export type WalletSyncResult = {
+  /** Counts returned by ESI, including rows already stored. */
+  stored: { characterId: number; journalEntries: number; transactions: number }[];
+  failed: { characterId: number; error: string }[];
+  skippedLoggedOut: number[];
+};
+
 @Service()
 export default class WalletService {
 
@@ -68,53 +75,46 @@ export default class WalletService {
       }));
   }
 
-  /**
-   * Queries wallet transactions from ESI for all characters. 
-   * Stores the transactions into the DB. This is used for longer
-   * wallet transaction retention.
-   */
-  public async genSyncAllWalletTransactions(): Promise<void> {
-    const allCharacters = await EsiCharacter.findAll();
-    await Promise.all(allCharacters.map(async character => {
-      let transactions;
-      try {
-        transactions = await this.esiQuery.genxWalletTransactions(
-          character.characterId,
-        )
-      } catch (_error) {
-        return;
+  /** Characters one at a time, like the net worth job, to keep ESI load low. */
+  public async genxSyncAllWallets(): Promise<WalletSyncResult> {
+    const result: WalletSyncResult = { stored: [], failed: [], skippedLoggedOut: [] };
+    for (const character of await EsiCharacter.findAll()) {
+      if (!(await character.isLoggedIn())) {
+        result.skippedLoggedOut.push(character.characterId);
+        continue;
       }
-
-      // We are storing all transaction into the database for longer retention
-      await WalletTransaction.bulkCreate(
-        transactions.map(transaction => ({
+      try {
+        const journalEntries = await this.genxSyncWalletJournal(character.characterId);
+        const transactions = await this.genxSyncWalletTransactions(character.characterId);
+        result.stored.push({ characterId: character.characterId, journalEntries, transactions });
+      } catch (error) {
+        console.error(`Wallet sync failed for ${character.characterId}`, error);
+        result.failed.push({
           characterId: character.characterId,
-          ...transaction,
-        })),
-        { ignoreDuplicates: true },
-      );
-    }));
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+    return result;
   }
 
-  public async genSyncWalletJournal(): Promise<void> {
-    const allCharacters = await EsiCharacter.findAll();
-    await Promise.all(allCharacters.map(async character => {
-      let journal;
-      try {
-        journal = await this.esiQuery.genxAllWalletJournal(
-          character.characterId,
-        );
-      } catch (_error) {
-        return;
-      }
+  /** ESI keeps 30 days of journal, so this has to run at least that often to keep everything. */
+  private async genxSyncWalletJournal(characterId: number): Promise<number> {
+    const journal = await this.esiQuery.genxAllWalletJournal(characterId);
+    await WalletJournalEntry.bulkCreate(
+      journal.map(journalEntry => ({ characterId, ...journalEntry })),
+      { ignoreDuplicates: true },
+    );
+    return journal.length;
+  }
 
-      await WalletJournalEntry.bulkCreate(
-        journal.map(journalEntry => ({
-          characterId: character.characterId,
-          ...journalEntry,
-        })),
-        { ignoreDuplicates: true },
-      );
-    }));
+  /** ESI returns only the latest 2,500 transactions; older ones exist only in the DB. */
+  private async genxSyncWalletTransactions(characterId: number): Promise<number> {
+    const transactions = await this.esiQuery.genxWalletTransactions(characterId);
+    await WalletTransaction.bulkCreate(
+      transactions.map(transaction => ({ characterId, ...transaction })),
+      { ignoreDuplicates: true },
+    );
+    return transactions.length;
   }
 }
