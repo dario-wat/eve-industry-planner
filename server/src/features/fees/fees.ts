@@ -1,7 +1,10 @@
 import { NpcStandings, TradeSkills } from '../character_context/characterTrading';
 
 export type FeeRates = {
+  /** Total, including the SCC surcharge. */
   brokerRate: number;
+  /** Part of `brokerRate` paid to the SCC in a structure, 0 in an NPC station. */
+  sccSurchargeRate: number;
   salesTaxRate: number;
   /** Share of the broker fee waived on every relist (modify order). */
   relistDiscount: number;
@@ -69,20 +72,30 @@ export function feeRates(trader: Trader, location: TradeLocation): FeeRates {
     );
   return {
     brokerRate,
+    sccSurchargeRate: location.kind === 'structure' ? SCC_SURCHARGE : 0,
     salesTaxRate: salesTaxRate(skills.accounting),
     relistDiscount: relistDiscount(skills.advancedBrokerRelations),
   };
 }
 
+/**
+ * In a structure the SCC surcharge is charged separately, and the 100 ISK minimum applies
+ * only to the owner's share: a 0% owner still charges 100 ISK per order.
+ */
 export function brokerFee(rates: FeeRates, orderValue: number): number {
-  return Math.max(MIN_BROKER_FEE, rates.brokerRate * orderValue);
+  return splitFee(rates, (rate) => rate * orderValue);
 }
 
 /** Charged on the whole new order value on every relist, plus full broker fee on any raise. */
 export function relistFee(rates: FeeRates, oldOrderValue: number, newOrderValue: number): number {
-  return Math.max(
-    MIN_BROKER_FEE,
-    (1 - rates.relistDiscount) * rates.brokerRate * newOrderValue
-      + rates.brokerRate * Math.max(newOrderValue - oldOrderValue, 0),
+  return splitFee(
+    rates,
+    (rate) => (1 - rates.relistDiscount) * rate * newOrderValue
+      + rate * Math.max(newOrderValue - oldOrderValue, 0),
   );
+}
+
+function splitFee(rates: FeeRates, fee: (rate: number) => number): number {
+  return fee(rates.sccSurchargeRate)
+    + Math.max(MIN_BROKER_FEE, fee(rates.brokerRate - rates.sccSurchargeRate));
 }

@@ -47,6 +47,7 @@ export const marketOrderOpenModelDefine = (sequelize: Sequelize) =>
       timestamps: false,
       indexes: [
         { fields: ['region_id'] },
+        { fields: ['type_id'] },
       ],
     },
   );

@@ -162,6 +162,16 @@ export type CharacterSummaryRes = {
 
 export type CharacterContextRes = CharacterSummaryRes[];
 
+/**
+ * Personal assets at the best Jita 4-4 buy and sell order, without blueprint copies.
+ * Null when the assets could not be valued.
+ */
+export type CharacterAssetValuesRes = {
+  characterId: number;
+  buyValue: number | null;
+  sellValue: number | null;
+}[];
+
 export type MarketHistoryRes = {
   average: number;
   date: string;

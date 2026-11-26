@@ -1,4 +1,4 @@
-import type { EsiMarketOrder, EsiSkill, EsiStanding } from 'eve-esi';
+import type { EsiAsset, EsiMarketOrder, EsiSkill, EsiStanding } from 'eve-esi';
 import {
   ACCOUNTING,
   ADVANCED_BROKER_RELATIONS,
@@ -59,6 +59,23 @@ export function orderValues(orders: readonly EsiMarketOrder[]): { buy: number; s
     if (!order.is_corporation) {
       values[order.is_buy_order ? 'buy' : 'sell'] += order.price * order.volume_remain;
     }
+  }
+  return values;
+}
+
+/** Blueprint copies are skipped: their type's orders price the original. */
+export function assetValues(
+  assets: readonly EsiAsset[],
+  prices: ReadonlyMap<number, { buy: number | null; sell: number | null }>,
+): { buy: number; sell: number } {
+  const values = { buy: 0, sell: 0 };
+  for (const asset of assets) {
+    const price = prices.get(asset.type_id);
+    if (price === undefined || asset.is_blueprint_copy === true) {
+      continue;
+    }
+    values.buy += (price.buy ?? 0) * asset.quantity;
+    values.sell += (price.sell ?? 0) * asset.quantity;
   }
   return values;
 }

@@ -354,7 +354,7 @@ const LAYERS = [
     output: "Indexed lookups for type metadata, group hierarchy, and spatial topology.",
     trap: "Type IDs get reused and renamed across expansions, and items get added to or removed from the market. Re-import on every patch and diff the result, or your saved watchlists will silently rot." },
   { name: "Location registry with per-location fee rates", tier: "Foundation", wip: true,
-    status: "In progress. `FeeResolverService.tradeLocation` maps any NPC station to its owner corporation and faction from the SDE, and the two Perimeter structures to a recorded owner broker rate of 0%. Other structures resolve to null. Still to do: reconcile the rates against broker fees in the wallet journal.",
+    status: "In progress. `FeeResolverService.tradeLocation` maps any NPC station to its owner corporation and faction from the SDE, and the two Perimeter structures to a recorded owner broker rate of 0%. Other structures resolve to null. The Perimeter rates match the stored wallet journal.",
     one: "One table of every station and structure you trade in, carrying its actual broker fee and sales tax.",
     why: "Fee rates are not a global constant, and treating them as one is the most common source of wrong margins. An NPC station's broker fee depends on your skills and your standings with that specific corporation and faction. An Upwell structure ignores Broker Relations entirely and charges whatever the owner set. The same trade can be profitable in one and a loss in the other.",
     inputs: "SDE stations, `GET /universe/structures/`, and manually recorded owner fee rates for structures you use.",
@@ -372,7 +372,7 @@ const LAYERS = [
   blurb: "A small, boring, heavily-tested module that every scanner and every UI number routes through. Getting this wrong does not produce an obvious bug — it produces plausible-looking numbers that are quietly off by a few percent, which is the entire margin on most station trades.",
   tools: [
   { name: "Fee resolver", tier: "Foundation", wip: true,
-    status: "In progress. Pure functions in `server/src/features/fees/fees.ts` (broker rate, sales tax, relist discount, broker and relist fees with the 100 ISK minimum), unit-tested against the formulas below, and `FeeResolverService.feeRates(trader, locationId)`. Still to do: check against broker fees and sales tax actually charged in the wallet journal.",
+    status: "In progress. Pure functions in `server/src/features/fees/fees.ts` (broker rate, sales tax, relist discount, broker and relist fees with the 100 ISK minimum), unit-tested against the formulas below, and `FeeResolverService.feeRates(trader, locationId)`. Checked against Trading Lady's stored wallet journal (to July 2025): sales tax 3.375% (Accounting V), and in the Perimeter structures the SCC 0.5% plus a separate 100 ISK owner fee per order. Still to do: compare the Jita 4-4 rate the resolver gives from live standings with the 1.0247% charged in July 2025.",
     one: "One function: (character, location) → broker rate, sales tax rate, relist discount.",
     why: "Single source of truth. Every other tool calls this rather than embedding its own copy of the constants, so when CCP next changes the tax rate you edit one file.",
     inputs: "Character context plus location registry.",

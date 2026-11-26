@@ -63,6 +63,7 @@ export interface EsiPosition {
 }
 
 export interface EsiAsset {
+  is_blueprint_copy?: boolean;
   is_singleton: boolean;
   item_id: number;
   location_flag: string;

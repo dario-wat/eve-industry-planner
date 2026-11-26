@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import type { EsiMarketOrder, EsiSkill } from 'eve-esi';
-import { npcStandings, orderSlots, orderValues, tradeSkills } from './characterTrading';
+import type { EsiAsset, EsiMarketOrder, EsiSkill } from 'eve-esi';
+import {
+  assetValues,
+  npcStandings,
+  orderSlots,
+  orderValues,
+  tradeSkills,
+} from './characterTrading';
 
 function skill(skillId: number, active: number, trained: number = active): EsiSkill {
   return {
@@ -76,4 +82,34 @@ test('standings split by corporation and faction, without agents', () => {
   ]);
   assert.deepEqual([...standings.byCorporation], [[1000035, 4.5]]);
   assert.deepEqual([...standings.byFaction], [[500001, -1.2]]);
+});
+
+function asset(overrides: Partial<EsiAsset>): EsiAsset {
+  return {
+    is_singleton: false,
+    item_id: 1,
+    location_flag: 'Hangar',
+    location_id: 60003760,
+    location_type: 'station',
+    quantity: 1,
+    type_id: 34,
+    ...overrides,
+  };
+}
+
+test('asset values multiply quantity by the best prices and skip blueprint copies', () => {
+  const prices = new Map([
+    [34, { buy: 4, sell: 5 }],
+    [35, { buy: null, sell: 10 }],
+    [999, { buy: 1000, sell: 2000 }],
+  ]);
+  assert.deepEqual(
+    assetValues([
+      asset({ quantity: 10 }),
+      asset({ type_id: 35, quantity: 2 }),
+      asset({ type_id: 36, quantity: 100 }),
+      asset({ type_id: 999, is_blueprint_copy: true }),
+    ], prices),
+    { buy: 40, sell: 70 },
+  );
 });

@@ -100,6 +100,7 @@ test('a station corporation without a faction counts only corporation standing',
     { kind: 'npc_station', corporationId: 1000001, factionId: null },
   );
   close(rates.brokerRate, 0.029);
+  assert.equal(rates.sccSurchargeRate, 0);
 });
 
 test('broker fee has a 100 ISK minimum', () => {
@@ -119,6 +120,12 @@ test('relist fee adds the full broker fee on a raise', () => {
     relistFee(rates, 1_000_000_000, 1_100_000_000),
     0.2 * 0.015 * 1_100_000_000 + 0.015 * 100_000_000,
   );
+});
+
+test('in a structure the minimum applies only to the owner share', () => {
+  const rates = feeRates(trader(), { kind: 'structure', ownerBrokerRate: 0 });
+  close(brokerFee(rates, 480_600_000), 2_403_000 + 100);
+  close(brokerFee(rates, 1000), 5 + 100);
 });
 
 test('relist fee has a 100 ISK minimum', () => {

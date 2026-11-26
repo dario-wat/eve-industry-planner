@@ -1,11 +1,17 @@
-import { CharacterContextRes, CharacterSummaryRes } from '@internal/shared';
+import {
+  CharacterAssetValuesRes,
+  CharacterContextRes,
+  CharacterSummaryRes,
+} from '@internal/shared';
 import type { EsiMarketOrder } from 'eve-esi';
 import { Service } from 'typedi';
 import ActorContext from '../../core/actor_context/ActorContext';
 import EsiQueryService from '../../core/esi/EsiQueryService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { genQueryResultPerCharacter } from '../../lib/eveUtil';
+import JitaPriceService from '../market_order_book/JitaPriceService';
 import {
+  assetValues,
   NpcStandings,
   npcStandings,
   orderSlots,
@@ -31,6 +37,7 @@ export default class CharacterContextService {
 
   constructor(
     private readonly esiQuery: EsiQueryService,
+    private readonly jitaPrices: JitaPriceService,
   ) { }
 
   /** One character's failure does not hide the others. */
@@ -59,6 +66,21 @@ export default class CharacterContextService {
       orderSlotsUsed: orders.length,
       orders,
     };
+  }
+
+  /** Slower than the summaries (every asset page), so the client loads it separately. */
+  public async genAssetValues(actorContext: ActorContext): Promise<CharacterAssetValuesRes> {
+    return await genQueryResultPerCharacter(actorContext, async ({ characterId }) => {
+      try {
+        const assets = await this.esiQuery.genxAllAssets(characterId);
+        const prices = await this.jitaPrices.genxBestPrices(assets.map((asset) => asset.type_id));
+        const values = assetValues(assets, prices);
+        return { characterId, buyValue: values.buy, sellValue: values.sell };
+      } catch (error) {
+        console.error(`Asset values failed for ${characterId}`, error);
+        return { characterId, buyValue: null, sellValue: null };
+      }
+    });
   }
 
   private async genSummary(character: EsiCharacter): Promise<CharacterSummaryRes> {

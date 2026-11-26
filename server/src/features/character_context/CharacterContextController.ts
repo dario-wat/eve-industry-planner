@@ -21,5 +21,11 @@ export default class CharacterContextController extends Controller {
         res.json(await this.characterContextService.genSummaries(actorContext));
       },
     );
+    this.appGet(
+      '/character_asset_values',
+      async (_req: Request, res: Response, actorContext: ActorContext) => {
+        res.json(await this.characterContextService.genAssetValues(actorContext));
+      },
+    );
   }
 }
