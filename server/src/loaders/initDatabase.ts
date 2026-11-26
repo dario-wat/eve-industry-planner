@@ -31,6 +31,7 @@ import { marketTradeDailyModelDefine } from '../features/market_order_book/Marke
 import { marketOrderEventModelDefine } from '../features/market_order_book/MarketOrderEvent';
 import { marketOrderCloseModelDefine } from '../features/market_order_book/MarketOrderClose';
 import { jobRunModelDefine } from '../core/job/JobRun';
+import { netWorthDailyModelDefine } from '../features/net_worth/NetWorthDaily';
 
 export function initDatabaseSequelize(): Sequelize {
   const useSsl = process.env.DATABASE_SSL === '1';
@@ -90,6 +91,7 @@ export function initDatabase(): void {
   marketOrderEventModelDefine(sequelize);
   marketOrderCloseModelDefine(sequelize);
   jobRunModelDefine(sequelize);
+  netWorthDailyModelDefine(sequelize);
 
   // Esi
   esiAccountModelDefine(sequelize);

@@ -15,6 +15,7 @@
     "client-install": "cd client && npm i",
     "sync-market-history": "npm run shared-build && npm run ts-node -- ./server/src/scripts/syncMarketHistory.ts",
     "sync-region-market-orders": "npm run ts-node -- ./server/src/scripts/syncRegionMarketOrders.ts",
+    "snapshot-net-worth": "npm run ts-node -- ./server/src/scripts/snapshotNetWorth.ts",
     "load-sde": "npm run ts-node -- ./server/src/scripts/loadDataIntoMySqlScript.ts",
     "server-compile": "npm run shared-build && npm run build --prefix server",
     "deploy-pi": "ssh pi bash eve-industry-planner/deploy/pi/deploy.sh"

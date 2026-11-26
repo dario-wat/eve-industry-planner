@@ -87,8 +87,9 @@ systemd user timers run the jobs through `run-job.sh`. No sudo is needed; it rel
 | `eip-order-book` | region order book | every 5 minutes |
 | `eip-history-all` | market history, all tradeable types | 1st of the month, 11:30 |
 | `eip-history-candidates` | market history, candidates only | 2nd–31st, 11:30 |
+| `eip-net-worth` | net worth per logged-in character | daily, 15:00 |
 
-The history timers catch up on a missed run after downtime. A job never overlaps itself: systemd skips a tick while the previous run is still going.
+The history and net worth timers catch up on a missed run after downtime. A job never overlaps itself: systemd skips a tick while the previous run is still going.
 
 Deploys install the timers. To install them by hand:
 
@@ -96,11 +97,11 @@ Deploys install the timers. To install them by hand:
 mkdir -p ~/.config/systemd/user
 cp ~/eve-industry-planner/deploy/pi/systemd/* ~/.config/systemd/user/
 systemctl --user daemon-reload
-systemctl --user enable --now eip-order-book.timer eip-history-all.timer eip-history-candidates.timer
+systemctl --user enable --now eip-order-book.timer eip-history-all.timer eip-history-candidates.timer eip-net-worth.timer
 systemctl --user list-timers 'eip-*'
 ```
 
-Run a job now: `systemctl --user start eip-job@history-candidates`. Logs: `journalctl --user-unit eip-job@order-book -n 50`. Stop all schedules: `systemctl --user disable --now eip-order-book.timer eip-history-all.timer eip-history-candidates.timer`.
+Run a job now: `systemctl --user start eip-job@history-candidates`. Logs: `journalctl --user-unit eip-job@order-book -n 50`. Stop all schedules: `systemctl --user disable --now eip-order-book.timer eip-history-all.timer eip-history-candidates.timer eip-net-worth.timer`.
 
 The server runs against the same database as the dev PC, and both run `sequelize.sync({ alter: true })` on start. Keep model changes additive until they are deployed.
 

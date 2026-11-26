@@ -172,6 +172,21 @@ export type CharacterAssetValuesRes = {
   sellValue: number | null;
 }[];
 
+/** Daily snapshots from the net worth job. Order values are price x remaining volume. */
+export type NetWorthHistoryRes = {
+  characters: { characterId: number; characterName: string }[];
+  days: {
+    day: string;
+    characterId: number;
+    wallet: number;
+    buyOrders: number;
+    sellOrders: number;
+    /** Personal assets at the best Jita 4-4 buy and sell order. */
+    assetsBuy: number;
+    assetsSell: number;
+  }[];
+};
+
 export type MarketHistoryRes = {
   average: number;
   date: string;

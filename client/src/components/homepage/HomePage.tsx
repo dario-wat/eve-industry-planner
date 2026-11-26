@@ -11,6 +11,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import SleddingIcon from '@mui/icons-material/Sledding';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ScheduleIcon from '@mui/icons-material/Schedule';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import type { } from '@mui/x-data-grid/themeAugmentation';
 import { useContext } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
@@ -31,6 +32,7 @@ import MarketHistoryPage from 'components/market_history/MarketHistoryPage';
 import MarketHistoryScanPage from 'components/market_scan/MarketHistoryScanPage';
 import SettingsPage from 'components/SettingsPage';
 import JobsPage from 'components/JobsPage';
+import NetWorthPage from 'components/net_worth/NetWorthPage';
 
 export default function HomePage() {
   const userContext = useContext(UserContext);
@@ -84,6 +86,12 @@ export default function HomePage() {
       label: 'Market Orders',
       icon: <StorefrontIcon />,
       component: MarketOrdersPage,
+    },
+    {
+      path: '/net_worth',
+      label: 'Net Worth',
+      icon: <AccountBalanceWalletIcon />,
+      component: NetWorthPage,
     },
     {
       path: '/market_comparison',

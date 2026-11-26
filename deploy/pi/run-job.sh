@@ -8,8 +8,9 @@ case "$job" in
   order-book) set -- node dist/scripts/syncRegionMarketOrders.js ;;
   history-all) set -- node dist/scripts/syncMarketHistory.js ;;
   history-candidates) set -- node dist/scripts/syncMarketHistory.js --candidates ;;
+  net-worth) set -- node dist/scripts/snapshotNetWorth.js ;;
   *)
-    echo "usage: $0 order-book|history-all|history-candidates" >&2
+    echo "usage: $0 order-book|history-all|history-candidates|net-worth" >&2
     exit 2
     ;;
 esac

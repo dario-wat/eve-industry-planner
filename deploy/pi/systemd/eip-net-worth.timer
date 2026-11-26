@@ -1,0 +1,10 @@
+[Unit]
+Description=Net worth per character, daily
+
+[Timer]
+OnCalendar=*-*-* 15:00:00 UTC
+Persistent=true
+Unit=eip-job@net-worth.service
+
+[Install]
+WantedBy=timers.target

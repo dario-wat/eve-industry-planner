@@ -72,15 +72,19 @@ export default class CharacterContextService {
   public async genAssetValues(actorContext: ActorContext): Promise<CharacterAssetValuesRes> {
     return await genQueryResultPerCharacter(actorContext, async ({ characterId }) => {
       try {
-        const assets = await this.esiQuery.genxAllAssets(characterId);
-        const prices = await this.jitaPrices.genxBestPrices(assets.map((asset) => asset.type_id));
-        const values = assetValues(assets, prices);
+        const values = await this.genxAssetValues(characterId);
         return { characterId, buyValue: values.buy, sellValue: values.sell };
       } catch (error) {
         console.error(`Asset values failed for ${characterId}`, error);
         return { characterId, buyValue: null, sellValue: null };
       }
     });
+  }
+
+  public async genxAssetValues(characterId: number): Promise<{ buy: number; sell: number }> {
+    const assets = await this.esiQuery.genxAllAssets(characterId);
+    const prices = await this.jitaPrices.genxBestPrices(assets.map((asset) => asset.type_id));
+    return assetValues(assets, prices);
   }
 
   private async genSummary(character: EsiCharacter): Promise<CharacterSummaryRes> {
