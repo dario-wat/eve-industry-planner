@@ -87,14 +87,17 @@ export default class ActorContext {
   }
 
   /**
-   * Linked characters narrowed to the selection, logged out ones included.
-   * Falls back to all linked characters if none of the selected are linked.
+   * Linked characters narrowed to the selection, logged out ones included. An empty selection
+   * means none. Falls back to all linked characters if none of the selected are linked anymore.
    */
   public async genSelectedCharacters(): Promise<EsiCharacter[]> {
     const characters = await this.genLinkedCharacters();
     const selectedIds = this.selectedCharacterIds;
     if (selectedIds === null) {
       return characters;
+    }
+    if (selectedIds.length === 0) {
+      return [];
     }
     const selected = characters.filter((c) => selectedIds.includes(c.characterId));
     return selected.length > 0 ? selected : characters;

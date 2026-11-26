@@ -58,10 +58,6 @@ export default class AccountController extends Controller {
         }
         const linkedIds = (await actorContext.genLinkedCharacters()).map((c) => c.characterId);
         const selectedIds = linkedIds.filter((id) => ids.includes(id));
-        if (selectedIds.length === 0) {
-          res.status(400).send('Select at least one linked character.');
-          return;
-        }
         // Null means all, so characters linked later are selected too.
         req.session.selectedCharacterIds =
           selectedIds.length === linkedIds.length ? null : selectedIds;

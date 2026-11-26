@@ -58,6 +58,7 @@ export default function CharacterSelectorListItem({ onSelectionChange }: Props) 
   const toggle = (characterId: number) => setDraftIds(ids =>
     ids.includes(characterId) ? ids.filter(id => id !== characterId) : [...ids, characterId]);
   const allSelected = draftIds.length === characters.length;
+  const noneSelected = draftIds.length === 0;
 
   return (
     <>
@@ -76,7 +77,7 @@ export default function CharacterSelectorListItem({ onSelectionChange }: Props) 
           <ListItemText
             primary={selected.length === 1
               ? selected[0].characterName
-              : `${selected.length} characters`}
+              : selected.length === 0 ? 'No characters' : `${selected.length} characters`}
             primaryTypographyProps={{ noWrap: true }}
           />
           {saving
@@ -95,15 +96,14 @@ export default function CharacterSelectorListItem({ onSelectionChange }: Props) 
       >
         <List dense disablePadding>
           <ListItemButton
-            disabled={allSelected}
-            onClick={() => setDraftIds(characters.map(c => c.characterId))}
+            onClick={() => setDraftIds(allSelected ? [] : characters.map(c => c.characterId))}
           >
             <Checkbox
               edge="start"
               size="small"
               disableRipple
               checked={allSelected}
-              indeterminate={!allSelected}
+              indeterminate={!allSelected && !noneSelected}
               sx={{ py: 0 }}
             />
             <ListItemText primary="All characters" />
@@ -111,11 +111,9 @@ export default function CharacterSelectorListItem({ onSelectionChange }: Props) 
           <Divider />
           {characters.map(character => {
             const checked = draftIds.includes(character.characterId);
-            const isLastChecked = checked && draftIds.length === 1;
             return (
               <ListItemButton
                 key={character.characterId}
-                disabled={isLastChecked}
                 onClick={() => toggle(character.characterId)}
                 sx={{ height: 40, py: 0 }}
               >
