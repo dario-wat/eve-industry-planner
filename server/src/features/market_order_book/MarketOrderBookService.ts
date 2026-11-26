@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import { chunk } from 'underscore';
 import type { EsiMarketOrder, EsiPage } from 'eve-esi';
 import EsiQueryService from '../../core/esi/EsiQueryService';
-import { JITA, THE_FORGE } from '../../const/IDs';
+import { JITA, PERIMETER_MARKET_STRUCTURES, THE_FORGE } from '../../const/IDs';
 import {
   OpenOrder,
   OrderBookEvent,
@@ -23,12 +23,8 @@ const REGION_ORDER_PAGE_CONCURRENCY = 8;
 /**
  * Player structures whose orders are not owned by the regional diff.
  * Their buy orders stay as stored until a structure fetch updates them.
- * Perimeter — 0.0% Neutral States Market HQ, and Tranquility Trading Tower.
  */
-const STRUCTURE_LOCATION_IDS = new Set<number>([
-  1044752365771,
-  1042508032148,
-]);
+const STRUCTURE_LOCATION_IDS = new Set<number>(PERIMETER_MARKET_STRUCTURES);
 
 /** Can dock at both Perimeter structures. Her token is refreshed on use. */
 const TRADING_LADY = 1688205171;
