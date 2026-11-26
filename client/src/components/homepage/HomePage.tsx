@@ -13,7 +13,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import type { } from '@mui/x-data-grid/themeAugmentation';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import HomePageAppBar from 'components/homepage/HomePageAppBar';
 import NavigationDrawer from 'components/NavigationDrawer';
 import AssetsPage from 'components/AssetsPage';
@@ -37,6 +37,8 @@ import NetWorthPage from 'components/net_worth/NetWorthPage';
 export default function HomePage() {
   const userContext = useContext(UserContext);
   const { mode } = useColorMode();
+  // Bumped when the character selection changes, so every view remounts and refetches.
+  const [selectionVersion, setSelectionVersion] = useState(0);
 
   const routes = [
     {
@@ -127,7 +129,10 @@ export default function HomePage() {
       {userContext && userContext.is_logged_in
         ?
         <Box sx={{ display: 'flex', flex: 1, minHeight: 0 }}>
-          <NavigationDrawer routes={routes} />
+          <NavigationDrawer
+            routes={routes}
+            onCharacterSelectionChange={() => setSelectionVersion(v => v + 1)}
+          />
           <Box
             component="main"
             sx={{
@@ -142,7 +147,7 @@ export default function HomePage() {
               color: 'text.primary',
             }}
           >
-            <Routes>
+            <Routes key={selectionVersion}>
               {routes.map((route: any) =>
                 <Route
                   path={route.path}

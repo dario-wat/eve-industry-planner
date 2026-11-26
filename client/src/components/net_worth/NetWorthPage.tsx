@@ -1,9 +1,7 @@
 import useAxios from 'axios-hooks';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { EChartsCoreOption } from 'echarts/core';
 import Box from '@mui/material/Box';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Theme, useTheme } from '@mui/material/styles';
 import { NetWorthHistoryRes } from '@internal/shared';
@@ -12,8 +10,6 @@ import EChart from 'components/util/EChart';
 import WorkspacePage, { WorkspaceSection, WorkspaceSpinner } from 'components/util/WorkspacePage';
 
 type Parts = { wallet: number; buyOrders: number; sellOrders: number; assets: number };
-
-const ALL = 'all';
 
 const SERIES: { key: keyof Parts; name: string; light: string; dark: string }[] = [
   { key: 'wallet', name: 'Wallet', light: '#257de0', dark: '#338ced' },
@@ -25,11 +21,10 @@ const SERIES: { key: keyof Parts; name: string; light: string; dark: string }[] 
 export default function NetWorthPage() {
   const theme = useTheme();
   const [{ data, error }] = useAxios<NetWorthHistoryRes | null>('/net_worth_history');
-  const [character, setCharacter] = useState<string>(ALL);
 
   const days = useMemo(
-    () => (data == null ? [] : sumByDay(data, character)),
-    [data, character],
+    () => (data == null ? [] : sumByDay(data)),
+    [data],
   );
   const option = useMemo(() => chartOption(theme, days), [theme, days]);
 
@@ -49,19 +44,6 @@ export default function NetWorthPage() {
   return (
     <WorkspacePage>
       <Box sx={{ pb: 1, flexShrink: 0, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-        <TextField
-          select
-          size="small"
-          label="Character"
-          value={character}
-          onChange={e => setCharacter(e.target.value)}
-          sx={{ minWidth: 200 }}
-        >
-          <MenuItem value={ALL}>All characters</MenuItem>
-          {data.characters.map(c => (
-            <MenuItem key={c.characterId} value={String(c.characterId)}>{c.characterName}</MenuItem>
-          ))}
-        </TextField>
         {last !== undefined &&
           <Typography variant="body2">
             <b>{formatIsk(total(last))}</b> on {last.day}
@@ -88,12 +70,9 @@ export default function NetWorthPage() {
 
 type Day = Parts & { day: string };
 
-function sumByDay(data: NetWorthHistoryRes, character: string): Day[] {
+function sumByDay(data: NetWorthHistoryRes): Day[] {
   const byDay = new Map<string, Day>();
   for (const row of data.days) {
-    if (character !== ALL && String(row.characterId) !== character) {
-      continue;
-    }
     const day = byDay.get(row.day) ?? { day: row.day, wallet: 0, buyOrders: 0, sellOrders: 0, assets: 0 };
     day.wallet += row.wallet;
     day.buyOrders += row.buyOrders;

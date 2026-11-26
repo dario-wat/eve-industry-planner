@@ -5,13 +5,11 @@ import { WalletTransactionsRes } from '@internal/shared';
 import { isAfter, isBefore } from 'date-fns';
 import { DesktopDatePicker, LocalizationProvider, enUS } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { Grid, MenuItem, Select, Tab, Tabs } from '@mui/material';
+import { Grid, Tab, Tabs } from '@mui/material';
 import AllMarketTransactionsDataGrid from './AllMarketTransactionsDataGrid';
 import AggregatedTransactionsDataGrid from './AggregatedTransactionsDataGrid';
-import { uniq } from 'underscore';
 import OverallTransactionCharts from './OverallTransactionCharts';
 import { LoadingButton } from '@mui/lab';
-import { ALL_CHARACTERS } from './marketTransactionsStore';
 import { useMarketTransactionsStore } from './marketTransactionsStore';
 import WorkspacePage, { WorkspaceFill, WorkspaceSpinner } from 'components/util/WorkspacePage';
 
@@ -25,13 +23,10 @@ export default function MarketTransactionsPage() {
   const [{ data, loading }, refetch] =
     useAxios<WalletTransactionsRes>('/wallet_transactions');
 
-  const characterNames = uniq(data?.map(d => d.characterName) ?? []);
-
   const {
     searchText, setSearchText,
     startDate, setStartDate,
     endDate, setEndDate,
-    selectedCharacter, setSelectedCharacter,
   } = useMarketTransactionsStore();
 
   const [selectedTab, setSelectedTab] = useState(SelectedTab.AGGREGATED);
@@ -45,7 +40,6 @@ export default function MarketTransactionsPage() {
     )
     && isBefore(new Date(d.date), endDate)
     && isAfter(new Date(d.date), startDate)
-    && (selectedCharacter === ALL_CHARACTERS || selectedCharacter === d.characterName)
   );
 
   return (
@@ -80,19 +74,6 @@ export default function MarketTransactionsPage() {
               onChange={newValue => newValue && setEndDate(newValue)}
             />
           </LocalizationProvider>
-        </Grid>
-        <Grid item>
-          <Select
-            sx={{ width: 250 }}
-            value={selectedCharacter}
-            onChange={event => setSelectedCharacter(event.target.value)}
-            label="Character"
-          >
-            <MenuItem value={ALL_CHARACTERS}>All</MenuItem>
-            {characterNames.map(name =>
-              <MenuItem key={name} value={name}>{name}</MenuItem>
-            )}
-          </Select>
         </Grid>
         <Grid item>
           <LoadingButton

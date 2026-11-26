@@ -229,6 +229,8 @@ export type LinkedCharacterRes = {
   portrait: string | null;
   /** The character has no usable login and has to log in again. */
   tokenExpired: boolean;
+  /** Picked in the global character selector, so the data views include it. */
+  selected: boolean;
 }[];
 
 export type EveSdeTypesRes = { id: number; name: string }[];

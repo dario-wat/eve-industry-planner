@@ -8,6 +8,7 @@ declare module 'express-session' {
   interface SessionData {
     accountId: number;
     ssoStates: string[];
+    selectedCharacterIds: number[] | null;
   }
 }
 

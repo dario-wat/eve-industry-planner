@@ -139,7 +139,7 @@ export default class AssetsService {
   public async genAssetLocations(
     actorContext: ActorContext,
   ): Promise<EveAssetsLocationsRes> {
-    const characters = await actorContext.genLoggedInLinkedCharacters();
+    const characters = await actorContext.genLoggedInSelectedCharacters();
     const characterAssetsData = await Promise.all(characters.map(character =>
       this.genFlatAssets(character),
     ));

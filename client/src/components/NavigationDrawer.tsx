@@ -11,6 +11,7 @@ import axios from 'axios';
 import { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/system';
+import CharacterSelectorListItem from 'components/CharacterSelectorListItem';
 
 const drawerWidth = 200;
 
@@ -43,10 +44,11 @@ type NavRoute = {
 
 type Props = {
   routes: NavRoute[],
+  onCharacterSelectionChange: () => void,
 };
 
 export default function NavigationDrawer(props: Props) {
-  const { routes } = props;
+  const { routes, onCharacterSelectionChange } = props;
   const navigate = useNavigate();
   const location = useLocation();
   const mainRoutes = routes.filter(route => !route.footer);
@@ -95,6 +97,7 @@ export default function NavigationDrawer(props: Props) {
               />
             ))}
             <Divider />
+            <CharacterSelectorListItem onSelectionChange={onCharacterSelectionChange} />
             <LogoutButtonListItem />
           </List>
         </Box>

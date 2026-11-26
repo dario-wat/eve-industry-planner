@@ -7,7 +7,10 @@ export default function actorContextMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const actorContext = new ActorContext(req.session.accountId ?? null);
+  const actorContext = new ActorContext(
+    req.session.accountId ?? null,
+    req.session.selectedCharacterIds ?? null,
+  );
   res.locals.actorContext = actorContext;
   next();
 }

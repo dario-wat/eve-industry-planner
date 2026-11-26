@@ -11,14 +11,14 @@ export function isStation(id: number) {
 }
 
 /**
- * Helper function to perform ESI queries for the whole ActorContext
- * instead of just for an individual character.
+ * Helper function to perform ESI queries for the logged in characters selected
+ * in the ActorContext instead of just for an individual character.
  */
 export async function genQueryPerCharacter<T>(
   actorContext: ActorContext,
   fn: (character: EsiCharacter) => Promise<T>
 ): Promise<[EsiCharacter, T][]> {
-  const characters = await actorContext.genLoggedInLinkedCharacters();
+  const characters = await actorContext.genLoggedInSelectedCharacters();
   return await Promise.all(characters.map(async (character) => [character, await fn(character)]));
 }
 
@@ -62,8 +62,8 @@ export async function genQueryFlatResultPerCharacter<T>(
 }
 
 /**
- * Fetches results for all characters linked to this actor context.
- * Returns the first non-null result or null otherwise.
+ * Fetches results for all logged in characters linked to this actor context,
+ * ignoring the selection. Returns the first non-null result or null otherwise.
  * This is useful for example when only one character on the account
  * may have access to the data, e.g. private structures.
  */

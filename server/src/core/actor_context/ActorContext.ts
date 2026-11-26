@@ -11,6 +11,8 @@ export default class ActorContext {
 
   constructor(
     public readonly accountId: number | null,
+    /** Characters picked in the client's character selector; null means all of them. */
+    public readonly selectedCharacterIds: number[] | null = null,
   ) {
     this.genAccount = memoize(
       this.genAccount.bind(this),
@@ -45,7 +47,7 @@ export default class ActorContext {
     return (await this.genAccount())!;
   }
 
-  /** Currently returns one character of all linked ones. */
+  /** Currently returns one character of all linked ones, ignoring the selection. */
   public async genMainCharacter(): Promise<EsiCharacter | null> {
     const characters = await this.genLoggedInLinkedCharacters();
     if (characters.length === 0) {
@@ -82,5 +84,25 @@ export default class ActorContext {
     return charactersWithLogin
       .filter(({ isLoggedIn }) => isLoggedIn)
       .map(({ character }) => character);
+  }
+
+  /**
+   * Linked characters narrowed to the selection, logged out ones included.
+   * Falls back to all linked characters if none of the selected are linked.
+   */
+  public async genSelectedCharacters(): Promise<EsiCharacter[]> {
+    const characters = await this.genLinkedCharacters();
+    const selectedIds = this.selectedCharacterIds;
+    if (selectedIds === null) {
+      return characters;
+    }
+    const selected = characters.filter((c) => selectedIds.includes(c.characterId));
+    return selected.length > 0 ? selected : characters;
+  }
+
+  public async genLoggedInSelectedCharacters(): Promise<EsiCharacter[]> {
+    const characters = await this.genSelectedCharacters();
+    const isLoggedIn = await Promise.all(characters.map((c) => c.isLoggedIn()));
+    return characters.filter((_, i) => isLoggedIn[i]);
   }
 }

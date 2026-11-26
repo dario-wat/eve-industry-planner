@@ -24,6 +24,9 @@ export default class AccountController extends Controller {
       '/linked_characters',
       async (_req: Request, res: Response, actorContext: ActorContext) => {
         const characters = await actorContext.genLinkedCharacters();
+        const selectedIds = new Set(
+          (await actorContext.genSelectedCharacters()).map((c) => c.characterId),
+        );
 
         const genData = async (character: EsiCharacter) => {
           const portrait = await genNullOnEsiError(
@@ -35,11 +38,34 @@ export default class AccountController extends Controller {
             characterName: character.characterName,
             portrait: portrait?.px128x128,
             tokenExpired: !isLoggedIn,
+            selected: selectedIds.has(character.characterId),
           };
         };
 
         const output = await Promise.all(characters.map(genData));
         res.json(output);
+      },
+    );
+
+    /** Sets which linked characters the data views include. */
+    this.appPost(
+      '/selected_characters',
+      async (req: Request, res: Response, actorContext: ActorContext) => {
+        const ids: unknown = req.body.characterIds;
+        if (!Array.isArray(ids) || !ids.every((id) => Number.isInteger(id))) {
+          res.status(400).send('characterIds must be an array of character IDs.');
+          return;
+        }
+        const linkedIds = (await actorContext.genLinkedCharacters()).map((c) => c.characterId);
+        const selectedIds = linkedIds.filter((id) => ids.includes(id));
+        if (selectedIds.length === 0) {
+          res.status(400).send('Select at least one linked character.');
+          return;
+        }
+        // Null means all, so characters linked later are selected too.
+        req.session.selectedCharacterIds =
+          selectedIds.length === linkedIds.length ? null : selectedIds;
+        res.status(200).end();
       },
     );
   }

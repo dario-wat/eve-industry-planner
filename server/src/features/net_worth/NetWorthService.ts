@@ -50,7 +50,7 @@ export default class NetWorthService {
   }
 
   public async genHistory(actorContext: ActorContext): Promise<NetWorthHistoryRes> {
-    const characters = await actorContext.genLinkedCharacters();
+    const characters = await actorContext.genSelectedCharacters();
     const rows = await NetWorthDaily.findAll({
       where: { character_id: { [Op.in]: characters.map((c) => c.characterId) } },
       order: [['day', 'ASC']],
