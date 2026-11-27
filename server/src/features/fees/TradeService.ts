@@ -1,6 +1,6 @@
 import { Service } from 'typedi';
 import { Op } from 'sequelize';
-import { TradeFeeRatesRes, TradePricesRes } from '@internal/shared';
+import { TradeBookRes, TradeFeeRatesRes, TradePricesRes } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { TRADE_LOCATIONS } from '../../const/IDs';
 import CharacterContextService from '../character_context/CharacterContextService';
@@ -25,7 +25,7 @@ export default class TradeService {
       this.tradeSettingsService.genxLocations(actorContext),
     ]);
     const location = (locationId: number) =>
-      locations.find((l) => l.locationId === locationId) ?? { locationId, name: null };
+      locations.find((l) => l.locationId === locationId)!;
     return {
       buyLocation: location(stations.buyLocationId),
       sellLocation: location(stations.sellLocationId),
@@ -47,6 +47,31 @@ export default class TradeService {
             error: error instanceof Error ? error.message : String(error),
           };
         }
+      })),
+    };
+  }
+
+  public async genxBook(typeId: number): Promise<TradeBookRes> {
+    const orders = await MarketOrderOpen.findAll({
+      where: { type_id: typeId, missing: false },
+      raw: true,
+    });
+    const observedAt = orders.reduce<number | null>((latest, order) => {
+      const time = new Date(order.observed_at).getTime();
+      return latest === null || time > latest ? time : latest;
+    }, null);
+    return {
+      observedAt: observedAt === null ? null : new Date(observedAt).toISOString(),
+      orders: orders.map((order) => ({
+        orderId: Number(order.order_id),
+        locationId: Number(order.location_id),
+        systemId: order.system_id,
+        isBuy: Boolean(order.is_buy),
+        price: order.price,
+        volumeRemain: Number(order.volume_remain),
+        minVolume: Number(order.min_volume),
+        range: order.range,
+        issued: new Date(order.issued).toISOString(),
       })),
     };
   }

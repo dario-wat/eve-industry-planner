@@ -2,7 +2,13 @@ import { Service } from 'typedi';
 import { TradeLocationRes, TradeSettingsRes } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
 import StationService from '../../core/query/StationService';
-import { JITA_4_4, PERIMETER_MARKET_STRUCTURES, TRADE_LOCATIONS } from '../../const/IDs';
+import {
+  JITA_4_4,
+  PERIMETER,
+  PERIMETER_MARKET_STRUCTURES,
+  TRADE_LOCATIONS,
+} from '../../const/IDs';
+import EveSdeData from '../../core/sde/EveSdeData';
 import { TradeSettings } from './TradeSettings';
 
 export type TradeStations = {
@@ -20,6 +26,7 @@ export default class TradeSettingsService {
 
   constructor(
     private readonly stationService: StationService,
+    private readonly sdeData: EveSdeData,
   ) { }
 
   /** The saved stations, or the defaults where none is saved or one is no longer offered. */
@@ -56,8 +63,16 @@ export default class TradeSettingsService {
     const names = await this.stationService.genAllStationNames(actorContext, [...TRADE_LOCATIONS]);
     return TRADE_LOCATIONS.map((locationId) => ({
       locationId,
+      systemId: this.systemId(locationId),
       name: names[locationId] ?? null,
     }));
+  }
+
+  /** The Perimeter structures are not in the SDE. */
+  private systemId(locationId: number): number {
+    return PERIMETER_MARKET_STRUCTURES.includes(locationId)
+      ? PERIMETER
+      : this.sdeData.stations[locationId].solar_system_id;
   }
 }
 

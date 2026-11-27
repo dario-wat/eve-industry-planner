@@ -170,6 +170,7 @@ export type CharacterContextRes = CharacterSummaryRes[];
 
 export type TradeLocationRes = {
   locationId: number;
+  systemId: number;
   /** Null when no logged-in character can see the structure. */
   name: string | null;
 };
@@ -198,6 +199,30 @@ export type TradeFeeRatesRes = {
   sellLocation: TradeLocationRes;
   /** Logged-in characters picked in the character selector. */
   characters: CharacterFeeRatesRes[];
+};
+
+/** One open order from the stored order book. */
+export type TradeBookOrderRes = {
+  orderId: number;
+  locationId: number;
+  systemId: number;
+  isBuy: boolean;
+  price: number;
+  volumeRemain: number;
+  minVolume: number;
+  /** 'station', 'solarsystem', 'region', or a jump count. Matters for buy orders only. */
+  range: string;
+  issued: string;
+};
+
+/**
+ * Every open order for one item in the stored book: all of Jita's stations and the Perimeter
+ * structures. Orders elsewhere in the region, including ranged buy orders, are not stored.
+ */
+export type TradeBookRes = {
+  /** Newest change to any of these orders, not the time of the last poll. */
+  observedAt: string | null;
+  orders: TradeBookOrderRes[];
 };
 
 /** Best prices in the stored order book, from orders placed at each location. */

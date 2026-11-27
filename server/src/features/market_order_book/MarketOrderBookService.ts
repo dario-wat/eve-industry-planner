@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import { chunk } from 'underscore';
 import type { EsiMarketOrder, EsiPage } from 'eve-esi';
 import EsiQueryService from '../../core/esi/EsiQueryService';
-import { JITA, PERIMETER_MARKET_STRUCTURES, THE_FORGE } from '../../const/IDs';
+import { JITA, PERIMETER, PERIMETER_MARKET_STRUCTURES, THE_FORGE } from '../../const/IDs';
 import {
   OpenOrder,
   OrderBookEvent,
@@ -28,11 +28,6 @@ const STRUCTURE_LOCATION_IDS = new Set<number>(PERIMETER_MARKET_STRUCTURES);
 
 /** Can dock at both Perimeter structures. Her token is refreshed on use. */
 const TRADING_LADY = 1688205171;
-
-/**
- * Structure orders omit system_id. Both structures are in Perimeter.
- */
-const PERIMETER = 30000144;
 
 /** Rows per insert, so one statement does not carry the whole book. */
 const WRITE_CHUNK = 1000;
@@ -171,6 +166,7 @@ export default class MarketOrderBookService {
         structureId,
         page,
       ),
+      // Structure orders omit system_id. Both structures are in Perimeter.
       (order) => bookEntryFromEsi(order, order.system_id ?? PERIMETER),
       onProgress,
     );
