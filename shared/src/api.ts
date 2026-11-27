@@ -1,3 +1,5 @@
+import type { FeeRates } from './tradeFees';
+
 export type EveAssetsRes = {
   character_name: string;
   name: string;
@@ -142,6 +144,10 @@ export type MarketOrdersRes = {
   isBuy: boolean;
   issuedDate: string;
   duration: number;
+  /** Fee to undercut, at about the same order value. Null if the location's fees are unknown. */
+  modifyFee: number | null;
+  /** Fee to cancel and place a new order instead. */
+  replaceFee: number | null;
 }[];
 
 export type CharacterSummaryRes = {
@@ -161,6 +167,49 @@ export type CharacterSummaryRes = {
 });
 
 export type CharacterContextRes = CharacterSummaryRes[];
+
+export type TradeLocationRes = {
+  locationId: number;
+  /** Null when no logged-in character can see the structure. */
+  name: string | null;
+};
+
+export type TradeSettingsRes = {
+  buyLocationId: number;
+  sellLocationId: number;
+  /** Every station that can be picked. */
+  locations: TradeLocationRes[];
+};
+
+export type CharacterFeeRatesRes = {
+  characterId: number;
+  characterName: string;
+} & ({
+  error: null;
+  /** Null where the station's fees are unknown. */
+  buyRates: FeeRates | null;
+  sellRates: FeeRates | null;
+} | {
+  error: string;
+});
+
+export type TradeFeeRatesRes = {
+  buyLocation: TradeLocationRes;
+  sellLocation: TradeLocationRes;
+  /** Logged-in characters picked in the character selector. */
+  characters: CharacterFeeRatesRes[];
+};
+
+/** Best prices in the stored order book, from orders placed at each location. */
+export type TradePricesRes = {
+  /** Newest change to any of these orders, not the time of the last poll. */
+  observedAt: string | null;
+  locations: {
+    locationId: number;
+    bestBuy: number | null;
+    bestSell: number | null;
+  }[];
+};
 
 /**
  * Personal assets at the best Jita 4-4 buy and sell order, without blueprint copies.

@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { brokerFee, relistFee } from '@internal/shared';
 import {
-  brokerFee,
   feeRates,
   npcBrokerRate,
   relistDiscount,
-  relistFee,
   salesTaxRate,
   structureBrokerRate,
   Trader,

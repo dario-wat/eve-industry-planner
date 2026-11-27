@@ -9,6 +9,7 @@ import ActorContext from '../../core/actor_context/ActorContext';
 import EsiQueryService from '../../core/esi/EsiQueryService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { genQueryResultPerCharacter } from '../../lib/eveUtil';
+import { Trader } from '../fees/fees';
 import JitaPriceService from '../market_order_book/JitaPriceService';
 import {
   assetValues,
@@ -46,6 +47,15 @@ export default class CharacterContextService {
       actorContext,
       (character) => this.genSummary(character),
     );
+  }
+
+  /** Skills and standings only: what the fee resolver needs. */
+  public async genxTrader(characterId: number): Promise<Trader> {
+    const [{ skills }, standings] = await Promise.all([
+      this.esiQuery.genxSkills(characterId),
+      this.esiQuery.genxStandings(characterId),
+    ]);
+    return { skills: tradeSkills(skills), standings: npcStandings(standings) };
   }
 
   public async genxForCharacter(character: EsiCharacter): Promise<CharacterContext> {

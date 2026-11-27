@@ -18,6 +18,11 @@ import ItemQuantitiesParserService, {
   ItemQuantity,
 } from '../item_quantities/ItemQuantitiesParserService';
 import { chain } from 'underscore';
+import { FeeRates, repriceOption } from '@internal/shared';
+import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
+import CharacterContextService from '../character_context/CharacterContextService';
+import { Trader } from '../fees/fees';
+import FeeResolverService from '../fees/FeeResolverService';
 
 @Service()
 export default class MarketService {
@@ -25,7 +30,9 @@ export default class MarketService {
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiQueryService,
     private readonly stationService: StationService,
-    private readonly itemQuantitiesParser: ItemQuantitiesParserService
+    private readonly itemQuantitiesParser: ItemQuantitiesParserService,
+    private readonly characterContextService: CharacterContextService,
+    private readonly feeResolver: FeeResolverService,
   ) {}
 
   /** Returns all data needed for the Market Orders page. */
@@ -34,14 +41,18 @@ export default class MarketService {
       this.esiQuery.genxCharacterMarketOrders(character.characterId)
     );
 
-    const stationNames = await this.stationService.genAllStationNames(
-      actorContext,
-      orders.map(([_, o]) => o.location_id)
-    );
+    const [stationNames, traders] = await Promise.all([
+      this.stationService.genAllStationNames(
+        actorContext,
+        orders.map(([_, o]) => o.location_id)
+      ),
+      this.genTraders(orders.map(([character]) => character)),
+    ]);
 
     return orders
       .filter(([_, o]) => !o.is_corporation)
       .map(([character, o]) => ({
+        ...this.repriceFees(traders.get(character.characterId) ?? null, o),
         characterName: character.characterName,
         typeId: o.type_id,
         name: this.sdeData.types[o.type_id]?.name,
@@ -55,6 +66,36 @@ export default class MarketService {
         issuedDate: o.issued,
         duration: o.duration,
       }));
+  }
+
+  /** Null for a character whose skills or standings could not be read. */
+  private async genTraders(characters: EsiCharacter[]): Promise<Map<number, Trader | null>> {
+    const unique = chain(characters).uniq(false, (character) => character.characterId).value();
+    const entries = await Promise.all(unique.map(async (character) => {
+      try {
+        const trader = await this.characterContextService.genxTrader(character.characterId);
+        return [character.characterId, trader] as const;
+      } catch (error) {
+        console.error(`Trader failed for ${character.characterId}`, error);
+        return [character.characterId, null] as const;
+      }
+    }));
+    return new Map(entries);
+  }
+
+  private repriceFees(
+    trader: Trader | null,
+    order: EsiMarketOrder,
+  ): { modifyFee: number | null; replaceFee: number | null } {
+    const rates: FeeRates | null = trader === null
+      ? null
+      : this.feeResolver.feeRates(trader, order.location_id);
+    if (rates === null) {
+      return { modifyFee: null, replaceFee: null };
+    }
+    const value = order.price * order.volume_remain;
+    const option = repriceOption(rates, value, value);
+    return { modifyFee: option.modifyFee, replaceFee: option.replaceFee };
   }
 
   /**

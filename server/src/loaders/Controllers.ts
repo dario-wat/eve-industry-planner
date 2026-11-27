@@ -16,6 +16,8 @@ import MarketController from '../features/market/MarketController';
 import CharacterContextController from '../features/character_context/CharacterContextController';
 import NetWorthController from '../features/net_worth/NetWorthController';
 import MarketHistoryController from '../features/market_history/MarketHistoryController';
+import TradeController from '../features/fees/TradeController';
+import TradeSettingsController from '../features/trade_settings/TradeSettingsController';
 import JobRunController from '../features/job_runs/JobRunController';
 // NOTE: every new controller needs to be added here
 @Service()
@@ -35,6 +37,8 @@ export default class Controllers {
     private readonly marketHistoryController: MarketHistoryController,
     private readonly characterContextController: CharacterContextController,
     private readonly netWorthController: NetWorthController,
+    private readonly tradeController: TradeController,
+    private readonly tradeSettingsController: TradeSettingsController,
     private readonly jobRunController: JobRunController,
     private readonly healthController: HealthController,
   ) { }
@@ -61,6 +65,8 @@ export default class Controllers {
     this.marketHistoryController.init(app);
     this.characterContextController.init(app);
     this.netWorthController.init(app);
+    this.tradeController.init(app);
+    this.tradeSettingsController.init(app);
     this.jobRunController.init(app);
   }
 }

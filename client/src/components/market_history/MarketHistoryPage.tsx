@@ -18,6 +18,7 @@ import {
 } from './historyChartOptions';
 import { MarketHistoryDay, buildMarketHistoryDays } from './marketHistoryStats';
 import MarketHistorySummaryTable from './MarketHistorySummaryTable';
+import TradeCalculator from './TradeCalculator';
 import WorkspacePage from 'components/util/WorkspacePage';
 
 export default function MarketHistoryPage() {
@@ -122,6 +123,16 @@ export default function MarketHistoryPage() {
         <Typography color="error" sx={{ pt: 2 }}>
           {error}
         </Typography>
+      )}
+      {paramTypeId != null && (
+        <Box sx={{ pt: 2 }}>
+          <DashboardPanel
+            title="Trade calculator"
+            help="Buy and sell orders at the stations set in Settings, at the best prices placed there in the stored order book. Fees are the character's, from live skills and standings."
+          >
+            <TradeCalculator key={paramTypeId} typeId={paramTypeId} />
+          </DashboardPanel>
+        </Box>
       )}
       {marketHistoryDays.length > 0 && (
         <Box

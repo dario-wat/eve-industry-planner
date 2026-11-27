@@ -30,6 +30,8 @@ import { marketOrderOpenModelDefine } from '../features/market_order_book/Market
 import { marketTradeDailyModelDefine } from '../features/market_order_book/MarketTradeDaily';
 import { marketOrderEventModelDefine } from '../features/market_order_book/MarketOrderEvent';
 import { marketOrderCloseModelDefine } from '../features/market_order_book/MarketOrderClose';
+import { tradeSettingsModelDefine } from '../features/trade_settings/TradeSettings';
+import { tradeSettingsAssocsDefine } from '../features/trade_settings/TradeSettingsAssocs';
 import { jobRunModelDefine } from '../core/job/JobRun';
 import { netWorthDailyModelDefine } from '../features/net_worth/NetWorthDaily';
 
@@ -91,6 +93,7 @@ export function initDatabase(): void {
   marketOrderEventModelDefine(sequelize);
   marketOrderCloseModelDefine(sequelize);
   jobRunModelDefine(sequelize);
+  tradeSettingsModelDefine(sequelize);
   netWorthDailyModelDefine(sequelize);
 
   // Esi
@@ -105,6 +108,7 @@ export function initDatabase(): void {
   plannedProductAssocsDefine();
   industryJobAssocsDefine();
   walletTransactionAssocsDefine();
+  tradeSettingsAssocsDefine();
 }
 
 // This should define ONLY SDE models

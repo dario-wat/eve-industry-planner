@@ -1,7 +1,8 @@
 import { Service } from 'typedi';
 import EveSdeData from '../../core/sde/EveSdeData';
 import { PERIMETER_MARKET_STRUCTURES } from '../../const/IDs';
-import { FeeRates, feeRates, Trader, TradeLocation } from './fees';
+import { FeeRates } from '@internal/shared';
+import { feeRates, Trader, TradeLocation } from './fees';
 
 /** Owner broker rates (without the SCC surcharge). No ESI endpoint exposes them. */
 const STRUCTURE_OWNER_BROKER_RATES: ReadonlyMap<number, number> = new Map(

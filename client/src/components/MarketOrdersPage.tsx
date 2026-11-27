@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { MarketOrdersRes } from '@internal/shared';
 import CharacterSummaryStrip from 'components/CharacterSummaryStrip';
+import { formatIsk } from 'common/format';
 import EveIconAndName from 'components/util/EveIconAndName';
 import WorkspacePage, { WorkspaceSection, WorkspaceSpinner } from 'components/util/WorkspacePage';
 
@@ -69,6 +70,24 @@ export default function MarketOrdersPage() {
         addDays(new Date(row.issuedDate), row.duration),
         { addSuffix: true, unit: 'day' }
       ),
+    },
+    {
+      field: 'modifyFee',
+      headerName: 'Undercut fee',
+      description: 'Fee to modify this order to a slightly better price',
+      width: 120,
+      align: 'right',
+      headerAlign: 'right',
+      valueFormatter: (value: number | null) => (value == null ? '—' : formatIsk(value)),
+    },
+    {
+      field: 'replaceFee',
+      headerName: 'Replace fee',
+      description: 'Fee to cancel and place a new order instead. Modifying is cheaper unless the new order value is over 5 times the old.',
+      width: 120,
+      align: 'right',
+      headerAlign: 'right',
+      valueFormatter: (value: number | null) => (value == null ? '—' : formatIsk(value)),
     },
     {
       field: 'characterName',

@@ -248,7 +248,7 @@
     <tr><td>Broker fee, Upwell structure</td><td class="formula">0.5% SCC + owner-set %</td><td>Broker Relations does not apply at all. Owner % is invisible to ESI.</td></tr>
     <tr><td>Sales tax</td><td class="formula">7.5% × (1 − 0.11 × Accounting)</td><td>3.375% at Accounting V. Base rose from 4% to 7.5% in March 2025.</td></tr>
     <tr><td>Relist fee</td><td class="formula">(1 − (50% + 6%×AdvBrokerRelations)) × brokerRate × newValue<br>+ brokerRate × max(newValue − oldValue, 0)</td><td>Charged on full <em>remaining</em> order value every reprice. 80% discount at V. 100 ISK minimum.</td></tr>
-    <tr><td>Round-trip breakeven</td><td class="formula">ask / bid &gt; (1 + b) / (1 − t − b)</td><td>About 1.053 at max skills in an NPC station, before any relisting.</td></tr>
+    <tr><td>Round-trip breakeven</td><td class="formula">ask / bid &gt; (1 + b) / (1 − t − b)</td><td>About 1.056 at the 1% broker floor and Accounting V in an NPC station (1.067 with Broker Relations V and no standings), before any relisting. Buying in a 0% structure and selling in Jita at 1%: about 1.051.</td></tr>
     <tr><td>Buy order escrow</td><td class="formula">100% of order value</td><td>Margin Trading was removed in 2020; no partial escrow exists.</td></tr>
   </tbody>
 </table>
@@ -378,13 +378,15 @@ const LAYERS = [
     inputs: "Character context plus location registry.",
     output: "Three rates plus the 100 ISK minimum fee floor.",
     math: "NPC broker = 3% − 0.3%×BrokerRelations − 0.03%×factionStanding − 0.02%×corpStanding, floored at 1%. Structure broker = 0.5% SCC + owner%, with skills having no effect. Sales tax = 7.5% × (1 − 0.11×Accounting), so 3.375% at Accounting V." },
-  { name: "Round-trip profitability calculator", tier: "Core",
+  { name: "Round-trip profitability calculator", tier: "Core", wip: true,
+    status: "In progress. `roundTrip` in `shared/src/tradeFees.ts` takes a buy leg and a sell leg, each with its own price, location fee rates, and mode (`order` or `instant`), so a buy order in Perimeter and a sell order in Jita 4-4 is one trip. It returns fees, sales tax, capital, net profit, margin, ROI, and the breakeven sell price including the 100 ISK minimums. Unit-tested. Used by the trade calculator on the Item History page: a buy order at the buy station and a sell order at the sell station set in Settings (`app_trade_settings`), at the best prices placed there in `esi_market_order_open` (`/trade_prices/:typeId`), with fees from the character's live skills and standings (`/trade_fee_rates`, characters from the character selector).",
     one: "For any (type, location, character): net margin, ISK per unit, ROI, breakeven sell price, and capital required.",
     why: "The number every screen displays. Expose it as one pure function so the scanner, the item page, and the order monitor cannot disagree with each other.",
     inputs: "Best bid, best ask, resolved fee rates.",
     output: "Net margin and the derived quantities.",
-    math: "A buy-order-to-sell-order round trip is profitable when ask/bid > (1 + b) / (1 − t − b), where b is broker rate and t is sales tax. At max skills in an NPC station that threshold is roughly 1.053, so a quoted spread under about 5.3% is a loss before you have relisted even once." },
-  { name: "Relist cost and undercut budget model", tier: "Core",
+    math: "A buy-order-to-sell-order round trip is profitable when ask/bid > (1 + b) / (1 − t − b), where b is broker rate and t is sales tax. At the 1% broker floor with Accounting V in an NPC station that threshold is about 1.056, so a quoted spread under about 5.6% is a loss before you have relisted even once. Buy and sell can be at different locations, each with its own b." },
+  { name: "Relist cost and undercut budget model", tier: "Core", wip: true,
+    status: "In progress. In `shared/src/tradeFees.ts`: `repriceOption` gives the modify and the cancel-and-replace fee and picks the cheaper; `relistBudget` gives one reprice's fee on each side at that side's location and how many reprices the trip absorbs before it stops breaking even; `netProfitAfterRelists` gives the profit after a given number on each side. Unit-tested. The trade calculator shows the relist fees and budget; the Market Orders page shows the undercut and replace fee for each open order. Assumes the relist discount also applies to the SCC surcharge in a structure.",
     one: "Compute what an undercutting war actually costs, and how many relists a trade can absorb before it goes negative.",
     why: "This is the piece essentially no public tool models, and it is where real station-trading profit quietly disappears. The relist charge is assessed on the entire remaining order value, not on the price delta, so it recurs every single time you reprice. A trade showing 8% gross margin that needs twenty relists to fill is not an 8% trade.",
     inputs: "Order value, fee rates, Advanced Broker Relations level, expected relist count.",
