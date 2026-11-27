@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Box, MenuItem, TextField, Tooltip, Typography, useTheme } from '@mui/material';
+import { Box, MenuItem, Tab, Tabs, TextField, Tooltip, Typography, useTheme } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
@@ -19,11 +19,15 @@ import {
 import { MarketHistoryDay, buildMarketHistoryDays } from './marketHistoryStats';
 import MarketHistorySummaryTable from './MarketHistorySummaryTable';
 import TradeCalculator from './TradeCalculator';
+import OrderBookPanel from './OrderBookPanel';
 import WorkspacePage from 'components/util/WorkspacePage';
+
+type ItemTab = 'trade' | 'history';
 
 export default function MarketHistoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const paramTypeId = typeIdFromSearch(searchParams.get('typeId'));
+  const tab: ItemTab = searchParams.get('tab') === 'history' ? 'history' : 'trade';
   const [typeId, setTypeId] = useState<number | null>(paramTypeId);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +78,13 @@ export default function MarketHistoryPage() {
       void loadHistory(typeId);
       return;
     }
-    setSearchParams({ typeId: String(typeId) });
+    setSearchParams({ typeId: String(typeId), tab });
+  };
+
+  const onTabChange = (next: ItemTab) => {
+    setSearchParams(paramTypeId === null
+      ? { tab: next }
+      : { typeId: String(paramTypeId), tab: next });
   };
 
   return (
@@ -90,41 +100,21 @@ export default function MarketHistoryPage() {
         >
           Submit
         </LoadingButton>
-        <TextField
-          select
-          label="Range"
-          value={span}
-          onChange={(event) => setSpan(event.target.value as ChartSpan)}
-          sx={{ width: 140 }}
-        >
-          {CHART_SPANS.map((option) => (
-            <MenuItem key={option.id} value={option.id}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-        {marketHistoryDays.length > 0 && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1 }}>
-              The Forge ·{' '}
-              {format(marketHistoryDays[marketHistoryDays.length - 1].time, 'd MMM yyyy')}
-            </Typography>
-            <Tooltip title="Days with no trades are gaps in the price line and zero volume.">
-              <Box component="span" sx={{ display: 'inline-flex' }}>
-                <HelpIcon
-                  sx={{ fontSize: 16, color: 'text.secondary', position: 'relative', top: -1 }}
-                />
-              </Box>
-            </Tooltip>
-          </Box>
-        )}
       </Box>
       {error && (
         <Typography color="error" sx={{ pt: 2 }}>
           {error}
         </Typography>
       )}
-      {paramTypeId != null && (
+      <Tabs
+        sx={{ mt: 1, borderBottom: 1, borderColor: 'divider' }}
+        value={tab}
+        onChange={(_, value: ItemTab) => onTabChange(value)}
+      >
+        <Tab label="Trade" value="trade" />
+        <Tab label="History" value="history" />
+      </Tabs>
+      {tab === 'trade' && paramTypeId != null && (
         <Box sx={{ pt: 2 }}>
           <DashboardPanel
             title="Trade calculator"
@@ -132,28 +122,70 @@ export default function MarketHistoryPage() {
           >
             <TradeCalculator key={paramTypeId} typeId={paramTypeId} />
           </DashboardPanel>
+          <Box sx={{ pt: 1.5 }}>
+            <DashboardPanel
+              title="Order book"
+              help="Live orders from the stored book at the stations set in Settings. The buy side lists every buy order a seller at the buy station can fill, including ranged orders placed in Jita. The chart covers prices within 25% of the best; the table lists every order."
+            >
+              <OrderBookPanel key={paramTypeId} typeId={paramTypeId} />
+            </DashboardPanel>
+          </Box>
         </Box>
       )}
-      {marketHistoryDays.length > 0 && (
-        <Box
-          sx={{
-            pt: 2,
-            display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-            gap: 1.5,
-          }}
-        >
-          <DashboardPanel
-            title="Summary"
-            help="Windows are calendar days ending on the latest trade date."
-          >
-            <MarketHistorySummaryTable days={marketHistoryDays} />
-          </DashboardPanel>
-          <HistoryCharts days={marketHistoryDays} span={span} />
-        </Box>
-      )}
-      {historyData != null && marketHistoryDays.length === 0 && (
-        <Typography sx={{ pt: 2 }}>No item history for this type.</Typography>
+      {tab === 'history' && (
+        <>
+          <Box sx={{ pt: 2, display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+            <TextField
+              select
+              label="Range"
+              value={span}
+              onChange={(event) => setSpan(event.target.value as ChartSpan)}
+              sx={{ width: 140 }}
+            >
+              {CHART_SPANS.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+            {marketHistoryDays.length > 0 && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1 }}>
+                  The Forge ·{' '}
+                  {format(marketHistoryDays[marketHistoryDays.length - 1].time, 'd MMM yyyy')}
+                </Typography>
+                <Tooltip title="Days with no trades are gaps in the price line and zero volume.">
+                  <Box component="span" sx={{ display: 'inline-flex' }}>
+                    <HelpIcon
+                      sx={{ fontSize: 16, color: 'text.secondary', position: 'relative', top: -1 }}
+                    />
+                  </Box>
+                </Tooltip>
+              </Box>
+            )}
+          </Box>
+          {marketHistoryDays.length > 0 && (
+            <Box
+              sx={{
+                pt: 2,
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                gap: 1.5,
+              }}
+            >
+              <DashboardPanel
+                title="Summary"
+                help="Windows are calendar days ending on the latest trade date."
+              >
+                <MarketHistorySummaryTable days={marketHistoryDays} />
+              </DashboardPanel>
+              <HistoryCharts days={marketHistoryDays} span={span} />
+            </Box>
+          )}
+          {historyData != null && marketHistoryDays.length === 0 && (
+            <Typography sx={{ pt: 2 }}>No item history for this type.</Typography>
+          )}
+        </>
       )}
     </WorkspacePage>
   );

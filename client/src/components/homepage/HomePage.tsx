@@ -73,7 +73,7 @@ export default function HomePage() {
     },
     {
       path: '/market_history',
-      label: 'Item History',
+      label: 'Item',
       icon: <ShowChartIcon />,
       component: MarketHistoryPage,
     },
