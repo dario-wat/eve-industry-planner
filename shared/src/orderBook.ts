@@ -11,17 +11,6 @@ export type JumpCount = (fromSystemId: number, toSystemId: number) => number | n
 
 export type BookSide = 'buy' | 'sell';
 
-export type FillEstimate = {
-  /** Can be less than asked for when the book runs out. */
-  quantity: number;
-  /** Null when nothing fills. */
-  averagePrice: number | null;
-  worstPrice: number | null;
-  topPrice: number | null;
-  /** How much worse the average is than the top price, as a fraction of the top price. */
-  slippage: number | null;
-};
-
 const JITA_SYSTEM_ID = 30000142;
 const PERIMETER_SYSTEM_ID = 30000144;
 
@@ -56,8 +45,8 @@ export function buyOrderReaches(
 }
 
 /**
- * Orders a new order at `station` would queue behind, best first. Buy side: every buy order
- * a seller there can fill. Sell side: sell orders at the station itself.
+ * Orders a new order at `station` competes with, best first. Buy side: every buy order a seller
+ * there can fill, wherever it was placed. Sell side: sell orders at the station itself.
  */
 export function competingOrders(
   orders: readonly TradeBookOrderRes[],
@@ -72,90 +61,4 @@ export function competingOrders(
     : orders
       .filter((order) => !order.isBuy && order.locationId === station.locationId)
       .sort((left, right) => left.price - right.price);
-}
-
-/** Selling `quantity` right now at `station`, into the buy orders that accept the sale. */
-export function instantSell(
-  orders: readonly TradeBookOrderRes[],
-  station: TradeStation,
-  quantity: number,
-  jumps: JumpCount = tradeHubJumps,
-): FillEstimate {
-  return walk(competingOrders(orders, station, 'buy', jumps), quantity, true);
-}
-
-/** Buying `quantity` right now from the sell orders at `station`. */
-export function instantBuy(
-  orders: readonly TradeBookOrderRes[],
-  station: TradeStation,
-  quantity: number,
-): FillEstimate {
-  return walk(competingOrders(orders, station, 'sell'), quantity, false);
-}
-
-/**
- * Price of the first order at which at least `units` are on offer counting from the best,
- * so a few tiny orders at the top do not set the price. Null when the side has fewer units.
- */
-export function priceAtDepth(
-  competing: readonly TradeBookOrderRes[],
-  units: number,
-): number | null {
-  let total = 0;
-  for (const order of competing) {
-    total += order.volumeRemain;
-    if (total >= units) {
-      return order.price;
-    }
-  }
-  return null;
-}
-
-/**
- * Units a new order at `price` would wait behind: orders at a better price, and orders at the
- * same price, which were placed earlier.
- */
-export function unitsAhead(
-  competing: readonly TradeBookOrderRes[],
-  side: BookSide,
-  price: number,
-): number {
-  return competing
-    .filter((order) => (side === 'buy' ? order.price >= price : order.price <= price))
-    .reduce((total, order) => total + order.volumeRemain, 0);
-}
-
-/** A buy order with a minimum volume only takes sales of at least that many units. */
-function walk(
-  competing: readonly TradeBookOrderRes[],
-  quantity: number,
-  respectMinVolume: boolean,
-): FillEstimate {
-  let filled = 0;
-  let cost = 0;
-  let worstPrice: number | null = null;
-  let topPrice: number | null = null;
-  for (const order of competing) {
-    if (filled >= quantity) {
-      break;
-    }
-    const take = Math.min(quantity - filled, order.volumeRemain);
-    if (respectMinVolume && take < order.minVolume) {
-      continue;
-    }
-    topPrice ??= order.price;
-    filled += take;
-    cost += take * order.price;
-    worstPrice = order.price;
-  }
-  const averagePrice = filled === 0 ? null : cost / filled;
-  return {
-    quantity: filled,
-    averagePrice,
-    worstPrice,
-    topPrice,
-    slippage: averagePrice === null || topPrice === null
-      ? null
-      : Math.abs(averagePrice - topPrice) / topPrice,
-  };
 }

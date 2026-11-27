@@ -128,7 +128,7 @@ export default function MarketHistoryPage() {
         <Box sx={{ pt: 2 }}>
           <DashboardPanel
             title="Trade calculator"
-            help="Buy and sell orders at the stations set in Settings, at the best prices placed there in the stored order book. Fees are the character's, from live skills and standings."
+            help="A buy order at the buy station and a sell order at the sell station set in Settings. Each price is the best order yours would compete with. Buy orders placed elsewhere count if their range reaches the buy station. Fees are the character's, from live skills and standings."
           >
             <TradeCalculator key={paramTypeId} typeId={paramTypeId} />
           </DashboardPanel>

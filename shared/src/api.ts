@@ -225,17 +225,6 @@ export type TradeBookRes = {
   orders: TradeBookOrderRes[];
 };
 
-/** Best prices in the stored order book, from orders placed at each location. */
-export type TradePricesRes = {
-  /** Newest change to any of these orders, not the time of the last poll. */
-  observedAt: string | null;
-  locations: {
-    locationId: number;
-    bestBuy: number | null;
-    bestSell: number | null;
-  }[];
-};
-
 /**
  * Personal assets at the best Jita 4-4 buy and sell order, without blueprint copies.
  * Null when the assets could not be valued.

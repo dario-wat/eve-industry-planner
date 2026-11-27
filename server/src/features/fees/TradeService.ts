@@ -1,8 +1,6 @@
 import { Service } from 'typedi';
-import { Op } from 'sequelize';
-import { TradeBookRes, TradeFeeRatesRes, TradePricesRes } from '@internal/shared';
+import { TradeBookRes, TradeFeeRatesRes } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
-import { TRADE_LOCATIONS } from '../../const/IDs';
 import CharacterContextService from '../character_context/CharacterContextService';
 import { MarketOrderOpen } from '../market_order_book/MarketOrderOpen';
 import TradeSettingsService from '../trade_settings/TradeSettingsService';
@@ -73,42 +71,6 @@ export default class TradeService {
         range: order.range,
         issued: new Date(order.issued).toISOString(),
       })),
-    };
-  }
-
-  /**
-   * Best buy and sell price among orders placed at each trade location. Ranged buy orders
-   * placed elsewhere that would also match a sale there are not counted.
-   */
-  public async genxPrices(typeId: number): Promise<TradePricesRes> {
-    const orders = await MarketOrderOpen.findAll({
-      attributes: ['location_id', 'is_buy', 'price', 'observed_at'],
-      where: {
-        type_id: typeId,
-        location_id: { [Op.in]: [...TRADE_LOCATIONS] },
-        missing: false,
-      },
-      raw: true,
-    });
-    const observedAt = orders.reduce<number | null>((latest, order) => {
-      const time = new Date(order.observed_at).getTime();
-      return latest === null || time > latest ? time : latest;
-    }, null);
-    return {
-      observedAt: observedAt === null ? null : new Date(observedAt).toISOString(),
-      locations: TRADE_LOCATIONS.map((locationId) => {
-        const here = orders.filter((order) => Number(order.location_id) === locationId);
-        const prices = (isBuy: boolean) => here
-          .filter((order) => Boolean(order.is_buy) === isBuy)
-          .map((order) => order.price);
-        const buys = prices(true);
-        const sells = prices(false);
-        return {
-          locationId,
-          bestBuy: buys.length === 0 ? null : Math.max(...buys),
-          bestSell: sells.length === 0 ? null : Math.min(...sells),
-        };
-      }),
     };
   }
 }

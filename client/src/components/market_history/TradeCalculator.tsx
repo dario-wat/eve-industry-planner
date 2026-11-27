@@ -12,24 +12,27 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { formatDistanceToNowStrict } from 'date-fns';
 import {
+  BookSide,
+  competingOrders,
   FeeRates,
   relistBudget,
   roundTrip,
   RoundTripInput,
+  TradeBookOrderRes,
+  TradeBookRes,
   TradeFeeRatesRes,
   TradeLocationRes,
-  TradePricesRes,
 } from '@internal/shared';
 import { formatIsk, formatNumber, formatShare } from 'common/format';
 
 /**
  * Buy order at the buy station, sell order at the sell station (both set in Settings), at the
- * best live prices there, with the character's fees.
+ * price to compete with in the stored book, with the character's fees.
  */
 export default function TradeCalculator({ typeId }: { typeId: number }) {
   const [{ data: feeData, error: feeError }] =
     useAxios<TradeFeeRatesRes | null>('/trade_fee_rates');
-  const [{ data: prices }] = useAxios<TradePricesRes | null>(`/trade_prices/${typeId}`);
+  const [{ data: book }] = useAxios<TradeBookRes | null>(`/trade_book/${typeId}`);
 
   const [pickedCharacterId, setPickedCharacterId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState('1');
@@ -55,8 +58,8 @@ export default function TradeCalculator({ typeId }: { typeId: number }) {
   const character = characters.find(c => c.characterId === pickedCharacterId) ?? characters[0];
   const buyRates = character.error === null ? character.buyRates : null;
   const sellRates = character.error === null ? character.sellRates : null;
-  const buyPrice = bestPrice(prices, feeData.buyLocation.locationId, 'bestBuy');
-  const sellPrice = bestPrice(prices, feeData.sellLocation.locationId, 'bestSell');
+  const buyPrice = topCompetingPrice(book?.orders ?? [], feeData.buyLocation, 'buy');
+  const sellPrice = topCompetingPrice(book?.orders ?? [], feeData.sellLocation, 'sell');
 
   const input: RoundTripInput | null = buyRates && sellRates
     && buyPrice !== null && sellPrice !== null && positive(quantity)
@@ -88,10 +91,10 @@ export default function TradeCalculator({ typeId }: { typeId: number }) {
           )
         }
         <NumberField label="Quantity" value={quantity} onChange={setQuantity} />
-        {prices?.observedAt &&
+        {book?.observedAt &&
           <Typography variant="body2" color="text.secondary">
             Latest change to these orders{' '}
-            {formatDistanceToNowStrict(new Date(prices.observedAt), { addSuffix: true })}
+            {formatDistanceToNowStrict(new Date(book.observedAt), { addSuffix: true })}
           </Typography>
         }
       </Box>
@@ -104,7 +107,7 @@ export default function TradeCalculator({ typeId }: { typeId: number }) {
         label="Buy"
         location={feeData.buyLocation}
         price={buyPrice}
-        missingPrice="No buy orders here"
+        missingPrice="No buy orders reach here"
         rates={buyRates}
       />
       <Leg
@@ -124,6 +127,18 @@ export default function TradeCalculator({ typeId }: { typeId: number }) {
       }
     </Box>
   );
+}
+
+/**
+ * The best price your new order competes with. A buy order competes with every buy order that
+ * accepts sales at the station, wherever it was placed.
+ */
+function topCompetingPrice(
+  orders: TradeBookOrderRes[],
+  location: TradeLocationRes,
+  side: BookSide,
+): number | null {
+  return competingOrders(orders, location, side)[0]?.price ?? null;
 }
 
 function Leg(props: {
@@ -223,15 +238,6 @@ function isk(value: number): ReactNode {
       <span>{formatIsk(value)}</span>
     </Tooltip>
   );
-}
-
-/** A buy order competes with the best buy order, a sell order with the best sell order. */
-function bestPrice(
-  prices: TradePricesRes | null | undefined,
-  locationId: number,
-  side: 'bestBuy' | 'bestSell',
-): number | null {
-  return prices?.locations.find(l => l.locationId === locationId)?.[side] ?? null;
 }
 
 function positive(text: string): boolean {
