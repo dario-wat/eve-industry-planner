@@ -25,13 +25,16 @@ export default class WalletService {
     private readonly stationService: StationService,
   ) { }
 
-  /** Wallet transactions data for Market page. */
+  /** Wallet transactions data for Market page, or for one item. */
   public async genWalletTransactionsForPage(
     actorContext: ActorContext,
+    typeId: number | null = null,
   ): Promise<WalletTransactionsRes> {
     const transactions = await genQueryFlatPerCharacter(
       actorContext,
-      character => character.getWalletTransactions(),
+      character => character.getWalletTransactions(
+        typeId === null ? undefined : { where: { type_id: typeId } },
+      ),
     );
 
     const stationNames = await this.stationService.genAllStationNames(

@@ -3,6 +3,7 @@ import Controller from '../../core/controller/Controller';
 import { Service } from 'typedi';
 import WalletService from './WalletService';
 import ActorContext from '../../core/actor_context/ActorContext';
+import { optionalTypeId } from '../../lib/requestParams';
 
 @Service()
 export default class WalletController extends Controller {
@@ -17,9 +18,15 @@ export default class WalletController extends Controller {
 
     this.appGet(
       '/wallet_transactions',
-      async (_req: Request, res: Response, actorContext: ActorContext) => {
+      async (req: Request, res: Response, actorContext: ActorContext) => {
+        const typeId = optionalTypeId(req.query.typeId);
+        if (typeId === undefined) {
+          res.status(400).send('typeId must be a positive integer');
+          return;
+        }
         const output = await this.walletService.genWalletTransactionsForPage(
           actorContext,
+          typeId,
         );
         res.json(output);
       },

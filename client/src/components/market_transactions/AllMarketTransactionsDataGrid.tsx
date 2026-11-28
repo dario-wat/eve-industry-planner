@@ -16,6 +16,7 @@ const columns: GridColDef[] = [
         typeId={params.row.typeId}
         categoryId={params.row.categoryId}
         name={params.row.name}
+        linkToItem
       />,
   },
   {

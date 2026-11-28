@@ -3,6 +3,7 @@ import { Service } from 'typedi';
 import MarketService from './MarketService';
 import Controller from '../../core/controller/Controller';
 import ActorContext from '../../core/actor_context/ActorContext';
+import { optionalTypeId } from '../../lib/requestParams';
 
 @Service()
 export default class MarketController extends Controller {
@@ -13,11 +14,16 @@ export default class MarketController extends Controller {
   }
 
   protected initController(): void {
-    /** Queries market orders for the logged in account. */
+    /** Queries market orders for the logged in account, optionally for one `typeId`. */
     this.appGet(
       '/market_orders',
-      async (_req: Request, res: Response, actorContext: ActorContext) => {
-        const output = await this.marketService.genMarketOrdersForAccount(actorContext);
+      async (req: Request, res: Response, actorContext: ActorContext) => {
+        const typeId = optionalTypeId(req.query.typeId);
+        if (typeId === undefined) {
+          res.status(400).send('typeId must be a positive integer');
+          return;
+        }
+        const output = await this.marketService.genMarketOrdersForAccount(actorContext, typeId);
         res.json(output);
       }
     );

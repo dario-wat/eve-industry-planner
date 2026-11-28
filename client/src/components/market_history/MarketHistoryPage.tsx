@@ -20,6 +20,7 @@ import { MarketHistoryDay, buildMarketHistoryDays } from './marketHistoryStats';
 import MarketHistorySummaryTable from './MarketHistorySummaryTable';
 import TradeCalculator from './TradeCalculator';
 import OrderBookPanel from './OrderBookPanel';
+import YourPositionPanel from './YourPositionPanel';
 import WorkspacePage from 'components/util/WorkspacePage';
 
 type ItemTab = 'trade' | 'history';
@@ -128,6 +129,14 @@ export default function MarketHistoryPage() {
               help="Live orders from the stored book at the stations set in Settings. The buy side lists every buy order a seller at the buy station can fill, including ranged orders placed in Jita. The chart covers prices within 25% of the best; the table lists every order."
             >
               <OrderBookPanel key={paramTypeId} typeId={paramTypeId} />
+            </DashboardPanel>
+          </Box>
+          <Box sx={{ pt: 1.5 }}>
+            <DashboardPanel
+              title="Your position"
+              help="Open orders and wallet transactions of the characters picked in the character selector. Transactions come from the stored wallet history, synced by the wallet job."
+            >
+              <YourPositionPanel key={paramTypeId} typeId={paramTypeId} />
             </DashboardPanel>
           </Box>
         </Box>

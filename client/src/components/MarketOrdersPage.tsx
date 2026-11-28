@@ -36,6 +36,7 @@ export default function MarketOrdersPage() {
           typeId={params.row.typeId}
           categoryId={params.row.categoryId}
           name={params.row.name}
+          linkToItem
         />,
     },
     {

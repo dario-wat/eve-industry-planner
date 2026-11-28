@@ -36,10 +36,13 @@ export default class MarketService {
   ) {}
 
   /** Returns all data needed for the Market Orders page. */
-  public async genMarketOrdersForAccount(actorContext: ActorContext): Promise<MarketOrdersRes> {
-    const orders = await genQueryFlatPerCharacter(actorContext, (character) =>
+  public async genMarketOrdersForAccount(
+    actorContext: ActorContext,
+    typeId: number | null = null,
+  ): Promise<MarketOrdersRes> {
+    const orders = (await genQueryFlatPerCharacter(actorContext, (character) =>
       this.esiQuery.genxCharacterMarketOrders(character.characterId)
-    );
+    )).filter(([_, o]) => typeId === null || o.type_id === typeId);
 
     const [stationNames, traders] = await Promise.all([
       this.stationService.genAllStationNames(
