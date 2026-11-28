@@ -18,11 +18,20 @@ import ItemQuantitiesParserService, {
   ItemQuantity,
 } from '../item_quantities/ItemQuantitiesParserService';
 import { chain } from 'underscore';
-import { FeeRates, repriceOption } from '@internal/shared';
+import {
+  FeeRates,
+  OrderStandingRes,
+  orderStanding,
+  repriceOption,
+  TradeBookOrderRes,
+} from '@internal/shared';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import CharacterContextService from '../character_context/CharacterContextService';
 import { Trader } from '../fees/fees';
 import FeeResolverService from '../fees/FeeResolverService';
+import LocationNameService from '../fees/LocationNameService';
+import { genStoredBook } from '../fees/bookOrders';
+import TradeSettingsService from '../trade_settings/TradeSettingsService';
 
 @Service()
 export default class MarketService {
@@ -33,6 +42,8 @@ export default class MarketService {
     private readonly itemQuantitiesParser: ItemQuantitiesParserService,
     private readonly characterContextService: CharacterContextService,
     private readonly feeResolver: FeeResolverService,
+    private readonly locationNameService: LocationNameService,
+    private readonly tradeSettingsService: TradeSettingsService,
   ) {}
 
   /** Returns all data needed for the Market Orders page. */
@@ -44,12 +55,13 @@ export default class MarketService {
       this.esiQuery.genxCharacterMarketOrders(character.characterId)
     )).filter(([_, o]) => typeId === null || o.type_id === typeId);
 
-    const [stationNames, traders] = await Promise.all([
+    const [stationNames, traders, standings] = await Promise.all([
       this.stationService.genAllStationNames(
         actorContext,
         orders.map(([_, o]) => o.location_id)
       ),
       this.genTraders(orders.map(([character]) => character)),
+      this.genStandings(actorContext, orders.map(([_, o]) => o)),
     ]);
 
     return orders
@@ -68,7 +80,72 @@ export default class MarketService {
         isBuy: o.is_buy_order ?? false,
         issuedDate: o.issued,
         duration: o.duration,
+        orderId: o.order_id,
+        standing: standings?.get(o.order_id) ?? null,
       }));
+  }
+
+  /** Null when the stored book could not be read; the page still works without it. */
+  private async genStandings(
+    actorContext: ActorContext,
+    orders: EsiMarketOrder[],
+  ): Promise<Map<number, OrderStandingRes> | null> {
+    try {
+      const [station, { orders: book }] = await Promise.all([
+        this.tradeSettingsService.genxTradingStation(actorContext),
+        genStoredBook(chain(orders).pluck('type_id').uniq().value()),
+      ]);
+      const ownOrderIds = new Set(orders.map((order) => order.order_id));
+      const bookById = new Map(book.map((order) => [order.orderId, order]));
+      const bookByType = chain(book).groupBy('typeId').value();
+      const standings = orders.map((order) => [
+        order.order_id,
+        orderStanding(
+          bookById.get(order.order_id) ?? this.asBookOrder(order),
+          bookByType[order.type_id] ?? [],
+          station,
+          ownOrderIds,
+        ),
+      ] as const);
+      const names = await this.locationNameService.genShortNames(actorContext, [
+        station.locationId,
+        ...standings.flatMap(([_, s]) => (s.status === 'outbid' ? [s.bestLocationId] : [])),
+      ]);
+      return new Map(standings.map(([orderId, standing]): [number, OrderStandingRes] => {
+        switch (standing.status) {
+          case 'top':
+            return [orderId, standing];
+          case 'outbid':
+            return [orderId, {
+              status: 'outbid',
+              bestPrice: standing.bestPrice,
+              bestLocationName: names[standing.bestLocationId] ?? null,
+              ordersAhead: standing.ordersAhead,
+            }];
+          default:
+            return [orderId, { status: 'away', stationName: names[station.locationId] ?? null }];
+        }
+      }));
+    } catch (error) {
+      console.error('Order standings failed', error);
+      return null;
+    }
+  }
+
+  /** Orders outside the stored book, e.g. at a station it does not cover. */
+  private asBookOrder(order: EsiMarketOrder): TradeBookOrderRes {
+    return {
+      orderId: order.order_id,
+      typeId: order.type_id,
+      locationId: order.location_id,
+      systemId: order.system_id ?? this.tradeSettingsService.knownSystemId(order.location_id) ?? 0,
+      isBuy: order.is_buy_order ?? false,
+      price: order.price,
+      volumeRemain: order.volume_remain,
+      minVolume: order.min_volume ?? 1,
+      range: order.range,
+      issued: order.issued,
+    };
   }
 
   /** Null for a character whose skills or standings could not be read. */

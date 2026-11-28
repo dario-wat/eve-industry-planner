@@ -13,6 +13,7 @@ import { addDays, formatDistanceToNowStrict, subDays } from 'date-fns';
 import { BookSide, MarketOrdersRes, WalletTransactionsRes } from '@internal/shared';
 import { formatIsk, formatNumber, formatShare } from 'common/format';
 import { PanelLoading, profitColor, sideColor, SideChip } from './tradeVisuals';
+import OrderStandingCell from 'components/OrderStandingCell';
 
 const SUMMARY_DAYS = 30;
 const RECENT_FILLS = 5;
@@ -58,8 +59,8 @@ function OrdersTable({ orders }: { orders: MarketOrdersRes }) {
   const showCharacter = new Set(sorted.map(order => order.characterName)).size > 1;
   return (
     <CompactTable
-      head={['', 'Price', 'Remaining', 'Location', 'Expires', ...(showCharacter ? ['Character'] : [])]}
-      rightAligned={[1, 2]}
+      head={['', 'Price', 'Position', 'Remaining', 'Location', 'Expires', ...(showCharacter ? ['Character'] : [])]}
+      rightAligned={[1, 3]}
     >
       {sorted.map((order, index) => {
         const side: BookSide = order.isBuy ? 'buy' : 'sell';
@@ -69,6 +70,9 @@ function OrdersTable({ orders }: { orders: MarketOrdersRes }) {
             <TableCell><SideChip side={side} /></TableCell>
             <TableCell align="right" sx={{ color: sideColor(theme, side), fontWeight: 'bold' }}>
               {formatNumber(order.price, 2)}
+            </TableCell>
+            <TableCell>
+              <OrderStandingCell standing={order.standing} price={order.price} isBuy={order.isBuy} />
             </TableCell>
             <TableCell align="right">
               {formatNumber(order.volumeRemain)}

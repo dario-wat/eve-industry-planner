@@ -45,8 +45,8 @@ export function buyOrderReaches(
 }
 
 /**
- * Orders a new order at `station` competes with, best first. Buy side: every buy order a seller
- * there can fill, wherever it was placed. Sell side: sell orders at the station itself.
+ * Orders a new order competes with when trading happens at `station`, best first. Buy side: every
+ * buy order a seller there can fill, wherever it was placed. Sell side: sell orders at the station.
  */
 export function competingOrders(
   orders: readonly TradeBookOrderRes[],
@@ -61,4 +61,59 @@ export function competingOrders(
     : orders
       .filter((order) => !order.isBuy && order.locationId === station.locationId)
       .sort((left, right) => left.price - right.price);
+}
+
+/** Where an order stands against the competition at the trading station. */
+export type OrderStanding =
+  | {
+    status: 'top';
+    /** The best competing price behind yours, or null with no competition. */
+    nextPrice: number | null;
+  }
+  | {
+    status: 'outbid';
+    bestPrice: number;
+    bestLocationId: number;
+    /** Competing orders a trade fills before yours. */
+    ordersAhead: number;
+  }
+  /** A sell order elsewhere, or a buy order whose range does not reach the station. */
+  | { status: 'away' };
+
+/**
+ * Compares `order` with the book at `station`, where the trading happens. Orders in `ownOrderIds`
+ * are not competition. At the same price the older order fills first.
+ */
+export function orderStanding(
+  order: TradeBookOrderRes,
+  book: readonly TradeBookOrderRes[],
+  station: TradeStation,
+  ownOrderIds: ReadonlySet<number>,
+  jumps: JumpCount = tradeHubJumps,
+): OrderStanding {
+  const side: BookSide = order.isBuy ? 'buy' : 'sell';
+  const trades = order.isBuy
+    ? buyOrderReaches(order, station, jumps)
+    : order.locationId === station.locationId;
+  if (!trades) {
+    return { status: 'away' };
+  }
+  const competing = competingOrders(book, station, side, jumps)
+    .filter((other) => !ownOrderIds.has(other.orderId));
+  const better = (other: TradeBookOrderRes) => {
+    if (other.price === order.price) {
+      return other.issued < order.issued;
+    }
+    return order.isBuy ? other.price > order.price : other.price < order.price;
+  };
+  const ahead = competing.filter(better);
+  if (ahead.length === 0) {
+    return { status: 'top', nextPrice: competing[0]?.price ?? null };
+  }
+  return {
+    status: 'outbid',
+    bestPrice: ahead[0].price,
+    bestLocationId: ahead[0].locationId,
+    ordersAhead: ahead.length,
+  };
 }

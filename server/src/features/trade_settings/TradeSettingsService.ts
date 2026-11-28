@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { TradeLocationRes, TradeSettingsRes } from '@internal/shared';
+import { TradeLocationRes, TradeSettingsRes, TradeStation } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
 import StationService from '../../core/query/StationService';
 import {
@@ -68,11 +68,22 @@ export default class TradeSettingsService {
     }));
   }
 
-  /** The Perimeter structures are not in the SDE. */
+  /** The sell station: where buyers and sellers meet, so where orders compete. */
+  public async genxTradingStation(actorContext: ActorContext): Promise<TradeStation> {
+    const { sellLocationId } = await this.genxStations(actorContext);
+    return { locationId: sellLocationId, systemId: this.systemId(sellLocationId) };
+  }
+
+  /** The Perimeter structures are not in the SDE. Null for other structures. */
+  public knownSystemId(locationId: number): number | null {
+    if (PERIMETER_MARKET_STRUCTURES.includes(locationId)) {
+      return PERIMETER;
+    }
+    return this.sdeData.stations[locationId]?.solar_system_id ?? null;
+  }
+
   private systemId(locationId: number): number {
-    return PERIMETER_MARKET_STRUCTURES.includes(locationId)
-      ? PERIMETER
-      : this.sdeData.stations[locationId].solar_system_id;
+    return this.knownSystemId(locationId)!;
   }
 }
 

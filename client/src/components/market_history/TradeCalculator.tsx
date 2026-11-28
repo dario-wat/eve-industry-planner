@@ -61,7 +61,8 @@ export default function TradeCalculator({ typeId }: { typeId: number }) {
   const character = characters.find(c => c.characterId === pickedCharacterId) ?? characters[0];
   const buyRates = character.error === null ? character.buyRates : null;
   const sellRates = character.error === null ? character.sellRates : null;
-  const buyPrice = topCompetingPrice(book?.orders ?? [], feeData.buyLocation, 'buy');
+  // Sellers are at the sell station, so a buy order competes for what they can sell into.
+  const buyPrice = topCompetingPrice(book?.orders ?? [], feeData.sellLocation, 'buy');
   const sellPrice = topCompetingPrice(book?.orders ?? [], feeData.sellLocation, 'sell');
 
   const input: RoundTripInput | null = buyRates && sellRates
@@ -114,7 +115,7 @@ export default function TradeCalculator({ typeId }: { typeId: number }) {
             side="buy"
             location={feeData.buyLocation}
             price={buyPrice}
-            missingPrice="No buy orders reach here"
+            missingPrice="No buy orders reach the sell station"
             rates={buyRates}
           />
           <Leg
@@ -139,8 +140,8 @@ export default function TradeCalculator({ typeId }: { typeId: number }) {
 }
 
 /**
- * The best price your new order competes with. A buy order competes with every buy order that
- * accepts sales at the station, wherever it was placed.
+ * The best price your new order competes with at the trading station. A buy order competes with
+ * every buy order sellers there can fill, wherever it was placed.
  */
 function topCompetingPrice(
   orders: TradeBookOrderRes[],

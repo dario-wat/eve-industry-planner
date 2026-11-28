@@ -148,7 +148,20 @@ export type MarketOrdersRes = {
   modifyFee: number | null;
   /** Fee to cancel and place a new order instead. */
   replaceFee: number | null;
+  orderId: number;
+  /** Against the book at the sell station set in Settings. Null when the book is unavailable. */
+  standing: OrderStandingRes | null;
 }[];
+
+export type OrderStandingRes =
+  | { status: 'top'; nextPrice: number | null }
+  | {
+    status: 'outbid';
+    bestPrice: number;
+    bestLocationName: string | null;
+    ordersAhead: number;
+  }
+  | { status: 'away'; stationName: string | null };
 
 export type CharacterSummaryRes = {
   characterId: number;
@@ -204,6 +217,7 @@ export type TradeFeeRatesRes = {
 /** One open order from the stored order book. */
 export type TradeBookOrderRes = {
   orderId: number;
+  typeId: number;
   locationId: number;
   systemId: number;
   isBuy: boolean;

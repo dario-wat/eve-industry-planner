@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { MarketOrdersRes } from '@internal/shared';
 import CharacterSummaryStrip from 'components/CharacterSummaryStrip';
+import OrderStandingCell, { standingRank } from 'components/OrderStandingCell';
 import { formatIsk } from 'common/format';
 import EveIconAndName from 'components/util/EveIconAndName';
 import WorkspacePage, { WorkspaceSection, WorkspaceSpinner } from 'components/util/WorkspacePage';
@@ -37,6 +38,19 @@ export default function MarketOrdersPage() {
           categoryId={params.row.categoryId}
           name={params.row.name}
           linkToItem
+        />,
+    },
+    {
+      field: 'standing',
+      headerName: 'Position',
+      description: 'Against the book at the sell station set in Settings, from the latest 5-minute poll',
+      width: 170,
+      sortComparator: (a, b) => standingRank(a) - standingRank(b),
+      renderCell: params =>
+        <OrderStandingCell
+          standing={params.row.standing}
+          price={params.row.price}
+          isBuy={params.row.isBuy}
         />,
     },
     {

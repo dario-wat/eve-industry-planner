@@ -34,7 +34,8 @@ type LocationNames = TradeBookRes['locationNames'];
 type BookRow = TradeBookOrderRes & { total: number };
 
 /**
- * What a new buy order at the buy station and a new sell order at the sell station compete with.
+ * What new orders compete with at the sell station, where the trading happens: buy orders sellers
+ * there can fill, wherever they were placed, and the sell orders there.
  */
 export default function OrderBookPanel({ typeId }: { typeId: number }) {
   const [{ data: feeData }] = useAxios<TradeFeeRatesRes | null>('/trade_fee_rates');
@@ -59,8 +60,8 @@ export default function OrderBookPanel({ typeId }: { typeId: number }) {
       }}
     >
       <BookSideView
-        title="Buy orders a seller here can fill"
-        location={feeData.buyLocation}
+        title="Buy orders a seller at the sell station can fill"
+        location={feeData.sellLocation}
         side="buy"
         orders={book.orders}
         locationNames={book.locationNames}

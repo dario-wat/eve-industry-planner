@@ -143,14 +143,14 @@ export default function MarketHistoryPage() {
         <Box sx={{ pt: 2 }}>
           <DashboardPanel
             title="Trade calculator"
-            help="A buy order at the buy station and a sell order at the sell station set in Settings. Each price is the best order yours would compete with. Buy orders placed elsewhere count if their range reaches the buy station. Fees are the character's, from live skills and standings."
+            help="A buy order at the buy station and a sell order at the sell station set in Settings. Trading happens at the sell station: the buy price is the best buy order sellers there can fill, wherever it was placed (place yours with a range that reaches it), and the sell price is the best sell order there. Fees are the character's, from live skills and standings."
           >
             <TradeCalculator key={paramTypeId} typeId={paramTypeId} />
           </DashboardPanel>
           <Box sx={{ pt: 1.5 }}>
             <DashboardPanel
               title="Order book"
-              help="Live orders from the stored book at the stations set in Settings. The buy side lists every buy order a seller at the buy station can fill, including ranged orders placed in Jita. The chart covers prices within 25% of the best; the table lists every order."
+              help="Live orders from the stored book at the stations set in Settings. The buy side lists every buy order a seller at the sell station can fill, including ranged orders placed in Perimeter or elsewhere in Jita. The chart covers prices within 25% of the best; the table lists every order."
             >
               <OrderBookPanel key={paramTypeId} typeId={paramTypeId} />
             </DashboardPanel>
