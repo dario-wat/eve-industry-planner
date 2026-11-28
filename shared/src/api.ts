@@ -136,6 +136,7 @@ export type MarketOrdersRes = {
   typeId: number;
   name: string;
   categoryId: number | undefined;
+  /** Short name ("Jita 4-4", "Perimeter TTT"). */
   locationName: string | null;
   locationId: number;
   price: number;

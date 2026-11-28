@@ -47,11 +47,17 @@ export function WorkspaceFill({ children }: { children: ReactNode }) {
 }
 
 /** Title plus grid, one framed block on the grey page. */
-export function WorkspaceSection(props: { title: string; children: ReactNode }) {
+export function WorkspaceSection(props: {
+  title: ReactNode;
+  children: ReactNode;
+  /** Grow into the leftover viewport. Off on scrolling pages, where the content sets the height. */
+  fill?: boolean;
+}) {
+  const { fill = true } = props;
   return (
     <Box
       sx={{
-        flex: 1,
+        flex: fill ? 1 : 'none',
         minHeight: 0,
         display: 'flex',
         flexDirection: 'column',
@@ -66,6 +72,7 @@ export function WorkspaceSection(props: { title: string; children: ReactNode }) 
     >
       <Typography
         variant="subtitle2"
+        component="div"
         sx={{
           flexShrink: 0,
           px: 1,
@@ -77,7 +84,7 @@ export function WorkspaceSection(props: { title: string; children: ReactNode }) 
       >
         {props.title}
       </Typography>
-      <WorkspaceFill>{props.children}</WorkspaceFill>
+      {fill ? <WorkspaceFill>{props.children}</WorkspaceFill> : props.children}
     </Box>
   );
 }

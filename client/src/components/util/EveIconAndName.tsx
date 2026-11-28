@@ -5,7 +5,7 @@ import EveIcon from 'components/util/EveIcon';
 
 export default function EveIconAndName(props: {
   typeId: number,
-  categoryId: number,
+  categoryId?: number,
   name: string,
   /** Links the name to the Item page. */
   linkToItem?: boolean,

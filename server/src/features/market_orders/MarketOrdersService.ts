@@ -56,7 +56,7 @@ export default class MarketOrdersService {
     )).filter(([_, o]) => typeId === null || o.type_id === typeId);
 
     const [stationNames, traders, standings] = await Promise.all([
-      this.stationService.genAllStationNames(
+      this.locationNameService.genShortNames(
         actorContext,
         orders.map(([_, o]) => o.location_id)
       ),

@@ -8,6 +8,7 @@ import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { NetWorthHistoryRes } from '@internal/shared';
 import { formatIsk, formatNumber, formatPercentPoints } from 'common/format';
 import EChart from 'components/util/EChart';
+import CharacterSummaryStrip from 'components/CharacterSummaryStrip';
 import WorkspacePage, { WorkspaceSection, WorkspaceSpinner } from 'components/util/WorkspacePage';
 
 type Day = {
@@ -59,6 +60,7 @@ export default function NetWorthPage() {
           corp wallet, to or from characters outside the selection.
         </Typography>
       </Box>
+      <CharacterSummaryStrip />
       {days.length === 0
         ? (
           <Typography variant="body2" color="text.secondary" sx={{ p: 1 }}>
