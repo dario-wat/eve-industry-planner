@@ -13,12 +13,13 @@ import {
   CHART_SPANS,
   ChartColors,
   ChartSpan,
-  liquidityChartOption,
+  HISTORY_CHART_GROUP,
   priceChartOption,
   rangeChartOption,
+  volumeChartOption,
 } from './historyChartOptions';
 import { MarketHistoryDay, buildMarketHistoryDays } from './marketHistoryStats';
-import MarketHistorySummaryTable from './MarketHistorySummaryTable';
+import MarketHistorySummaryTable, { HistoryHeadline } from './MarketHistorySummaryTable';
 import TradeCalculator from './TradeCalculator';
 import OrderBookPanel from './OrderBookPanel';
 import YourPositionPanel from './YourPositionPanel';
@@ -198,22 +199,7 @@ export default function MarketHistoryPage() {
           </Box>
           {isLoading && <PanelLoading />}
           {!isLoading && marketHistoryDays.length > 0 && (
-            <Box
-              sx={{
-                pt: 2,
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-                gap: 1.5,
-              }}
-            >
-              <DashboardPanel
-                title="Summary"
-                help="Windows are calendar days ending on the latest trade date."
-              >
-                <MarketHistorySummaryTable days={marketHistoryDays} />
-              </DashboardPanel>
-              <HistoryCharts days={marketHistoryDays} span={span} />
-            </Box>
+            <HistoryDashboard days={marketHistoryDays} span={span} />
           )}
           {!isLoading && historyData != null && marketHistoryDays.length === 0 && (
             <Typography sx={{ pt: 2 }}>No item history for this type.</Typography>
@@ -224,32 +210,30 @@ export default function MarketHistoryPage() {
   );
 }
 
-function HistoryCharts(props: { days: MarketHistoryDay[]; span: ChartSpan }) {
+function HistoryDashboard(props: { days: MarketHistoryDay[]; span: ChartSpan }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
-  const colors = useMemo<ChartColors>(
-    () => ({
-      band: withAlpha(theme.palette.grey[isDark ? 400 : 500], isDark ? 0.35 : 0.28),
-      edge: theme.palette.grey[isDark ? 400 : 600],
-      average: isDark ? theme.palette.primary.light : theme.palette.primary.main,
-      median7: isDark ? theme.palette.warning.light : theme.palette.warning.dark,
-      median30: isDark ? theme.palette.secondary.light : theme.palette.secondary.main,
-      orders7: isDark ? theme.palette.primary.light : theme.palette.primary.main,
-      orders30: isDark ? theme.palette.success.light : theme.palette.success.main,
+  const colors = useMemo<ChartColors>(() => {
+    // MUI's dark primary is nearly white on charts; these pairs are checked against each surface.
+    const accent = isDark ? '#4a9fe8' : '#1565c0';
+    return {
+      accent,
+      bars: withAlpha(theme.palette.grey[isDark ? 500 : 400], isDark ? 0.55 : 0.7),
+      band: withAlpha(accent, isDark ? 0.28 : 0.18),
+      reference: isDark ? '#d6609c' : '#c2185b',
       text: theme.palette.text.primary,
       muted: theme.palette.text.secondary,
       divider: theme.palette.divider,
       paper: theme.palette.background.paper,
       fontFamily: theme.typography.fontFamily ?? 'sans-serif',
-    }),
-    [isDark, theme],
-  );
+    };
+  }, [isDark, theme]);
   const priceOption = useMemo(
     () => priceChartOption(props.days, props.span, colors),
     [props.days, props.span, colors],
   );
-  const liquidityOption = useMemo(
-    () => liquidityChartOption(props.days, props.span, colors),
+  const volumeOption = useMemo(
+    () => volumeChartOption(props.days, props.span, colors),
     [props.days, props.span, colors],
   );
   const rangeOption = useMemo(
@@ -258,26 +242,37 @@ function HistoryCharts(props: { days: MarketHistoryDay[]; span: ChartSpan }) {
   );
 
   return (
-    <>
+    <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <HistoryHeadline days={props.days} />
       <DashboardPanel
         title="Price"
-        help="High and low are the day's auction range. Medians are of the traded average. Gaps are days with no trades."
+        help="The band is each day's high to low. The line is the day's traded average; the magenta line is its 30-day median. The dashed 7-day median is off by default; click it in the legend. Gaps are days with no trades."
       >
-        <EChart option={priceOption} height={300} />
+        <EChart option={priceOption} height={360} group={HISTORY_CHART_GROUP} />
       </DashboardPanel>
-      <DashboardPanel
-        title="Liquidity"
-        help="Solid lines are 7- and 30-day medians of ISK volume, on the left axis. Dashed lines are the same medians of order count, on the right axis. Days with no trades count as zero."
-      >
-        <EChart option={liquidityOption} height={300} />
-      </DashboardPanel>
-      <DashboardPanel
-        title="Intraday range"
-        help="High-to-low as a percent of the high. Medians skip days with no trades."
-      >
-        <EChart option={rangeOption} height={300} />
-      </DashboardPanel>
-    </>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1.5 }}>
+        <DashboardPanel
+          title="Volume"
+          help="Bars are ISK traded each day; missing bars are days with no trades. Lines are 7- and 30-day medians. Hover for units and order count."
+        >
+          <EChart option={volumeOption} height={240} group={HISTORY_CHART_GROUP} />
+        </DashboardPanel>
+        <DashboardPanel
+          title="Intraday range"
+          help="Bars are each day's high-to-low as a percent of the high. Lines are 7- and 30-day medians. Days with no trades are skipped."
+        >
+          <EChart option={rangeOption} height={240} group={HISTORY_CHART_GROUP} />
+        </DashboardPanel>
+      </Box>
+      <Box sx={{ width: { xs: '100%', md: 'fit-content' } }}>
+        <DashboardPanel
+          title="Summary"
+          help="Windows are calendar days ending on the latest trade date. The 30-day column matches the numbers at the top."
+        >
+          <MarketHistorySummaryTable days={props.days} />
+        </DashboardPanel>
+      </Box>
+    </Box>
   );
 }
 

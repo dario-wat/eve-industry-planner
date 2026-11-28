@@ -1,6 +1,6 @@
 import { addDays, format, subMonths, subYears } from 'date-fns';
 import type { ComposeOption } from 'echarts/core';
-import type { LineSeriesOption } from 'echarts/charts';
+import type { BarSeriesOption, LineSeriesOption } from 'echarts/charts';
 import type {
   GridComponentOption,
   LegendComponentOption,
@@ -18,21 +18,27 @@ export const CHART_SPANS = [
 
 export type ChartSpan = typeof CHART_SPANS[number]['id'];
 
+/** Charts in this group share one hover crosshair. */
+export const HISTORY_CHART_GROUP = 'itemHistory';
+
 export type EChartsOption = ComposeOption<
   | LineSeriesOption
+  | BarSeriesOption
   | GridComponentOption
   | TooltipComponentOption
   | LegendComponentOption
 >;
 
+/**
+ * One accent for the item's own numbers, a second hue for the 30-day reference line.
+ * Series names must differ between charts: linked charts also share legend toggles by name.
+ */
 export type ChartColors = {
+  accent: string;
+  /** Daily values behind the lines; neutral so the lines stand out. */
+  bars: string;
   band: string;
-  edge: string;
-  average: string;
-  median7: string;
-  median30: string;
-  orders7: string;
-  orders30: string;
+  reference: string;
   text: string;
   muted: string;
   divider: string;
@@ -41,12 +47,14 @@ export type ChartColors = {
 };
 
 const BAND = 'band';
+const BAND_NAME = 'High / low';
 
 type TooltipItem = {
   seriesName?: string;
   marker?: string;
   value?: number | string | null;
   axisValueLabel?: string;
+  dataIndex?: number;
 };
 
 export function priceChartOption(
@@ -59,50 +67,66 @@ export function priceChartOption(
   const shown = visibleDays(days, span);
   const count = shown.length;
   return {
-    ...frame(colors, { right: 24 }),
-    legend: legend(colors, ['Average', '7-day median', '30-day median', 'High', 'Low']),
-    tooltip: axisTooltip(colors, value => formatIsk(value)),
+    ...frame(colors),
+    legend: legend(colors, ['Average', '30-day median price', '7-day median price', BAND_NAME], {
+      '7-day median price': false,
+    }),
+    tooltip: axisTooltip(colors, (items) => {
+      const rows = items.flatMap(item => {
+        const value = numeric(item.value);
+        if (value === null || item.seriesName === BAND_NAME || item.seriesName?.startsWith(BAND)) {
+          return [];
+        }
+        return [`${item.marker ?? ''}${item.seriesName}: ${formatIsk(value)}`];
+      });
+      const day = shown[items[0]?.dataIndex ?? -1];
+      if (day?.high != null && day.low != null) {
+        rows.push(`High ${formatIsk(day.high)} · Low ${formatIsk(day.low)}`);
+      }
+      return rows;
+    }),
     xAxis: categoryAxis(shown, colors),
     yAxis: valueAxis(colors, formatIsk, { scale: true }),
     series: [
       bandBase(shown.map(day => day.low)),
-      bandSpan(shown.map(day => day.rangeWidth), colors.band),
-      priceLine('Low', shown.map(day => day.low), colors.edge, 1),
-      priceLine('High', shown.map(day => day.high), colors.edge, 1),
-      priceLine('30-day median', median30.slice(-count), colors.median30, 1.5),
-      priceLine('7-day median', median7.slice(-count), colors.median7, 1.5),
-      priceLine('Average', shown.map(day => day.average), colors.average, 2),
+      bandSpan(BAND_NAME, shown.map(day => day.rangeWidth), colors.band),
+      line('30-day median price', median30.slice(-count), colors.reference, 1.5),
+      line('7-day median price', median7.slice(-count), colors.accent, 1.5, { dashed: true }),
+      line('Average', shown.map(day => day.average), colors.accent, 2.5),
     ],
   };
 }
 
-export function liquidityChartOption(
+/** Daily ISK traded as bars, so days with no trades show as gaps, with medians on top. */
+export function volumeChartOption(
   days: MarketHistoryDay[],
   span: ChartSpan,
   colors: ChartColors,
 ): EChartsOption {
-  const iskMedian7 = rollingMedian(days, day => day.iskVolume, 7);
-  const iskMedian30 = rollingMedian(days, day => day.iskVolume, 30);
-  const orderMedian7 = rollingMedian(days, day => day.orderCount, 7);
-  const orderMedian30 = rollingMedian(days, day => day.orderCount, 30);
+  const median7 = rollingMedian(days, day => day.iskVolume, 7);
+  const median30 = rollingMedian(days, day => day.iskVolume, 30);
   const shown = visibleDays(days, span);
   const count = shown.length;
   return {
-    ...frame(colors, { right: 56 }),
-    legend: legend(colors, ['7-day ISK', '30-day ISK', '7-day orders', '30-day orders']),
-    tooltip: axisTooltip(colors, (value, seriesName) => (
-      seriesName.endsWith('orders') ? formatCount(value) : formatIsk(value)
-    )),
+    ...frame(colors),
+    legend: legend(colors, ['Daily ISK', '7-day median ISK', '30-day median ISK']),
+    tooltip: axisTooltip(colors, (items) => {
+      const day = shown[items[0]?.dataIndex ?? -1];
+      const rows = items.flatMap(item => {
+        const value = numeric(item.value);
+        return value === null ? [] : [`${item.marker ?? ''}${item.seriesName}: ${formatIsk(value)}`];
+      });
+      if (day !== undefined) {
+        rows.push(`Units: ${formatNumber(day.volume)} · Orders: ${formatNumber(day.orderCount)}`);
+      }
+      return rows;
+    }),
     xAxis: categoryAxis(shown, colors),
-    yAxis: [
-      valueAxis(colors, formatIsk, { min: 0 }),
-      valueAxis(colors, formatCount, { min: 0, splitLine: false }),
-    ],
+    yAxis: valueAxis(colors, formatIsk, { min: 0 }),
     series: [
-      medianLine('30-day ISK', iskMedian30.slice(-count), colors.median30, 0, 'solid'),
-      medianLine('7-day ISK', iskMedian7.slice(-count), colors.median7, 0, 'solid'),
-      medianLine('30-day orders', orderMedian30.slice(-count), colors.orders30, 1, 'dashed'),
-      medianLine('7-day orders', orderMedian7.slice(-count), colors.orders7, 1, 'dashed'),
+      bars('Daily ISK', shown.map(day => day.iskVolume), colors.bars),
+      line('30-day median ISK', median30.slice(-count), colors.reference, 1.5),
+      line('7-day median ISK', median7.slice(-count), colors.accent, 2),
     ],
   };
 }
@@ -115,21 +139,25 @@ export function rangeChartOption(
   const rangePercent = (day: MarketHistoryDay) => (
     day.rangeRatio == null ? null : day.rangeRatio * 100
   );
-  const daily = days.map(rangePercent);
   const median7 = rollingMedian(days, rangePercent, 7);
   const median30 = rollingMedian(days, rangePercent, 30);
   const shown = visibleDays(days, span);
   const count = shown.length;
   return {
-    ...frame(colors, { right: 24 }),
-    legend: legend(colors, ['Daily range', '7-day median', '30-day median']),
-    tooltip: axisTooltip(colors, value => formatPercentPoints(value)),
+    ...frame(colors),
+    legend: legend(colors, ['Daily range', '7-day median range', '30-day median range']),
+    tooltip: axisTooltip(colors, (items) => items.flatMap(item => {
+      const value = numeric(item.value);
+      return value === null
+        ? []
+        : [`${item.marker ?? ''}${item.seriesName}: ${formatPercentPoints(value)}`];
+    })),
     xAxis: categoryAxis(shown, colors),
     yAxis: valueAxis(colors, value => formatPercentPoints(value, 0), { min: 0 }),
     series: [
-      priceLine('Daily range', daily.slice(-count), colors.edge, 1),
-      priceLine('30-day median', median30.slice(-count), colors.median30, 1.5),
-      priceLine('7-day median', median7.slice(-count), colors.median7, 1.5),
+      bars('Daily range', shown.map(rangePercent), colors.bars),
+      line('30-day median range', median30.slice(-count), colors.reference, 2.5),
+      line('7-day median range', median7.slice(-count), colors.accent, 2),
     ],
   };
 }
@@ -149,12 +177,12 @@ function visibleDays(days: MarketHistoryDay[], span: ChartSpan): MarketHistoryDa
   return shown.length === 0 ? days : shown;
 }
 
-function frame(colors: ChartColors, margin: { right: number }): EChartsOption {
+function frame(colors: ChartColors): EChartsOption {
   return {
     // Legend show/hide replays the series entrance animation unless this is off.
     animation: false,
     textStyle: { fontFamily: colors.fontFamily, color: colors.muted },
-    grid: { left: 64, right: margin.right, top: 36, bottom: 28 },
+    grid: { left: 64, right: 24, top: 36, bottom: 28 },
   };
 }
 
@@ -164,91 +192,61 @@ function categoryAxis(days: MarketHistoryDay[], colors: ChartColors) {
     data: days.map(day => format(day.time, 'dd-MM-yyyy')),
     axisLabel: { hideOverlap: true, color: colors.muted },
     axisLine: { lineStyle: { color: colors.divider } },
-    axisTick: { lineStyle: { color: colors.divider } },
+    axisTick: { show: false },
   };
 }
 
 function valueAxis(
   colors: ChartColors,
   formatter: (value: number) => string,
-  extra: { min?: number; scale?: boolean; splitLine?: boolean },
+  extra: { min?: number; scale?: boolean },
 ) {
   return {
     type: 'value' as const,
     min: extra.min,
     scale: extra.scale,
     axisLabel: { formatter, color: colors.muted },
-    splitLine: {
-      show: extra.splitLine !== false,
-      lineStyle: { color: colors.divider },
-    },
+    splitLine: { lineStyle: { color: colors.divider, opacity: 0.6 } },
   };
 }
 
-function legend(colors: ChartColors, data: string[]) {
+function legend(colors: ChartColors, data: string[], selected?: Record<string, boolean>) {
   return {
     top: 0,
     left: 'center' as const,
     data,
+    selected,
     itemWidth: 14,
     itemHeight: 8,
-    itemGap: 8,
+    itemGap: 12,
     textStyle: { color: colors.text, fontSize: 11 },
   };
 }
 
-function axisTooltip(
-  colors: ChartColors,
-  formatValue: (value: number, seriesName: string) => string,
-) {
+function axisTooltip(colors: ChartColors, rows: (items: TooltipItem[]) => string[]) {
   return {
     trigger: 'axis' as const,
+    axisPointer: { type: 'line' as const, lineStyle: { color: colors.muted } },
     backgroundColor: colors.paper,
     borderColor: colors.divider,
     textStyle: { color: colors.text, fontSize: 12 },
-    formatter: (params: unknown) => tooltipHtml(params, formatValue),
+    formatter: (params: unknown) => {
+      const items = (Array.isArray(params) ? params : [params]) as TooltipItem[];
+      return [items[0]?.axisValueLabel ?? '', ...rows(items)].join('<br/>');
+    },
   };
 }
 
-function tooltipHtml(
-  params: unknown,
-  formatValue: (value: number, seriesName: string) => string,
-): string {
-  const items = (Array.isArray(params) ? params : [params]) as TooltipItem[];
-  const rows = items.flatMap(item => {
-    const value = typeof item.value === 'number' ? item.value : null;
-    if (item.seriesName == null || item.seriesName.startsWith(BAND) || value == null) {
-      return [];
-    }
-    return [`${item.marker ?? ''}${item.seriesName}: ${formatValue(value, item.seriesName)}`];
-  });
-  const header = items[0]?.axisValueLabel ?? '';
-  return [header, ...rows].join('<br/>');
+function numeric(value: TooltipItem['value']): number | null {
+  return typeof value === 'number' && !Number.isNaN(value) ? value : null;
 }
 
-function formatCount(value: number): string {
-  return formatNumber(value, Number.isInteger(value) ? 0 : 1);
-}
-
-function medianLine(
-  name: string,
-  data: (number | null)[],
-  color: string,
-  yAxisIndex: number,
-  lineType: 'solid' | 'dashed',
-): LineSeriesOption {
-  return {
-    ...priceLine(name, data, color, 1.5),
-    yAxisIndex,
-    lineStyle: { width: 1.5, color, type: lineType },
-  };
-}
-
-function priceLine(
+function line(
   name: string,
   data: (number | null)[],
   color: string,
   width: number,
+  extra: { dashed?: boolean } = {},
 ): LineSeriesOption {
   return {
     name,
@@ -258,7 +256,20 @@ function priceLine(
     connectNulls: false,
     showSymbol: false,
     itemStyle: { color },
-    lineStyle: { width, color },
+    lineStyle: { width, color, type: extra.dashed ? 'dashed' : 'solid' },
+    emphasis: { disabled: true },
+  };
+}
+
+function bars(name: string, data: (number | null)[], color: string): BarSeriesOption {
+  return {
+    name,
+    type: 'bar',
+    animation: false,
+    data,
+    barCategoryGap: '20%',
+    itemStyle: { color, borderRadius: [2, 2, 0, 0] },
+    emphasis: { disabled: true },
   };
 }
 
@@ -279,9 +290,9 @@ function bandBase(data: (number | null)[]): LineSeriesOption {
   };
 }
 
-function bandSpan(data: (number | null)[], color: string): LineSeriesOption {
+function bandSpan(name: string, data: (number | null)[], color: string): LineSeriesOption {
   return {
-    name: `${BAND}-span`,
+    name,
     type: 'line',
     animation: false,
     data,

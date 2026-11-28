@@ -1,6 +1,15 @@
-import { Box, Tooltip } from '@mui/material';
+import { ReactNode } from 'react';
+import Box from '@mui/material/Box';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import HelpIcon from '@mui/icons-material/Help';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import {
   formatIsk,
   formatMaybe,
@@ -9,20 +18,14 @@ import {
   formatShare,
   formatSignedPercent,
 } from 'common/format';
-import {
-  MarketHistoryDay,
-  WindowSummary,
-  summarizeWindow,
-} from './marketHistoryStats';
+import { MarketHistoryDay, WindowSummary, summarizeWindow } from './marketHistoryStats';
 
-const WINDOW_FIELDS = [
-  { field: 'd7', headerName: '7 days', windowDays: 7 },
-  { field: 'd30', headerName: '30 days', windowDays: 30 },
-  { field: 'd90', headerName: '90 days', windowDays: 90 },
-] as const;
+const WINDOWS = [7, 30, 90] as const;
+const HEADLINE_WINDOW = 30;
 
 const METRIC_HELP: Partial<Record<string, string>> = {
   priceChange: 'Median traded price compared with the previous window of the same length.',
+  daysTraded: 'Days with at least one trade. Amber below 5 in 6 days, red below 2 in 3.',
   medianRange: 'Each day\'s high minus its low, divided by that day\'s high. '
     + 'The cell is the median of those days. Days with no trades are left out. '
     + 'A day that traded at a single price is 0%.',
@@ -34,88 +37,216 @@ const METRIC_HELP: Partial<Record<string, string>> = {
     + 'Days with no trades, and days where the high and low were the same, are left out.',
 };
 
-const summaryColumns: GridColDef[] = [
+type Metric = {
+  id: string;
+  label: string;
+  cell: (summary: WindowSummary) => ReactNode;
+};
+
+const GROUPS: { title: string; metrics: Metric[] }[] = [
   {
-    field: 'metric',
-    headerName: 'Metric',
-    flex: 1.4,
-    minWidth: 130,
-    sortable: false,
-    renderCell: params => {
-      const help = METRIC_HELP[String(params.row.id)];
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-          <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {params.value}
-          </Box>
-          {help != null &&
-            <Tooltip title={help}>
-              <Box component="span" sx={{ display: 'inline-flex', flexShrink: 0 }}>
-                <HelpIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-              </Box>
-            </Tooltip>
-          }
-        </Box>
-      );
-    },
+    title: 'Volume',
+    metrics: [
+      { id: 'medianIsk', label: 'Median ISK / day', cell: s => formatIsk(s.medianIsk) },
+      { id: 'medianUnits', label: 'Median units / day', cell: s => formatNumberScale(s.medianUnits) },
+      {
+        id: 'medianOrders',
+        label: 'Median orders / day',
+        cell: s => formatNumber(s.medianOrders, s.medianOrders >= 100 ? 0 : 1),
+      },
+      { id: 'daysTraded', label: 'Days traded', cell: s => <DaysTraded summary={s} /> },
+    ],
   },
-  ...WINDOW_FIELDS.map((column): GridColDef => ({
-    field: column.field,
-    headerName: column.headerName,
-    flex: 1,
-    minWidth: 72,
-    align: 'right' as const,
-    headerAlign: 'right' as const,
-    sortable: false,
-    // A custom renderer stops the grid from setting a native title tooltip.
-    renderCell: params => params.value,
-  })),
+  {
+    title: 'Price',
+    metrics: [
+      { id: 'medianPrice', label: 'Median price', cell: s => formatMaybe(s.medianPrice, formatIsk) },
+      { id: 'priceChange', label: 'Price change', cell: s => <PriceChange change={s.priceChange} /> },
+    ],
+  },
+  {
+    title: 'Range',
+    metrics: [
+      { id: 'medianRange', label: 'Median range', cell: s => formatMaybe(s.medianRange, formatShare) },
+      {
+        id: 'iskWeightedRange',
+        label: 'ISK-weighted range',
+        cell: s => formatMaybe(s.iskWeightedRange, formatShare),
+      },
+      {
+        id: 'priceInRange',
+        label: 'Price in range',
+        cell: s => formatMaybe(s.medianPriceInRange, formatShare),
+      },
+    ],
+  },
 ];
 
-export default function MarketHistorySummaryTable(props: { days: MarketHistoryDay[] }) {
-  const summaries = WINDOW_FIELDS.map(column => summarizeWindow(props.days, column.windowDays));
-  const rows = [
-    metricRow('medianPrice', 'Median price', summaries, summary =>
-      formatMaybe(summary.medianPrice, formatIsk)),
-    metricRow('priceChange', 'Price change', summaries, summary =>
-      formatMaybe(summary.priceChange, formatSignedPercent)),
-    metricRow('medianUnits', 'Median units / day', summaries, summary =>
-      formatNumberScale(summary.medianUnits)),
-    metricRow('medianIsk', 'Median ISK / day', summaries, summary =>
-      formatIsk(summary.medianIsk)),
-    metricRow('medianOrders', 'Median orders', summaries, summary =>
-      formatNumber(summary.medianOrders, summary.medianOrders >= 100 ? 0 : 1)),
-    metricRow('daysTraded', 'Days traded', summaries, summary =>
-      `${summary.daysTraded} / ${summary.windowDays}`),
-    metricRow('medianRange', 'Median range', summaries, summary =>
-      formatMaybe(summary.medianRange, formatShare)),
-    metricRow('iskWeightedRange', 'ISK-weighted range', summaries, summary =>
-      formatMaybe(summary.iskWeightedRange, formatShare)),
-    metricRow('priceInRange', 'Price in range', summaries, summary =>
-      formatMaybe(summary.medianPriceInRange, formatShare)),
-  ];
-
+/** The numbers that decide whether an item is worth trading, large, for the last 30 days. */
+export function HistoryHeadline(props: { days: MarketHistoryDay[] }) {
+  const summary = summarizeWindow(props.days, HEADLINE_WINDOW);
+  if (summary === null) {
+    return null;
+  }
   return (
-    <DataGrid
-      rows={rows}
-      columns={summaryColumns}
-      getRowId={row => row.id}
-      disableRowSelectionOnClick
-      disableColumnMenu
-      hideFooter
-    />
+    <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+      <Tile label="ISK / day" help="Median ISK traded per day">
+        {formatIsk(summary.medianIsk)}
+      </Tile>
+      <Tile label="Days traded" help={METRIC_HELP.daysTraded}>
+        <DaysTraded summary={summary} />
+      </Tile>
+      <Tile label="Price change" help={METRIC_HELP.priceChange}>
+        <PriceChange change={summary.priceChange} />
+      </Tile>
+      <Tile label="Median range" help="Median of each day's high-to-low as a share of the high">
+        {formatMaybe(summary.medianRange, formatShare)}
+      </Tile>
+      <Tile label="Units / day" help="Median units traded per day">
+        {formatNumberScale(summary.medianUnits)}
+      </Tile>
+      <Tile label="Median price">{formatMaybe(summary.medianPrice, formatIsk)}</Tile>
+    </Box>
   );
 }
 
-function metricRow(
-  id: string,
-  metric: string,
-  summaries: (WindowSummary | null)[],
-  formatSummary: (summary: WindowSummary) => string,
-) {
-  const cells = Object.fromEntries(WINDOW_FIELDS.map((column, index) => {
-    const summary = summaries[index];
-    return [column.field, summary == null ? '—' : formatSummary(summary)];
-  }));
-  return { id, metric, ...cells };
+export default function MarketHistorySummaryTable(props: { days: MarketHistoryDay[] }) {
+  const summaries = WINDOWS.map(windowDays => summarizeWindow(props.days, windowDays));
+  return (
+    <Table size="small" sx={{ whiteSpace: 'nowrap', '& td, & th': { py: 0.5 } }}>
+      <TableHead>
+        <TableRow>
+          <TableCell />
+          {WINDOWS.map(windowDays => (
+            <TableCell
+              key={windowDays}
+              align="right"
+              sx={windowDays === HEADLINE_WINDOW ? { fontWeight: 'bold' } : undefined}
+            >
+              {windowDays} days
+            </TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {GROUPS.map((group, groupIndex) => [
+          <TableRow key={group.title}>
+            <TableCell
+              colSpan={WINDOWS.length + 1}
+              sx={{
+                bgcolor: 'action.selected',
+                borderTop: groupIndex === 0 ? undefined : 2,
+                borderTopColor: 'divider',
+                color: 'text.primary',
+                fontSize: 12,
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                letterSpacing: 0.5,
+              }}
+            >
+              {group.title}
+            </TableCell>
+          </TableRow>,
+          ...group.metrics.map(metric => (
+            <TableRow key={metric.id}>
+              <TableCell>
+                <MetricLabel label={metric.label} help={METRIC_HELP[metric.id]} />
+              </TableCell>
+              {summaries.map((summary, index) => (
+                <TableCell
+                  key={WINDOWS[index]}
+                  align="right"
+                  sx={WINDOWS[index] === HEADLINE_WINDOW ? { fontWeight: 'bold' } : undefined}
+                >
+                  {summary === null ? '—' : metric.cell(summary)}
+                </TableCell>
+              ))}
+            </TableRow>
+          )),
+        ])}
+      </TableBody>
+    </Table>
+  );
+}
+
+function Tile(props: { label: string; help?: string; children: ReactNode }) {
+  const label = (
+    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+      {props.label}
+    </Typography>
+  );
+  return (
+    <Box
+      sx={{
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 1,
+        bgcolor: 'background.paper',
+        px: 1.5,
+        py: 1,
+        minWidth: 120,
+      }}
+    >
+      {props.help
+        ? <Tooltip title={props.help}><Box sx={{ cursor: 'help' }}>{label}</Box></Tooltip>
+        : label}
+      <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', lineHeight: 1.2 }}>
+        {props.children}
+      </Typography>
+    </Box>
+  );
+}
+
+function MetricLabel(props: { label: string; help?: string }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      {props.label}
+      {props.help != null &&
+        <Tooltip title={props.help}>
+          <Box component="span" sx={{ display: 'inline-flex' }}>
+            <HelpIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+          </Box>
+        </Tooltip>
+      }
+    </Box>
+  );
+}
+
+function daysTradedColor(summary: WindowSummary): string {
+  const share = summary.daysTraded / summary.windowDays;
+  if (share >= 5 / 6) {
+    return 'success.main';
+  }
+  return share >= 2 / 3 ? 'warning.main' : 'error.main';
+}
+
+function DaysTraded({ summary }: { summary: WindowSummary }) {
+  return (
+    <Box component="span" sx={{ color: daysTradedColor(summary) }}>
+      {summary.daysTraded}
+      <Box component="span" sx={{ color: 'text.secondary', fontWeight: 'normal', fontSize: '0.75em' }}>
+        {' / '}{summary.windowDays}
+      </Box>
+    </Box>
+  );
+}
+
+function PriceChange({ change }: { change: number | null }) {
+  if (change === null) {
+    return <>—</>;
+  }
+  const Arrow = change >= 0 ? ArrowDropUpIcon : ArrowDropDownIcon;
+  return (
+    <Box
+      component="span"
+      sx={{
+        color: change === 0 ? 'text.secondary' : change > 0 ? 'success.main' : 'error.main',
+        display: 'inline-flex',
+        alignItems: 'center',
+      }}
+    >
+      {change !== 0 && <Arrow sx={{ fontSize: '1.4em', mx: -0.5 }} />}
+      {formatSignedPercent(change)}
+    </Box>
+  );
 }

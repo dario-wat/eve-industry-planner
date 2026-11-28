@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ECharts, EChartsCoreOption, init, use } from 'echarts/core';
+import { connect, ECharts, EChartsCoreOption, init, use } from 'echarts/core';
 import { BarChart, LineChart, ScatterChart } from 'echarts/charts';
 import {
   GridComponent,
@@ -22,11 +22,14 @@ export default function EChart(props: {
   option: EChartsCoreOption;
   height: number | '100%';
   onClick?: (data: unknown) => void;
+  /** Charts with the same group share hover and tooltip. */
+  group?: string;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<ECharts | null>(null);
   const optionRef = useRef(props.option);
   const onClickRef = useRef(props.onClick);
+  const groupRef = useRef(props.group);
   optionRef.current = props.option;
   onClickRef.current = props.onClick;
 
@@ -37,6 +40,10 @@ export default function EChart(props: {
     }
     const chart = init(host);
     chartRef.current = chart;
+    if (groupRef.current !== undefined) {
+      chart.group = groupRef.current;
+      connect(groupRef.current);
+    }
     chart.setOption(optionRef.current, { notMerge: true });
     chart.on('click', (params) => {
       onClickRef.current?.((params as { data?: unknown }).data);
