@@ -1,5 +1,6 @@
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import { Box, MenuItem, Tab, Tabs, TextField, Tooltip, Typography, useTheme } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import { LoadingButton } from '@mui/lab';
@@ -22,19 +23,22 @@ import TradeCalculator from './TradeCalculator';
 import OrderBookPanel from './OrderBookPanel';
 import YourPositionPanel from './YourPositionPanel';
 import { PanelLoading } from './tradeVisuals';
+import { ItemTab, itemPageAtom } from './itemPageStore';
 import WorkspacePage from 'components/util/WorkspacePage';
-
-type ItemTab = 'trade' | 'history';
 
 export default function MarketHistoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const paramTypeId = typeIdFromSearch(searchParams.get('typeId'));
   const tab: ItemTab = searchParams.get('tab') === 'history' ? 'history' : 'trade';
-  const [typeId, setTypeId] = useState<number | null>(paramTypeId);
+  const [stored, setStored] = useRecoilState(itemPageAtom);
+  const [typeId, setTypeId] = useState<number | null>(paramTypeId ?? stored.typeId);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [historyData, setHistoryData] = useState<MarketHistoryRes | null>(null);
-  const [span, setSpan] = useState<ChartSpan>('90d');
+  const historyData = stored.history !== null && stored.history.typeId === paramTypeId
+    ? stored.history.data
+    : null;
+  const span = stored.span;
+  const setSpan = (next: ChartSpan) => setStored(current => ({ ...current, span: next }));
   const requestId = useRef(0);
   const marketHistoryDays = useMemo(
     () => (historyData == null ? [] : buildMarketHistoryDays(historyData)),
@@ -50,27 +54,45 @@ export default function MarketHistoryPage() {
       if (current !== requestId.current) {
         return;
       }
-      setHistoryData(data);
+      setStored(state => ({ ...state, history: { typeId: id, data } }));
     } catch {
       if (current !== requestId.current) {
         return;
       }
-      setHistoryData(null);
+      setStored(state => ({ ...state, history: null }));
       setError('Could not load item history.');
     } finally {
       if (current === requestId.current) {
         setIsLoading(false);
       }
     }
-  }, []);
+  }, [setStored]);
 
+  useEffect(() => {
+    if (paramTypeId === null && stored.typeId !== null) {
+      setSearchParams({ typeId: String(stored.typeId), tab: stored.tab }, { replace: true });
+    }
+  }, [paramTypeId, stored.typeId, stored.tab, setSearchParams]);
+
+  useEffect(() => {
+    if (paramTypeId !== null) {
+      setStored(state => (state.tab === tab ? state : { ...state, tab }));
+    }
+  }, [paramTypeId, tab, setStored]);
+
+  const cachedHistoryTypeId = stored.history?.typeId ?? null;
   useEffect(() => {
     if (paramTypeId == null) {
       return;
     }
     setTypeId(paramTypeId);
-    void loadHistory(paramTypeId);
-  }, [paramTypeId, loadHistory]);
+    setStored(state => (state.typeId === paramTypeId ? state : { ...state, typeId: paramTypeId }));
+    if (cachedHistoryTypeId !== paramTypeId) {
+      void loadHistory(paramTypeId);
+    }
+    // Only a new item loads history; the cache check must not retrigger it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paramTypeId, loadHistory, setStored]);
 
   const onSubmit = () => {
     if (typeId === null) {
