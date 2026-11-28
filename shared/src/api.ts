@@ -153,6 +153,49 @@ export type MarketOrdersRes = {
   standing: OrderStandingRes | null;
 }[];
 
+export type ActivityKind = 'repriced' | 'appeared' | 'traded';
+
+export type ActivitySideCounts = { repriced: number; appeared: number; unitsTraded: number };
+
+/** One UTC day. Sell side counts only the sell station; buy side the whole stored book. */
+export type TradeActivityDayRes = {
+  date: string;
+  buy: ActivitySideCounts;
+  sell: ActivitySideCounts;
+};
+
+export type TradeActivityStationRes = {
+  locationId: number;
+  locationName: string | null;
+  isBuy: boolean;
+  repriced: number;
+  /** Distinct orders that repriced. */
+  repricingOrders: number;
+  appeared: number;
+  unitsTraded: number;
+};
+
+export type TradeActivityEventRes = {
+  observedAt: string;
+  kind: 'repriced' | 'appeared';
+  orderId: number;
+  locationName: string | null;
+  isBuy: boolean;
+  price: number;
+  previousPrice: number | null;
+};
+
+/** Order book events for one item from the 5-minute poll. */
+export type TradeActivityRes = {
+  sellLocationId: number;
+  sellLocationName: string | null;
+  days: TradeActivityDayRes[];
+  /** Rolling last 24 hours, per station and side. */
+  last24h: TradeActivityStationRes[];
+  /** Newest reprices and new orders first. */
+  recent: TradeActivityEventRes[];
+};
+
 export type OrderStandingRes =
   | { status: 'top'; nextPrice: number | null }
   | {

@@ -43,6 +43,7 @@ export const marketOrderEventModelDefine = (sequelize: Sequelize) =>
       indexes: [
         { fields: ['observed_at'] },
         { fields: ['order_id'] },
+        { fields: ['type_id', 'observed_at'] },
       ],
     },
   );

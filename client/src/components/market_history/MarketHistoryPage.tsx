@@ -24,13 +24,15 @@ import TradeCalculator from './TradeCalculator';
 import OrderBookPanel from './OrderBookPanel';
 import YourPositionPanel from './YourPositionPanel';
 import { PanelLoading } from './tradeVisuals';
-import { ItemTab, itemPageAtom } from './itemPageStore';
+import { ITEM_TABS, ItemTab, itemPageAtom } from './itemPageStore';
+import ActivityPanel from './ActivityPanel';
 import WorkspacePage from 'components/util/WorkspacePage';
 
 export default function MarketHistoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const paramTypeId = typeIdFromSearch(searchParams.get('typeId'));
-  const tab: ItemTab = searchParams.get('tab') === 'history' ? 'history' : 'trade';
+  const tabParam = searchParams.get('tab');
+  const tab: ItemTab = ITEM_TABS.find(t => t === tabParam) ?? 'trade';
   const [stored, setStored] = useRecoilState(itemPageAtom);
   const [typeId, setTypeId] = useState<number | null>(paramTypeId ?? stored.typeId);
   const [isLoading, setIsLoading] = useState(false);
@@ -137,6 +139,7 @@ export default function MarketHistoryPage() {
         onChange={(_, value: ItemTab) => onTabChange(value)}
       >
         <Tab label="Trade" value="trade" />
+        <Tab label="Activity" value="activity" />
         <Tab label="History" value="history" />
       </Tabs>
       {tab === 'trade' && paramTypeId != null && (
@@ -163,6 +166,11 @@ export default function MarketHistoryPage() {
               <YourPositionPanel key={paramTypeId} typeId={paramTypeId} />
             </DashboardPanel>
           </Box>
+        </Box>
+      )}
+      {tab === 'activity' && paramTypeId != null && (
+        <Box sx={{ pt: 2 }}>
+          <ActivityPanel key={paramTypeId} typeId={paramTypeId} />
         </Box>
       )}
       {tab === 'history' && (
