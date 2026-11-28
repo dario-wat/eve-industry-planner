@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import Controller from '../../core/controller/Controller';
 import ActorContext from '../../core/actor_context/ActorContext';
 import TradeService from './TradeService';
-import TradeActivityService from '../market_order_book/TradeActivityService';
+import TradeActivityService from './TradeActivityService';
 
 @Service()
 export default class TradeController extends Controller {

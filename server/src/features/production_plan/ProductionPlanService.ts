@@ -3,7 +3,7 @@ import { secondsToHours } from 'date-fns';
 import { PlannedProduct } from '../planned_product/PlannedProduct';
 import { ProductionPlanRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
-import AssetsService, { mergeAssetQuantities } from '../eve_data/AssetsService';
+import AssetsService, { mergeAssetQuantities } from '../assets/AssetsService';
 import EsiQueryService from '../../core/esi/EsiQueryService';
 import { MaterialPlan } from './MaterialPlan';
 import ActorContext from '../../core/actor_context/ActorContext';

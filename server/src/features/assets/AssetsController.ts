@@ -1,17 +1,14 @@
 import { Request, Response } from 'express';
 import { Service } from 'typedi';
 import AssetsService from './AssetsService';
-import ContractsService from './ContractsService';
 import Controller from '../../core/controller/Controller';
 import ActorContext from '../../core/actor_context/ActorContext';
 
-/** Contains endpoins for fetching data for various pages. */
 @Service()
-export default class EvePagesDataController extends Controller {
+export default class AssetsController extends Controller {
 
   constructor(
     private readonly assetsService: AssetsService,
-    private readonly contractsService: ContractsService,
   ) {
     super();
   }
@@ -30,14 +27,6 @@ export default class EvePagesDataController extends Controller {
       '/assets_locations',
       async (_req: Request, res: Response, actorContext: ActorContext) => {
         const output = await this.assetsService.genAssetLocations(actorContext);
-        res.json(output);
-      },
-    );
-
-    this.appGet(
-      '/contracts',
-      async (_req: Request, res: Response, actorContext: ActorContext) => {
-        const output = await this.contractsService.genDataForPage(actorContext);
         res.json(output);
       },
     );

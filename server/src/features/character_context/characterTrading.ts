@@ -29,6 +29,11 @@ export type NpcStandings = {
   byFaction: ReadonlyMap<number, number>;
 };
 
+export type Trader = {
+  skills: TradeSkills;
+  standings: NpcStandings;
+};
+
 export function tradeSkills(skills: readonly EsiSkill[]): TradeSkills {
   return {
     accounting: activeLevel(skills, ACCOUNTING),

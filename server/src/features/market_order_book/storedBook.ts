@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { TradeBookOrderRes } from '@internal/shared';
-import { MarketOrderOpen } from '../market_order_book/MarketOrderOpen';
+import { MarketOrderOpen } from './MarketOrderOpen';
 
 export type StoredBook = { orders: TradeBookOrderRes[]; observedAt: string | null };
 

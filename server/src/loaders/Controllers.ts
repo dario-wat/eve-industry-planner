@@ -6,17 +6,18 @@ import AccountController from '../core/account/AccountController';
 import EveSdeDataController from '../core/sde/EveSdeDataController';
 import HealthController from '../core/controller/HealthController';
 import MaterialStationController from '../features/material_station/MaterialStationController';
-import EvePagesDataController from '../features/eve_data/EvePagesDataController';
+import AssetsController from '../features/assets/AssetsController';
+import ContractsController from '../features/contracts/ContractsController';
 import PlannedProductController from '../features/planned_product/PlannedProductController';
 import ProductionPlanController from '../features/production_plan/ProductionPlanController';
 import EveLoginController from '../core/controller/EveLoginController';
 import IndustryJobController from '../features/industry_jobs/IndustryJobController';
 import WalletController from '../features/wallet/WalletController';
-import MarketController from '../features/market/MarketController';
+import MarketOrdersController from '../features/market_orders/MarketOrdersController';
 import CharacterContextController from '../features/character_context/CharacterContextController';
 import NetWorthController from '../features/net_worth/NetWorthController';
 import MarketHistoryController from '../features/market_history/MarketHistoryController';
-import TradeController from '../features/fees/TradeController';
+import TradeController from '../features/trade/TradeController';
 import TradeSettingsController from '../features/trade_settings/TradeSettingsController';
 import JobRunController from '../features/job_runs/JobRunController';
 // NOTE: every new controller needs to be added here
@@ -25,7 +26,8 @@ export default class Controllers {
 
   constructor(
     private readonly eveLoginController: EveLoginController,
-    private readonly evePagesDataController: EvePagesDataController,
+    private readonly assetsController: AssetsController,
+    private readonly contractsController: ContractsController,
     private readonly plannedProductController: PlannedProductController,
     private readonly materialStationController: MaterialStationController,
     private readonly productionPlanController: ProductionPlanController,
@@ -33,7 +35,7 @@ export default class Controllers {
     private readonly eveSdeDataController: EveSdeDataController,
     private readonly industryJobController: IndustryJobController,
     private readonly walletController: WalletController,
-    private readonly marketController: MarketController,
+    private readonly marketOrdersController: MarketOrdersController,
     private readonly marketHistoryController: MarketHistoryController,
     private readonly characterContextController: CharacterContextController,
     private readonly netWorthController: NetWorthController,
@@ -53,7 +55,8 @@ export default class Controllers {
     // all other controllers will go through this middleware first
     app.use(loggedOutMiddleware);
 
-    this.evePagesDataController.init(app);
+    this.assetsController.init(app);
+    this.contractsController.init(app);
     this.plannedProductController.init(app);
     this.materialStationController.init(app);
     this.productionPlanController.init(app);
@@ -61,7 +64,7 @@ export default class Controllers {
     this.eveSdeDataController.init(app);
     this.industryJobController.init(app);
     this.walletController.init(app);
-    this.marketController.init(app);
+    this.marketOrdersController.init(app);
     this.marketHistoryController.init(app);
     this.characterContextController.init(app);
     this.netWorthController.init(app);

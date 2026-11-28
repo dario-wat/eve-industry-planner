@@ -7,7 +7,7 @@ import {
   repriceOption,
   roundTrip,
   RoundTripInput,
-} from '@internal/shared';
+} from './tradeFees';
 
 /** Trading Lady as charged in July 2025: Accounting V, 0% owner fee in Perimeter. */
 const PERIMETER: FeeRates = {

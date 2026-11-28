@@ -1,12 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import {
-  buyOrderReaches,
-  competingOrders,
-  orderStanding,
-  TradeBookOrderRes,
-  tradeHubJumps,
-} from '@internal/shared';
+import type { TradeBookOrderRes } from './api';
+import { buyOrderReaches, competingOrders, orderStanding, tradeHubJumps } from './orderBook';
 
 const JITA = 30000142;
 const PERIMETER = 30000144;

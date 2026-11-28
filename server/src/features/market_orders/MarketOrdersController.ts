@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import { Service } from 'typedi';
-import MarketService from './MarketService';
+import MarketOrdersService from './MarketOrdersService';
 import Controller from '../../core/controller/Controller';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { optionalTypeId } from '../../lib/requestParams';
 
 @Service()
-export default class MarketController extends Controller {
+export default class MarketOrdersController extends Controller {
   constructor(
-    private readonly marketService: MarketService,
+    private readonly marketOrdersService: MarketOrdersService,
   ) {
     super();
   }
@@ -23,7 +23,10 @@ export default class MarketController extends Controller {
           res.status(400).send('typeId must be a positive integer');
           return;
         }
-        const output = await this.marketService.genMarketOrdersForAccount(actorContext, typeId);
+        const output = await this.marketOrdersService.genMarketOrdersForAccount(
+          actorContext,
+          typeId,
+        );
         res.json(output);
       }
     );
@@ -37,7 +40,7 @@ export default class MarketController extends Controller {
     this.appPost(
       '/market_comparison',
       async (req: Request, res: Response, actorContext: ActorContext) => {
-        const output = await this.marketService.genMarketOrders(
+        const output = await this.marketOrdersService.genMarketOrders(
           actorContext,
           req.body.stationIds,
           req.body.text

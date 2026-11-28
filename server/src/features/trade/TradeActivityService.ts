@@ -7,9 +7,9 @@ import {
   TradeActivityStationRes,
 } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
-import { MarketOrderEvent } from './MarketOrderEvent';
+import { MarketOrderEvent } from '../market_order_book/MarketOrderEvent';
 import TradeSettingsService from '../trade_settings/TradeSettingsService';
-import LocationNameService from '../fees/LocationNameService';
+import LocationNameService from '../../core/query/LocationNameService';
 import { activityDays, ActivityDayRow, utcDayStart } from './activityDays';
 
 export const ACTIVITY_DAYS = 30;

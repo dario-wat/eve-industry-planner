@@ -7,8 +7,8 @@ import {
   relistDiscount,
   salesTaxRate,
   structureBrokerRate,
-  Trader,
 } from './fees';
+import { Trader } from '../character_context/characterTrading';
 
 const CALDARI_NAVY = 1000035;
 const CALDARI_STATE = 500001;

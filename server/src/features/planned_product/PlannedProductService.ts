@@ -5,7 +5,7 @@ import { PlannedProduct } from './PlannedProduct';
 import { PlannedProductsRes, PlannedProductsWithErrorRes } from '@internal/shared';
 import EveSdeData from '../../core/sde/EveSdeData';
 import EsiQueryService from '../../core/esi/EsiQueryService';
-import AssetsService from '../eve_data/AssetsService';
+import AssetsService from '../assets/AssetsService';
 import { MANUFACTURING } from '../../const/IndustryActivity';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { genQueryFlatResultPerCharacter } from '../../lib/eveUtil';

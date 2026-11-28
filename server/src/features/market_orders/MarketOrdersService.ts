@@ -27,14 +27,14 @@ import {
 } from '@internal/shared';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import CharacterContextService from '../character_context/CharacterContextService';
-import { Trader } from '../fees/fees';
+import { Trader } from '../character_context/characterTrading';
 import FeeResolverService from '../fees/FeeResolverService';
-import LocationNameService from '../fees/LocationNameService';
-import { genStoredBook } from '../fees/bookOrders';
+import LocationNameService from '../../core/query/LocationNameService';
+import { genStoredBook } from '../market_order_book/storedBook';
 import TradeSettingsService from '../trade_settings/TradeSettingsService';
 
 @Service()
-export default class MarketService {
+export default class MarketOrdersService {
   constructor(
     private readonly sdeData: EveSdeData,
     private readonly esiQuery: EsiQueryService,
@@ -138,7 +138,7 @@ export default class MarketService {
       orderId: order.order_id,
       typeId: order.type_id,
       locationId: order.location_id,
-      systemId: order.system_id ?? this.tradeSettingsService.knownSystemId(order.location_id) ?? 0,
+      systemId: order.system_id ?? this.stationService.knownSystemId(order.location_id) ?? 0,
       isBuy: order.is_buy_order ?? false,
       price: order.price,
       volumeRemain: order.volume_remain,

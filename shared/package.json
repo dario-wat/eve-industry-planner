@@ -8,13 +8,16 @@
     "node": ">=26"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --require ts-node/register --test \"src/**/*.test.ts\"",
     "lint": "eslint src --ext .ts"
   },
   "devDependencies": {
+    "@types/node": "^26.6.11",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }

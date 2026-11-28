@@ -6,6 +6,7 @@ import { uniq, zip } from 'underscore';
 import ActorContext from '../../core/actor_context/ActorContext';
 import { combineMapsWithNulls } from '../../lib/util';
 import { genNullOnEsiError } from '../../lib/eveUtil';
+import { PERIMETER, PERIMETER_MARKET_STRUCTURES } from '../../const/IDs';
 
 @Service()
 export default class StationService {
@@ -13,6 +14,14 @@ export default class StationService {
     private readonly esiQuery: EsiQueryService,
     private readonly sdeData: EveSdeData
   ) {}
+
+  /** The Perimeter structures are not in the SDE. Null for other structures. */
+  public knownSystemId(locationId: number): number | null {
+    if (PERIMETER_MARKET_STRUCTURES.includes(locationId)) {
+      return PERIMETER;
+    }
+    return this.sdeData.stations[locationId]?.solar_system_id ?? null;
+  }
 
   /**
    * Fetches the station name.

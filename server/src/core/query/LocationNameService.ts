@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
-import ActorContext from '../../core/actor_context/ActorContext';
-import StationService from '../../core/query/StationService';
-import EveSdeData from '../../core/sde/EveSdeData';
+import ActorContext from '../actor_context/ActorContext';
+import StationService from './StationService';
+import EveSdeData from '../sde/EveSdeData';
 import { STRUCTURE_NICKNAMES } from '../../const/IDs';
 import { shortLocationName } from './locationNames';
 

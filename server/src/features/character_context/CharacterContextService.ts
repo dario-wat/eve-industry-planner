@@ -9,7 +9,6 @@ import ActorContext from '../../core/actor_context/ActorContext';
 import EsiQueryService from '../../core/esi/EsiQueryService';
 import { EsiCharacter } from '../../core/esi/models/EsiCharacter';
 import { genQueryResultPerCharacter } from '../../lib/eveUtil';
-import { Trader } from '../fees/fees';
 import JitaPriceService from '../market_order_book/JitaPriceService';
 import {
   assetValues,
@@ -17,6 +16,7 @@ import {
   npcStandings,
   orderSlots,
   orderValues,
+  Trader,
   TradeSkills,
   tradeSkills,
 } from './characterTrading';

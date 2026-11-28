@@ -39,11 +39,11 @@ From the repo root:
 
 ### Verifying changes
 
-Server unit tests (`*.test.ts` next to the code, `node:test`) cover only a few pure functions. Check work with:
+Unit tests (`*.test.ts` next to the code, `node:test`, in `server` and `shared`) cover only a few pure functions. Check work with:
 
 - `cd server && npx tsc --noEmit -p .` (clean today)
 - `cd client && npx tsc --noEmit -p .` (clean today)
-- `npm test --prefix server`
+- `npm test --prefix server` / `npm test --prefix shared`
 - `cd server && npm run lint` / `cd shared && npm run lint`. Both are clean today.
 
 Rebuild `shared` / `eve-esi` first if you changed them, or the type-check sees the old `dist`.

@@ -1,14 +1,9 @@
 import { FeeRates } from '@internal/shared';
-import { NpcStandings, TradeSkills } from '../character_context/characterTrading';
+import { Trader } from '../character_context/characterTrading';
 
 export type TradeLocation =
   | { kind: 'npc_station'; corporationId: number; factionId: number | null }
   | { kind: 'structure'; ownerBrokerRate: number };
-
-export type Trader = {
-  skills: TradeSkills;
-  standings: NpcStandings;
-};
 
 const NPC_BROKER_BASE = 0.03;
 const NPC_BROKER_PER_BROKER_RELATIONS = 0.003;

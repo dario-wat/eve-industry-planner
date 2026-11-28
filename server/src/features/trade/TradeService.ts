@@ -3,9 +3,9 @@ import { TradeBookRes, TradeFeeRatesRes } from '@internal/shared';
 import ActorContext from '../../core/actor_context/ActorContext';
 import CharacterContextService from '../character_context/CharacterContextService';
 import TradeSettingsService from '../trade_settings/TradeSettingsService';
-import FeeResolverService from './FeeResolverService';
-import LocationNameService from './LocationNameService';
-import { genStoredBook } from './bookOrders';
+import LocationNameService from '../../core/query/LocationNameService';
+import FeeResolverService from '../fees/FeeResolverService';
+import { genStoredBook } from '../market_order_book/storedBook';
 
 @Service()
 export default class TradeService {
