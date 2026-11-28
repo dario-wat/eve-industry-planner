@@ -5,6 +5,10 @@ import CharacterContextService from '../character_context/CharacterContextServic
 import { MarketOrderOpen } from '../market_order_book/MarketOrderOpen';
 import TradeSettingsService from '../trade_settings/TradeSettingsService';
 import FeeResolverService from './FeeResolverService';
+import StationService from '../../core/query/StationService';
+import EveSdeData from '../../core/sde/EveSdeData';
+import { shortLocationName } from './locationNames';
+import { STRUCTURE_NICKNAMES } from '../../const/IDs';
 
 @Service()
 export default class TradeService {
@@ -13,7 +17,12 @@ export default class TradeService {
     private readonly characterContextService: CharacterContextService,
     private readonly feeResolver: FeeResolverService,
     private readonly tradeSettingsService: TradeSettingsService,
+    private readonly stationService: StationService,
+    private readonly sdeData: EveSdeData,
   ) { }
+
+  /** Station names barely ever change, so they are kept for the life of the server. */
+  private readonly locationNames = new Map<number, string>();
 
   /** The account's buy and sell stations, and fee rates there for each selected character. */
   public async genxFeeRates(actorContext: ActorContext): Promise<TradeFeeRatesRes> {
@@ -49,7 +58,7 @@ export default class TradeService {
     };
   }
 
-  public async genxBook(typeId: number): Promise<TradeBookRes> {
+  public async genxBook(actorContext: ActorContext, typeId: number): Promise<TradeBookRes> {
     const orders = await MarketOrderOpen.findAll({
       where: { type_id: typeId, missing: false },
       raw: true,
@@ -58,8 +67,13 @@ export default class TradeService {
       const time = new Date(order.observed_at).getTime();
       return latest === null || time > latest ? time : latest;
     }, null);
+    const locationNames = await this.genLocationNames(
+      actorContext,
+      orders.map((order) => Number(order.location_id)),
+    );
     return {
       observedAt: observedAt === null ? null : new Date(observedAt).toISOString(),
+      locationNames,
       orders: orders.map((order) => ({
         orderId: Number(order.order_id),
         locationId: Number(order.location_id),
@@ -72,5 +86,28 @@ export default class TradeService {
         issued: new Date(order.issued).toISOString(),
       })),
     };
+  }
+
+  private async genLocationNames(
+    actorContext: ActorContext,
+    locationIds: number[],
+  ): Promise<Record<number, string>> {
+    const unknown = [...new Set(locationIds)].filter((id) => !this.locationNames.has(id));
+    if (unknown.length > 0) {
+      const names = await this.stationService.genAllStationNames(actorContext, unknown);
+      for (const id of unknown) {
+        const name = names[id];
+        if (name) {
+          const isNpcStation = this.sdeData.stations[id] !== undefined;
+          this.locationNames.set(
+            id,
+            shortLocationName(name, isNpcStation, STRUCTURE_NICKNAMES[id]),
+          );
+        }
+      }
+    }
+    return Object.fromEntries(locationIds
+      .filter((id) => this.locationNames.has(id))
+      .map((id) => [id, this.locationNames.get(id)!]));
   }
 }

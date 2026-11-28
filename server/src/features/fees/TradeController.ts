@@ -23,13 +23,13 @@ export default class TradeController extends Controller {
 
     this.appGet(
       '/trade_book/:typeId',
-      async (req: Request, res: Response) => {
+      async (req: Request, res: Response, actorContext: ActorContext) => {
         const typeId = Number(req.params.typeId);
         if (!Number.isInteger(typeId) || typeId <= 0) {
           res.status(400).send('typeId must be a positive integer');
           return;
         }
-        res.json(await this.tradeService.genxBook(typeId));
+        res.json(await this.tradeService.genxBook(actorContext, typeId));
       },
     );
   }

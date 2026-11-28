@@ -21,6 +21,7 @@ import MarketHistorySummaryTable from './MarketHistorySummaryTable';
 import TradeCalculator from './TradeCalculator';
 import OrderBookPanel from './OrderBookPanel';
 import YourPositionPanel from './YourPositionPanel';
+import { PanelLoading } from './tradeVisuals';
 import WorkspacePage from 'components/util/WorkspacePage';
 
 type ItemTab = 'trade' | 'history';
@@ -134,7 +135,7 @@ export default function MarketHistoryPage() {
           <Box sx={{ pt: 1.5 }}>
             <DashboardPanel
               title="Your position"
-              help="Open orders and wallet transactions of the characters picked in the character selector. Transactions come from the stored wallet history, synced by the wallet job."
+              help="Open orders and stored wallet transactions of the characters picked in the character selector. Spread is average sell minus average buy over the last 30 days, before fees. Hover a fill's time for the character and station."
             >
               <YourPositionPanel key={paramTypeId} typeId={paramTypeId} />
             </DashboardPanel>
@@ -173,7 +174,8 @@ export default function MarketHistoryPage() {
               </Box>
             )}
           </Box>
-          {marketHistoryDays.length > 0 && (
+          {isLoading && <PanelLoading />}
+          {!isLoading && marketHistoryDays.length > 0 && (
             <Box
               sx={{
                 pt: 2,
@@ -191,7 +193,7 @@ export default function MarketHistoryPage() {
               <HistoryCharts days={marketHistoryDays} span={span} />
             </Box>
           )}
-          {historyData != null && marketHistoryDays.length === 0 && (
+          {!isLoading && historyData != null && marketHistoryDays.length === 0 && (
             <Typography sx={{ pt: 2 }}>No item history for this type.</Typography>
           )}
         </>

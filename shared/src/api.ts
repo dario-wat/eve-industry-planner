@@ -223,6 +223,8 @@ export type TradeBookRes = {
   /** Newest change to any of these orders, not the time of the last poll. */
   observedAt: string | null;
   orders: TradeBookOrderRes[];
+  /** Short name per location ID ("Jita 4-4", "Perimeter TTT"), for the locations ESI could name. */
+  locationNames: Record<number, string>;
 };
 
 /**
