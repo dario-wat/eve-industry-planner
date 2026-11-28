@@ -1,8 +1,8 @@
 [Unit]
-Description=Wallet journal and transactions per character, daily before net worth
+Description=Wallet journal and transactions per character, hourly (the 14:30 run precedes net worth)
 
 [Timer]
-OnCalendar=*-*-* 14:30:00 UTC
+OnCalendar=*-*-* *:30:00 UTC
 Persistent=true
 Unit=eip-job@wallet-sync.service
 

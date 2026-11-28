@@ -87,7 +87,7 @@ systemd user timers run the jobs through `run-job.sh`. No sudo is needed; it rel
 | `eip-order-book` | region order book | every 5 minutes |
 | `eip-history-all` | market history, all tradeable types | 1st of the month, 11:30 |
 | `eip-history-candidates` | market history, candidates only | 2nd–31st, 11:30 |
-| `eip-wallet-sync` | wallet journal and transactions per logged-in character | daily, 14:30 |
+| `eip-wallet-sync` | wallet journal and transactions per logged-in character | hourly, :30 |
 | `eip-net-worth` | net worth per logged-in character | daily, 15:00 |
 
 The history, wallet sync and net worth timers catch up on a missed run after downtime. A job never overlaps itself: systemd skips a tick while the previous run is still going.

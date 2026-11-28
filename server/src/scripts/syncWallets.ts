@@ -10,7 +10,7 @@ import 'dotenv/config';
 import Container from 'typedi';
 import { Sequelize } from 'sequelize';
 import { initDatabase } from '../loaders/initDatabase';
-import WalletService from '../features/wallet/WalletService';
+import WalletSyncService from '../features/wallet/WalletSyncService';
 import { genxRunJob, JobFailure } from '../core/job/runJob';
 
 async function run(): Promise<void> {
@@ -24,7 +24,7 @@ async function run(): Promise<void> {
 
   try {
     await genxRunJob('wallet_sync', async () => {
-      const result = await Container.get(WalletService).genxSyncAllWallets();
+      const result = await Container.get(WalletSyncService).genxSyncAllWallets();
       console.log(
         `Stored ${result.stored.length}, failed ${result.failed.length}, ` +
         `logged out ${result.skippedLoggedOut.length}`,
